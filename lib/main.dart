@@ -109,6 +109,7 @@ class _HomePageState extends State<HomePage> {
   bool isRecording = false;
   String selectedCategory = 'All';
   Set<String> allCategories = {'General'};
+  AACCard? activeParentCard;
 
   @override
   void initState() {
@@ -436,19 +437,9 @@ class _HomePageState extends State<HomePage> {
 
   void _showSubCards(AACCard card) {
     if (card.subCards.isEmpty) return;
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SubCardPage(
-          parentCard: card,
-          currentLanguage: currentLanguage,
-          onSpeak: _speak,
-          onEdit: _editCard,
-          onPlayVoice: _playVoice,
-        ),
-      ),
-    );
+    setState(() {
+      activeParentCard = card;
+    });
   }
 
   Widget _buildDrawer() {
@@ -592,7 +583,10 @@ class _HomePageState extends State<HomePage> {
                   value: cat,
                   groupValue: selectedCategory,
                   onChanged: (value) {
-                    setState(() => selectedCategory = value!);
+                    setState(() {
+                      selectedCategory = value!;
+                      activeParentCard = null;
+                    });
                     Navigator.pop(context);
                   },
                 )),
@@ -684,6 +678,13 @@ class _HomePageState extends State<HomePage> {
     return cards.where((card) => card.category == selectedCategory).toList();
   }
 
+  List<AACCard> _getDisplayedCards() {
+    if (activeParentCard != null) {
+      return activeParentCard!.subCards;
+    }
+    return _getFilteredCards();
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -692,20 +693,47 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('AAC App'),
+        title: Text(
+          activeParentCard == null
+              ? 'AAC App'
+              : activeParentCard!.getLabel(currentLanguage),
+        ),
         backgroundColor: Colors.blue.shade700,
         automaticallyImplyLeading: false,
+        leading: activeParentCard == null
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  setState(() {
+                    activeParentCard = null;
+                  });
+                },
+              ),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
               setState(() {
-                cards.add(AACCard(
-                  id: DateTime.now().toString(),
-                  label: 'New',
-                  colorValue: Colors
-                      .primaries[cards.length % Colors.primaries.length].value,
-                ));
+                if (activeParentCard != null) {
+                  activeParentCard!.subCards.add(
+                    AACCard(
+                      id: '${activeParentCard!.id}-${activeParentCard!.subCards.length + 1}',
+                      label: 'New',
+                      colorValue: Color(activeParentCard!.colorValue)
+                          .withOpacity(0.7)
+                          .value,
+                    ),
+                  );
+                } else {
+                  cards.add(AACCard(
+                    id: DateTime.now().toString(),
+                    label: 'New',
+                    colorValue: Colors.primaries[
+                            cards.length % Colors.primaries.length]
+                        .value,
+                  ));
+                }
               });
               _updateCategories();
               _saveCards();
@@ -763,7 +791,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Expanded(
-            child: _getFilteredCards().isEmpty
+            child: _getDisplayedCards().isEmpty
                 ? Center(
                     child: Text(
                       'No cards in this category. Tap + to add a card!',
@@ -781,9 +809,9 @@ class _HomePageState extends State<HomePage> {
                       mainAxisSpacing: isTablet ? 16 : 12,
                       childAspectRatio: isTablet ? 1.1 : 1.0,
                     ),
-                    itemCount: _getFilteredCards().length,
+                    itemCount: _getDisplayedCards().length,
                     itemBuilder: (context, i) {
-                      final card = _getFilteredCards()[i];
+                      final card = _getDisplayedCards()[i];
                       return _buildCardWidget(card, isTablet);
                     },
                   ),
@@ -907,151 +935,5 @@ class _HomePageState extends State<HomePage> {
     _recorder.dispose();
     _textController.dispose();
     super.dispose();
-  }
-}
-
-// Sub Card Page
-class SubCardPage extends StatelessWidget {
-  final AACCard parentCard;
-  final String currentLanguage;
-  final Function(String) onSpeak;
-  final Function(AACCard) onEdit;
-  final Function(String) onPlayVoice;
-
-  const SubCardPage({
-    Key? key,
-    required this.parentCard,
-    required this.currentLanguage,
-    required this.onSpeak,
-    required this.onEdit,
-    required this.onPlayVoice,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth > 600;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(parentCard.getLabel(currentLanguage)),
-        backgroundColor: Color(parentCard.colorValue),
-      ),
-      body: parentCard.subCards.isEmpty
-          ? Center(
-              child: Text(
-                'No sub-cards yet.\nLong press the parent card to add some!',
-                textAlign: TextAlign.center,
-                style:
-                    TextStyle(fontSize: isTablet ? 18 : 16, color: Colors.grey),
-              ),
-            )
-          : GridView.builder(
-              padding: EdgeInsets.all(isTablet ? 20 : 16),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: isTablet ? 3 : 2,
-                crossAxisSpacing: isTablet ? 16 : 12,
-                mainAxisSpacing: isTablet ? 16 : 12,
-                childAspectRatio: isTablet ? 1.1 : 1.0,
-              ),
-              itemCount: parentCard.subCards.length,
-              itemBuilder: (context, index) {
-                final subCard = parentCard.subCards[index];
-                final displayLabel = subCard.getLabel(currentLanguage);
-
-                return GestureDetector(
-                  onTap: () async {
-                    if (subCard.voicePath != null &&
-                        await File(subCard.voicePath!).exists()) {
-                      onPlayVoice(subCard.voicePath!);
-                    } else {
-                      onSpeak(displayLabel);
-                    }
-                  },
-                  onLongPress: () => onEdit(subCard),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Color(subCard.colorValue),
-                      borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        Column(
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: subCard.imagePath != null
-                                  ? ClipRRect(
-                                      borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(
-                                              isTablet ? 20 : 16)),
-                                      child: Image.file(
-                                        File(subCard.imagePath!),
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return const Center(
-                                            child: Icon(Icons.broken_image,
-                                                size: 60,
-                                                color: Colors.white70),
-                                          );
-                                        },
-                                      ),
-                                    )
-                                  : Center(
-                                      child: Icon(Icons.image,
-                                          size: isTablet ? 80 : 60,
-                                          color: Colors.white70),
-                                    ),
-                            ),
-                            Expanded(
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  displayLabel,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: isTablet ? 20 : 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (subCard.voicePath != null)
-                          Positioned(
-                            top: 8,
-                            left: 8,
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.5),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.mic,
-                                  color: Colors.white, size: 16),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-    );
   }
 }
