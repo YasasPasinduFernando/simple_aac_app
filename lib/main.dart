@@ -37,6 +37,7 @@ class AACCard {
   String category;
   int colorValue;
   List<AACCard> subCards;
+  String type; // 'word' or 'folder'
 
   AACCard({
     required this.id,
@@ -48,6 +49,7 @@ class AACCard {
     this.category = 'General',
     required this.colorValue,
     List<AACCard>? subCards,
+    this.type = 'word',
   }) : subCards = subCards ?? [];
 
   Map<String, dynamic> toJson() => {
@@ -60,6 +62,7 @@ class AACCard {
         'category': category,
         'colorValue': colorValue,
         'subCards': subCards.map((c) => c.toJson()).toList(),
+        'type': type,
       };
 
   factory AACCard.fromJson(Map<String, dynamic> json) => AACCard(
@@ -74,6 +77,7 @@ class AACCard {
         subCards: (json['subCards'] as List?)
             ?.map((c) => AACCard.fromJson(c))
             .toList(),
+        type: json['type'] ?? 'word',
       );
 
   String getLabel(String language) {
@@ -295,6 +299,7 @@ class _HomePageState extends State<HomePage> {
     final controllerSi = TextEditingController(text: card.labelSinhala ?? '');
     final controllerTa = TextEditingController(text: card.labelTamil ?? '');
     String selectedCategory = card.category;
+    String selectedType = card.type;
 
     showDialog(
       context: context,
@@ -343,6 +348,21 @@ class _HomePageState extends State<HomePage> {
                       .toList(),
                   onChanged: (value) {
                     setDialogState(() => selectedCategory = value ?? 'General');
+                  },
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value: selectedType,
+                  decoration: const InputDecoration(
+                    labelText: 'Type',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'word', child: Text('Word')),
+                    DropdownMenuItem(value: 'folder', child: Text('Folder')),
+                  ],
+                  onChanged: (value) {
+                    setDialogState(() => selectedType = value ?? 'word');
                   },
                 ),
                 const SizedBox(height: 16),
@@ -409,6 +429,10 @@ class _HomePageState extends State<HomePage> {
                   card.labelTamil =
                       controllerTa.text.isEmpty ? null : controllerTa.text;
                   card.category = selectedCategory;
+                  card.type = selectedType;
+                  if (card.type == 'word') {
+                    card.subCards.clear();
+                  }
                 });
                 _updateCategories();
                 _saveCards();
@@ -423,6 +447,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _addSubCard(AACCard parentCard) {
+    if (parentCard.type == 'word') return;
     setState(() {
       parentCard.subCards.add(
         AACCard(
@@ -436,7 +461,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showSubCards(AACCard card) {
-    if (card.subCards.isEmpty) return;
+    if (card.type != 'folder' || card.subCards.isEmpty) return;
     setState(() {
       activeParentCard = card;
     });
@@ -832,7 +857,7 @@ class _HomePageState extends State<HomePage> {
           await _speak(displayLabel);
         }
 
-        if (card.subCards.isNotEmpty) {
+        if (card.type == 'folder' && card.subCards.isNotEmpty) {
           _showSubCards(card);
         }
       },
