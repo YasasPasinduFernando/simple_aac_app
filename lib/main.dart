@@ -114,6 +114,7 @@ class _HomePageState extends State<HomePage> {
   String selectedCategory = 'All';
   Set<String> allCategories = {'General'};
   AACCard? activeParentCard;
+  bool isEditMode = false;
 
   @override
   void initState() {
@@ -496,9 +497,14 @@ class _HomePageState extends State<HomePage> {
             onTap: () => _showCategoryDialog(),
           ),
           ListTile(
-            leading: const Icon(Icons.add_circle_outline),
-            title: const Text('Add New Category'),
-            onTap: () => _showAddCategoryDialog(),
+            leading: const Icon(Icons.edit),
+            title: Text(isEditMode ? 'Exit Edit' : 'Edit'),
+            onTap: () {
+              Navigator.pop(context);
+              setState(() {
+                isEditMode = !isEditMode;
+              });
+            },
           ),
           const Divider(),
           ListTile(
@@ -735,40 +741,60 @@ class _HomePageState extends State<HomePage> {
                   });
                 },
               ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              setState(() {
-                if (activeParentCard != null) {
-                  activeParentCard!.subCards.add(
-                    AACCard(
-                      id: '${activeParentCard!.id}-${activeParentCard!.subCards.length + 1}',
-                      label: 'New',
-                      colorValue: Color(activeParentCard!.colorValue)
-                          .withOpacity(0.7)
-                          .value,
-                    ),
-                  );
-                } else {
-                  cards.add(AACCard(
-                    id: DateTime.now().toString(),
-                    label: 'New',
-                    colorValue: Colors.primaries[
-                            cards.length % Colors.primaries.length]
-                        .value,
-                  ));
-                }
-              });
-              _updateCategories();
-              _saveCards();
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-          ),
-        ],
+        actions: isEditMode
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () {
+                    setState(() {
+                      if (activeParentCard != null) {
+                        activeParentCard!.subCards.add(
+                          AACCard(
+                            id:
+                                '${activeParentCard!.id}-${activeParentCard!.subCards.length + 1}',
+                            label: 'New',
+                            colorValue: Color(activeParentCard!.colorValue)
+                                .withOpacity(0.7)
+                                .value,
+                          ),
+                        );
+                      } else {
+                        cards.add(AACCard(
+                          id: DateTime.now().toString(),
+                          label: 'New',
+                          colorValue: Colors.primaries[
+                                  cards.length % Colors.primaries.length]
+                              .value,
+                        ));
+                      }
+                    });
+                    _updateCategories();
+                    _saveCards();
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.check),
+                  onPressed: () {
+                    setState(() {
+                      isEditMode = false;
+                    });
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    setState(() {
+                      isEditMode = false;
+                    });
+                  },
+                ),
+              ]
+            : [
+                IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+                ),
+              ],
       ),
       endDrawer: _buildDrawer(),
       body: Column(
@@ -851,6 +877,10 @@ class _HomePageState extends State<HomePage> {
 
     return GestureDetector(
       onTap: () async {
+        if (isEditMode) {
+          _editCard(card);
+          return;
+        }
         if (card.voicePath != null && await File(card.voicePath!).exists()) {
           await _playVoice(card.voicePath!);
         } else {
@@ -861,7 +891,6 @@ class _HomePageState extends State<HomePage> {
           _showSubCards(card);
         }
       },
-      onLongPress: () => _editCard(card),
       child: Container(
         decoration: BoxDecoration(
           color: Color(card.colorValue),
