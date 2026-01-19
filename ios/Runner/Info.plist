@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key>
+  <string>AAC App</string>
+
+  <key>NSCameraUsageDescription</key>
+  <string>We need camera access to take pictures for communication cards</string>
+
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>We need photo library access to select pictures for communication cards</string>
+
+  <key>NSMicrophoneUsageDescription</key>
+  <string>We need microphone access to record voice for cards</string>
+
+  <key>NSSpeechRecognitionUsageDescription</key>
+  <string>We need speech recognition for text-to-speech features</string>
+
+</dict>
+</plist>
