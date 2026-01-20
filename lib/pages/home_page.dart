@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
 
   List<AACCard> cards = [];
   int gridColumns = 2;
-  int visibleCardCount = 0;
+  Map<String, Set<String>> visibleCardIdsByParent = {};
   String currentLanguage = 'en';
   bool isRecording = false;
   bool showTtsInput = true;
@@ -112,11 +112,40 @@ class _HomePageState extends State<HomePage> {
     }
 
     gridColumns = prefs.getInt('gridColumns') ?? 2;
-    visibleCardCount = prefs.getInt('visibleCardCount') ?? 0;
+    _loadVisibleSelections(prefs);
     showTtsInput = prefs.getBool('showTtsInput') ?? true;
     currentLanguage = prefs.getString('language') ?? 'en';
 
     _updateCategories();
+    _migrateVisibleCountIfNeeded(prefs);
+  }
+
+  void _loadVisibleSelections(SharedPreferences prefs) {
+    final savedMap = prefs.getString('visibleCardIdsByParent');
+    if (savedMap != null) {
+      final decoded = jsonDecode(savedMap) as Map<String, dynamic>;
+      visibleCardIdsByParent = decoded.map(
+        (key, value) => MapEntry(
+          key,
+          (value as List).map((v) => v.toString()).toSet(),
+        ),
+      );
+      return;
+    }
+
+    final savedVisibleIds = prefs.getStringList('visibleCardIds') ?? [];
+    if (savedVisibleIds.isNotEmpty) {
+      visibleCardIdsByParent['__root__'] = savedVisibleIds.toSet();
+    }
+  }
+
+  void _migrateVisibleCountIfNeeded(SharedPreferences prefs) {
+    if (visibleCardIdsByParent.isNotEmpty) return;
+    final legacyCount = prefs.getInt('visibleCardCount') ?? 0;
+    if (legacyCount <= 0) return;
+    final base = _getBaseDisplayedCards();
+    visibleCardIdsByParent['__root__'] =
+        base.take(legacyCount).map((c) => c.id).toSet();
   }
 
   void _updateCategories() {
@@ -135,7 +164,12 @@ class _HomePageState extends State<HomePage> {
     await prefs.setString(
         'cards', jsonEncode(cards.map((c) => c.toJson()).toList()));
     await prefs.setInt('gridColumns', gridColumns);
-    await prefs.setInt('visibleCardCount', visibleCardCount);
+    final encoded = jsonEncode(
+      visibleCardIdsByParent.map(
+        (key, value) => MapEntry(key, value.toList()),
+      ),
+    );
+    await prefs.setString('visibleCardIdsByParent', encoded);
     await prefs.setBool('showTtsInput', showTtsInput);
     await prefs.setString('language', currentLanguage);
   }
@@ -593,34 +627,78 @@ class _HomePageState extends State<HomePage> {
 
   void _showVisibleCountDialog() {
     Navigator.pop(context);
-    if (activeParentCard != null) return;
     final total = _getBaseDisplayedCards().length;
     if (total == 0) return;
+    final allCards = _getBaseDisplayedCards();
+    final selectedIds = _getVisibleSelection().toSet();
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Visible Cards'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView(
-            shrinkWrap: true,
-            children: List.generate(
-              total,
-              (index) => RadioListTile<int>(
-                title: Text('${index + 1}'),
-                value: index + 1,
-                groupValue: visibleCardCount == 0 ? total : visibleCardCount,
-                onChanged: (value) {
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final hasSelection = selectedIds.isNotEmpty;
+          return AlertDialog(
+            title: Row(
+              children: [
+                const Expanded(child: Text('Visible Cards')),
+                IconButton(
+                  icon: Icon(hasSelection ? Icons.clear_all : Icons.select_all),
+                  tooltip: hasSelection ? 'Clear All' : 'Select All',
+                  onPressed: () {
+                    setDialogState(() {
+                      if (hasSelection) {
+                        selectedIds.clear();
+                      } else {
+                        selectedIds
+                          ..clear()
+                          ..addAll(allCards.map((c) => c.id));
+                      }
+                    });
+                  },
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ListView(
+                shrinkWrap: true,
+                children: allCards.map((card) {
+                  final label = card.getLabel(currentLanguage);
+                  final checked = selectedIds.contains(card.id);
+                  return CheckboxListTile(
+                    value: checked,
+                    title: Text(label),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        if (value == true) {
+                          selectedIds.add(card.id);
+                        } else {
+                          selectedIds.remove(card.id);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
                   setState(() {
-                    visibleCardCount = value ?? total;
+                    visibleCardIdsByParent[_visibleSelectionKey()] = selectedIds;
                   });
                   _saveCards();
                   Navigator.pop(context);
                 },
+                child: const Text('Done'),
               ),
-            ),
-          ),
-        ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -654,13 +732,27 @@ class _HomePageState extends State<HomePage> {
 
   List<AACCard> _getDisplayedCards() {
     final base = _getBaseDisplayedCards();
-    if (activeParentCard != null) {
+    final visibleIds = _getVisibleSelection();
+    if (visibleIds.isEmpty) {
       return base;
     }
-    if (visibleCardCount <= 0 || visibleCardCount >= base.length) {
-      return base;
+    return base.where((card) => visibleIds.contains(card.id)).toList();
+  }
+
+  String _visibleSelectionKey() {
+    return activeParentCard?.id ?? '__root__';
+  }
+
+  Set<String> _getVisibleSelection() {
+    return visibleCardIdsByParent[_visibleSelectionKey()] ?? {};
+  }
+
+  String _getVisibleCardsLabel() {
+    final selected = _getVisibleSelection();
+    if (selected.isEmpty) {
+      return 'All cards';
     }
-    return base.take(visibleCardCount).toList();
+    return '${selected.length} selected';
   }
 
   void _toggleEditMode() {
@@ -744,9 +836,7 @@ class _HomePageState extends State<HomePage> {
         selectedCategory: selectedCategory,
         currentLanguageLabel: _getLanguageName(currentLanguage),
         gridColumns: gridColumns,
-        visibleCardCount: visibleCardCount == 0
-            ? _getBaseDisplayedCards().length
-            : visibleCardCount,
+        visibleCardsLabel: _getVisibleCardsLabel(),
         isEditMode: isEditMode,
         showTtsInput: showTtsInput,
         onSelectCategory: _showCategoryDialog,

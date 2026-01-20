@@ -4,7 +4,7 @@ class HomeDrawer extends StatelessWidget {
   final String selectedCategory;
   final String currentLanguageLabel;
   final int gridColumns;
-  final int visibleCardCount;
+  final String visibleCardsLabel;
   final bool isEditMode;
   final bool showTtsInput;
   final VoidCallback onSelectCategory;
@@ -21,7 +21,7 @@ class HomeDrawer extends StatelessWidget {
     required this.selectedCategory,
     required this.currentLanguageLabel,
     required this.gridColumns,
-    required this.visibleCardCount,
+    required this.visibleCardsLabel,
     required this.isEditMode,
     required this.showTtsInput,
     required this.onSelectCategory,
@@ -98,7 +98,7 @@ class HomeDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.filter_1),
             title: const Text('Visible Cards'),
-            subtitle: Text('$visibleCardCount cards'),
+            subtitle: Text(visibleCardsLabel),
             onTap: onShowVisibleCount,
           ),
           const Divider(),
