@@ -587,6 +587,8 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     });
+    final newCardId = parentCard.subCards.last.id;
+    _includeInVisibleSelection(parentCard.id, newCardId);
     _saveCards();
   }
 
@@ -933,6 +935,12 @@ class _HomePageState extends State<HomePage> {
     return '${selected.length} selected';
   }
 
+  void _includeInVisibleSelection(String parentKey, String cardId) {
+    final current = visibleCardIdsByParent[parentKey];
+    if (current == null || current.isEmpty) return;
+    current.add(cardId);
+  }
+
   void _toggleEditMode() {
     Navigator.pop(context);
     setState(() {
@@ -986,6 +994,10 @@ class _HomePageState extends State<HomePage> {
                       Color(activeParentCard!.colorValue).withOpacity(0.7).value,
                 ),
               );
+              _includeInVisibleSelection(
+                activeParentCard!.id,
+                activeParentCard!.subCards.last.id,
+              );
             } else {
               cards.add(AACCard(
                 id: DateTime.now().toString(),
@@ -993,6 +1005,7 @@ class _HomePageState extends State<HomePage> {
                 colorValue: Colors
                     .primaries[cards.length % Colors.primaries.length].value,
               ));
+              _includeInVisibleSelection('__root__', cards.last.id);
             }
           });
           _updateCategories();
