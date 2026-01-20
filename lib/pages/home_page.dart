@@ -17,6 +17,7 @@ import '../services/backup_service.dart';
 import '../widgets/card_editor_dialog.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/home_drawer.dart';
+import '../widgets/landscape_menu.dart';
 import '../widgets/tts_bar.dart';
 import '../widgets/visible_cards_dialog.dart';
 import '../utils/ui_mode_helper.dart';
@@ -52,6 +53,7 @@ class _HomePageState extends State<HomePage> {
   bool isPinned = false;
   DateTime? _lastBackPress;
   final List<TtsToken> _ttsTokens = [];
+  String searchQuery = '';
 
   @override
   void initState() {
@@ -586,6 +588,48 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showSearchDialog() {
+    final controller = TextEditingController(text: searchQuery);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Search'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Search cards',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                searchQuery = '';
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('Clear'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                searchQuery = controller.text.trim();
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('Apply'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildGridOption(int columns, String label) {
     return RadioListTile<int>(
       title: Text(label),
@@ -617,9 +661,19 @@ class _HomePageState extends State<HomePage> {
     final base = _getBaseDisplayedCards();
     final visibleIds = _getVisibleSelection();
     if (visibleIds.isEmpty) {
-      return base;
+      return _filterBySearch(base);
     }
-    return base.where((card) => visibleIds.contains(card.id)).toList();
+    return _filterBySearch(
+        base.where((card) => visibleIds.contains(card.id)).toList());
+  }
+
+  List<AACCard> _filterBySearch(List<AACCard> cardsList) {
+    final query = searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return cardsList;
+    return cardsList
+        .where((card) =>
+            card.getLabel(currentLanguage).toLowerCase().contains(query))
+        .toList();
   }
 
   String _visibleSelectionKey() {
@@ -905,6 +959,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
 
     return WillPopScope(
       onWillPop: () async {
@@ -934,48 +990,50 @@ class _HomePageState extends State<HomePage> {
       },
       child: Scaffold(
         key: _scaffoldKey,
-        appBar: HomeAppBar(
-          title: activeParentCard == null
-              ? 'AAC App'
-              : activeParentCard!.getLabel(currentLanguage),
-          backgroundColor: Colors.blue.shade700,
-          showBack: activeParentCard != null && !isPinned,
-          onBack: () {
-            setState(() {
-              _resetTtsInput();
-              activeParentCard = null;
-            });
-          },
-          showPin: true,
-          isPinned: isPinned,
-          onTogglePin: () {
-            setState(() {
-              isPinned = !isPinned;
-              if (isPinned) {
-                fullScreen = true;
-              }
-            });
-            UiModeHelper.applySystemUi(fullScreen);
-          },
-          isEditMode: isEditMode,
-          showMenu: !isPinned,
-          onAdd: () {
-            if (!isPinned) {
-              _createCard(parent: activeParentCard);
-            }
-          },
-          onDone: () {
-            setState(() {
-              isEditMode = false;
-            });
-          },
-          onCancel: () {
-            setState(() {
-              isEditMode = false;
-            });
-          },
-          onOpenMenu: () => _scaffoldKey.currentState?.openEndDrawer(),
-        ),
+        appBar: isLandscape
+            ? null
+            : HomeAppBar(
+                title: activeParentCard == null
+                    ? 'AAC App'
+                    : activeParentCard!.getLabel(currentLanguage),
+                backgroundColor: Colors.blue.shade700,
+                showBack: activeParentCard != null && !isPinned,
+                onBack: () {
+                  setState(() {
+                    _resetTtsInput();
+                    activeParentCard = null;
+                  });
+                },
+                showPin: true,
+                isPinned: isPinned,
+                onTogglePin: () {
+                  setState(() {
+                    isPinned = !isPinned;
+                    if (isPinned) {
+                      fullScreen = true;
+                    }
+                  });
+                  UiModeHelper.applySystemUi(fullScreen);
+                },
+                isEditMode: isEditMode,
+                showMenu: !isPinned,
+                onAdd: () {
+                  if (!isPinned) {
+                    _createCard(parent: activeParentCard);
+                  }
+                },
+                onDone: () {
+                  setState(() {
+                    isEditMode = false;
+                  });
+                },
+                onCancel: () {
+                  setState(() {
+                    isEditMode = false;
+                  });
+                },
+                onOpenMenu: () => _scaffoldKey.currentState?.openEndDrawer(),
+              ),
         endDrawer: isPinned
             ? null
             : HomeDrawer(
@@ -1015,51 +1073,112 @@ class _HomePageState extends State<HomePage> {
                 onRestore: _restoreWithPicker,
                 onShowAbout: _showAbout,
               ),
-        body: Column(
-          children: [
-          if (showTtsInput)
-            TtsBar(
-              tokens: _ttsTokens,
-              isTablet: isTablet,
-              onDelete: _deleteLastWord,
-              onClear: _clearTtsInput,
-              onSpeak: () {
-                if (_ttsTokens.isNotEmpty) {
-                  final text = _ttsTokens.map((t) => t.label).join(' ');
-                  _speak(text);
-                }
-              },
-            ),
-            Expanded(
-              child: _getDisplayedCards().isEmpty
-                  ? Center(
-                      child: Text(
-                        'No cards in this category. Tap + to add a card!',
-                        style: TextStyle(
-                            fontSize: isTablet ? 18 : 16, color: Colors.grey),
-                      ),
-                    )
-                  : GridView.builder(
-                      controller: _gridController,
-                      padding: EdgeInsets.all(isTablet ? 20 : 12),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: isTablet
-                            ? (gridColumns == 1 ? 2 : gridColumns + 1)
-                            : gridColumns,
-                        crossAxisSpacing: isTablet ? 16 : 12,
-                        mainAxisSpacing: isTablet ? 16 : 12,
-                        childAspectRatio: isTablet ? 1.1 : 1.0,
-                      ),
-                      itemCount: _getDisplayedCards().length,
-                      itemBuilder: (context, i) {
-                        final card = _getDisplayedCards()[i];
-                        return _buildCardWidget(card, isTablet);
+        body: SafeArea(
+          child: isLandscape
+              ? Row(
+                  children: [
+                    LandscapeMenu(
+                      isPinned: isPinned,
+                      canGoBack: activeParentCard != null,
+                      onTogglePin: () {
+                        setState(() {
+                          isPinned = !isPinned;
+                          if (isPinned) {
+                            fullScreen = true;
+                          }
+                        });
+                        UiModeHelper.applySystemUi(fullScreen);
                       },
+                      onOpenMenu: () =>
+                          _scaffoldKey.currentState?.openEndDrawer(),
+                      onGoBack: () {
+                        setState(() {
+                          _resetTtsInput();
+                          activeParentCard = null;
+                        });
+                      },
+                      onHome: () {
+                        setState(() {
+                          selectedCategory = 'All';
+                          activeParentCard = null;
+                          searchQuery = '';
+                          _resetTtsInput();
+                        });
+                      },
+                      onUp: () {
+                        if (!_gridController.hasClients) return;
+                        final next = _gridController.offset - 300;
+                        _gridController.animateTo(
+                          next < 0 ? 0 : next,
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeOut,
+                        );
+                      },
+                      onDown: () {
+                        if (!_gridController.hasClients) return;
+                        final max = _gridController.position.maxScrollExtent;
+                        final next = _gridController.offset + 300;
+                        _gridController.animateTo(
+                          next > max ? max : next,
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeOut,
+                        );
+                      },
+                      onSearch: _showSearchDialog,
                     ),
-            ),
-          ],
+                    Expanded(child: _buildMainContent(isTablet)),
+                  ],
+                )
+              : _buildMainContent(isTablet),
         ),
       ),
+    );
+  }
+
+  Widget _buildMainContent(bool isTablet) {
+    return Column(
+      children: [
+        if (showTtsInput)
+          TtsBar(
+            tokens: _ttsTokens,
+            isTablet: isTablet,
+            onDelete: _deleteLastWord,
+            onClear: _clearTtsInput,
+            onSpeak: () {
+              if (_ttsTokens.isNotEmpty) {
+                final text = _ttsTokens.map((t) => t.label).join(' ');
+                _speak(text);
+              }
+            },
+          ),
+        Expanded(
+          child: _getDisplayedCards().isEmpty
+              ? Center(
+                  child: Text(
+                    'No cards in this category. Tap + to add a card!',
+                    style:
+                        TextStyle(fontSize: isTablet ? 18 : 16, color: Colors.grey),
+                  ),
+                )
+              : GridView.builder(
+                  controller: _gridController,
+                  padding: EdgeInsets.all(isTablet ? 20 : 12),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: isTablet
+                        ? (gridColumns == 1 ? 2 : gridColumns + 1)
+                        : gridColumns,
+                    crossAxisSpacing: isTablet ? 16 : 12,
+                    mainAxisSpacing: isTablet ? 16 : 12,
+                    childAspectRatio: isTablet ? 1.1 : 1.0,
+                  ),
+                  itemCount: _getDisplayedCards().length,
+                  itemBuilder: (context, i) {
+                    final card = _getDisplayedCards()[i];
+                    return _buildCardWidget(card, isTablet);
+                  },
+                ),
+        ),
+      ],
     );
   }
 
