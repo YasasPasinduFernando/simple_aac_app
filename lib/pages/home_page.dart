@@ -204,6 +204,10 @@ class _HomePageState extends State<HomePage> {
     await _audioPlayer.play(DeviceFileSource(path));
   }
 
+  String _safeIdForFile(String raw) {
+    return raw.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+  }
+
   Future<void> _pickImage(AACCard card) async {
     final source = await showDialog<ImageSource>(
       context: context,
@@ -269,7 +273,7 @@ class _HomePageState extends State<HomePage> {
               recordProgress = 0.0;
             });
             if (path != null) {
-              setState(() {
+              setDialogState(() {
                 card.voicePath = path;
               });
               _saveCards();
@@ -287,8 +291,9 @@ class _HomePageState extends State<HomePage> {
             }
 
             final dir = await getApplicationDocumentsDirectory();
+            final safeId = _safeIdForFile(card.id);
             final path =
-                '${dir.path}/voice_${card.id}_${DateTime.now().millisecondsSinceEpoch}.m4a';
+                '${dir.path}/voice_${safeId}_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
             await _recorder.start(const RecordConfig(), path: path);
             recordStart = DateTime.now();
@@ -336,7 +341,16 @@ class _HomePageState extends State<HomePage> {
           }
 
           Future<void> startPlayback() async {
+            if (isDialogRecording) {
+              await stopRecording();
+            }
             if (card.voicePath == null) return;
+            if (!await File(card.voicePath!).exists()) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Recorded file not found')),
+              );
+              return;
+            }
             disposePlayback();
 
             durationSub = _audioPlayer.onDurationChanged.listen((d) {
@@ -357,10 +371,16 @@ class _HomePageState extends State<HomePage> {
               disposePlayback();
             });
 
-            await _audioPlayer.play(DeviceFileSource(card.voicePath!));
-            setDialogState(() {
-              isPlaying = true;
-            });
+            try {
+              await _audioPlayer.play(DeviceFileSource(card.voicePath!));
+              setDialogState(() {
+                isPlaying = true;
+              });
+            } catch (_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Unable to play recorded audio')),
+              );
+            }
           }
 
           return WillPopScope(
@@ -1131,6 +1151,11 @@ class _HomePageState extends State<HomePage> {
           return;
         }
         if (card.type == 'folder') {
+          if (card.voicePath != null && await File(card.voicePath!).exists()) {
+            await _playVoice(card.voicePath!);
+          } else {
+            await _speak(displayLabel);
+          }
           _showSubCards(card);
           return;
         }
