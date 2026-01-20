@@ -372,8 +372,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _addSubCard(AACCard parentCard) {
-    if (parentCard.type == 'word') return;
     setState(() {
+      parentCard.type = 'folder';
       parentCard.subCards.add(
         AACCard(
           id: '${parentCard.id}-${parentCard.subCards.length + 1}',
