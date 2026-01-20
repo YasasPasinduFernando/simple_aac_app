@@ -1,0 +1,84 @@
+import 'package:flutter/material.dart';
+
+class HomeDrawer extends StatelessWidget {
+  final String selectedCategory;
+  final String currentLanguageLabel;
+  final int gridColumns;
+  final bool isEditMode;
+  final VoidCallback onSelectCategory;
+  final VoidCallback onToggleEdit;
+  final VoidCallback onShowLanguage;
+  final VoidCallback onShowGrid;
+  final VoidCallback onShowAbout;
+
+  const HomeDrawer({
+    Key? key,
+    required this.selectedCategory,
+    required this.currentLanguageLabel,
+    required this.gridColumns,
+    required this.isEditMode,
+    required this.onSelectCategory,
+    required this.onToggleEdit,
+    required this.onShowLanguage,
+    required this.onShowGrid,
+    required this.onShowAbout,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue.shade700,
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Icon(Icons.settings, color: Colors.white, size: 40),
+                SizedBox(height: 8),
+                Text(
+                  'Settings',
+                  style: TextStyle(color: Colors.white, fontSize: 24),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.category),
+            title: const Text('Category'),
+            subtitle: Text(selectedCategory),
+            onTap: onSelectCategory,
+          ),
+          ListTile(
+            leading: const Icon(Icons.edit),
+            title: Text(isEditMode ? 'Exit Edit' : 'Edit'),
+            onTap: onToggleEdit,
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: const Text('Language'),
+            subtitle: Text(currentLanguageLabel),
+            onTap: onShowLanguage,
+          ),
+          ListTile(
+            leading: const Icon(Icons.grid_3x3),
+            title: const Text('Grid Layout'),
+            subtitle: Text('$gridColumns columns'),
+            onTap: onShowGrid,
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('About'),
+            onTap: onShowAbout,
+          ),
+        ],
+      ),
+    );
+  }
+}
