@@ -1,24 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:audioplayers/audioplayers.dart';
-import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:record/record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../models/aac_card_model.dart';
+import '../models/tts_token.dart';
+import '../services/backup_service.dart';
+import '../widgets/card_editor_dialog.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/home_drawer.dart';
+import '../widgets/tts_bar.dart';
+import '../widgets/visible_cards_dialog.dart';
+import '../utils/ui_mode_helper.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -27,20 +28,10 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _TtsToken {
-  final String label;
-  final String? imagePath;
-
-  const _TtsToken(this.label, this.imagePath);
-}
-
 class _HomePageState extends State<HomePage> {
-  static const MethodChannel _backupChannel = MethodChannel('aac_backup');
   final FlutterTts _tts = FlutterTts();
   final ImagePicker _picker = ImagePicker();
-  final AudioRecorder _recorder = AudioRecorder();
   final AudioPlayer _audioPlayer = AudioPlayer();
-  final TextEditingController _textController = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController _gridController = ScrollController();
 
@@ -60,7 +51,7 @@ class _HomePageState extends State<HomePage> {
   bool fullScreen = false;
   bool isPinned = false;
   DateTime? _lastBackPress;
-  final List<_TtsToken> _ttsTokens = [];
+  final List<TtsToken> _ttsTokens = [];
 
   @override
   void initState() {
@@ -143,8 +134,8 @@ class _HomePageState extends State<HomePage> {
 
     _updateCategories();
     _migrateVisibleCountIfNeeded(prefs);
-    _applyOrientation();
-    _applySystemUi();
+    UiModeHelper.applyOrientation(orientationMode);
+    UiModeHelper.applySystemUi(fullScreen);
   }
 
   void _loadVisibleSelections(SharedPreferences prefs) {
@@ -222,7 +213,7 @@ class _HomePageState extends State<HomePage> {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
     setState(() {
-      _ttsTokens.add(_TtsToken(trimmed, imagePath));
+      _ttsTokens.add(TtsToken(trimmed, imagePath));
     });
   }
 
@@ -247,10 +238,6 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _playVoice(String path) async {
     await _audioPlayer.play(DeviceFileSource(path));
-  }
-
-  String _safeIdForFile(String raw) {
-    return raw.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
   }
 
   Future<void> _pickImage(AACCard card) async {
@@ -307,360 +294,16 @@ class _HomePageState extends State<HomePage> {
   }) async {
     if (isCardEditorOpen) return;
     isCardEditorOpen = true;
-    final controllerEn = TextEditingController(text: card.label);
-    final controllerSi = TextEditingController(text: card.labelSinhala ?? '');
-    final controllerTa = TextEditingController(text: card.labelTamil ?? '');
-    String selectedCategory = card.category;
-    String selectedType = card.type;
-    bool isDialogRecording = false;
-    double recordProgress = 0.0;
-    Timer? recordTimer;
-    DateTime? recordStart;
-    StreamSubscription<Duration>? positionSub;
-    StreamSubscription<Duration>? durationSub;
-    StreamSubscription<void>? completeSub;
-    Duration playDuration = Duration.zero;
-    Duration playPosition = Duration.zero;
-    bool isPlaying = false;
-    bool createChildAfterClose = false;
-    AACCard? createChildParent;
-
-    await showDialog(
+    final action = await showDialog<CardEditorAction>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          Future<void> stopRecording() async {
-            if (!isDialogRecording) return;
-            recordTimer?.cancel();
-            recordTimer = null;
-            final path = await _recorder.stop();
-            setDialogState(() {
-              isDialogRecording = false;
-              recordProgress = 0.0;
-            });
-            if (path != null) {
-              setDialogState(() {
-                card.voicePath = path;
-              });
-              _saveCards();
-            }
-          }
-
-          Future<void> startRecording() async {
-            if (isDialogRecording) return;
-            final hasPermission = await _recorder.hasPermission();
-            if (!hasPermission) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Microphone permission required')),
-              );
-              return;
-            }
-
-            final dir = await getApplicationDocumentsDirectory();
-            final safeId = _safeIdForFile(card.id);
-            final path =
-                '${dir.path}/voice_${safeId}_${DateTime.now().millisecondsSinceEpoch}.m4a';
-
-            await _recorder.start(const RecordConfig(), path: path);
-            recordStart = DateTime.now();
-            setDialogState(() {
-              isDialogRecording = true;
-              recordProgress = 0.0;
-            });
-
-            recordTimer = Timer.periodic(const Duration(milliseconds: 100), (t) {
-              if (recordStart == null) return;
-              final elapsedMs =
-                  DateTime.now().difference(recordStart!).inMilliseconds;
-              final progress = (elapsedMs / 15000).clamp(0.0, 1.0);
-              setDialogState(() {
-                recordProgress = progress;
-              });
-              if (elapsedMs >= 15000) {
-                stopRecording();
-              }
-            });
-          }
-
-          Future<void> stopRecordingIfNeeded() async {
-            if (isDialogRecording) {
-              await stopRecording();
-            }
-          }
-
-          void disposePlayback() {
-            positionSub?.cancel();
-            durationSub?.cancel();
-            completeSub?.cancel();
-            positionSub = null;
-            durationSub = null;
-            completeSub = null;
-          }
-
-          Future<void> stopPlayback() async {
-            if (!isPlaying) return;
-            await _audioPlayer.stop();
-            setDialogState(() {
-              isPlaying = false;
-              playPosition = Duration.zero;
-            });
-          }
-
-          Future<void> startPlayback() async {
-            if (isDialogRecording) {
-              await stopRecording();
-            }
-            if (card.voicePath == null) return;
-            if (!await File(card.voicePath!).exists()) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Recorded file not found')),
-              );
-              return;
-            }
-            disposePlayback();
-
-            durationSub = _audioPlayer.onDurationChanged.listen((d) {
-              setDialogState(() {
-                playDuration = d;
-              });
-            });
-            positionSub = _audioPlayer.onPositionChanged.listen((p) {
-              setDialogState(() {
-                playPosition = p;
-              });
-            });
-            completeSub = _audioPlayer.onPlayerComplete.listen((_) {
-              setDialogState(() {
-                isPlaying = false;
-                playPosition = Duration.zero;
-              });
-              disposePlayback();
-            });
-
-            try {
-              await _audioPlayer.play(DeviceFileSource(card.voicePath!));
-              setDialogState(() {
-                isPlaying = true;
-              });
-            } catch (_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Unable to play recorded audio')),
-              );
-            }
-          }
-
-          return WillPopScope(
-            onWillPop: () async {
-              await stopRecordingIfNeeded();
-              await stopPlayback();
-              disposePlayback();
-              return true;
-            },
-            child: AlertDialog(
-              title: Text(isNew ? 'Create Card' : 'Edit Card'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: controllerEn,
-                      decoration: const InputDecoration(
-                        labelText: 'English',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: controllerSi,
-                      decoration: const InputDecoration(
-                        labelText: 'Sinhala (?????)',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: controllerTa,
-                      decoration: const InputDecoration(
-                        labelText: 'Tamil (?????)',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      value: selectedCategory,
-                      decoration: const InputDecoration(
-                        labelText: 'Category',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: allCategories
-                          .map((cat) => DropdownMenuItem(
-                                value: cat,
-                                child: Text(cat),
-                              ))
-                          .toList(),
-                      onChanged: (value) {
-                        setDialogState(
-                            () => selectedCategory = value ?? 'General');
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      value: selectedType,
-                      decoration: const InputDecoration(
-                        labelText: 'Type',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'word', child: Text('Word')),
-                        DropdownMenuItem(value: 'folder', child: Text('Folder')),
-                      ],
-                      onChanged: (value) {
-                        setDialogState(() => selectedType = value ?? 'word');
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              _pickImage(card);
-                            },
-                            icon: const Icon(Icons.add_photo_alternate),
-                            label: const Text('Photo'),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () async {
-                              if (isDialogRecording) {
-                                await stopRecording();
-                              } else {
-                                await startRecording();
-                              }
-                            },
-                            icon: Icon(
-                                isDialogRecording ? Icons.stop : Icons.mic),
-                            label: Text(isDialogRecording ? 'Stop' : 'Voice'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  isDialogRecording ? Colors.red : null,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (isDialogRecording)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: Column(
-                          children: [
-                            LinearProgressIndicator(value: recordProgress),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Recording ${(recordProgress * 15).ceil()}/15s',
-                            ),
-                          ],
-                        ),
-                      ),
-                    if (card.voicePath != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(isPlaying
-                                      ? Icons.stop
-                                      : Icons.play_arrow),
-                                  onPressed: () async {
-                                    if (isPlaying) {
-                                      await stopPlayback();
-                                    } else {
-                                      await startPlayback();
-                                    }
-                                  },
-                                ),
-                                const Text('Play Recorded Voice'),
-                              ],
-                            ),
-                            Slider(
-                              value: playDuration.inMilliseconds == 0
-                                  ? 0
-                                  : playPosition.inMilliseconds
-                                      .clamp(0, playDuration.inMilliseconds)
-                                      .toDouble(),
-                              max: playDuration.inMilliseconds == 0
-                                  ? 1
-                                  : playDuration.inMilliseconds.toDouble(),
-                              onChanged: (value) async {
-                                if (playDuration.inMilliseconds == 0) return;
-                                final position =
-                                    Duration(milliseconds: value.toInt());
-                                await _audioPlayer.seek(position);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      onPressed: isNew
-                          ? null
-                          : () {
-                              createChildAfterClose = true;
-                              createChildParent = card;
-                              Navigator.pop(context);
-                            },
-                      icon: const Icon(Icons.add_box),
-                      label: const Text('Add Sub-Card'),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () async {
-                    await stopRecordingIfNeeded();
-                    await stopPlayback();
-                    disposePlayback();
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    await stopRecordingIfNeeded();
-                    await stopPlayback();
-                    disposePlayback();
-                    setState(() {
-                      card.label = controllerEn.text;
-                      card.labelSinhala =
-                          controllerSi.text.isEmpty ? null : controllerSi.text;
-                      card.labelTamil =
-                          controllerTa.text.isEmpty ? null : controllerTa.text;
-                      card.category = selectedCategory;
-                      card.type = selectedType;
-                      if (card.type == 'word') {
-                        card.subCards.clear();
-                      }
-                    });
-                    if (onSave != null) {
-                      onSave(card);
-                    } else {
-                      _updateCategories();
-                      _saveCards();
-                    }
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Save'),
-                ),
-              ],
-            ),
-          );
+      builder: (context) => CardEditorDialog(
+        card: card,
+        isNew: isNew,
+        categories: allCategories.toList(),
+        audioPlayer: _audioPlayer,
+        onPickImage: () {
+          Navigator.pop(context);
+          _pickImage(card);
         },
       ),
     );
@@ -671,8 +314,15 @@ class _HomePageState extends State<HomePage> {
     } else {
       isCardEditorOpen = false;
     }
-    if (createChildAfterClose && createChildParent != null) {
-      _createCard(parent: createChildParent);
+    if (action == CardEditorAction.addSubCard) {
+      _createCard(parent: card);
+    } else if (action == CardEditorAction.saved) {
+      if (onSave != null) {
+        onSave(card);
+      } else {
+        _updateCategories();
+        _saveCards();
+      }
     }
   }
 
@@ -920,99 +570,17 @@ class _HomePageState extends State<HomePage> {
     final total = _getBaseDisplayedCards().length;
     if (total == 0) return;
     final allCards = _getBaseDisplayedCards();
-    final selectedIds = _getVisibleSelection().toSet();
-
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          final hasSelection = selectedIds.isNotEmpty;
-          return AlertDialog(
-            title: Row(
-              children: [
-                const Expanded(child: Text('Visible Cards')),
-                IconButton(
-                  icon: Icon(hasSelection ? Icons.clear_all : Icons.select_all),
-                  tooltip: hasSelection ? 'Clear All' : 'Select All',
-                  onPressed: () {
-                    setDialogState(() {
-                      if (hasSelection) {
-                        selectedIds.clear();
-                      } else {
-                        selectedIds
-                          ..clear()
-                          ..addAll(allCards.map((c) => c.id));
-                      }
-                    });
-                  },
-                ),
-              ],
-            ),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: ListView(
-                shrinkWrap: true,
-                children: allCards.map((card) {
-                  final label = card.getLabel(currentLanguage);
-                  final checked = selectedIds.contains(card.id);
-                  final isFolder = card.type == 'folder';
-                  return CheckboxListTile(
-                    value: checked,
-                    title: Row(
-                      children: [
-                        Text(label),
-                        if (isFolder) ...[
-                          const SizedBox(width: 6),
-                          const Icon(Icons.folder, size: 16),
-                        ],
-                      ],
-                    ),
-                    secondary: ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: SizedBox(
-                        width: 32,
-                        height: 32,
-                        child: card.imagePath != null
-                            ? Image.file(
-                                File(card.imagePath!),
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(Icons.image, size: 18);
-                                },
-                              )
-                            : const Icon(Icons.image, size: 18),
-                      ),
-                    ),
-                    onChanged: (value) {
-                      setDialogState(() {
-                        if (value == true) {
-                          selectedIds.add(card.id);
-                        } else {
-                          selectedIds.remove(card.id);
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    visibleCardIdsByParent[_visibleSelectionKey()] = selectedIds;
-                  });
-                  _saveCards();
-                  Navigator.pop(context);
-                },
-                child: const Text('Done'),
-              ),
-            ],
-          );
+      builder: (context) => VisibleCardsDialog(
+        cards: allCards,
+        currentLanguage: currentLanguage,
+        initialSelectedIds: _getVisibleSelection().toSet(),
+        onSubmit: (selectedIds) {
+          setState(() {
+            visibleCardIdsByParent[_visibleSelectionKey()] = selectedIds;
+          });
+          _saveCards();
         },
       ),
     );
@@ -1083,27 +651,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _applyOrientation() {
-    if (orientationMode == 'landscape') {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-    } else {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-      ]);
-    }
-  }
-
-  void _applySystemUi() {
-    if (fullScreen) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    } else {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    }
-  }
-
   void _showOrientationDialog() {
     Navigator.pop(context);
     showDialog(
@@ -1120,7 +667,7 @@ class _HomePageState extends State<HomePage> {
               onChanged: (value) {
                 setState(() => orientationMode = value ?? 'portrait');
                 _saveCards();
-                _applyOrientation();
+                UiModeHelper.applyOrientation(orientationMode);
                 Navigator.pop(context);
               },
             ),
@@ -1131,7 +678,7 @@ class _HomePageState extends State<HomePage> {
               onChanged: (value) {
                 setState(() => orientationMode = value ?? 'landscape');
                 _saveCards();
-                _applyOrientation();
+                UiModeHelper.applyOrientation(orientationMode);
                 Navigator.pop(context);
               },
             ),
@@ -1139,88 +686,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  String _basename(String path) {
-    final normalized = path.replaceAll('\\', '/');
-    final parts = normalized.split('/');
-    return parts.isEmpty ? path : parts.last;
-  }
-
-  Future<void> _backupToDirectory(
-    Directory backupDir, {
-    bool showSnack = true,
-  }) async {
-    final docsDir = await getApplicationDocumentsDirectory();
-    final filesDir = Directory('${backupDir.path}/files');
-
-    if (!await backupDir.exists()) {
-      await backupDir.create(recursive: true);
-    }
-    if (!await filesDir.exists()) {
-      await filesDir.create(recursive: true);
-    }
-
-    final Map<String, String> pathMap = {};
-    final Map<String, int> nameCounts = {};
-
-    Future<String?> copyMedia(String? path) async {
-      if (path == null) return null;
-      final file = File(path);
-      if (!await file.exists()) return null;
-      if (pathMap.containsKey(path)) return pathMap[path];
-
-      final base = _basename(path);
-      final dot = base.lastIndexOf('.');
-      final name = dot == -1 ? base : base.substring(0, dot);
-      final ext = dot == -1 ? '' : base.substring(dot);
-      final count = (nameCounts[base] ?? 0) + 1;
-      nameCounts[base] = count;
-      final fileName = count == 1 ? base : '${name}_$count$ext';
-      final destPath = '${filesDir.path}/$fileName';
-
-      await file.copy(destPath);
-      final relPath = 'files/$fileName';
-      pathMap[path] = relPath;
-      return relPath;
-    }
-
-    Future<AACCard> cloneCard(AACCard card) async {
-      final imagePath = await copyMedia(card.imagePath);
-      final voicePath = await copyMedia(card.voicePath);
-      final cloned = AACCard(
-        id: card.id,
-        label: card.label,
-        labelSinhala: card.labelSinhala,
-        labelTamil: card.labelTamil,
-        imagePath: imagePath,
-        voicePath: voicePath,
-        category: card.category,
-        colorValue: card.colorValue,
-        type: card.type,
-        subCards: [],
-      );
-      for (final sub in card.subCards) {
-        cloned.subCards.add(await cloneCard(sub));
-      }
-      return cloned;
-    }
-
-    final List<AACCard> clonedCards = [];
-    for (final card in cards) {
-      clonedCards.add(await cloneCard(card));
-    }
-
-    final manifestFile = File('${backupDir.path}/cards.json');
-    await manifestFile.writeAsString(
-      jsonEncode(clonedCards.map((c) => c.toJson()).toList()),
-    );
-
-    if (showSnack) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Backup saved to ${backupDir.path}')),
-      );
-    }
   }
 
   Future<void> _backupWithPicker() async {
@@ -1261,68 +726,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Deprecated: replaced by share-based backup.
-
-  Future<void> _restoreFromDirectory(Directory backupDir) async {
-    final docsDir = await getApplicationDocumentsDirectory();
-    final manifestFile = File('${backupDir.path}/cards.json');
-    if (!await manifestFile.exists()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Backup not found')),
-      );
-      return;
-    }
-
-    final decoded = jsonDecode(await manifestFile.readAsString()) as List;
-    final restored = decoded.map((c) => AACCard.fromJson(c)).toList();
-
-    Future<String?> restoreMedia(String? relPath) async {
-      if (relPath == null) return null;
-      final sourcePath = '${backupDir.path}/${relPath.replaceAll('\\', '/')}';
-      final sourceFile = File(sourcePath);
-      if (!await sourceFile.exists()) return null;
-
-      final base = _basename(sourcePath);
-      final destPath = '${docsDir.path}/$base';
-      var targetPath = destPath;
-      var counter = 1;
-      while (await File(targetPath).exists()) {
-        final dot = base.lastIndexOf('.');
-        final name = dot == -1 ? base : base.substring(0, dot);
-        final ext = dot == -1 ? '' : base.substring(dot);
-        targetPath = '${docsDir.path}/${name}_$counter$ext';
-        counter++;
-      }
-      await sourceFile.copy(targetPath);
-      return targetPath;
-    }
-
-    Future<void> fixCard(AACCard card) async {
-      card.imagePath = await restoreMedia(card.imagePath);
-      card.voicePath = await restoreMedia(card.voicePath);
-      for (final sub in card.subCards) {
-        await fixCard(sub);
-      }
-    }
-
-    for (final card in restored) {
-      await fixCard(card);
-    }
-
-    setState(() {
-      cards = restored;
-      activeParentCard = null;
-      selectedCategory = 'All';
-      visibleCardIdsByParent.clear();
-    });
-    _updateCategories();
-    _saveCards();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Backup restored from ${backupDir.path}')),
-    );
-  }
-
   Future<void> _restoreWithPicker() async {
     Navigator.pop(context);
     showDialog(
@@ -1358,7 +761,7 @@ class _HomePageState extends State<HomePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Backup started...')),
     );
-    final zipBytes = await _buildBackupZip();
+    final zipBytes = await BackupService.buildBackupZip(cards);
     if (zipBytes == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Backup failed to create zip')),
@@ -1378,7 +781,7 @@ class _HomePageState extends State<HomePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Backup started...')),
     );
-    final zipBytes = await _buildBackupZip();
+    final zipBytes = await BackupService.buildBackupZip(cards);
     if (zipBytes == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Backup failed to create zip')),
@@ -1389,7 +792,7 @@ class _HomePageState extends State<HomePage> {
     await Permission.storage.request();
 
     try {
-      final savedPath = await _saveZipToDownloads(zipBytes);
+      final savedPath = await BackupService.saveZipToDownloads(zipBytes);
       if (savedPath == null) {
         throw Exception('Downloads save failed');
       }
@@ -1397,7 +800,7 @@ class _HomePageState extends State<HomePage> {
         SnackBar(content: Text('Backup saved to $savedPath')),
       );
     } catch (_) {
-      final fallback = await _saveBackupToAppDocs(zipBytes);
+      final fallback = await BackupService.saveZipToAppDocs(zipBytes);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -1405,21 +808,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       );
-    }
-  }
-
-  Future<String?> _saveZipToDownloads(List<int> zipBytes) async {
-    try {
-      final result = await _backupChannel.invokeMethod<String>(
-        'saveToDownloads',
-        {
-          'fileName': 'aac_backup.zip',
-          'bytes': Uint8List.fromList(zipBytes),
-        },
-      );
-      return result;
-    } on PlatformException {
-      return null;
     }
   }
 
@@ -1436,44 +824,43 @@ class _HomePageState extends State<HomePage> {
 
     final picked = result.files.single;
     final zipBytes = picked.bytes;
-    final zipPath = picked.path;
-    final tempDir = await Directory.systemTemp.createTemp('aac_restore_');
-    if (zipBytes != null) {
-      await _extractZipBytesToDirectory(zipBytes, tempDir);
-    } else if (zipPath != null) {
-      await _extractZipToDirectory(zipPath, tempDir);
-    } else {
-      await tempDir.delete(recursive: true);
+    if (zipBytes == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cannot read selected backup')),
       );
       return;
     }
-
-    final directManifest = File('${tempDir.path}/cards.json');
-    final nestedManifest = File('${tempDir.path}/AAC_Backup/cards.json');
-    if (await directManifest.exists()) {
-      await _restoreFromDirectory(tempDir);
-    } else if (await nestedManifest.exists()) {
-      await _restoreFromDirectory(Directory('${tempDir.path}/AAC_Backup'));
-    } else {
+    final restored = await BackupService.restoreFromZipBytes(zipBytes);
+    if (restored.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Backup not found in selected file')),
       );
+      return;
     }
+    _applyRestoredCards(restored);
+  }
 
-    await tempDir.delete(recursive: true);
+  void _applyRestoredCards(List<AACCard> restored) {
+    setState(() {
+      cards = restored;
+      activeParentCard = null;
+      selectedCategory = 'All';
+      visibleCardIdsByParent.clear();
+      _resetTtsInput();
+    });
+    _updateCategories();
+    _saveCards();
   }
 
   Future<void> _backupToAppDocsZip() async {
-    final zipBytes = await _buildBackupZip();
+    final zipBytes = await BackupService.buildBackupZip(cards);
     if (zipBytes == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Backup failed to create zip')),
       );
       return;
     }
-    final path = await _saveBackupToAppDocs(zipBytes);
+    final path = await BackupService.saveZipToAppDocs(zipBytes);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Backup saved to $path')),
     );
@@ -1488,91 +875,16 @@ class _HomePageState extends State<HomePage> {
       );
       return;
     }
-    final tempDir = await Directory.systemTemp.createTemp('aac_restore_');
-    await _extractZipToDirectory(zipFile.path, tempDir);
-
-    final directManifest = File('${tempDir.path}/cards.json');
-    final nestedManifest = File('${tempDir.path}/AAC_Backup/cards.json');
-    if (await directManifest.exists()) {
-      await _restoreFromDirectory(tempDir);
-    } else if (await nestedManifest.exists()) {
-      await _restoreFromDirectory(Directory('${tempDir.path}/AAC_Backup'));
-    } else {
+    final restored = await BackupService.restoreFromZipBytes(
+      await zipFile.readAsBytes(),
+    );
+    if (restored.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Backup not found in app folder file')),
       );
+      return;
     }
-    await tempDir.delete(recursive: true);
-  }
-
-  List<int> _zipDirectory(Directory dir) {
-    final archive = Archive();
-    final rootPath = dir.path.replaceAll('\\', '/');
-    for (final entity in dir.listSync(recursive: true)) {
-      if (entity is File) {
-        final filePath = entity.path.replaceAll('\\', '/');
-        final relPath = filePath.startsWith(rootPath)
-            ? filePath.substring(rootPath.length + 1)
-            : filePath;
-        final data = entity.readAsBytesSync();
-        archive.addFile(ArchiveFile(relPath, data.length, data));
-      }
-    }
-    final zipEncoder = ZipEncoder();
-    return zipEncoder.encode(archive) ?? <int>[];
-  }
-
-  Future<List<int>?> _buildBackupZip() async {
-    final tempDir = await Directory.systemTemp.createTemp('aac_backup_');
-    final backupRoot = Directory('${tempDir.path}/AAC_Backup');
-    try {
-      await _backupToDirectory(backupRoot, showSnack: false);
-      final zipBytes = _zipDirectory(backupRoot);
-      return zipBytes;
-    } finally {
-      await tempDir.delete(recursive: true);
-    }
-  }
-
-  Future<String> _saveBackupToAppDocs(List<int> zipBytes) async {
-    final docsDir = await getApplicationDocumentsDirectory();
-    final path = '${docsDir.path}/aac_backup.zip';
-    await File(path).writeAsBytes(zipBytes, flush: true);
-    return path;
-  }
-
-  Future<void> _extractZipToDirectory(String zipPath, Directory target) async {
-    final bytes = await File(zipPath).readAsBytes();
-    final archive = ZipDecoder().decodeBytes(bytes);
-    for (final file in archive) {
-      final name = file.name.replaceAll('\\', '/');
-      final outPath = '${target.path}/$name';
-      if (file.isFile) {
-        final outFile = File(outPath);
-        await outFile.parent.create(recursive: true);
-        await outFile.writeAsBytes(file.content as List<int>, flush: true);
-      } else {
-        await Directory(outPath).create(recursive: true);
-      }
-    }
-  }
-
-  Future<void> _extractZipBytesToDirectory(
-    List<int> bytes,
-    Directory target,
-  ) async {
-    final archive = ZipDecoder().decodeBytes(bytes);
-    for (final file in archive) {
-      final name = file.name.replaceAll('\\', '/');
-      final outPath = '${target.path}/$name';
-      if (file.isFile) {
-        final outFile = File(outPath);
-        await outFile.parent.create(recursive: true);
-        await outFile.writeAsBytes(file.content as List<int>, flush: true);
-      } else {
-        await Directory(outPath).create(recursive: true);
-      }
-    }
+    _applyRestoredCards(restored);
   }
 
   void _showAbout() {
@@ -1604,7 +916,7 @@ class _HomePageState extends State<HomePage> {
         }
         if (activeParentCard != null) {
           setState(() {
-            _textController.clear();
+            _resetTtsInput();
             activeParentCard = null;
           });
           return false;
@@ -1643,7 +955,7 @@ class _HomePageState extends State<HomePage> {
                 fullScreen = true;
               }
             });
-            _applySystemUi();
+            UiModeHelper.applySystemUi(fullScreen);
           },
           isEditMode: isEditMode,
           showMenu: !isPinned,
@@ -1694,7 +1006,7 @@ class _HomePageState extends State<HomePage> {
                     fullScreen = !fullScreen;
                   });
                   _saveCards();
-                  _applySystemUi();
+                  UiModeHelper.applySystemUi(fullScreen);
                 },
                 onShowLanguage: _showLanguageDialog,
                 onShowGrid: _showGridOptions,
@@ -1706,125 +1018,17 @@ class _HomePageState extends State<HomePage> {
         body: Column(
           children: [
           if (showTtsInput)
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: isTablet ? 16 : 12,
-                vertical: isTablet ? 10 : 8,
-              ),
-              color: Colors.grey.shade200,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: _ttsTokens.map((token) {
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 6),
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                border:
-                                    Border.all(color: Colors.grey.shade300),
-                              ),
-                              child: Row(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(6),
-                                    child: SizedBox(
-                                      width: 26,
-                                      height: 26,
-                                      child: token.imagePath != null
-                                          ? Image.file(
-                                              File(token.imagePath!),
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return const Icon(Icons.image,
-                                                    size: 16);
-                                              },
-                                              )
-                                          : const Icon(Icons.image, size: 16),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    token.label,
-                                    style: TextStyle(
-                                      fontSize: isTablet ? 14 : 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: _deleteLastWord,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.backspace, size: 18),
-                              SizedBox(height: 2),
-                              Text(
-                                'Delete',
-                                style: TextStyle(fontSize: 9),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 2),
-                      InkWell(
-                        onTap: _clearTtsInput,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.clear, size: 18),
-                              SizedBox(height: 2),
-                              Text(
-                                'Clear',
-                                style: TextStyle(fontSize: 9),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 6),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade700,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: Icon(Icons.volume_up, size: isTablet ? 36 : 28),
-                      color: Colors.white,
-                      onPressed: () {
-                        if (_ttsTokens.isNotEmpty) {
-                          final text =
-                              _ttsTokens.map((t) => t.label).join(' ');
-                          _speak(text);
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
+            TtsBar(
+              tokens: _ttsTokens,
+              isTablet: isTablet,
+              onDelete: _deleteLastWord,
+              onClear: _clearTtsInput,
+              onSpeak: () {
+                if (_ttsTokens.isNotEmpty) {
+                  final text = _ttsTokens.map((t) => t.label).join(' ');
+                  _speak(text);
+                }
+              },
             ),
             Expanded(
               child: _getDisplayedCards().isEmpty
@@ -2001,8 +1205,6 @@ class _HomePageState extends State<HomePage> {
     _highlightTimer?.cancel();
     _tts.stop();
     _audioPlayer.dispose();
-    _recorder.dispose();
-    _textController.dispose();
     _gridController.dispose();
     super.dispose();
   }

@@ -1,0 +1,219 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:archive/archive.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+
+import '../models/aac_card_model.dart';
+
+class BackupService {
+  static const MethodChannel _channel = MethodChannel('aac_backup');
+
+  static String _basename(String path) {
+    final normalized = path.replaceAll('\\', '/');
+    final parts = normalized.split('/');
+    return parts.isEmpty ? path : parts.last;
+  }
+
+  static Future<void> _writeBackupToDirectory(
+    List<AACCard> cards,
+    Directory backupDir,
+  ) async {
+    final docsDir = await getApplicationDocumentsDirectory();
+    final filesDir = Directory('${backupDir.path}/files');
+
+    if (!await backupDir.exists()) {
+      await backupDir.create(recursive: true);
+    }
+    if (!await filesDir.exists()) {
+      await filesDir.create(recursive: true);
+    }
+
+    final Map<String, String> pathMap = {};
+    final Map<String, int> nameCounts = {};
+
+    Future<String?> copyMedia(String? path) async {
+      if (path == null) return null;
+      final file = File(path);
+      if (!await file.exists()) return null;
+      if (pathMap.containsKey(path)) return pathMap[path];
+
+      final base = _basename(path);
+      final dot = base.lastIndexOf('.');
+      final name = dot == -1 ? base : base.substring(0, dot);
+      final ext = dot == -1 ? '' : base.substring(dot);
+      final count = (nameCounts[base] ?? 0) + 1;
+      nameCounts[base] = count;
+      final fileName = count == 1 ? base : '${name}_$count$ext';
+      final destPath = '${filesDir.path}/$fileName';
+
+      await file.copy(destPath);
+      final relPath = 'files/$fileName';
+      pathMap[path] = relPath;
+      return relPath;
+    }
+
+    Future<AACCard> cloneCard(AACCard card) async {
+      final imagePath = await copyMedia(card.imagePath);
+      final voicePath = await copyMedia(card.voicePath);
+      final cloned = AACCard(
+        id: card.id,
+        label: card.label,
+        labelSinhala: card.labelSinhala,
+        labelTamil: card.labelTamil,
+        imagePath: imagePath,
+        voicePath: voicePath,
+        category: card.category,
+        colorValue: card.colorValue,
+        type: card.type,
+        subCards: [],
+      );
+      for (final sub in card.subCards) {
+        cloned.subCards.add(await cloneCard(sub));
+      }
+      return cloned;
+    }
+
+    final List<AACCard> clonedCards = [];
+    for (final card in cards) {
+      clonedCards.add(await cloneCard(card));
+    }
+
+    final manifestFile = File('${backupDir.path}/cards.json');
+    await manifestFile.writeAsString(
+      jsonEncode(clonedCards.map((c) => c.toJson()).toList()),
+    );
+  }
+
+  static List<int> _zipDirectory(Directory dir) {
+    final archive = Archive();
+    final rootPath = dir.path.replaceAll('\\', '/');
+    for (final entity in dir.listSync(recursive: true)) {
+      if (entity is File) {
+        final filePath = entity.path.replaceAll('\\', '/');
+        final relPath = filePath.startsWith(rootPath)
+            ? filePath.substring(rootPath.length + 1)
+            : filePath;
+        final data = entity.readAsBytesSync();
+        archive.addFile(ArchiveFile(relPath, data.length, data));
+      }
+    }
+    final zipEncoder = ZipEncoder();
+    return zipEncoder.encode(archive) ?? <int>[];
+  }
+
+  static Future<List<int>?> buildBackupZip(List<AACCard> cards) async {
+    final tempDir = await Directory.systemTemp.createTemp('aac_backup_');
+    final backupRoot = Directory('${tempDir.path}/AAC_Backup');
+    try {
+      await _writeBackupToDirectory(cards, backupRoot);
+      return _zipDirectory(backupRoot);
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  }
+
+  static Future<String> saveZipToAppDocs(List<int> zipBytes) async {
+    final docsDir = await getApplicationDocumentsDirectory();
+    final path = '${docsDir.path}/aac_backup.zip';
+    await File(path).writeAsBytes(zipBytes, flush: true);
+    return path;
+  }
+
+  static Future<String?> saveZipToDownloads(List<int> zipBytes) async {
+    try {
+      return await _channel.invokeMethod<String>(
+        'saveToDownloads',
+        {
+          'fileName': 'aac_backup.zip',
+          'bytes': Uint8List.fromList(zipBytes),
+        },
+      );
+    } on PlatformException {
+      return null;
+    }
+  }
+
+  static Future<List<AACCard>> restoreFromBackupDir(
+    Directory backupDir,
+  ) async {
+    final docsDir = await getApplicationDocumentsDirectory();
+    final manifestFile = File('${backupDir.path}/cards.json');
+    final decoded = jsonDecode(await manifestFile.readAsString()) as List;
+    final restored = decoded.map((c) => AACCard.fromJson(c)).toList();
+
+    Future<String?> restoreMedia(String? relPath) async {
+      if (relPath == null) return null;
+      final sourcePath = '${backupDir.path}/${relPath.replaceAll('\\', '/')}';
+      final sourceFile = File(sourcePath);
+      if (!await sourceFile.exists()) return null;
+
+      final base = _basename(sourcePath);
+      final destPath = '${docsDir.path}/$base';
+      var targetPath = destPath;
+      var counter = 1;
+      while (await File(targetPath).exists()) {
+        final dot = base.lastIndexOf('.');
+        final name = dot == -1 ? base : base.substring(0, dot);
+        final ext = dot == -1 ? '' : base.substring(dot);
+        targetPath = '${docsDir.path}/${name}_$counter$ext';
+        counter++;
+      }
+      await sourceFile.copy(targetPath);
+      return targetPath;
+    }
+
+    Future<void> fixCard(AACCard card) async {
+      card.imagePath = await restoreMedia(card.imagePath);
+      card.voicePath = await restoreMedia(card.voicePath);
+      for (final sub in card.subCards) {
+        await fixCard(sub);
+      }
+    }
+
+    for (final card in restored) {
+      await fixCard(card);
+    }
+
+    return restored;
+  }
+
+  static Future<void> _extractZipBytesToDirectory(
+    List<int> bytes,
+    Directory target,
+  ) async {
+    final archive = ZipDecoder().decodeBytes(bytes);
+    for (final file in archive) {
+      final name = file.name.replaceAll('\\', '/');
+      final outPath = '${target.path}/$name';
+      if (file.isFile) {
+        final outFile = File(outPath);
+        await outFile.parent.create(recursive: true);
+        await outFile.writeAsBytes(file.content as List<int>, flush: true);
+      } else {
+        await Directory(outPath).create(recursive: true);
+      }
+    }
+  }
+
+  static Future<List<AACCard>> restoreFromZipBytes(List<int> bytes) async {
+    final tempDir = await Directory.systemTemp.createTemp('aac_restore_');
+    try {
+      await _extractZipBytesToDirectory(bytes, tempDir);
+      final directManifest = File('${tempDir.path}/cards.json');
+      final nestedManifest = File('${tempDir.path}/AAC_Backup/cards.json');
+      if (await directManifest.exists()) {
+        return await restoreFromBackupDir(tempDir);
+      }
+      if (await nestedManifest.exists()) {
+        return await restoreFromBackupDir(
+            Directory('${tempDir.path}/AAC_Backup'));
+      }
+      return [];
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  }
+}
