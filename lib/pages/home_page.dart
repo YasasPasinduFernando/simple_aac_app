@@ -1,14 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
@@ -25,6 +28,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  static const MethodChannel _backupChannel = MethodChannel('aac_backup');
   final FlutterTts _tts = FlutterTts();
   final ImagePicker _picker = ImagePicker();
   final AudioRecorder _recorder = AudioRecorder();
@@ -1155,6 +1159,13 @@ class _HomePageState extends State<HomePage> {
             },
             child: const Text('App Folder'),
           ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _backupToDownloads();
+            },
+            child: const Text('Download'),
+          ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
@@ -1278,6 +1289,55 @@ class _HomePageState extends State<HomePage> {
       [XFile(path)],
       text: 'AAC App backup',
     );
+  }
+
+  Future<void> _backupToDownloads() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Backup started...')),
+    );
+    final zipBytes = await _buildBackupZip();
+    if (zipBytes == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Backup failed to create zip')),
+      );
+      return;
+    }
+
+    await Permission.storage.request();
+
+    try {
+      final savedPath = await _saveZipToDownloads(zipBytes);
+      if (savedPath == null) {
+        throw Exception('Downloads save failed');
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Backup saved to $savedPath')),
+      );
+    } catch (_) {
+      final fallback = await _saveBackupToAppDocs(zipBytes);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Cannot save to Downloads. Backup saved to $fallback',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<String?> _saveZipToDownloads(List<int> zipBytes) async {
+    try {
+      final result = await _backupChannel.invokeMethod<String>(
+        'saveToDownloads',
+        {
+          'fileName': 'aac_backup.zip',
+          'bytes': Uint8List.fromList(zipBytes),
+        },
+      );
+      return result;
+    } on PlatformException {
+      return null;
+    }
   }
 
   Future<void> _restoreFromPickedFile() async {
