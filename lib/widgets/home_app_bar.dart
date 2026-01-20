@@ -9,9 +9,6 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onTogglePin;
   final bool isEditMode;
   final bool showMenu;
-  final VoidCallback onAdd;
-  final VoidCallback onDone;
-  final VoidCallback onCancel;
   final VoidCallback onOpenMenu;
   final Color backgroundColor;
 
@@ -25,9 +22,6 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.onTogglePin,
     required this.isEditMode,
     required this.showMenu,
-    required this.onAdd,
-    required this.onDone,
-    required this.onCancel,
     required this.onOpenMenu,
     required this.backgroundColor,
   }) : super(key: key);
@@ -59,20 +53,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
             )
           : null,
       actions: isEditMode
-          ? [
-              IconButton(
-                icon: const Icon(Icons.add),
-                onPressed: onAdd,
-              ),
-              IconButton(
-                icon: const Icon(Icons.check),
-                onPressed: onDone,
-              ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: onCancel,
-              ),
-            ]
+          ? []
           : showMenu
               ? [
                   IconButton(

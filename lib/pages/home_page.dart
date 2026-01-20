@@ -15,6 +15,7 @@ import '../models/aac_card_model.dart';
 import '../models/tts_token.dart';
 import '../services/backup_service.dart';
 import '../widgets/card_editor_dialog.dart';
+import '../widgets/edit_mode_bar.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/home_drawer.dart';
 import '../widgets/landscape_menu.dart';
@@ -54,6 +55,11 @@ class _HomePageState extends State<HomePage> {
   DateTime? _lastBackPress;
   final List<TtsToken> _ttsTokens = [];
   String searchQuery = '';
+  List<AACCard>? _editSnapshotCards;
+  Map<String, Set<String>>? _editSnapshotVisible;
+  Set<String>? _editSnapshotCategories;
+  String? _editSnapshotSelectedCategory;
+  String? _editSnapshotActiveParentId;
 
   @override
   void initState() {
@@ -719,9 +725,76 @@ class _HomePageState extends State<HomePage> {
 
   void _toggleEditMode() {
     Navigator.pop(context);
+    if (isEditMode) {
+      _exitEditMode();
+    } else {
+      _enterEditMode();
+    }
+  }
+
+  void _enterEditMode() {
+    if (isEditMode) return;
     setState(() {
-      isEditMode = !isEditMode;
+      isEditMode = true;
+      _editSnapshotCards = _cloneCards(cards);
+      _editSnapshotVisible = _cloneVisibleMap(visibleCardIdsByParent);
+      _editSnapshotCategories = Set<String>.from(allCategories);
+      _editSnapshotSelectedCategory = selectedCategory;
+      _editSnapshotActiveParentId = activeParentCard?.id;
     });
+  }
+
+  void _exitEditMode() {
+    setState(() {
+      isEditMode = false;
+      _clearEditSnapshot();
+    });
+    _saveCards();
+  }
+
+  void _clearEditSnapshot() {
+    _editSnapshotCards = null;
+    _editSnapshotVisible = null;
+    _editSnapshotCategories = null;
+    _editSnapshotSelectedCategory = null;
+    _editSnapshotActiveParentId = null;
+  }
+
+  void _undoEditChanges() {
+    if (_editSnapshotCards == null) return;
+    setState(() {
+      cards = _cloneCards(_editSnapshotCards!);
+      visibleCardIdsByParent =
+          _cloneVisibleMap(_editSnapshotVisible ?? {});
+      allCategories =
+          Set<String>.from(_editSnapshotCategories ?? {'All'});
+      selectedCategory = _editSnapshotSelectedCategory ?? 'All';
+      activeParentCard = _editSnapshotActiveParentId == null
+          ? null
+          : _findCardById(_editSnapshotActiveParentId!);
+    });
+    _saveCards();
+  }
+
+  List<AACCard> _cloneCards(List<AACCard> source) {
+    return source.map((card) => AACCard.fromJson(card.toJson())).toList();
+  }
+
+  Map<String, Set<String>> _cloneVisibleMap(
+      Map<String, Set<String>> source) {
+    return source.map(
+      (key, value) => MapEntry(key, Set<String>.from(value)),
+    );
+  }
+
+  AACCard? _findCardById(String id, [List<AACCard>? list]) {
+    final cardsList = list ?? cards;
+    for (final card in cardsList) {
+      if (card.id == id) return card;
+      final found = _findCardById(id, card.subCards);
+      if (found != null) return found;
+    }
+    return null;
   }
 
   void _showOrientationDialog() {
@@ -1036,21 +1109,6 @@ class _HomePageState extends State<HomePage> {
                 },
                 isEditMode: isEditMode,
                 showMenu: !isPinned,
-                onAdd: () {
-                  if (!isPinned) {
-                    _createCard(parent: activeParentCard);
-                  }
-                },
-                onDone: () {
-                  setState(() {
-                    isEditMode = false;
-                  });
-                },
-                onCancel: () {
-                  setState(() {
-                    isEditMode = false;
-                  });
-                },
                 onOpenMenu: () => _scaffoldKey.currentState?.openEndDrawer(),
               ),
         endDrawer: isPinned
@@ -1157,7 +1215,17 @@ class _HomePageState extends State<HomePage> {
   Widget _buildMainContent(bool isTablet) {
     return Column(
       children: [
-        if (showTtsInput)
+        if (isEditMode)
+          EditModeBar(
+            onDone: _exitEditMode,
+            onUndo: _undoEditChanges,
+            onAdd: () {
+              if (!isPinned) {
+                _createCard(parent: activeParentCard);
+              }
+            },
+          ),
+        if (!isEditMode && showTtsInput)
           TtsBar(
             tokens: _ttsTokens,
             isTablet: isTablet,
