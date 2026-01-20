@@ -13,6 +13,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onOpenMenu;
   final Color backgroundColor;
   final Widget? titleWidget;
+  final Color? titleTextColor;
 
   const HomeAppBar({
     Key? key,
@@ -27,6 +28,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.onOpenMenu,
     required this.backgroundColor,
     this.titleWidget,
+    this.titleTextColor,
   }) : super(key: key);
 
   @override
@@ -41,6 +43,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
             style: GoogleFonts.playfairDisplay(
               fontWeight: FontWeight.w600,
               letterSpacing: 0.4,
+              color: titleTextColor,
             ),
           ),
       backgroundColor: backgroundColor,

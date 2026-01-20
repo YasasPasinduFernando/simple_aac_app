@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 class LandscapeMenu extends StatelessWidget {
   final bool isPinned;
   final bool canGoBack;
+  final Color? baseColor;
+  final Color? textColor;
   final VoidCallback onTogglePin;
   final VoidCallback onOpenMenu;
   final VoidCallback onGoBack;
@@ -15,6 +17,8 @@ class LandscapeMenu extends StatelessWidget {
     Key? key,
     required this.isPinned,
     required this.canGoBack,
+    this.baseColor,
+    this.textColor,
     required this.onTogglePin,
     required this.onOpenMenu,
     required this.onGoBack,
@@ -26,11 +30,12 @@ class LandscapeMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = Colors.brown.shade600;
+    final resolvedBaseColor = baseColor ?? Colors.brown.shade600;
     final disabledColor = Colors.brown.shade300;
+    final resolvedTextColor = textColor ?? Colors.white;
     return Container(
       width: 96,
-      color: Colors.brown.shade700,
+      color: (baseColor ?? Colors.brown.shade600).withOpacity(0.9),
       child: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -41,43 +46,51 @@ class LandscapeMenu extends StatelessWidget {
                   icon: isPinned ? Icons.push_pin : Icons.push_pin_outlined,
                   label: 'Pin',
                   onTap: onTogglePin,
-                  color: baseColor,
+                  color: resolvedBaseColor,
+                  textColor: resolvedTextColor,
                 ),
                 _MenuButton(
                   icon: Icons.menu,
                   label: 'Menu',
                   onTap: isPinned ? null : onOpenMenu,
-                  color: isPinned ? disabledColor : baseColor,
+                  color: isPinned ? disabledColor : resolvedBaseColor,
+                  textColor: resolvedTextColor,
                 ),
                 _MenuButton(
                   icon: Icons.arrow_back,
                   label: 'Go back',
                   onTap: !isPinned && canGoBack ? onGoBack : null,
-                  color: !isPinned && canGoBack ? baseColor : disabledColor,
+                  color:
+                      !isPinned && canGoBack ? resolvedBaseColor : disabledColor,
+                  textColor: resolvedTextColor,
                 ),
                 _MenuButton(
                   icon: Icons.home,
                   label: 'Home',
                   onTap: isPinned ? null : onHome,
-                  color: isPinned ? disabledColor : baseColor,
+                  color: isPinned ? disabledColor : resolvedBaseColor,
+                  textColor: resolvedTextColor,
                 ),
                 _MenuButton(
                   icon: Icons.arrow_upward,
                   label: 'Up',
                   onTap: isPinned ? null : onUp,
-                  color: isPinned ? disabledColor : baseColor,
+                  color: isPinned ? disabledColor : resolvedBaseColor,
+                  textColor: resolvedTextColor,
                 ),
                 _MenuButton(
                   icon: Icons.arrow_downward,
                   label: 'Down',
                   onTap: isPinned ? null : onDown,
-                  color: isPinned ? disabledColor : baseColor,
+                  color: isPinned ? disabledColor : resolvedBaseColor,
+                  textColor: resolvedTextColor,
                 ),
                 _MenuButton(
                   icon: Icons.search,
                   label: 'Search',
                   onTap: isPinned ? null : onSearch,
-                  color: isPinned ? disabledColor : baseColor,
+                  color: isPinned ? disabledColor : resolvedBaseColor,
+                  textColor: resolvedTextColor,
                 ),
               ],
             ),
@@ -93,12 +106,14 @@ class _MenuButton extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
   final Color color;
+  final Color textColor;
 
   const _MenuButton({
     required this.icon,
     required this.label,
     required this.onTap,
     required this.color,
+    required this.textColor,
   });
 
   @override
@@ -117,12 +132,12 @@ class _MenuButton extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Icon(icon, color: Colors.white, size: 22),
+              Icon(icon, color: textColor, size: 22),
               const SizedBox(height: 6),
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                style: TextStyle(color: textColor, fontSize: 12),
               ),
             ],
           ),

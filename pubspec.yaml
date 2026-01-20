@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   google_fonts: ^6.1.0
+  flutter_colorpicker: ^1.0.3
   cupertino_icons: ^1.0.2
   
   # Image picker for camera and gallery

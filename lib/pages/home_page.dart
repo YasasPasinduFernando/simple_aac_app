@@ -15,6 +15,7 @@ import '../models/aac_card_model.dart';
 import '../models/tts_token.dart';
 import '../services/backup_service.dart';
 import '../widgets/card_editor_dialog.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../widgets/edit_mode_bar.dart';
@@ -62,6 +63,8 @@ class _HomePageState extends State<HomePage> {
   Set<String>? _editSnapshotCategories;
   String? _editSnapshotSelectedCategory;
   String? _editSnapshotActiveParentId;
+  int _themePrimaryColor = Colors.brown.value;
+  int _themeTextColor = Colors.white.value;
 
   @override
   void initState() {
@@ -141,6 +144,9 @@ class _HomePageState extends State<HomePage> {
     orientationMode = prefs.getString('orientationMode') ?? 'portrait';
     fullScreen = prefs.getBool('fullScreen') ?? true;
     currentLanguage = prefs.getString('language') ?? 'en';
+    _themePrimaryColor =
+        prefs.getInt('themePrimaryColor') ?? Colors.brown.value;
+    _themeTextColor = prefs.getInt('themeTextColor') ?? Colors.white.value;
 
     _updateCategories();
     _migrateVisibleCountIfNeeded(prefs);
@@ -202,6 +208,8 @@ class _HomePageState extends State<HomePage> {
     await prefs.setString('orientationMode', orientationMode);
     await prefs.setBool('fullScreen', fullScreen);
     await prefs.setString('language', currentLanguage);
+    await prefs.setInt('themePrimaryColor', _themePrimaryColor);
+    await prefs.setInt('themeTextColor', _themeTextColor);
   }
 
   Future<void> _speak(String text) async {
@@ -836,6 +844,43 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showThemeColorDialog({
+    required String title,
+    required Color initialColor,
+    required ValueChanged<Color> onSelected,
+  }) {
+    Color tempColor = initialColor;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            pickerColor: tempColor,
+            onColorChanged: (color) {
+              tempColor = color;
+            },
+            enableAlpha: false,
+            labelTypes: const [],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              onSelected(tempColor);
+              Navigator.pop(context);
+            },
+            child: const Text('Apply'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _backupWithPicker() async {
     Navigator.pop(context);
     showDialog(
@@ -1055,6 +1100,8 @@ class _HomePageState extends State<HomePage> {
     final isTablet = screenWidth > 600;
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
+    final themePrimary = Color(_themePrimaryColor);
+    final themeText = Color(_themeTextColor);
 
     return WillPopScope(
       onWillPop: () async {
@@ -1097,11 +1144,11 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.w700,
                           fontSize: 20,
                           letterSpacing: 1.0,
-                          color: Colors.white,
+                          color: themeText,
                         ),
                       )
                     : null,
-                backgroundColor: Colors.brown.shade700,
+                backgroundColor: themePrimary,
                 showBack: activeParentCard != null && !isPinned,
                 onBack: () {
                   setState(() {
@@ -1123,6 +1170,7 @@ class _HomePageState extends State<HomePage> {
                 isEditMode: isEditMode,
                 showMenu: !isPinned,
                 onOpenMenu: () => _scaffoldKey.currentState?.openEndDrawer(),
+                titleTextColor: themeText,
               ),
         endDrawer: isPinned
             ? null
@@ -1137,6 +1185,8 @@ class _HomePageState extends State<HomePage> {
                     ? 'Landscape'
                     : 'Portrait',
                 fullScreen: fullScreen,
+                headerColor: themePrimary,
+                headerTextColor: themeText,
                 onSelectCategory: _showCategoryDialog,
                 onAddCategory: _showAddCategoryDialog,
                 onToggleEdit: _toggleEditMode,
@@ -1148,6 +1198,32 @@ class _HomePageState extends State<HomePage> {
                   _saveCards();
                 },
                 onChangeOrientation: _showOrientationDialog,
+                onPickPrimaryColor: () {
+                  Navigator.pop(context);
+                  _showThemeColorDialog(
+                    title: 'App color',
+                    initialColor: themePrimary,
+                    onSelected: (color) {
+                      setState(() {
+                        _themePrimaryColor = color.value;
+                      });
+                      _saveCards();
+                    },
+                  );
+                },
+                onPickTextColor: () {
+                  Navigator.pop(context);
+                  _showThemeColorDialog(
+                    title: 'Text color',
+                    initialColor: themeText,
+                    onSelected: (color) {
+                      setState(() {
+                        _themeTextColor = color.value;
+                      });
+                      _saveCards();
+                    },
+                  );
+                },
                 onToggleFullScreen: () {
                   Navigator.pop(context);
                   setState(() {
@@ -1167,10 +1243,18 @@ class _HomePageState extends State<HomePage> {
           child: isLandscape
               ? Row(
                   children: [
-                    Expanded(child: _buildMainContent(isTablet)),
+                    Expanded(
+                      child: _buildMainContent(
+                        isTablet,
+                        themePrimary,
+                        themeText,
+                      ),
+                    ),
                     LandscapeMenu(
                       isPinned: isPinned,
                       canGoBack: activeParentCard != null,
+                      baseColor: themePrimary,
+                      textColor: themeText,
                       onTogglePin: () {
                         setState(() {
                           isPinned = !isPinned;
@@ -1219,19 +1303,25 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 )
-              : _buildMainContent(isTablet),
+              : _buildMainContent(isTablet, themePrimary, themeText),
         ),
       ),
     );
   }
 
-  Widget _buildMainContent(bool isTablet) {
+  Widget _buildMainContent(
+    bool isTablet,
+    Color themePrimary,
+    Color themeText,
+  ) {
     return Column(
       children: [
         if (isEditMode)
           EditModeBar(
             onDone: _exitEditMode,
             onUndo: _undoEditChanges,
+            baseColor: themePrimary,
+            textColor: themeText,
             onAdd: () {
               if (!isPinned) {
                 _createCard(parent: activeParentCard);
@@ -1250,6 +1340,7 @@ class _HomePageState extends State<HomePage> {
                 _speak(text);
               }
             },
+            speakerColor: themePrimary,
           ),
         Expanded(
           child: _getDisplayedCards().isEmpty

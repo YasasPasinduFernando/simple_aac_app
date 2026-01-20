@@ -4,18 +4,21 @@ class EditModeBar extends StatelessWidget {
   final VoidCallback onDone;
   final VoidCallback onUndo;
   final VoidCallback onAdd;
+  final Color baseColor;
+  final Color textColor;
 
   const EditModeBar({
     Key? key,
     required this.onDone,
     required this.onUndo,
     required this.onAdd,
+    required this.baseColor,
+    required this.textColor,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = Colors.brown.shade700;
-    final buttonColor = Colors.brown.shade600;
+    final buttonColor = baseColor.withOpacity(0.9);
 
     return Container(
       color: baseColor,
@@ -29,12 +32,12 @@ class EditModeBar extends StatelessWidget {
             color: buttonColor,
           ),
           const SizedBox(width: 8),
-          const Expanded(
+          Expanded(
             child: Text(
               'Edit Words',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.orangeAccent,
+                color: textColor,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),

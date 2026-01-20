@@ -10,6 +10,7 @@ class TtsBar extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onClear;
   final VoidCallback onSpeak;
+  final Color? speakerColor;
 
   const TtsBar({
     Key? key,
@@ -18,6 +19,7 @@ class TtsBar extends StatelessWidget {
     required this.onDelete,
     required this.onClear,
     required this.onSpeak,
+    this.speakerColor,
   }) : super(key: key);
 
   @override
@@ -121,7 +123,7 @@ class TtsBar extends StatelessWidget {
           const SizedBox(width: 6),
           Container(
             decoration: BoxDecoration(
-              color: Colors.brown.shade700,
+              color: speakerColor ?? Colors.brown.shade700,
               shape: BoxShape.circle,
             ),
             child: IconButton(

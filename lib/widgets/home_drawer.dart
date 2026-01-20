@@ -9,11 +9,15 @@ class HomeDrawer extends StatelessWidget {
   final bool showTtsInput;
   final String orientationLabel;
   final bool fullScreen;
+  final Color headerColor;
+  final Color headerTextColor;
   final VoidCallback onSelectCategory;
   final VoidCallback onAddCategory;
   final VoidCallback onToggleEdit;
   final VoidCallback onToggleTtsInput;
   final VoidCallback onChangeOrientation;
+  final VoidCallback onPickPrimaryColor;
+  final VoidCallback onPickTextColor;
   final VoidCallback onToggleFullScreen;
   final VoidCallback onShowLanguage;
   final VoidCallback onShowGrid;
@@ -32,11 +36,15 @@ class HomeDrawer extends StatelessWidget {
     required this.showTtsInput,
     required this.orientationLabel,
     required this.fullScreen,
+    required this.headerColor,
+    required this.headerTextColor,
     required this.onSelectCategory,
     required this.onAddCategory,
     required this.onToggleEdit,
     required this.onToggleTtsInput,
     required this.onChangeOrientation,
+    required this.onPickPrimaryColor,
+    required this.onPickTextColor,
     required this.onToggleFullScreen,
     required this.onShowLanguage,
     required this.onShowGrid,
@@ -57,17 +65,17 @@ class HomeDrawer extends StatelessWidget {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.brown.shade700,
+              color: headerColor,
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Icon(Icons.settings, color: Colors.white, size: 40),
-                SizedBox(height: 8),
+                Icon(Icons.settings, color: headerTextColor, size: 40),
+                const SizedBox(height: 8),
                 Text(
                   'Settings',
-                  style: TextStyle(color: Colors.white, fontSize: 24),
+                  style: TextStyle(color: headerTextColor, fontSize: 24),
                 ),
               ],
             ),
@@ -121,6 +129,16 @@ class HomeDrawer extends StatelessWidget {
             onTap: onShowVisibleCount,
           ),
           const Divider(),
+          ListTile(
+            leading: const Icon(Icons.palette),
+            title: const Text('App Color'),
+            onTap: onPickPrimaryColor,
+          ),
+          ListTile(
+            leading: const Icon(Icons.format_paint),
+            title: const Text('Text Color'),
+            onTap: onPickTextColor,
+          ),
           ListTile(
             leading: const Icon(Icons.category),
             title: const Text('Category'),
