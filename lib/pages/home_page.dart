@@ -27,6 +27,13 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+class _TtsToken {
+  final String label;
+  final String? imagePath;
+
+  const _TtsToken(this.label, this.imagePath);
+}
+
 class _HomePageState extends State<HomePage> {
   static const MethodChannel _backupChannel = MethodChannel('aac_backup');
   final FlutterTts _tts = FlutterTts();
@@ -53,6 +60,7 @@ class _HomePageState extends State<HomePage> {
   bool fullScreen = false;
   bool isPinned = false;
   DateTime? _lastBackPress;
+  final List<_TtsToken> _ttsTokens = [];
 
   @override
   void initState() {
@@ -209,34 +217,32 @@ class _HomePageState extends State<HomePage> {
     await _tts.speak(text);
   }
 
-  void _appendToTtsInput(String text) {
+  void _appendToTtsInput(String text, {String? imagePath}) {
     if (!showTtsInput) return;
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
-    final existing = _textController.text.trim();
-    _textController.text =
-        existing.isEmpty ? trimmed : '$existing $trimmed';
-    _textController.selection = TextSelection.fromPosition(
-      TextPosition(offset: _textController.text.length),
-    );
+    setState(() {
+      _ttsTokens.add(_TtsToken(trimmed, imagePath));
+    });
   }
 
   void _clearTtsInput() {
-    _textController.clear();
+    setState(() {
+      _ttsTokens.clear();
+    });
   }
 
   void _deleteLastWord() {
-    final trimmed = _textController.text.trimRight();
-    if (trimmed.isEmpty) {
-      _textController.clear();
+    if (_ttsTokens.isNotEmpty) {
+      setState(() {
+        _ttsTokens.removeLast();
+      });
       return;
     }
-    final lastSpace = trimmed.lastIndexOf(' ');
-    final updated = lastSpace == -1 ? '' : trimmed.substring(0, lastSpace);
-    _textController.text = updated;
-    _textController.selection = TextSelection.fromPosition(
-      TextPosition(offset: _textController.text.length),
-    );
+  }
+
+  void _resetTtsInput() {
+    _ttsTokens.clear();
   }
 
   Future<void> _playVoice(String path) async {
@@ -723,7 +729,7 @@ class _HomePageState extends State<HomePage> {
   void _showSubCards(AACCard card) {
     if (card.type != 'folder') return;
     setState(() {
-      _textController.clear();
+      _resetTtsInput();
       activeParentCard = card;
     });
   }
@@ -830,13 +836,14 @@ class _HomePageState extends State<HomePage> {
                   title: Text(cat),
                   value: cat,
                   groupValue: selectedCategory,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedCategory = value!;
-                      activeParentCard = null;
-                    });
-                    Navigator.pop(context);
-                  },
+                onChanged: (value) {
+                  setState(() {
+                    selectedCategory = value!;
+                    activeParentCard = null;
+                    _resetTtsInput();
+                  });
+                  Navigator.pop(context);
+                },
                 )),
           ],
         ),
@@ -1623,7 +1630,7 @@ class _HomePageState extends State<HomePage> {
           showBack: activeParentCard != null && !isPinned,
           onBack: () {
             setState(() {
-              _textController.clear();
+              _resetTtsInput();
               activeParentCard = null;
             });
           },
@@ -1698,90 +1705,127 @@ class _HomePageState extends State<HomePage> {
               ),
         body: Column(
           children: [
-            if (showTtsInput)
-              Container(
-                padding: EdgeInsets.all(isTablet ? 20 : 16),
-                color: Colors.grey.shade200,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _textController,
-                        style: TextStyle(fontSize: isTablet ? 18 : 16),
-                      decoration: InputDecoration(
-                        hintText: 'Type to speak...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: isTablet ? 20 : 16,
-                          vertical: isTablet ? 16 : 12,
-                        ),
-                        suffixIcon: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            InkWell(
-                              onTap: _deleteLastWord,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 6),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(Icons.backspace, size: 18),
-                                    SizedBox(height: 2),
-                                    Text(
-                                      'Delete',
-                                      style: TextStyle(fontSize: 10),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: _clearTtsInput,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 6),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(Icons.clear, size: 18),
-                                    SizedBox(height: 2),
-                                    Text(
-                                      'Clear',
-                                      style: TextStyle(fontSize: 10),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    ),
-                    const SizedBox(width: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade700,
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.volume_up, size: isTablet ? 36 : 28),
-                        color: Colors.white,
-                        onPressed: () {
-                          if (_textController.text.isNotEmpty) {
-                            _speak(_textController.text);
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+          if (showTtsInput)
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: isTablet ? 16 : 12,
+                vertical: isTablet ? 10 : 8,
               ),
+              color: Colors.grey.shade200,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _ttsTokens.map((token) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                border:
+                                    Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: Row(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(6),
+                                    child: SizedBox(
+                                      width: 26,
+                                      height: 26,
+                                      child: token.imagePath != null
+                                          ? Image.file(
+                                              File(token.imagePath!),
+                                              fit: BoxFit.cover,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return const Icon(Icons.image,
+                                                    size: 16);
+                                              },
+                                              )
+                                          : const Icon(Icons.image, size: 16),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    token.label,
+                                    style: TextStyle(
+                                      fontSize: isTablet ? 14 : 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: _deleteLastWord,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.backspace, size: 18),
+                              SizedBox(height: 2),
+                              Text(
+                                'Delete',
+                                style: TextStyle(fontSize: 9),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      InkWell(
+                        onTap: _clearTtsInput,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.clear, size: 18),
+                              SizedBox(height: 2),
+                              Text(
+                                'Clear',
+                                style: TextStyle(fontSize: 9),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade700,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.volume_up, size: isTablet ? 36 : 28),
+                      color: Colors.white,
+                      onPressed: () {
+                        if (_ttsTokens.isNotEmpty) {
+                          final text =
+                              _ttsTokens.map((t) => t.label).join(' ');
+                          _speak(text);
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: _getDisplayedCards().isEmpty
                   ? Center(
@@ -1834,7 +1878,7 @@ class _HomePageState extends State<HomePage> {
           return;
         }
 
-        _appendToTtsInput(displayLabel);
+        _appendToTtsInput(displayLabel, imagePath: card.imagePath);
         if (card.voicePath != null && await File(card.voicePath!).exists()) {
           await _playVoice(card.voicePath!);
         } else {
