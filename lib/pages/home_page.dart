@@ -49,6 +49,10 @@ class _HomePageState extends State<HomePage> {
   bool isCardEditorOpen = false;
   String? highlightedCardId;
   Timer? _highlightTimer;
+  String orientationMode = 'portrait';
+  bool fullScreen = false;
+  bool isPinned = false;
+  DateTime? _lastBackPress;
 
   @override
   void initState() {
@@ -125,10 +129,14 @@ class _HomePageState extends State<HomePage> {
     gridColumns = prefs.getInt('gridColumns') ?? 2;
     _loadVisibleSelections(prefs);
     showTtsInput = prefs.getBool('showTtsInput') ?? true;
+    orientationMode = prefs.getString('orientationMode') ?? 'portrait';
+    fullScreen = prefs.getBool('fullScreen') ?? true;
     currentLanguage = prefs.getString('language') ?? 'en';
 
     _updateCategories();
     _migrateVisibleCountIfNeeded(prefs);
+    _applyOrientation();
+    _applySystemUi();
   }
 
   void _loadVisibleSelections(SharedPreferences prefs) {
@@ -182,6 +190,8 @@ class _HomePageState extends State<HomePage> {
     );
     await prefs.setString('visibleCardIdsByParent', encoded);
     await prefs.setBool('showTtsInput', showTtsInput);
+    await prefs.setString('orientationMode', orientationMode);
+    await prefs.setBool('fullScreen', fullScreen);
     await prefs.setString('language', currentLanguage);
   }
 
@@ -1048,6 +1058,64 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _applyOrientation() {
+    if (orientationMode == 'landscape') {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    } else {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+      ]);
+    }
+  }
+
+  void _applySystemUi() {
+    if (fullScreen) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    } else {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
+  }
+
+  void _showOrientationDialog() {
+    Navigator.pop(context);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Orientation'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<String>(
+              title: const Text('Portrait'),
+              value: 'portrait',
+              groupValue: orientationMode,
+              onChanged: (value) {
+                setState(() => orientationMode = value ?? 'portrait');
+                _saveCards();
+                _applyOrientation();
+                Navigator.pop(context);
+              },
+            ),
+            RadioListTile<String>(
+              title: const Text('Landscape'),
+              value: 'landscape',
+              groupValue: orientationMode,
+              onChanged: (value) {
+                setState(() => orientationMode = value ?? 'landscape');
+                _saveCards();
+                _applyOrientation();
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String _basename(String path) {
     final normalized = path.replaceAll('\\', '/');
     final parts = normalized.split('/');
@@ -1501,133 +1569,189 @@ class _HomePageState extends State<HomePage> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
 
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: HomeAppBar(
-        title: activeParentCard == null
-            ? 'AAC App'
-            : activeParentCard!.getLabel(currentLanguage),
-        backgroundColor: Colors.blue.shade700,
-        showBack: activeParentCard != null,
-        onBack: () {
+    return WillPopScope(
+      onWillPop: () async {
+        if (isPinned) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Screen is locked')),
+          );
+          return false;
+        }
+        if (activeParentCard != null) {
           setState(() {
             _textController.clear();
             activeParentCard = null;
           });
-        },
-        isEditMode: isEditMode,
-        onAdd: () {
-          _createCard(parent: activeParentCard);
-        },
-        onDone: () {
-          setState(() {
-            isEditMode = false;
-          });
-        },
-        onCancel: () {
-          setState(() {
-            isEditMode = false;
-          });
-        },
-        onOpenMenu: () => _scaffoldKey.currentState?.openEndDrawer(),
-      ),
-      endDrawer: HomeDrawer(
-        selectedCategory: selectedCategory,
-        currentLanguageLabel: _getLanguageName(currentLanguage),
-        gridColumns: gridColumns,
-        visibleCardsLabel: _getVisibleCardsLabel(),
-        isEditMode: isEditMode,
-        showTtsInput: showTtsInput,
-        onSelectCategory: _showCategoryDialog,
-        onAddCategory: _showAddCategoryDialog,
-        onToggleEdit: _toggleEditMode,
-        onToggleTtsInput: () {
-          Navigator.pop(context);
-          setState(() {
-            showTtsInput = !showTtsInput;
-          });
-          _saveCards();
-        },
-        onShowLanguage: _showLanguageDialog,
-        onShowGrid: _showGridOptions,
-        onShowVisibleCount: _showVisibleCountDialog,
-        onBackup: _backupWithPicker,
-        onRestore: _restoreWithPicker,
-        onShowAbout: _showAbout,
-      ),
-      body: Column(
-        children: [
-          if (showTtsInput)
-            Container(
-              padding: EdgeInsets.all(isTablet ? 20 : 16),
-              color: Colors.grey.shade200,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _textController,
-                      style: TextStyle(fontSize: isTablet ? 18 : 16),
-                      decoration: InputDecoration(
-                        hintText: 'Type to speak...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: isTablet ? 20 : 16,
-                          vertical: isTablet ? 16 : 12,
+          return false;
+        }
+        final now = DateTime.now();
+        if (_lastBackPress == null ||
+            now.difference(_lastBackPress!) > const Duration(seconds: 2)) {
+          _lastBackPress = now;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Press back again to exit')),
+          );
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: HomeAppBar(
+          title: activeParentCard == null
+              ? 'AAC App'
+              : activeParentCard!.getLabel(currentLanguage),
+          backgroundColor: Colors.blue.shade700,
+          showBack: activeParentCard != null && !isPinned,
+          onBack: () {
+            setState(() {
+              _textController.clear();
+              activeParentCard = null;
+            });
+          },
+          showPin: true,
+          isPinned: isPinned,
+          onTogglePin: () {
+            setState(() {
+              isPinned = !isPinned;
+              if (isPinned) {
+                fullScreen = true;
+              }
+            });
+            _applySystemUi();
+          },
+          isEditMode: isEditMode,
+          showMenu: !isPinned,
+          onAdd: () {
+            if (!isPinned) {
+              _createCard(parent: activeParentCard);
+            }
+          },
+          onDone: () {
+            setState(() {
+              isEditMode = false;
+            });
+          },
+          onCancel: () {
+            setState(() {
+              isEditMode = false;
+            });
+          },
+          onOpenMenu: () => _scaffoldKey.currentState?.openEndDrawer(),
+        ),
+        endDrawer: isPinned
+            ? null
+            : HomeDrawer(
+                selectedCategory: selectedCategory,
+                currentLanguageLabel: _getLanguageName(currentLanguage),
+                gridColumns: gridColumns,
+                visibleCardsLabel: _getVisibleCardsLabel(),
+                isEditMode: isEditMode,
+                showTtsInput: showTtsInput,
+                orientationLabel: orientationMode == 'landscape'
+                    ? 'Landscape'
+                    : 'Portrait',
+                fullScreen: fullScreen,
+                onSelectCategory: _showCategoryDialog,
+                onAddCategory: _showAddCategoryDialog,
+                onToggleEdit: _toggleEditMode,
+                onToggleTtsInput: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    showTtsInput = !showTtsInput;
+                  });
+                  _saveCards();
+                },
+                onChangeOrientation: _showOrientationDialog,
+                onToggleFullScreen: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    fullScreen = !fullScreen;
+                  });
+                  _saveCards();
+                  _applySystemUi();
+                },
+                onShowLanguage: _showLanguageDialog,
+                onShowGrid: _showGridOptions,
+                onShowVisibleCount: _showVisibleCountDialog,
+                onBackup: _backupWithPicker,
+                onRestore: _restoreWithPicker,
+                onShowAbout: _showAbout,
+              ),
+        body: Column(
+          children: [
+            if (showTtsInput)
+              Container(
+                padding: EdgeInsets.all(isTablet ? 20 : 16),
+                color: Colors.grey.shade200,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _textController,
+                        style: TextStyle(fontSize: isTablet ? 18 : 16),
+                        decoration: InputDecoration(
+                          hintText: 'Type to speak...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: isTablet ? 20 : 16,
+                            vertical: isTablet ? 16 : 12,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade700,
-                      shape: BoxShape.circle,
+                    const SizedBox(width: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade700,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.volume_up, size: isTablet ? 36 : 28),
+                        color: Colors.white,
+                        onPressed: () {
+                          if (_textController.text.isNotEmpty) {
+                            _speak(_textController.text);
+                          }
+                        },
+                      ),
                     ),
-                    child: IconButton(
-                      icon: Icon(Icons.volume_up, size: isTablet ? 36 : 28),
-                      color: Colors.white,
-                      onPressed: () {
-                        if (_textController.text.isNotEmpty) {
-                          _speak(_textController.text);
-                        }
+                  ],
+                ),
+              ),
+            Expanded(
+              child: _getDisplayedCards().isEmpty
+                  ? Center(
+                      child: Text(
+                        'No cards in this category. Tap + to add a card!',
+                        style: TextStyle(
+                            fontSize: isTablet ? 18 : 16, color: Colors.grey),
+                      ),
+                    )
+                  : GridView.builder(
+                      controller: _gridController,
+                      padding: EdgeInsets.all(isTablet ? 20 : 12),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: isTablet
+                            ? (gridColumns == 1 ? 2 : gridColumns + 1)
+                            : gridColumns,
+                        crossAxisSpacing: isTablet ? 16 : 12,
+                        mainAxisSpacing: isTablet ? 16 : 12,
+                        childAspectRatio: isTablet ? 1.1 : 1.0,
+                      ),
+                      itemCount: _getDisplayedCards().length,
+                      itemBuilder: (context, i) {
+                        final card = _getDisplayedCards()[i];
+                        return _buildCardWidget(card, isTablet);
                       },
                     ),
-                  ),
-                ],
-              ),
             ),
-          Expanded(
-            child: _getDisplayedCards().isEmpty
-                ? Center(
-                    child: Text(
-                      'No cards in this category. Tap + to add a card!',
-                      style: TextStyle(
-                          fontSize: isTablet ? 18 : 16, color: Colors.grey),
-                    ),
-                  )
-                : GridView.builder(
-                    controller: _gridController,
-                    padding: EdgeInsets.all(isTablet ? 20 : 12),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: isTablet
-                          ? (gridColumns == 1 ? 2 : gridColumns + 1)
-                          : gridColumns,
-                      crossAxisSpacing: isTablet ? 16 : 12,
-                      mainAxisSpacing: isTablet ? 16 : 12,
-                      childAspectRatio: isTablet ? 1.1 : 1.0,
-                    ),
-                    itemCount: _getDisplayedCards().length,
-                    itemBuilder: (context, i) {
-                      final card = _getDisplayedCards()[i];
-                      return _buildCardWidget(card, isTablet);
-                    },
-                  ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

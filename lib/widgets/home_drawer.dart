@@ -7,10 +7,14 @@ class HomeDrawer extends StatelessWidget {
   final String visibleCardsLabel;
   final bool isEditMode;
   final bool showTtsInput;
+  final String orientationLabel;
+  final bool fullScreen;
   final VoidCallback onSelectCategory;
   final VoidCallback onAddCategory;
   final VoidCallback onToggleEdit;
   final VoidCallback onToggleTtsInput;
+  final VoidCallback onChangeOrientation;
+  final VoidCallback onToggleFullScreen;
   final VoidCallback onShowLanguage;
   final VoidCallback onShowGrid;
   final VoidCallback onShowVisibleCount;
@@ -26,10 +30,14 @@ class HomeDrawer extends StatelessWidget {
     required this.visibleCardsLabel,
     required this.isEditMode,
     required this.showTtsInput,
+    required this.orientationLabel,
+    required this.fullScreen,
     required this.onSelectCategory,
     required this.onAddCategory,
     required this.onToggleEdit,
     required this.onToggleTtsInput,
+    required this.onChangeOrientation,
+    required this.onToggleFullScreen,
     required this.onShowLanguage,
     required this.onShowGrid,
     required this.onShowVisibleCount,
@@ -85,6 +93,21 @@ class HomeDrawer extends StatelessWidget {
               onChanged: (_) => onToggleTtsInput(),
             ),
             onTap: onToggleTtsInput,
+          ),
+          ListTile(
+            leading: const Icon(Icons.screen_rotation),
+            title: const Text('Orientation'),
+            subtitle: Text(orientationLabel),
+            onTap: onChangeOrientation,
+          ),
+          ListTile(
+            leading: const Icon(Icons.fullscreen),
+            title: const Text('Full Screen'),
+            trailing: Switch(
+              value: fullScreen,
+              onChanged: (_) => onToggleFullScreen(),
+            ),
+            onTap: onToggleFullScreen,
           ),
           const Divider(),
           ListTile(
