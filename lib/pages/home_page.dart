@@ -584,16 +584,6 @@ class _HomePageState extends State<HomePage> {
                       icon: const Icon(Icons.add_box),
                       label: const Text('Add Sub-Card'),
                     ),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        createChildAfterClose = true;
-                        createChildParent = card;
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.add_box),
-                      label: const Text('Add Sub-Card'),
-                    ),
                   ],
                 ),
               ),
