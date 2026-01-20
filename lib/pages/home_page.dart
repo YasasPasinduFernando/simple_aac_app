@@ -665,9 +665,34 @@ class _HomePageState extends State<HomePage> {
                 children: allCards.map((card) {
                   final label = card.getLabel(currentLanguage);
                   final checked = selectedIds.contains(card.id);
+                  final isFolder = card.type == 'folder';
                   return CheckboxListTile(
                     value: checked,
-                    title: Text(label),
+                    title: Row(
+                      children: [
+                        Text(label),
+                        if (isFolder) ...[
+                          const SizedBox(width: 6),
+                          const Icon(Icons.folder, size: 16),
+                        ],
+                      ],
+                    ),
+                    secondary: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: SizedBox(
+                        width: 32,
+                        height: 32,
+                        child: card.imagePath != null
+                            ? Image.file(
+                                File(card.imagePath!),
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.image, size: 18);
+                                },
+                              )
+                            : const Icon(Icons.image, size: 18),
+                      ),
+                    ),
                     onChanged: (value) {
                       setDialogState(() {
                         if (value == true) {
