@@ -1088,7 +1088,7 @@ class _HomePageState extends State<HomePage> {
                 title: activeParentCard == null
                     ? 'AAC App'
                     : activeParentCard!.getLabel(currentLanguage),
-                backgroundColor: Colors.blue.shade700,
+                backgroundColor: Colors.brown.shade700,
                 showBack: activeParentCard != null && !isPinned,
                 onBack: () {
                   setState(() {

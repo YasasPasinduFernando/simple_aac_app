@@ -121,7 +121,7 @@ class TtsBar extends StatelessWidget {
           const SizedBox(width: 6),
           Container(
             decoration: BoxDecoration(
-              color: Colors.blue.shade700,
+              color: Colors.brown.shade700,
               shape: BoxShape.circle,
             ),
             child: IconButton(

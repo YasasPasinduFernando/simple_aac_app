@@ -57,7 +57,7 @@ class HomeDrawer extends StatelessWidget {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue.shade700,
+              color: Colors.brown.shade700,
             ),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,7 +89,7 @@ class HomeDrawer extends StatelessWidget {
             onTap: onToggleEdit,
           ),
           ListTile(
-            leading: const Icon(Icons.record_voice_over),
+            leading: const Icon(Icons.volume_up),
             title: const Text('Type to Speak'),
             trailing: Switch(
               value: showTtsInput,
@@ -131,6 +131,18 @@ class HomeDrawer extends StatelessWidget {
             subtitle: Text(visibleCardsLabel),
             onTap: onShowVisibleCount,
           ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.category),
+            title: const Text('Category'),
+            subtitle: Text(selectedCategory),
+            onTap: onSelectCategory,
+          ),
+          ListTile(
+            leading: const Icon(Icons.add_circle_outline),
+            title: const Text('Add Category'),
+            onTap: onAddCategory,
+          ),
           ListTile(
             leading: const Icon(Icons.backup),
             title: const Text('Backup'),
@@ -141,7 +153,6 @@ class HomeDrawer extends StatelessWidget {
             title: const Text('Restore'),
             onTap: onRestore,
           ),
-          const Divider(),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('About'),
