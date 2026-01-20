@@ -1142,6 +1142,7 @@ class _HomePageState extends State<HomePage> {
       },
       child: Scaffold(
         key: _scaffoldKey,
+        backgroundColor: themeBackground,
         appBar: isLandscape
             ? null
             : HomeAppBar(
