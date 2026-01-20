@@ -79,6 +79,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _initTts() async {
     await _tts.setLanguage("en-US");
     await _tts.setSpeechRate(0.5);
+    await _tts.awaitSpeakCompletion(true);
   }
 
   Future<void> _loadCards() async {
@@ -232,12 +233,16 @@ class _HomePageState extends State<HomePage> {
     await _tts.speak(text);
   }
 
-  void _appendToTtsInput(String text, {String? imagePath}) {
+  void _appendToTtsInput(
+    String text, {
+    String? imagePath,
+    String? voicePath,
+  }) {
     if (!showTtsInput) return;
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
     setState(() {
-      _ttsTokens.add(TtsToken(trimmed, imagePath));
+      _ttsTokens.add(TtsToken(trimmed, imagePath, voicePath: voicePath));
     });
   }
 
@@ -276,6 +281,18 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _playVoice(String path) async {
     await _audioPlayer.play(DeviceFileSource(path));
+  }
+
+  Future<void> _playTtsTokens() async {
+    for (final token in _ttsTokens) {
+      final voicePath = token.voicePath;
+      if (voicePath != null && await File(voicePath).exists()) {
+        await _audioPlayer.play(DeviceFileSource(voicePath));
+        await _audioPlayer.onPlayerComplete.first;
+        continue;
+      }
+      await _speak(token.label);
+    }
   }
 
   Future<void> _pickImage(AACCard card) async {
@@ -1381,10 +1398,9 @@ class _HomePageState extends State<HomePage> {
             isTablet: isTablet,
             onDelete: _deleteLastWord,
             onClear: _clearTtsInput,
-            onSpeak: () {
+            onSpeak: () async {
               if (_ttsTokens.isNotEmpty) {
-                final text = _ttsTokens.map((t) => t.label).join(' ');
-                _speak(text);
+                await _playTtsTokens();
               }
             },
             speakerColor: themePrimary,
@@ -1441,7 +1457,11 @@ class _HomePageState extends State<HomePage> {
         }
 
         _triggerWordTapAnimation(card.id);
-        _appendToTtsInput(displayLabel, imagePath: card.imagePath);
+        _appendToTtsInput(
+          displayLabel,
+          imagePath: card.imagePath,
+          voicePath: card.voicePath,
+        );
         if (card.voicePath != null && await File(card.voicePath!).exists()) {
           await _playVoice(card.voicePath!);
         } else {
