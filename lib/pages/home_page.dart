@@ -221,6 +221,24 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _clearTtsInput() {
+    _textController.clear();
+  }
+
+  void _deleteLastWord() {
+    final trimmed = _textController.text.trimRight();
+    if (trimmed.isEmpty) {
+      _textController.clear();
+      return;
+    }
+    final lastSpace = trimmed.lastIndexOf(' ');
+    final updated = lastSpace == -1 ? '' : trimmed.substring(0, lastSpace);
+    _textController.text = updated;
+    _textController.selection = TextSelection.fromPosition(
+      TextPosition(offset: _textController.text.length),
+    );
+  }
+
   Future<void> _playVoice(String path) async {
     await _audioPlayer.play(DeviceFileSource(path));
   }
@@ -1690,19 +1708,60 @@ class _HomePageState extends State<HomePage> {
                       child: TextField(
                         controller: _textController,
                         style: TextStyle(fontSize: isTablet ? 18 : 16),
-                        decoration: InputDecoration(
-                          hintText: 'Type to speak...',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: isTablet ? 20 : 16,
-                            vertical: isTablet ? 16 : 12,
-                          ),
+                      decoration: InputDecoration(
+                        hintText: 'Type to speak...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: isTablet ? 20 : 16,
+                          vertical: isTablet ? 16 : 12,
+                        ),
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            InkWell(
+                              onTap: _deleteLastWord,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 6),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Icon(Icons.backspace, size: 18),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      'Delete',
+                                      style: TextStyle(fontSize: 10),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: _clearTtsInput,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 6),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Icon(Icons.clear, size: 18),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      'Clear',
+                                      style: TextStyle(fontSize: 10),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                    ),
                     ),
                     const SizedBox(width: 10),
                     Container(
