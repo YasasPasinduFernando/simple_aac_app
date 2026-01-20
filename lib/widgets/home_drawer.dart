@@ -4,11 +4,13 @@ class HomeDrawer extends StatelessWidget {
   final String selectedCategory;
   final String currentLanguageLabel;
   final int gridColumns;
+  final int visibleCardCount;
   final bool isEditMode;
   final VoidCallback onSelectCategory;
   final VoidCallback onToggleEdit;
   final VoidCallback onShowLanguage;
   final VoidCallback onShowGrid;
+  final VoidCallback onShowVisibleCount;
   final VoidCallback onShowAbout;
 
   const HomeDrawer({
@@ -16,11 +18,13 @@ class HomeDrawer extends StatelessWidget {
     required this.selectedCategory,
     required this.currentLanguageLabel,
     required this.gridColumns,
+    required this.visibleCardCount,
     required this.isEditMode,
     required this.onSelectCategory,
     required this.onToggleEdit,
     required this.onShowLanguage,
     required this.onShowGrid,
+    required this.onShowVisibleCount,
     required this.onShowAbout,
   }) : super(key: key);
 
@@ -70,6 +74,12 @@ class HomeDrawer extends StatelessWidget {
             title: const Text('Grid Layout'),
             subtitle: Text('$gridColumns columns'),
             onTap: onShowGrid,
+          ),
+          ListTile(
+            leading: const Icon(Icons.filter_1),
+            title: const Text('Visible Cards'),
+            subtitle: Text('$visibleCardCount cards'),
+            onTap: onShowVisibleCount,
           ),
           const Divider(),
           ListTile(

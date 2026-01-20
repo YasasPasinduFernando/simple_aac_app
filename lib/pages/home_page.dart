@@ -30,6 +30,7 @@ class _HomePageState extends State<HomePage> {
 
   List<AACCard> cards = [];
   int gridColumns = 2;
+  int visibleCardCount = 0;
   String currentLanguage = 'en';
   bool isRecording = false;
   String selectedCategory = 'All';
@@ -64,29 +65,29 @@ class _HomePageState extends State<HomePage> {
           AACCard(
             id: '1',
             label: 'Hello',
-            labelSinhala: '????????',
-            labelTamil: '???????',
+            labelSinhala: 'ආයුබෝවන්',
+            labelTamil: 'வணக்கம்',
             colorValue: Colors.pink.shade300.value,
           ),
           AACCard(
             id: '2',
             label: 'Food',
-            labelSinhala: '????',
-            labelTamil: '????',
+            labelSinhala: 'ආහාර',
+            labelTamil: 'உணவு',
             colorValue: Colors.orange.shade300.value,
             subCards: [
               AACCard(
                 id: '2-1',
                 label: 'Rice',
-                labelSinhala: '???',
-                labelTamil: '????',
+                labelSinhala: 'බත්',
+                labelTamil: 'சோறு',
                 colorValue: Colors.orange.shade200.value,
               ),
               AACCard(
                 id: '2-2',
                 label: 'Bread',
-                labelSinhala: '????',
-                labelTamil: '??????',
+                labelSinhala: 'පාන්',
+                labelTamil: 'ரொட்டி',
                 colorValue: Colors.orange.shade200.value,
               ),
             ],
@@ -94,15 +95,15 @@ class _HomePageState extends State<HomePage> {
           AACCard(
             id: '3',
             label: 'Water',
-            labelSinhala: '????',
-            labelTamil: '???????',
+            labelSinhala: 'වතුර',
+            labelTamil: 'தண்ணீர்',
             colorValue: Colors.blue.shade300.value,
           ),
           AACCard(
             id: '4',
             label: 'Help',
-            labelSinhala: '????',
-            labelTamil: '????',
+            labelSinhala: 'උදව්',
+            labelTamil: 'உதவி',
             colorValue: Colors.red.shade300.value,
           ),
         ];
@@ -110,6 +111,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     gridColumns = prefs.getInt('gridColumns') ?? 2;
+    visibleCardCount = prefs.getInt('visibleCardCount') ?? 0;
     currentLanguage = prefs.getString('language') ?? 'en';
 
     _updateCategories();
@@ -131,6 +133,7 @@ class _HomePageState extends State<HomePage> {
     await prefs.setString(
         'cards', jsonEncode(cards.map((c) => c.toJson()).toList()));
     await prefs.setInt('gridColumns', gridColumns);
+    await prefs.setInt('visibleCardCount', visibleCardCount);
     await prefs.setString('language', currentLanguage);
   }
 
@@ -395,9 +398,9 @@ class _HomePageState extends State<HomePage> {
   String _getLanguageName(String code) {
     switch (code) {
       case 'si':
-        return '????? (Sinhala)';
+        return 'සිංහල (Sinhala)';
       case 'ta':
-        return '????? (Tamil)';
+        return 'தமிழ் (Tamil)';
       default:
         return 'English';
     }
@@ -423,7 +426,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('????? (Sinhala)'),
+              title: const Text('සිංහල (Sinhala)'),
               value: 'si',
               groupValue: currentLanguage,
               onChanged: (value) {
@@ -434,7 +437,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('????? (Tamil)'),
+              title: const Text('தமிழ் (Tamil)'),
               value: 'ta',
               groupValue: currentLanguage,
               onChanged: (value) {
@@ -522,18 +525,53 @@ class _HomePageState extends State<HomePage> {
 
   void _showGridOptions() {
     Navigator.pop(context);
+    final labels = ['Extra Large', 'Large', 'Medium', 'Small', 'Extra Small'];
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Select Grid Size'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildGridOption(1, '1 Column'),
-            _buildGridOption(2, '2 Columns'),
-            _buildGridOption(3, '3 Columns'),
-            _buildGridOption(4, '4 Columns'),
-          ],
+          children: List.generate(
+            labels.length,
+            (index) => _buildGridOption(
+              index + 1,
+              labels[index],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showVisibleCountDialog() {
+    Navigator.pop(context);
+    final total = _getBaseDisplayedCards().length;
+    if (total == 0) return;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Visible Cards'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: List.generate(
+              total,
+              (index) => RadioListTile<int>(
+                title: Text('${index + 1}'),
+                value: index + 1,
+                groupValue: visibleCardCount == 0 ? total : visibleCardCount,
+                onChanged: (value) {
+                  setState(() {
+                    visibleCardCount = value ?? total;
+                  });
+                  _saveCards();
+                  Navigator.pop(context);
+                },
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -559,11 +597,19 @@ class _HomePageState extends State<HomePage> {
     return cards.where((card) => card.category == selectedCategory).toList();
   }
 
-  List<AACCard> _getDisplayedCards() {
+  List<AACCard> _getBaseDisplayedCards() {
     if (activeParentCard != null) {
       return activeParentCard!.subCards;
     }
     return _getFilteredCards();
+  }
+
+  List<AACCard> _getDisplayedCards() {
+    final base = _getBaseDisplayedCards();
+    if (visibleCardCount <= 0 || visibleCardCount >= base.length) {
+      return base;
+    }
+    return base.take(visibleCardCount).toList();
   }
 
   void _toggleEditMode() {
@@ -646,11 +692,15 @@ class _HomePageState extends State<HomePage> {
         selectedCategory: selectedCategory,
         currentLanguageLabel: _getLanguageName(currentLanguage),
         gridColumns: gridColumns,
+        visibleCardCount: visibleCardCount == 0
+            ? _getBaseDisplayedCards().length
+            : visibleCardCount,
         isEditMode: isEditMode,
         onSelectCategory: _showCategoryDialog,
         onToggleEdit: _toggleEditMode,
         onShowLanguage: _showLanguageDialog,
         onShowGrid: _showGridOptions,
+        onShowVisibleCount: _showVisibleCountDialog,
         onShowAbout: _showAbout,
       ),
       body: Column(
