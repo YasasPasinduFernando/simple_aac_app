@@ -14,6 +14,8 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onShowLanguage;
   final VoidCallback onShowGrid;
   final VoidCallback onShowVisibleCount;
+  final VoidCallback onBackup;
+  final VoidCallback onRestore;
   final VoidCallback onShowAbout;
 
   const HomeDrawer({
@@ -31,6 +33,8 @@ class HomeDrawer extends StatelessWidget {
     required this.onShowLanguage,
     required this.onShowGrid,
     required this.onShowVisibleCount,
+    required this.onBackup,
+    required this.onRestore,
     required this.onShowAbout,
   }) : super(key: key);
 
@@ -100,6 +104,16 @@ class HomeDrawer extends StatelessWidget {
             title: const Text('Visible Cards'),
             subtitle: Text(visibleCardsLabel),
             onTap: onShowVisibleCount,
+          ),
+          ListTile(
+            leading: const Icon(Icons.backup),
+            title: const Text('Backup'),
+            onTap: onBackup,
+          ),
+          ListTile(
+            leading: const Icon(Icons.restore),
+            title: const Text('Restore'),
+            onTap: onRestore,
           ),
           const Divider(),
           ListTile(

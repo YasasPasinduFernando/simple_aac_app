@@ -29,6 +29,15 @@ dependencies:
   
   # Permission handler
   permission_handler: ^11.0.1
+  
+  # File picker for backup/restore
+  file_picker: ^8.0.0
+  
+  # Zip archive support for backup/restore
+  archive: ^3.6.1
+  
+  # Share backup file
+  share_plus: ^10.0.2
 
 dev_dependencies:
   flutter_test:

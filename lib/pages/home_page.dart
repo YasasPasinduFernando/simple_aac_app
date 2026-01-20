@@ -3,12 +3,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../models/aac_card_model.dart';
 import '../widgets/home_app_bar.dart';
@@ -1051,6 +1054,384 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  String _basename(String path) {
+    final normalized = path.replaceAll('\\', '/');
+    final parts = normalized.split('/');
+    return parts.isEmpty ? path : parts.last;
+  }
+
+  Future<void> _backupToDirectory(
+    Directory backupDir, {
+    bool showSnack = true,
+  }) async {
+    final docsDir = await getApplicationDocumentsDirectory();
+    final filesDir = Directory('${backupDir.path}/files');
+
+    if (!await backupDir.exists()) {
+      await backupDir.create(recursive: true);
+    }
+    if (!await filesDir.exists()) {
+      await filesDir.create(recursive: true);
+    }
+
+    final Map<String, String> pathMap = {};
+    final Map<String, int> nameCounts = {};
+
+    Future<String?> copyMedia(String? path) async {
+      if (path == null) return null;
+      final file = File(path);
+      if (!await file.exists()) return null;
+      if (pathMap.containsKey(path)) return pathMap[path];
+
+      final base = _basename(path);
+      final dot = base.lastIndexOf('.');
+      final name = dot == -1 ? base : base.substring(0, dot);
+      final ext = dot == -1 ? '' : base.substring(dot);
+      final count = (nameCounts[base] ?? 0) + 1;
+      nameCounts[base] = count;
+      final fileName = count == 1 ? base : '${name}_$count$ext';
+      final destPath = '${filesDir.path}/$fileName';
+
+      await file.copy(destPath);
+      final relPath = 'files/$fileName';
+      pathMap[path] = relPath;
+      return relPath;
+    }
+
+    Future<AACCard> cloneCard(AACCard card) async {
+      final imagePath = await copyMedia(card.imagePath);
+      final voicePath = await copyMedia(card.voicePath);
+      final cloned = AACCard(
+        id: card.id,
+        label: card.label,
+        labelSinhala: card.labelSinhala,
+        labelTamil: card.labelTamil,
+        imagePath: imagePath,
+        voicePath: voicePath,
+        category: card.category,
+        colorValue: card.colorValue,
+        type: card.type,
+        subCards: [],
+      );
+      for (final sub in card.subCards) {
+        cloned.subCards.add(await cloneCard(sub));
+      }
+      return cloned;
+    }
+
+    final List<AACCard> clonedCards = [];
+    for (final card in cards) {
+      clonedCards.add(await cloneCard(card));
+    }
+
+    final manifestFile = File('${backupDir.path}/cards.json');
+    await manifestFile.writeAsString(
+      jsonEncode(clonedCards.map((c) => c.toJson()).toList()),
+    );
+
+    if (showSnack) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Backup saved to ${backupDir.path}')),
+      );
+    }
+  }
+
+  Future<void> _backupWithPicker() async {
+    Navigator.pop(context);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Backup'),
+        content: const Text('Choose how to save the backup file.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _backupToAppDocsZip();
+            },
+            child: const Text('App Folder'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _backupAndShare();
+            },
+            child: const Text('Share'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Deprecated: replaced by share-based backup.
+
+  Future<void> _restoreFromDirectory(Directory backupDir) async {
+    final docsDir = await getApplicationDocumentsDirectory();
+    final manifestFile = File('${backupDir.path}/cards.json');
+    if (!await manifestFile.exists()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Backup not found')),
+      );
+      return;
+    }
+
+    final decoded = jsonDecode(await manifestFile.readAsString()) as List;
+    final restored = decoded.map((c) => AACCard.fromJson(c)).toList();
+
+    Future<String?> restoreMedia(String? relPath) async {
+      if (relPath == null) return null;
+      final sourcePath = '${backupDir.path}/${relPath.replaceAll('\\', '/')}';
+      final sourceFile = File(sourcePath);
+      if (!await sourceFile.exists()) return null;
+
+      final base = _basename(sourcePath);
+      final destPath = '${docsDir.path}/$base';
+      var targetPath = destPath;
+      var counter = 1;
+      while (await File(targetPath).exists()) {
+        final dot = base.lastIndexOf('.');
+        final name = dot == -1 ? base : base.substring(0, dot);
+        final ext = dot == -1 ? '' : base.substring(dot);
+        targetPath = '${docsDir.path}/${name}_$counter$ext';
+        counter++;
+      }
+      await sourceFile.copy(targetPath);
+      return targetPath;
+    }
+
+    Future<void> fixCard(AACCard card) async {
+      card.imagePath = await restoreMedia(card.imagePath);
+      card.voicePath = await restoreMedia(card.voicePath);
+      for (final sub in card.subCards) {
+        await fixCard(sub);
+      }
+    }
+
+    for (final card in restored) {
+      await fixCard(card);
+    }
+
+    setState(() {
+      cards = restored;
+      activeParentCard = null;
+      selectedCategory = 'All';
+      visibleCardIdsByParent.clear();
+    });
+    _updateCategories();
+    _saveCards();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Backup restored from ${backupDir.path}')),
+    );
+  }
+
+  Future<void> _restoreWithPicker() async {
+    Navigator.pop(context);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Restore'),
+        content: const Text('Choose a backup file to restore.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _restoreFromAppDocsZip();
+            },
+            child: const Text('App Folder'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _restoreFromPickedFile();
+            },
+            child: const Text('Pick File'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _backupAndShare() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Backup started...')),
+    );
+    final zipBytes = await _buildBackupZip();
+    if (zipBytes == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Backup failed to create zip')),
+      );
+      return;
+    }
+    final docsDir = await getApplicationDocumentsDirectory();
+    final path = '${docsDir.path}/aac_backup.zip';
+    await File(path).writeAsBytes(zipBytes, flush: true);
+    await Share.shareXFiles(
+      [XFile(path)],
+      text: 'AAC App backup',
+    );
+  }
+
+  Future<void> _restoreFromPickedFile() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Restore started...')),
+    );
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['zip'],
+      withData: true,
+    );
+    if (result == null) return;
+
+    final picked = result.files.single;
+    final zipBytes = picked.bytes;
+    final zipPath = picked.path;
+    final tempDir = await Directory.systemTemp.createTemp('aac_restore_');
+    if (zipBytes != null) {
+      await _extractZipBytesToDirectory(zipBytes, tempDir);
+    } else if (zipPath != null) {
+      await _extractZipToDirectory(zipPath, tempDir);
+    } else {
+      await tempDir.delete(recursive: true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Cannot read selected backup')),
+      );
+      return;
+    }
+
+    final directManifest = File('${tempDir.path}/cards.json');
+    final nestedManifest = File('${tempDir.path}/AAC_Backup/cards.json');
+    if (await directManifest.exists()) {
+      await _restoreFromDirectory(tempDir);
+    } else if (await nestedManifest.exists()) {
+      await _restoreFromDirectory(Directory('${tempDir.path}/AAC_Backup'));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Backup not found in selected file')),
+      );
+    }
+
+    await tempDir.delete(recursive: true);
+  }
+
+  Future<void> _backupToAppDocsZip() async {
+    final zipBytes = await _buildBackupZip();
+    if (zipBytes == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Backup failed to create zip')),
+      );
+      return;
+    }
+    final path = await _saveBackupToAppDocs(zipBytes);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Backup saved to $path')),
+    );
+  }
+
+  Future<void> _restoreFromAppDocsZip() async {
+    final docsDir = await getApplicationDocumentsDirectory();
+    final zipFile = File('${docsDir.path}/aac_backup.zip');
+    if (!await zipFile.exists()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No backup found in app folder')),
+      );
+      return;
+    }
+    final tempDir = await Directory.systemTemp.createTemp('aac_restore_');
+    await _extractZipToDirectory(zipFile.path, tempDir);
+
+    final directManifest = File('${tempDir.path}/cards.json');
+    final nestedManifest = File('${tempDir.path}/AAC_Backup/cards.json');
+    if (await directManifest.exists()) {
+      await _restoreFromDirectory(tempDir);
+    } else if (await nestedManifest.exists()) {
+      await _restoreFromDirectory(Directory('${tempDir.path}/AAC_Backup'));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Backup not found in app folder file')),
+      );
+    }
+    await tempDir.delete(recursive: true);
+  }
+
+  List<int> _zipDirectory(Directory dir) {
+    final archive = Archive();
+    final rootPath = dir.path.replaceAll('\\', '/');
+    for (final entity in dir.listSync(recursive: true)) {
+      if (entity is File) {
+        final filePath = entity.path.replaceAll('\\', '/');
+        final relPath = filePath.startsWith(rootPath)
+            ? filePath.substring(rootPath.length + 1)
+            : filePath;
+        final data = entity.readAsBytesSync();
+        archive.addFile(ArchiveFile(relPath, data.length, data));
+      }
+    }
+    final zipEncoder = ZipEncoder();
+    return zipEncoder.encode(archive) ?? <int>[];
+  }
+
+  Future<List<int>?> _buildBackupZip() async {
+    final tempDir = await Directory.systemTemp.createTemp('aac_backup_');
+    final backupRoot = Directory('${tempDir.path}/AAC_Backup');
+    try {
+      await _backupToDirectory(backupRoot, showSnack: false);
+      final zipBytes = _zipDirectory(backupRoot);
+      return zipBytes;
+    } finally {
+      await tempDir.delete(recursive: true);
+    }
+  }
+
+  Future<String> _saveBackupToAppDocs(List<int> zipBytes) async {
+    final docsDir = await getApplicationDocumentsDirectory();
+    final path = '${docsDir.path}/aac_backup.zip';
+    await File(path).writeAsBytes(zipBytes, flush: true);
+    return path;
+  }
+
+  Future<void> _extractZipToDirectory(String zipPath, Directory target) async {
+    final bytes = await File(zipPath).readAsBytes();
+    final archive = ZipDecoder().decodeBytes(bytes);
+    for (final file in archive) {
+      final name = file.name.replaceAll('\\', '/');
+      final outPath = '${target.path}/$name';
+      if (file.isFile) {
+        final outFile = File(outPath);
+        await outFile.parent.create(recursive: true);
+        await outFile.writeAsBytes(file.content as List<int>, flush: true);
+      } else {
+        await Directory(outPath).create(recursive: true);
+      }
+    }
+  }
+
+  Future<void> _extractZipBytesToDirectory(
+    List<int> bytes,
+    Directory target,
+  ) async {
+    final archive = ZipDecoder().decodeBytes(bytes);
+    for (final file in archive) {
+      final name = file.name.replaceAll('\\', '/');
+      final outPath = '${target.path}/$name';
+      if (file.isFile) {
+        final outFile = File(outPath);
+        await outFile.parent.create(recursive: true);
+        await outFile.writeAsBytes(file.content as List<int>, flush: true);
+      } else {
+        await Directory(outPath).create(recursive: true);
+      }
+    }
+  }
+
   void _showAbout() {
     Navigator.pop(context);
     showAboutDialog(
@@ -1120,6 +1501,8 @@ class _HomePageState extends State<HomePage> {
         onShowLanguage: _showLanguageDialog,
         onShowGrid: _showGridOptions,
         onShowVisibleCount: _showVisibleCountDialog,
+        onBackup: _backupWithPicker,
+        onRestore: _restoreWithPicker,
         onShowAbout: _showAbout,
       ),
       body: Column(
