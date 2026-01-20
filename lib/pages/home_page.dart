@@ -618,10 +618,25 @@ class _HomePageState extends State<HomePage> {
           ),
           ElevatedButton(
             onPressed: () {
-              setState(() {
-                searchQuery = controller.text.trim();
-              });
-              Navigator.pop(context);
+              final pattern = controller.text.trim();
+              if (pattern.isEmpty) {
+                setState(() {
+                  searchQuery = '';
+                });
+                Navigator.pop(context);
+                return;
+              }
+              try {
+                RegExp(pattern);
+                setState(() {
+                  searchQuery = pattern;
+                });
+                Navigator.pop(context);
+              } catch (_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Invalid regex pattern')),
+                );
+              }
             },
             child: const Text('Apply'),
           ),
@@ -670,10 +685,14 @@ class _HomePageState extends State<HomePage> {
   List<AACCard> _filterBySearch(List<AACCard> cardsList) {
     final query = searchQuery.trim().toLowerCase();
     if (query.isEmpty) return cardsList;
-    return cardsList
-        .where((card) =>
-            card.getLabel(currentLanguage).toLowerCase().contains(query))
-        .toList();
+    try {
+      final regex = RegExp(searchQuery, caseSensitive: false);
+      return cardsList
+          .where((card) => regex.hasMatch(card.getLabel(currentLanguage)))
+          .toList();
+    } catch (_) {
+      return cardsList;
+    }
   }
 
   String _visibleSelectionKey() {
