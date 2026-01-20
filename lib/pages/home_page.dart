@@ -546,6 +546,7 @@ class _HomePageState extends State<HomePage> {
 
   void _showVisibleCountDialog() {
     Navigator.pop(context);
+    if (activeParentCard != null) return;
     final total = _getBaseDisplayedCards().length;
     if (total == 0) return;
     showDialog(
@@ -606,6 +607,9 @@ class _HomePageState extends State<HomePage> {
 
   List<AACCard> _getDisplayedCards() {
     final base = _getBaseDisplayedCards();
+    if (activeParentCard != null) {
+      return base;
+    }
     if (visibleCardCount <= 0 || visibleCardCount >= base.length) {
       return base;
     }
@@ -697,6 +701,7 @@ class _HomePageState extends State<HomePage> {
             : visibleCardCount,
         isEditMode: isEditMode,
         onSelectCategory: _showCategoryDialog,
+        onAddCategory: _showAddCategoryDialog,
         onToggleEdit: _toggleEditMode,
         onShowLanguage: _showLanguageDialog,
         onShowGrid: _showGridOptions,

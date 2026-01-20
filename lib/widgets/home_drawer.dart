@@ -7,6 +7,7 @@ class HomeDrawer extends StatelessWidget {
   final int visibleCardCount;
   final bool isEditMode;
   final VoidCallback onSelectCategory;
+  final VoidCallback onAddCategory;
   final VoidCallback onToggleEdit;
   final VoidCallback onShowLanguage;
   final VoidCallback onShowGrid;
@@ -21,6 +22,7 @@ class HomeDrawer extends StatelessWidget {
     required this.visibleCardCount,
     required this.isEditMode,
     required this.onSelectCategory,
+    required this.onAddCategory,
     required this.onToggleEdit,
     required this.onShowLanguage,
     required this.onShowGrid,
@@ -56,6 +58,11 @@ class HomeDrawer extends StatelessWidget {
             title: const Text('Category'),
             subtitle: Text(selectedCategory),
             onTap: onSelectCategory,
+          ),
+          ListTile(
+            leading: const Icon(Icons.add_circle_outline),
+            title: const Text('Add Category'),
+            onTap: onAddCategory,
           ),
           ListTile(
             leading: const Icon(Icons.edit),
