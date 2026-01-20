@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -11,6 +12,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showMenu;
   final VoidCallback onOpenMenu;
   final Color backgroundColor;
+  final Widget? titleWidget;
 
   const HomeAppBar({
     Key? key,
@@ -24,6 +26,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.showMenu,
     required this.onOpenMenu,
     required this.backgroundColor,
+    this.titleWidget,
   }) : super(key: key);
 
   @override
@@ -32,7 +35,14 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text(title),
+      title: titleWidget ??
+          Text(
+            title,
+            style: GoogleFonts.playfairDisplay(
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.4,
+            ),
+          ),
       backgroundColor: backgroundColor,
       automaticallyImplyLeading: false,
       leadingWidth: showPin && showBack ? 96 : 56,
@@ -40,13 +50,13 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? Row(
               children: [
                 if (showPin)
-                  IconButton(
-                    icon: Icon(isPinned ? Icons.push_pin : Icons.push_pin_outlined),
+                  _AppBarIconButton(
+                    icon: isPinned ? Icons.push_pin : Icons.push_pin_outlined,
                     onPressed: onTogglePin,
                   ),
                 if (showBack)
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
+                  _AppBarIconButton(
+                    icon: Icons.arrow_back,
                     onPressed: onBack,
                   ),
               ],
@@ -56,12 +66,39 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? []
           : showMenu
               ? [
-                  IconButton(
-                    icon: const Icon(Icons.menu),
+                  _AppBarIconButton(
+                    icon: Icons.menu,
                     onPressed: onOpenMenu,
                   ),
                 ]
               : [],
+    );
+  }
+}
+
+class _AppBarIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  const _AppBarIconButton({
+    required this.icon,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Ink(
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: IconButton(
+          icon: Icon(icon),
+          onPressed: onPressed,
+        ),
+      ),
     );
   }
 }

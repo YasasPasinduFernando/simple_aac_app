@@ -15,6 +15,8 @@ import '../models/aac_card_model.dart';
 import '../models/tts_token.dart';
 import '../services/backup_service.dart';
 import '../widgets/card_editor_dialog.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import '../widgets/edit_mode_bar.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/home_drawer.dart';
@@ -1088,6 +1090,17 @@ class _HomePageState extends State<HomePage> {
                 title: activeParentCard == null
                     ? 'AAC App'
                     : activeParentCard!.getLabel(currentLanguage),
+                titleWidget: activeParentCard == null
+                    ? Text(
+                        'SL AAC',
+                        style: GoogleFonts.playfairDisplay(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20,
+                          letterSpacing: 1.0,
+                          color: Colors.white,
+                        ),
+                      )
+                    : null,
                 backgroundColor: Colors.brown.shade700,
                 showBack: activeParentCard != null && !isPinned,
                 onBack: () {

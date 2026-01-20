@@ -73,17 +73,6 @@ class HomeDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.category),
-            title: const Text('Category'),
-            subtitle: Text(selectedCategory),
-            onTap: onSelectCategory,
-          ),
-          ListTile(
-            leading: const Icon(Icons.add_circle_outline),
-            title: const Text('Add Category'),
-            onTap: onAddCategory,
-          ),
-          ListTile(
             leading: const Icon(Icons.edit),
             title: Text(isEditMode ? 'Exit Edit' : 'Edit'),
             onTap: onToggleEdit,
