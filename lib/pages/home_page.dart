@@ -51,7 +51,9 @@ class _HomePageState extends State<HomePage> {
   bool isEditMode = false;
   bool isCardEditorOpen = false;
   String? highlightedCardId;
+  String? _tapAnimatedCardId;
   Timer? _highlightTimer;
+  Timer? _tapAnimTimer;
   String orientationMode = 'portrait';
   bool fullScreen = false;
   bool isPinned = false;
@@ -256,6 +258,20 @@ class _HomePageState extends State<HomePage> {
 
   void _resetTtsInput() {
     _ttsTokens.clear();
+  }
+
+  void _triggerWordTapAnimation(String cardId) {
+    _tapAnimTimer?.cancel();
+    setState(() {
+      highlightedCardId = null;
+      _tapAnimatedCardId = cardId;
+    });
+    _tapAnimTimer = Timer(const Duration(milliseconds: 160), () {
+      if (!mounted) return;
+      setState(() {
+        _tapAnimatedCardId = null;
+      });
+    });
   }
 
   Future<void> _playVoice(String path) async {
@@ -1406,6 +1422,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCardWidget(AACCard card, bool isTablet) {
     final displayLabel = card.getLabel(currentLanguage);
+    final isTapAnimated = _tapAnimatedCardId == card.id;
 
     return GestureDetector(
       onTap: () async {
@@ -1423,6 +1440,7 @@ class _HomePageState extends State<HomePage> {
           return;
         }
 
+        _triggerWordTapAnimation(card.id);
         _appendToTtsInput(displayLabel, imagePath: card.imagePath);
         if (card.voicePath != null && await File(card.voicePath!).exists()) {
           await _playVoice(card.voicePath!);
@@ -1430,112 +1448,118 @@ class _HomePageState extends State<HomePage> {
           await _speak(displayLabel);
         }
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: Color(card.colorValue),
-          borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
-          border: highlightedCardId == card.id
-              ? Border.all(color: Colors.yellow.shade200, width: 3)
-              : null,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: card.imagePath != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(isTablet ? 20 : 16)),
-                          child: Image.file(
-                            File(card.imagePath!),
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Center(
-                                child: Icon(Icons.broken_image,
-                                    size: 60, color: Colors.white70),
-                              );
-                            },
+      child: AnimatedScale(
+        scale: isTapAnimated ? 1.5 : 1.0,
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOut,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: Color(card.colorValue),
+            borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
+            border: highlightedCardId == card.id
+                ? Border.all(color: Colors.yellow.shade200, width: 3)
+                : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: card.imagePath != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(isTablet ? 20 : 16)),
+                            child: Image.file(
+                              File(card.imagePath!),
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Center(
+                                  child: Icon(Icons.broken_image,
+                                      size: 60, color: Colors.white70),
+                                );
+                              },
+                            ),
+                          )
+                        : Center(
+                            child: Icon(Icons.image,
+                                size: isTablet ? 80 : 60,
+                                color: Colors.white70),
                           ),
-                        )
-                      : Center(
-                          child: Icon(Icons.image,
-                              size: isTablet ? 80 : 60, color: Colors.white70),
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      alignment: Alignment.center,
+                      child: Text(
+                        displayLabel,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isTablet ? 20 : 16,
+                          fontWeight: FontWeight.bold,
                         ),
-                ),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    alignment: Alignment.center,
-                    child: Text(
-                      displayLabel,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isTablet ? 20 : 16,
-                        fontWeight: FontWeight.bold,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              if (card.voicePath != null)
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.mic, color: Colors.white, size: 16),
+                  ),
+                ),
+              if (card.type == 'folder')
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.arrow_forward,
+                        color: Colors.white, size: 16),
+                  ),
+                ),
+              if (isEditMode)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.white),
+                      tooltip: 'Delete',
+                      onPressed: () => _confirmDelete(card),
                     ),
                   ),
                 ),
-              ],
-            ),
-            if (card.voicePath != null)
-              Positioned(
-                top: 8,
-                left: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.mic, color: Colors.white, size: 16),
-                ),
-              ),
-            if (card.type == 'folder')
-              Positioned(
-                bottom: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.arrow_forward,
-                      color: Colors.white, size: 16),
-                ),
-              ),
-            if (isEditMode)
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.white),
-                    tooltip: 'Delete',
-                    onPressed: () => _confirmDelete(card),
-                  ),
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1544,6 +1568,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _highlightTimer?.cancel();
+    _tapAnimTimer?.cancel();
     _tts.stop();
     _audioPlayer.dispose();
     _gridController.dispose();
