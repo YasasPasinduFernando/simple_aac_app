@@ -28,6 +28,7 @@ class _HomePageState extends State<HomePage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final TextEditingController _textController = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final ScrollController _gridController = ScrollController();
 
   List<AACCard> cards = [];
   int gridColumns = 2;
@@ -38,6 +39,9 @@ class _HomePageState extends State<HomePage> {
   Set<String> allCategories = {'General'};
   AACCard? activeParentCard;
   bool isEditMode = false;
+  bool isCardEditorOpen = false;
+  String? highlightedCardId;
+  Timer? _highlightTimer;
 
   @override
   void initState() {
@@ -242,7 +246,26 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _editCard(AACCard card) {
+  void _setHighlight(String cardId) {
+    _highlightTimer?.cancel();
+    setState(() {
+      highlightedCardId = cardId;
+    });
+    _highlightTimer = Timer(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      setState(() {
+        highlightedCardId = null;
+      });
+    });
+  }
+
+  Future<void> _editCard(
+    AACCard card, {
+    bool isNew = false,
+    void Function(AACCard card)? onSave,
+  }) async {
+    if (isCardEditorOpen) return;
+    isCardEditorOpen = true;
     final controllerEn = TextEditingController(text: card.label);
     final controllerSi = TextEditingController(text: card.labelSinhala ?? '');
     final controllerTa = TextEditingController(text: card.labelTamil ?? '');
@@ -258,8 +281,10 @@ class _HomePageState extends State<HomePage> {
     Duration playDuration = Duration.zero;
     Duration playPosition = Duration.zero;
     bool isPlaying = false;
+    bool createChildAfterClose = false;
+    AACCard? createChildParent;
 
-    showDialog(
+    await showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
@@ -391,7 +416,7 @@ class _HomePageState extends State<HomePage> {
               return true;
             },
             child: AlertDialog(
-              title: const Text('Edit Card'),
+              title: Text(isNew ? 'Create Card' : 'Edit Card'),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -542,12 +567,22 @@ class _HomePageState extends State<HomePage> {
                       ),
                     const SizedBox(height: 8),
                     ElevatedButton.icon(
+                      onPressed: isNew
+                          ? null
+                          : () {
+                              createChildAfterClose = true;
+                              createChildParent = card;
+                              Navigator.pop(context);
+                            },
+                      icon: const Icon(Icons.add_box),
+                      label: const Text('Add Sub-Card'),
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
                       onPressed: () {
+                        createChildAfterClose = true;
+                        createChildParent = card;
                         Navigator.pop(context);
-                        _addSubCard(card);
-                        setState(() {
-                          activeParentCard = card;
-                        });
                       },
                       icon: const Icon(Icons.add_box),
                       label: const Text('Add Sub-Card'),
@@ -582,8 +617,12 @@ class _HomePageState extends State<HomePage> {
                         card.subCards.clear();
                       }
                     });
-                    _updateCategories();
-                    _saveCards();
+                    if (onSave != null) {
+                      onSave(card);
+                    } else {
+                      _updateCategories();
+                      _saveCards();
+                    }
                     Navigator.pop(context);
                   },
                   child: const Text('Save'),
@@ -594,22 +633,66 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
+    if (mounted) {
+      setState(() {
+        isCardEditorOpen = false;
+      });
+    } else {
+      isCardEditorOpen = false;
+    }
+    if (createChildAfterClose && createChildParent != null) {
+      _createCard(parent: createChildParent);
+    }
   }
 
-  void _addSubCard(AACCard parentCard) {
-    setState(() {
-      parentCard.type = 'folder';
-      parentCard.subCards.add(
-        AACCard(
-          id: '${parentCard.id}-${parentCard.subCards.length + 1}',
-          label: 'New Card',
-          colorValue: Color(parentCard.colorValue).withOpacity(0.7).value,
-        ),
+  void _createCard({AACCard? parent}) {
+    if (isCardEditorOpen) return;
+    final newCard = AACCard(
+      id: DateTime.now().toString(),
+      label: 'New',
+      colorValue: parent != null
+          ? Color(parent.colorValue).withOpacity(0.7).value
+          : Colors.primaries[cards.length % Colors.primaries.length].value,
+      category: parent != null
+          ? parent.category
+          : (selectedCategory == 'All' ? 'General' : selectedCategory),
+    );
+
+    _editCard(
+      newCard,
+      isNew: true,
+      onSave: (savedCard) {
+        setState(() {
+          if (parent != null) {
+            parent.type = 'folder';
+            parent.subCards.add(savedCard);
+            activeParentCard = parent;
+            _includeInVisibleSelection(parent.id, savedCard.id);
+          } else {
+            cards.add(savedCard);
+            _includeInVisibleSelection('__root__', savedCard.id);
+          }
+        });
+        _updateCategories();
+        _saveCards();
+        _setHighlight(savedCard.id);
+        _scrollToEnd();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('New card created')),
+        );
+      },
+    );
+  }
+
+  void _scrollToEnd() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_gridController.hasClients) return;
+      _gridController.animateTo(
+        _gridController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
       );
     });
-    final newCardId = parentCard.subCards.last.id;
-    _includeInVisibleSelection(parentCard.id, newCardId);
-    _saveCards();
   }
 
   void _showSubCards(AACCard card) {
@@ -1003,33 +1086,7 @@ class _HomePageState extends State<HomePage> {
         },
         isEditMode: isEditMode,
         onAdd: () {
-          setState(() {
-            if (activeParentCard != null) {
-              activeParentCard!.subCards.add(
-                AACCard(
-                  id:
-                      '${activeParentCard!.id}-${activeParentCard!.subCards.length + 1}',
-                  label: 'New',
-                  colorValue:
-                      Color(activeParentCard!.colorValue).withOpacity(0.7).value,
-                ),
-              );
-              _includeInVisibleSelection(
-                activeParentCard!.id,
-                activeParentCard!.subCards.last.id,
-              );
-            } else {
-              cards.add(AACCard(
-                id: DateTime.now().toString(),
-                label: 'New',
-                colorValue: Colors
-                    .primaries[cards.length % Colors.primaries.length].value,
-              ));
-              _includeInVisibleSelection('__root__', cards.last.id);
-            }
-          });
-          _updateCategories();
-          _saveCards();
+          _createCard(parent: activeParentCard);
         },
         onDone: () {
           setState(() {
@@ -1120,6 +1177,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   )
                 : GridView.builder(
+                    controller: _gridController,
                     padding: EdgeInsets.all(isTablet ? 20 : 12),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: isTablet
@@ -1167,10 +1225,14 @@ class _HomePageState extends State<HomePage> {
           await _speak(displayLabel);
         }
       },
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           color: Color(card.colorValue),
           borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
+          border: highlightedCardId == card.id
+              ? Border.all(color: Colors.yellow.shade200, width: 3)
+              : null,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -1276,10 +1338,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    _highlightTimer?.cancel();
     _tts.stop();
     _audioPlayer.dispose();
     _recorder.dispose();
     _textController.dispose();
+    _gridController.dispose();
     super.dispose();
   }
 }
