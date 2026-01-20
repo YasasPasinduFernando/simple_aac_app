@@ -33,6 +33,7 @@ class _HomePageState extends State<HomePage> {
   int visibleCardCount = 0;
   String currentLanguage = 'en';
   bool isRecording = false;
+  bool showTtsInput = true;
   String selectedCategory = 'All';
   Set<String> allCategories = {'General'};
   AACCard? activeParentCard;
@@ -112,6 +113,7 @@ class _HomePageState extends State<HomePage> {
 
     gridColumns = prefs.getInt('gridColumns') ?? 2;
     visibleCardCount = prefs.getInt('visibleCardCount') ?? 0;
+    showTtsInput = prefs.getBool('showTtsInput') ?? true;
     currentLanguage = prefs.getString('language') ?? 'en';
 
     _updateCategories();
@@ -134,6 +136,7 @@ class _HomePageState extends State<HomePage> {
         'cards', jsonEncode(cards.map((c) => c.toJson()).toList()));
     await prefs.setInt('gridColumns', gridColumns);
     await prefs.setInt('visibleCardCount', visibleCardCount);
+    await prefs.setBool('showTtsInput', showTtsInput);
     await prefs.setString('language', currentLanguage);
   }
 
@@ -700,9 +703,17 @@ class _HomePageState extends State<HomePage> {
             ? _getBaseDisplayedCards().length
             : visibleCardCount,
         isEditMode: isEditMode,
+        showTtsInput: showTtsInput,
         onSelectCategory: _showCategoryDialog,
         onAddCategory: _showAddCategoryDialog,
         onToggleEdit: _toggleEditMode,
+        onToggleTtsInput: () {
+          Navigator.pop(context);
+          setState(() {
+            showTtsInput = !showTtsInput;
+          });
+          _saveCards();
+        },
         onShowLanguage: _showLanguageDialog,
         onShowGrid: _showGridOptions,
         onShowVisibleCount: _showVisibleCountDialog,
@@ -710,48 +721,49 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: [
-          Container(
-            padding: EdgeInsets.all(isTablet ? 20 : 16),
-            color: Colors.grey.shade200,
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    style: TextStyle(fontSize: isTablet ? 18 : 16),
-                    decoration: InputDecoration(
-                      hintText: 'Type to speak...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: isTablet ? 20 : 16,
-                        vertical: isTablet ? 16 : 12,
+          if (showTtsInput)
+            Container(
+              padding: EdgeInsets.all(isTablet ? 20 : 16),
+              color: Colors.grey.shade200,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _textController,
+                      style: TextStyle(fontSize: isTablet ? 18 : 16),
+                      decoration: InputDecoration(
+                        hintText: 'Type to speak...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: isTablet ? 20 : 16,
+                          vertical: isTablet ? 16 : 12,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade700,
-                    shape: BoxShape.circle,
+                  const SizedBox(width: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade700,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.volume_up, size: isTablet ? 36 : 28),
+                      color: Colors.white,
+                      onPressed: () {
+                        if (_textController.text.isNotEmpty) {
+                          _speak(_textController.text);
+                        }
+                      },
+                    ),
                   ),
-                  child: IconButton(
-                    icon: Icon(Icons.volume_up, size: isTablet ? 36 : 28),
-                    color: Colors.white,
-                    onPressed: () {
-                      if (_textController.text.isNotEmpty) {
-                        _speak(_textController.text);
-                      }
-                    },
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           Expanded(
             child: _getDisplayedCards().isEmpty
                 ? Center(

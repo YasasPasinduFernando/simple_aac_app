@@ -6,9 +6,11 @@ class HomeDrawer extends StatelessWidget {
   final int gridColumns;
   final int visibleCardCount;
   final bool isEditMode;
+  final bool showTtsInput;
   final VoidCallback onSelectCategory;
   final VoidCallback onAddCategory;
   final VoidCallback onToggleEdit;
+  final VoidCallback onToggleTtsInput;
   final VoidCallback onShowLanguage;
   final VoidCallback onShowGrid;
   final VoidCallback onShowVisibleCount;
@@ -21,9 +23,11 @@ class HomeDrawer extends StatelessWidget {
     required this.gridColumns,
     required this.visibleCardCount,
     required this.isEditMode,
+    required this.showTtsInput,
     required this.onSelectCategory,
     required this.onAddCategory,
     required this.onToggleEdit,
+    required this.onToggleTtsInput,
     required this.onShowLanguage,
     required this.onShowGrid,
     required this.onShowVisibleCount,
@@ -68,6 +72,15 @@ class HomeDrawer extends StatelessWidget {
             leading: const Icon(Icons.edit),
             title: Text(isEditMode ? 'Exit Edit' : 'Edit'),
             onTap: onToggleEdit,
+          ),
+          ListTile(
+            leading: const Icon(Icons.record_voice_over),
+            title: const Text('Type to Speak'),
+            trailing: Switch(
+              value: showTtsInput,
+              onChanged: (_) => onToggleTtsInput(),
+            ),
+            onTap: onToggleTtsInput,
           ),
           const Divider(),
           ListTile(
