@@ -36,6 +36,10 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final base = backgroundColor;
+    final lighter = Color.lerp(base, Colors.white, 0.08)!;
+    final darker = Color.lerp(base, Colors.black, 0.12)!;
+
     return AppBar(
       title: titleWidget ??
           Text(
@@ -46,7 +50,18 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               color: titleTextColor,
             ),
           ),
-      backgroundColor: backgroundColor,
+      backgroundColor: base,
+      elevation: 2,
+      shadowColor: Colors.black26,
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [lighter, darker],
+          ),
+        ),
+      ),
       automaticallyImplyLeading: false,
       leadingWidth: showPin && showBack ? 96 : 56,
       leading: (showPin || showBack)
@@ -96,6 +111,7 @@ class _AppBarIconButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.15),
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withOpacity(0.08)),
         ),
         child: IconButton(
           icon: Icon(icon),
