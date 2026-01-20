@@ -411,6 +411,37 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _confirmDelete(AACCard card) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Card'),
+        content: Text('Delete "${card.label}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('No'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                if (activeParentCard != null) {
+                  activeParentCard!.subCards.remove(card);
+                } else {
+                  cards.remove(card);
+                }
+              });
+              _updateCategories();
+              _saveCards();
+              Navigator.pop(context);
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+  }
+
   String _getLanguageName(String code) {
     switch (code) {
       case 'si':
@@ -913,6 +944,22 @@ class _HomePageState extends State<HomePage> {
                   ),
                   child: const Icon(Icons.arrow_forward,
                       color: Colors.white, size: 16),
+                ),
+              ),
+            if (isEditMode)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.white),
+                    tooltip: 'Delete',
+                    onPressed: () => _confirmDelete(card),
+                  ),
                 ),
               ),
           ],
