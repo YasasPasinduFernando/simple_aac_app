@@ -1096,6 +1096,7 @@ class _HomePageState extends State<HomePage> {
           child: isLandscape
               ? Row(
                   children: [
+                    Expanded(child: _buildMainContent(isTablet)),
                     LandscapeMenu(
                       isPinned: isPinned,
                       canGoBack: activeParentCard != null,
@@ -1145,7 +1146,6 @@ class _HomePageState extends State<HomePage> {
                       },
                       onSearch: _showSearchDialog,
                     ),
-                    Expanded(child: _buildMainContent(isTablet)),
                   ],
                 )
               : _buildMainContent(isTablet),

@@ -48,7 +48,10 @@ class HomeDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final drawerWidth =
+        (MediaQuery.of(context).size.width * 0.7).clamp(240.0, 320.0);
     return Drawer(
+      width: drawerWidth,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
