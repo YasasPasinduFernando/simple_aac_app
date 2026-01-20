@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -32,7 +33,6 @@ class _HomePageState extends State<HomePage> {
   int gridColumns = 2;
   Map<String, Set<String>> visibleCardIdsByParent = {};
   String currentLanguage = 'en';
-  bool isRecording = false;
   bool showTtsInput = true;
   String selectedCategory = 'All';
   Set<String> allCategories = {'General'};
@@ -238,187 +238,340 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _recordVoice(AACCard card) async {
-    if (isRecording) {
-      final path = await _recorder.stop();
-      setState(() {
-        isRecording = false;
-        if (path != null) {
-          card.voicePath = path;
-        }
-      });
-      _saveCards();
-    } else {
-      final hasPermission = await _recorder.hasPermission();
-      if (!hasPermission) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Microphone permission required')),
-        );
-        return;
-      }
-
-      final dir = await getApplicationDocumentsDirectory();
-      final path =
-          '${dir.path}/voice_${card.id}_${DateTime.now().millisecondsSinceEpoch}.m4a';
-
-      await _recorder.start(const RecordConfig(), path: path);
-      setState(() {
-        isRecording = true;
-      });
-    }
-  }
-
   void _editCard(AACCard card) {
     final controllerEn = TextEditingController(text: card.label);
     final controllerSi = TextEditingController(text: card.labelSinhala ?? '');
     final controllerTa = TextEditingController(text: card.labelTamil ?? '');
     String selectedCategory = card.category;
     String selectedType = card.type;
+    bool isDialogRecording = false;
+    double recordProgress = 0.0;
+    Timer? recordTimer;
+    DateTime? recordStart;
+    StreamSubscription<Duration>? positionSub;
+    StreamSubscription<Duration>? durationSub;
+    StreamSubscription<void>? completeSub;
+    Duration playDuration = Duration.zero;
+    Duration playPosition = Duration.zero;
+    bool isPlaying = false;
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Edit Card'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: controllerEn,
-                  decoration: const InputDecoration(
-                    labelText: 'English',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: controllerSi,
-                  decoration: const InputDecoration(
-                    labelText: 'Sinhala (?????)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: controllerTa,
-                  decoration: const InputDecoration(
-                    labelText: 'Tamil (?????)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  value: selectedCategory,
-                  decoration: const InputDecoration(
-                    labelText: 'Category',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: allCategories
-                      .map((cat) => DropdownMenuItem(
-                            value: cat,
-                            child: Text(cat),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setDialogState(() => selectedCategory = value ?? 'General');
-                  },
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  value: selectedType,
-                  decoration: const InputDecoration(
-                    labelText: 'Type',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'word', child: Text('Word')),
-                    DropdownMenuItem(value: 'folder', child: Text('Folder')),
-                  ],
-                  onChanged: (value) {
-                    setDialogState(() => selectedType = value ?? 'word');
-                  },
-                ),
-                const SizedBox(height: 16),
-                Row(
+        builder: (context, setDialogState) {
+          Future<void> stopRecording() async {
+            if (!isDialogRecording) return;
+            recordTimer?.cancel();
+            recordTimer = null;
+            final path = await _recorder.stop();
+            setDialogState(() {
+              isDialogRecording = false;
+              recordProgress = 0.0;
+            });
+            if (path != null) {
+              setState(() {
+                card.voicePath = path;
+              });
+              _saveCards();
+            }
+          }
+
+          Future<void> startRecording() async {
+            if (isDialogRecording) return;
+            final hasPermission = await _recorder.hasPermission();
+            if (!hasPermission) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Microphone permission required')),
+              );
+              return;
+            }
+
+            final dir = await getApplicationDocumentsDirectory();
+            final path =
+                '${dir.path}/voice_${card.id}_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
+            await _recorder.start(const RecordConfig(), path: path);
+            recordStart = DateTime.now();
+            setDialogState(() {
+              isDialogRecording = true;
+              recordProgress = 0.0;
+            });
+
+            recordTimer = Timer.periodic(const Duration(milliseconds: 100), (t) {
+              if (recordStart == null) return;
+              final elapsedMs =
+                  DateTime.now().difference(recordStart!).inMilliseconds;
+              final progress = (elapsedMs / 15000).clamp(0.0, 1.0);
+              setDialogState(() {
+                recordProgress = progress;
+              });
+              if (elapsedMs >= 15000) {
+                stopRecording();
+              }
+            });
+          }
+
+          Future<void> stopRecordingIfNeeded() async {
+            if (isDialogRecording) {
+              await stopRecording();
+            }
+          }
+
+          void disposePlayback() {
+            positionSub?.cancel();
+            durationSub?.cancel();
+            completeSub?.cancel();
+            positionSub = null;
+            durationSub = null;
+            completeSub = null;
+          }
+
+          Future<void> stopPlayback() async {
+            if (!isPlaying) return;
+            await _audioPlayer.stop();
+            setDialogState(() {
+              isPlaying = false;
+              playPosition = Duration.zero;
+            });
+          }
+
+          Future<void> startPlayback() async {
+            if (card.voicePath == null) return;
+            disposePlayback();
+
+            durationSub = _audioPlayer.onDurationChanged.listen((d) {
+              setDialogState(() {
+                playDuration = d;
+              });
+            });
+            positionSub = _audioPlayer.onPositionChanged.listen((p) {
+              setDialogState(() {
+                playPosition = p;
+              });
+            });
+            completeSub = _audioPlayer.onPlayerComplete.listen((_) {
+              setDialogState(() {
+                isPlaying = false;
+                playPosition = Duration.zero;
+              });
+              disposePlayback();
+            });
+
+            await _audioPlayer.play(DeviceFileSource(card.voicePath!));
+            setDialogState(() {
+              isPlaying = true;
+            });
+          }
+
+          return WillPopScope(
+            onWillPop: () async {
+              await stopRecordingIfNeeded();
+              await stopPlayback();
+              disposePlayback();
+              return true;
+            },
+            child: AlertDialog(
+              title: const Text('Edit Card'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _pickImage(card);
-                        },
-                        icon: const Icon(Icons.add_photo_alternate),
-                        label: const Text('Photo'),
+                    TextField(
+                      controller: controllerEn,
+                      decoration: const InputDecoration(
+                        labelText: 'English',
+                        border: OutlineInputBorder(),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _recordVoice(card);
-                        },
-                        icon: Icon(isRecording ? Icons.stop : Icons.mic),
-                        label: Text(isRecording ? 'Stop' : 'Voice'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isRecording ? Colors.red : null,
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: controllerSi,
+                      decoration: const InputDecoration(
+                        labelText: 'Sinhala (?????)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: controllerTa,
+                      decoration: const InputDecoration(
+                        labelText: 'Tamil (?????)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: selectedCategory,
+                      decoration: const InputDecoration(
+                        labelText: 'Category',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: allCategories
+                          .map((cat) => DropdownMenuItem(
+                                value: cat,
+                                child: Text(cat),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setDialogState(
+                            () => selectedCategory = value ?? 'General');
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: selectedType,
+                      decoration: const InputDecoration(
+                        labelText: 'Type',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 'word', child: Text('Word')),
+                        DropdownMenuItem(value: 'folder', child: Text('Folder')),
+                      ],
+                      onChanged: (value) {
+                        setDialogState(() => selectedType = value ?? 'word');
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              _pickImage(card);
+                            },
+                            icon: const Icon(Icons.add_photo_alternate),
+                            label: const Text('Photo'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              if (isDialogRecording) {
+                                await stopRecording();
+                              } else {
+                                await startRecording();
+                              }
+                            },
+                            icon: Icon(
+                                isDialogRecording ? Icons.stop : Icons.mic),
+                            label: Text(isDialogRecording ? 'Stop' : 'Voice'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  isDialogRecording ? Colors.red : null,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (isDialogRecording)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Column(
+                          children: [
+                            LinearProgressIndicator(value: recordProgress),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Recording ${(recordProgress * 15).ceil()}/15s',
+                            ),
+                          ],
                         ),
                       ),
+                    if (card.voicePath != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: Icon(isPlaying
+                                      ? Icons.stop
+                                      : Icons.play_arrow),
+                                  onPressed: () async {
+                                    if (isPlaying) {
+                                      await stopPlayback();
+                                    } else {
+                                      await startPlayback();
+                                    }
+                                  },
+                                ),
+                                const Text('Play Recorded Voice'),
+                              ],
+                            ),
+                            Slider(
+                              value: playDuration.inMilliseconds == 0
+                                  ? 0
+                                  : playPosition.inMilliseconds
+                                      .clamp(0, playDuration.inMilliseconds)
+                                      .toDouble(),
+                              max: playDuration.inMilliseconds == 0
+                                  ? 1
+                                  : playDuration.inMilliseconds.toDouble(),
+                              onChanged: (value) async {
+                                if (playDuration.inMilliseconds == 0) return;
+                                final position =
+                                    Duration(milliseconds: value.toInt());
+                                await _audioPlayer.seek(position);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _addSubCard(card);
+                        setState(() {
+                          activeParentCard = card;
+                        });
+                      },
+                      icon: const Icon(Icons.add_box),
+                      label: const Text('Add Sub-Card'),
                     ),
                   ],
                 ),
-                if (card.voicePath != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: ElevatedButton.icon(
-                      onPressed: () => _playVoice(card.voicePath!),
-                      icon: const Icon(Icons.play_arrow),
-                      label: const Text('Play Recorded Voice'),
-                    ),
-                  ),
-                const SizedBox(height: 8),
-                ElevatedButton.icon(
-                  onPressed: () {
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    await stopRecordingIfNeeded();
+                    await stopPlayback();
+                    disposePlayback();
                     Navigator.pop(context);
-                    _addSubCard(card);
-                    setState(() {
-                      activeParentCard = card;
-                    });
                   },
-                  icon: const Icon(Icons.add_box),
-                  label: const Text('Add Sub-Card'),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    await stopRecordingIfNeeded();
+                    await stopPlayback();
+                    disposePlayback();
+                    setState(() {
+                      card.label = controllerEn.text;
+                      card.labelSinhala =
+                          controllerSi.text.isEmpty ? null : controllerSi.text;
+                      card.labelTamil =
+                          controllerTa.text.isEmpty ? null : controllerTa.text;
+                      card.category = selectedCategory;
+                      card.type = selectedType;
+                      if (card.type == 'word') {
+                        card.subCards.clear();
+                      }
+                    });
+                    _updateCategories();
+                    _saveCards();
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Save'),
                 ),
               ],
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  card.label = controllerEn.text;
-                  card.labelSinhala =
-                      controllerSi.text.isEmpty ? null : controllerSi.text;
-                  card.labelTamil =
-                      controllerTa.text.isEmpty ? null : controllerTa.text;
-                  card.category = selectedCategory;
-                  card.type = selectedType;
-                  if (card.type == 'word') {
-                    card.subCards.clear();
-                  }
-                });
-                _updateCategories();
-                _saveCards();
-                Navigator.pop(context);
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
