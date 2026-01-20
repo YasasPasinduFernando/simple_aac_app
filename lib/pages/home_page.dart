@@ -154,6 +154,18 @@ class _HomePageState extends State<HomePage> {
     await _tts.speak(text);
   }
 
+  void _appendToTtsInput(String text) {
+    if (!showTtsInput) return;
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return;
+    final existing = _textController.text.trim();
+    _textController.text =
+        existing.isEmpty ? trimmed : '$existing $trimmed';
+    _textController.selection = TextSelection.fromPosition(
+      TextPosition(offset: _textController.text.length),
+    );
+  }
+
   Future<void> _playVoice(String path) async {
     await _audioPlayer.play(DeviceFileSource(path));
   }
@@ -394,6 +406,7 @@ class _HomePageState extends State<HomePage> {
   void _showSubCards(AACCard card) {
     if (card.type != 'folder') return;
     setState(() {
+      _textController.clear();
       activeParentCard = card;
     });
   }
@@ -655,6 +668,7 @@ class _HomePageState extends State<HomePage> {
         showBack: activeParentCard != null,
         onBack: () {
           setState(() {
+            _textController.clear();
             activeParentCard = null;
           });
         },
@@ -804,14 +818,16 @@ class _HomePageState extends State<HomePage> {
           _editCard(card);
           return;
         }
+        if (card.type == 'folder') {
+          _showSubCards(card);
+          return;
+        }
+
+        _appendToTtsInput(displayLabel);
         if (card.voicePath != null && await File(card.voicePath!).exists()) {
           await _playVoice(card.voicePath!);
         } else {
           await _speak(displayLabel);
-        }
-
-        if (card.type == 'folder') {
-          _showSubCards(card);
         }
       },
       child: Container(
