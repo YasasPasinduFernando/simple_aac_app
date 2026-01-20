@@ -409,6 +409,9 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     Navigator.pop(context);
                     _addSubCard(card);
+                    setState(() {
+                      activeParentCard = card;
+                    });
                   },
                   icon: const Icon(Icons.add_box),
                   label: const Text('Add Sub-Card'),
