@@ -225,6 +225,13 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context).size;
+    final isLandscape = media.width > media.height;
+    final maxWidth = (isLandscape ? media.width * 0.7 : media.width * 0.9)
+        .clamp(320.0, 520.0);
+    final maxHeight = media.height * 0.8;
+    final fieldSpacing = isLandscape ? 12.0 : 8.0;
+
     return WillPopScope(
       onWillPop: () async {
         await _stopAll();
@@ -232,157 +239,205 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       },
       child: AlertDialog(
         title: Text(widget.isNew ? 'Create Card' : 'Edit Card'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _controllerEn,
-                decoration: const InputDecoration(
-                  labelText: 'English',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _controllerSi,
-                decoration: const InputDecoration(
-                  labelText: 'Sinhala (?????)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _controllerTa,
-                decoration: const InputDecoration(
-                  labelText: 'Tamil (?????)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                value: _selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder(),
-                ),
-                items: widget.categories
-                    .map((cat) => DropdownMenuItem(
-                          value: cat,
-                          child: Text(cat),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() => _selectedCategory = value ?? 'General');
-                },
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                value: _selectedType,
-                decoration: const InputDecoration(
-                  labelText: 'Type',
-                  border: OutlineInputBorder(),
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'word', child: Text('Word')),
-                  DropdownMenuItem(value: 'folder', child: Text('Folder')),
-                ],
-                onChanged: (value) {
-                  setState(() => _selectedType = value ?? 'word');
-                },
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: widget.onPickImage,
-                      icon: const Icon(Icons.add_photo_alternate),
-                      label: const Text('Photo'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () async {
-                        if (_isRecording) {
-                          await _stopRecording();
-                        } else {
-                          await _startRecording();
-                        }
-                      },
-                      icon: Icon(_isRecording ? Icons.stop : Icons.mic),
-                      label: Text(_isRecording ? 'Stop' : 'Voice'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _isRecording ? Colors.red : null,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (_isRecording)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Column(
-                    children: [
-                      LinearProgressIndicator(value: _recordProgress),
-                      const SizedBox(height: 6),
-                      Text('Recording ${(_recordProgress * 15).ceil()}/15s'),
-                    ],
-                  ),
-                ),
-              if (widget.card.voicePath != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                                _isPlaying ? Icons.stop : Icons.play_arrow),
-                            onPressed: () async {
-                              if (_isPlaying) {
-                                await _stopPlayback();
-                              } else {
-                                await _startPlayback();
-                              }
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: isLandscape ? 24 : 16,
+          vertical: 16,
+        ),
+        content: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
+          ),
+          child: SingleChildScrollView(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                int columns = 1;
+                if (isLandscape && constraints.maxWidth >= 700) {
+                  columns = 3;
+                } else if (isLandscape && constraints.maxWidth >= 420) {
+                  columns = 2;
+                }
+                final totalSpacing = fieldSpacing * (columns - 1);
+                final fieldWidth = columns == 1
+                    ? constraints.maxWidth
+                    : (constraints.maxWidth - totalSpacing) / columns;
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Wrap(
+                      spacing: fieldSpacing,
+                      runSpacing: fieldSpacing,
+                      children: [
+                        SizedBox(
+                          width: fieldWidth,
+                          child: TextField(
+                            controller: _controllerEn,
+                            decoration: const InputDecoration(
+                              labelText: 'English',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: fieldWidth,
+                          child: TextField(
+                            controller: _controllerSi,
+                            decoration: const InputDecoration(
+                              labelText: 'Sinhala (?????)',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: fieldWidth,
+                          child: TextField(
+                            controller: _controllerTa,
+                            decoration: const InputDecoration(
+                              labelText: 'Tamil (?????)',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: fieldWidth,
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedCategory,
+                            decoration: const InputDecoration(
+                              labelText: 'Category',
+                              border: OutlineInputBorder(),
+                            ),
+                            items: widget.categories
+                                .map((cat) => DropdownMenuItem(
+                                      value: cat,
+                                      child: Text(cat),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(
+                                  () => _selectedCategory = value ?? 'General');
                             },
                           ),
-                          const Text('Play Recorded Voice'),
-                        ],
+                        ),
+                        SizedBox(
+                          width: fieldWidth,
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedType,
+                            decoration: const InputDecoration(
+                              labelText: 'Type',
+                              border: OutlineInputBorder(),
+                            ),
+                            items: const [
+                              DropdownMenuItem(
+                                  value: 'word', child: Text('Word')),
+                              DropdownMenuItem(
+                                  value: 'folder', child: Text('Folder')),
+                            ],
+                            onChanged: (value) {
+                              setState(() => _selectedType = value ?? 'word');
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: widget.onPickImage,
+                            icon: const Icon(Icons.add_photo_alternate),
+                            label: const Text('Photo'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              if (_isRecording) {
+                                await _stopRecording();
+                              } else {
+                                await _startRecording();
+                              }
+                            },
+                            icon: Icon(_isRecording ? Icons.stop : Icons.mic),
+                            label: Text(_isRecording ? 'Stop' : 'Voice'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _isRecording ? Colors.red : null,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_isRecording)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Column(
+                          children: [
+                            LinearProgressIndicator(value: _recordProgress),
+                            const SizedBox(height: 6),
+                            Text(
+                                'Recording ${(_recordProgress * 15).ceil()}/15s'),
+                          ],
+                        ),
                       ),
-                      Slider(
-                        value: _playDuration.inMilliseconds == 0
-                            ? 0
-                            : _playPosition.inMilliseconds
-                                .clamp(0, _playDuration.inMilliseconds)
-                                .toDouble(),
-                        max: _playDuration.inMilliseconds == 0
-                            ? 1
-                            : _playDuration.inMilliseconds.toDouble(),
-                        onChanged: (value) async {
-                          if (_playDuration.inMilliseconds == 0) return;
-                          final position =
-                              Duration(milliseconds: value.toInt());
-                          await widget.audioPlayer.seek(position);
-                        },
+                    if (widget.card.voicePath != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: Icon(_isPlaying
+                                      ? Icons.stop
+                                      : Icons.play_arrow),
+                                  onPressed: () async {
+                                    if (_isPlaying) {
+                                      await _stopPlayback();
+                                    } else {
+                                      await _startPlayback();
+                                    }
+                                  },
+                                ),
+                                const Text('Play Recorded Voice'),
+                              ],
+                            ),
+                            Slider(
+                              value: _playDuration.inMilliseconds == 0
+                                  ? 0
+                                  : _playPosition.inMilliseconds
+                                      .clamp(0, _playDuration.inMilliseconds)
+                                      .toDouble(),
+                              max: _playDuration.inMilliseconds == 0
+                                  ? 1
+                                  : _playDuration.inMilliseconds.toDouble(),
+                              onChanged: (value) async {
+                                if (_playDuration.inMilliseconds == 0) return;
+                                final position =
+                                    Duration(milliseconds: value.toInt());
+                                await widget.audioPlayer.seek(position);
+                              },
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
-              const SizedBox(height: 8),
-              ElevatedButton.icon(
-                onPressed: widget.isNew
-                    ? null
-                    : () async {
-                        await _stopAll();
-                        Navigator.pop(context, CardEditorAction.addSubCard);
-                      },
-                icon: const Icon(Icons.add_box),
-                label: const Text('Add Sub-Card'),
-              ),
-            ],
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      onPressed: widget.isNew
+                          ? null
+                          : () async {
+                              await _stopAll();
+                              Navigator.pop(
+                                  context, CardEditorAction.addSubCard);
+                            },
+                      icon: const Icon(Icons.add_box),
+                      label: const Text('Add Sub-Card'),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
         actions: [

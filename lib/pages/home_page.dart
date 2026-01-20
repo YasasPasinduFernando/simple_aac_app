@@ -65,6 +65,7 @@ class _HomePageState extends State<HomePage> {
   String? _editSnapshotActiveParentId;
   int _themePrimaryColor = Colors.brown.value;
   int _themeTextColor = Colors.white.value;
+  int _themeBackgroundColor = Colors.white.value;
 
   @override
   void initState() {
@@ -147,6 +148,8 @@ class _HomePageState extends State<HomePage> {
     _themePrimaryColor =
         prefs.getInt('themePrimaryColor') ?? Colors.brown.value;
     _themeTextColor = prefs.getInt('themeTextColor') ?? Colors.white.value;
+    _themeBackgroundColor =
+        prefs.getInt('themeBackgroundColor') ?? Colors.white.value;
 
     _updateCategories();
     _migrateVisibleCountIfNeeded(prefs);
@@ -210,6 +213,7 @@ class _HomePageState extends State<HomePage> {
     await prefs.setString('language', currentLanguage);
     await prefs.setInt('themePrimaryColor', _themePrimaryColor);
     await prefs.setInt('themeTextColor', _themeTextColor);
+    await prefs.setInt('themeBackgroundColor', _themeBackgroundColor);
   }
 
   Future<void> _speak(String text) async {
@@ -609,6 +613,7 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        scrollable: true,
         title: const Text('Search'),
         content: TextField(
           controller: controller,
@@ -619,42 +624,47 @@ class _HomePageState extends State<HomePage> {
           autofocus: true,
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                searchQuery = '';
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Clear'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final pattern = controller.text.trim();
-              if (pattern.isEmpty) {
-                setState(() {
-                  searchQuery = '';
-                });
-                Navigator.pop(context);
-                return;
-              }
-              try {
-                RegExp(pattern);
-                setState(() {
-                  searchQuery = pattern;
-                });
-                Navigator.pop(context);
-              } catch (_) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Invalid regex pattern')),
-                );
-              }
-            },
-            child: const Text('Apply'),
+          Wrap(
+            spacing: 8,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    searchQuery = '';
+                  });
+                  Navigator.pop(context);
+                },
+                child: const Text('Clear'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final pattern = controller.text.trim();
+                  if (pattern.isEmpty) {
+                    setState(() {
+                      searchQuery = '';
+                    });
+                    Navigator.pop(context);
+                    return;
+                  }
+                  try {
+                    RegExp(pattern);
+                    setState(() {
+                      searchQuery = pattern;
+                    });
+                    Navigator.pop(context);
+                  } catch (_) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Invalid regex pattern')),
+                    );
+                  }
+                },
+                child: const Text('Apply'),
+              ),
+            ],
           ),
         ],
       ),
@@ -1102,6 +1112,7 @@ class _HomePageState extends State<HomePage> {
         MediaQuery.of(context).orientation == Orientation.landscape;
     final themePrimary = Color(_themePrimaryColor);
     final themeText = Color(_themeTextColor);
+    final themeBackground = Color(_themeBackgroundColor);
 
     return WillPopScope(
       onWillPop: () async {
@@ -1224,6 +1235,19 @@ class _HomePageState extends State<HomePage> {
                     },
                   );
                 },
+                onPickBackgroundColor: () {
+                  Navigator.pop(context);
+                  _showThemeColorDialog(
+                    title: 'Background color',
+                    initialColor: themeBackground,
+                    onSelected: (color) {
+                      setState(() {
+                        _themeBackgroundColor = color.value;
+                      });
+                      _saveCards();
+                    },
+                  );
+                },
                 onToggleFullScreen: () {
                   Navigator.pop(context);
                   setState(() {
@@ -1244,10 +1268,13 @@ class _HomePageState extends State<HomePage> {
               ? Row(
                   children: [
                     Expanded(
-                      child: _buildMainContent(
-                        isTablet,
-                        themePrimary,
-                        themeText,
+                      child: Container(
+                        color: themeBackground,
+                        child: _buildMainContent(
+                          isTablet,
+                          themePrimary,
+                          themeText,
+                        ),
                       ),
                     ),
                     LandscapeMenu(
@@ -1303,7 +1330,10 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 )
-              : _buildMainContent(isTablet, themePrimary, themeText),
+              : Container(
+                  color: themeBackground,
+                  child: _buildMainContent(isTablet, themePrimary, themeText),
+                ),
         ),
       ),
     );

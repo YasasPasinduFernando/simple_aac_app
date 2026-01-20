@@ -18,6 +18,7 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onChangeOrientation;
   final VoidCallback onPickPrimaryColor;
   final VoidCallback onPickTextColor;
+  final VoidCallback onPickBackgroundColor;
   final VoidCallback onToggleFullScreen;
   final VoidCallback onShowLanguage;
   final VoidCallback onShowGrid;
@@ -45,6 +46,7 @@ class HomeDrawer extends StatelessWidget {
     required this.onChangeOrientation,
     required this.onPickPrimaryColor,
     required this.onPickTextColor,
+    required this.onPickBackgroundColor,
     required this.onToggleFullScreen,
     required this.onShowLanguage,
     required this.onShowGrid,
@@ -138,6 +140,11 @@ class HomeDrawer extends StatelessWidget {
             leading: const Icon(Icons.format_paint),
             title: const Text('Text Color'),
             onTap: onPickTextColor,
+          ),
+          ListTile(
+            leading: const Icon(Icons.format_color_fill),
+            title: const Text('Background Color'),
+            onTap: onPickBackgroundColor,
           ),
           ListTile(
             leading: const Icon(Icons.category),
