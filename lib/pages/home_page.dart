@@ -1402,15 +1402,24 @@ class _HomePageState extends State<HomePage> {
 
   void _showAbout() {
     Navigator.pop(context);
-    showAboutDialog(
+    showDialog(
       context: context,
-      applicationName: 'AAC App',
-      applicationVersion: '1.0.0',
-      children: [
-        const Text('Augmentative and Alternative Communication App'),
-        const SizedBox(height: 8),
-        const Text('Supports English, Sinhala, and Tamil'),
-      ],
+      builder: (context) => AlertDialog(
+        title: const Text('About'),
+        content: const Text(
+          'Created by Yasas Pasindu Fernando\n'
+          'Email: yasaspasindufernando@gmail.com\n'
+          'Tel: +94776905654\n\n'
+          'Created to help Sri Lankan autism children by giving them '
+          'a good application for their development.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 
