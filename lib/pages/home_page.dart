@@ -614,20 +614,57 @@ class _HomePageState extends State<HomePage> {
   void _showGridOptions() {
     Navigator.pop(context);
     final labels = ['Extra Large', 'Large', 'Medium', 'Small', 'Extra Small'];
+    int tempColumns = gridColumns;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Select Grid Size'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(
-            labels.length,
-            (index) => _buildGridOption(
-              index + 1,
-              labels[index],
+        content: StatefulBuilder(
+          builder: (context, setLocalState) => SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Slider(
+                  value: (6 - tempColumns).toDouble(),
+                  min: 1,
+                  max: 5,
+                  divisions: 4,
+                  label: labels[tempColumns - 1],
+                  onChanged: (value) {
+                    setLocalState(() => tempColumns = 6 - value.round());
+                  },
+                ),
+                Text(labels[tempColumns - 1]),
+                const SizedBox(height: 8),
+                ...List.generate(
+                  labels.length,
+                  (index) => RadioListTile<int>(
+                    title: Text(labels[index]),
+                    value: index + 1,
+                    groupValue: tempColumns,
+                    onChanged: (value) {
+                      setLocalState(() => tempColumns = value ?? tempColumns);
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() => gridColumns = tempColumns);
+              _saveCards();
+              Navigator.pop(context);
+            },
+            child: const Text('Apply'),
+          ),
+        ],
       ),
     );
   }
