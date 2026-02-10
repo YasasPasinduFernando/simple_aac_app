@@ -13,12 +13,14 @@ class HomeDrawer extends StatelessWidget {
   final Color headerTextColor;
   final bool hideTtsText;
   final bool useImageOverlayLabel;
+  final bool applyTextColorToCards;
   final VoidCallback onSelectCategory;
   final VoidCallback onAddCategory;
   final VoidCallback onToggleEdit;
   final VoidCallback onToggleTtsInput;
   final VoidCallback onToggleTtsText;
   final VoidCallback onToggleCardImageLabel;
+  final VoidCallback onToggleApplyTextColorToCards;
   final VoidCallback onChangeOrientation;
   final VoidCallback onPickPrimaryColor;
   final VoidCallback onPickTextColor;
@@ -30,6 +32,7 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onShowVisibleCount;
   final VoidCallback onBackup;
   final VoidCallback onRestore;
+  final VoidCallback onResetSettings;
   final VoidCallback onShowAbout;
 
   const HomeDrawer({
@@ -46,12 +49,14 @@ class HomeDrawer extends StatelessWidget {
     required this.headerTextColor,
     required this.hideTtsText,
     required this.useImageOverlayLabel,
+    required this.applyTextColorToCards,
     required this.onSelectCategory,
     required this.onAddCategory,
     required this.onToggleEdit,
     required this.onToggleTtsInput,
     required this.onToggleTtsText,
     required this.onToggleCardImageLabel,
+    required this.onToggleApplyTextColorToCards,
     required this.onChangeOrientation,
     required this.onPickPrimaryColor,
     required this.onPickTextColor,
@@ -63,6 +68,7 @@ class HomeDrawer extends StatelessWidget {
     required this.onShowVisibleCount,
     required this.onBackup,
     required this.onRestore,
+    required this.onResetSettings,
     required this.onShowAbout,
   }) : super(key: key);
 
@@ -123,6 +129,15 @@ class HomeDrawer extends StatelessWidget {
               onChanged: (_) => onToggleCardImageLabel(),
             ),
             onTap: onToggleCardImageLabel,
+          ),
+          ListTile(
+            leading: const Icon(Icons.text_format),
+            title: const Text('Apply Text Color To Cards'),
+            trailing: Switch(
+              value: applyTextColorToCards,
+              onChanged: (_) => onToggleApplyTextColorToCards(),
+            ),
+            onTap: onToggleApplyTextColorToCards,
           ),
           ListTile(
             leading: const Icon(Icons.screen_rotation),
@@ -199,6 +214,11 @@ class HomeDrawer extends StatelessWidget {
             leading: const Icon(Icons.restore),
             title: const Text('Restore'),
             onTap: onRestore,
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings_backup_restore),
+            title: const Text('Reset Settings'),
+            onTap: onResetSettings,
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),

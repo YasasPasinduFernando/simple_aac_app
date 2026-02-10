@@ -72,6 +72,7 @@ class _HomePageState extends State<HomePage> {
   bool _showTtsActions = true;
   bool _hideTtsText = false;
   bool _useImageOverlayLabel = false;
+  bool _applyTextColorToCards = false;
 
   @override
   void initState() {
@@ -161,6 +162,8 @@ class _HomePageState extends State<HomePage> {
     _showTtsActions = prefs.getBool('showTtsActions') ?? true;
     _hideTtsText = prefs.getBool('hideTtsText') ?? false;
     _useImageOverlayLabel = prefs.getBool('useImageOverlayLabel') ?? false;
+    _applyTextColorToCards =
+        prefs.getBool('applyTextColorToCards') ?? false;
 
     _updateCategories();
     _migrateVisibleCountIfNeeded(prefs);
@@ -229,6 +232,7 @@ class _HomePageState extends State<HomePage> {
     await prefs.setBool('showTtsActions', _showTtsActions);
     await prefs.setBool('hideTtsText', _hideTtsText);
     await prefs.setBool('useImageOverlayLabel', _useImageOverlayLabel);
+    await prefs.setBool('applyTextColorToCards', _applyTextColorToCards);
   }
 
   Future<void> _speak(String text) async {
@@ -669,6 +673,50 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _confirmResetSettings() {
+    Navigator.pop(context);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Settings'),
+        content: const Text('Reset all settings to defaults?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                gridColumns = 2;
+                showTtsInput = true;
+                orientationMode = 'portrait';
+                fullScreen = true;
+                currentLanguage = 'en';
+                _themePrimaryColor = Colors.brown.value;
+                _themeTextColor = Colors.white.value;
+                _themeBackgroundColor = Colors.white.value;
+                _ttsBarSize = 1.0;
+                _showTtsActions = true;
+                _hideTtsText = false;
+                _useImageOverlayLabel = false;
+                _applyTextColorToCards = false;
+                selectedCategory = 'All';
+                visibleCardIdsByParent.clear();
+                _resetTtsInput();
+              });
+              UiModeHelper.applyOrientation(orientationMode);
+              UiModeHelper.applySystemUi(fullScreen);
+              _saveCards();
+              Navigator.pop(context);
+            },
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showVisibleCountDialog() {
     Navigator.pop(context);
     final total = _getBaseDisplayedCards().length;
@@ -805,6 +853,7 @@ class _HomePageState extends State<HomePage> {
       'showTtsActions': _showTtsActions,
       'hideTtsText': _hideTtsText,
       'useImageOverlayLabel': _useImageOverlayLabel,
+      'applyTextColorToCards': _applyTextColorToCards,
       'selectedCategory': selectedCategory,
     };
   }
@@ -1296,6 +1345,9 @@ class _HomePageState extends State<HomePage> {
       _useImageOverlayLabel =
           settings['useImageOverlayLabel'] as bool? ??
               _useImageOverlayLabel;
+      _applyTextColorToCards =
+          settings['applyTextColorToCards'] as bool? ??
+              _applyTextColorToCards;
 
       _resetTtsInput();
     });
@@ -1459,6 +1511,7 @@ class _HomePageState extends State<HomePage> {
                 headerTextColor: themeText,
                 hideTtsText: _hideTtsText,
                 useImageOverlayLabel: _useImageOverlayLabel,
+                applyTextColorToCards: _applyTextColorToCards,
                 onSelectCategory: _showCategoryDialog,
                 onAddCategory: _showAddCategoryDialog,
                 onToggleEdit: _toggleEditMode,
@@ -1480,6 +1533,13 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   setState(() {
                     _useImageOverlayLabel = !_useImageOverlayLabel;
+                  });
+                  _saveCards();
+                },
+                onToggleApplyTextColorToCards: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _applyTextColorToCards = !_applyTextColorToCards;
                   });
                   _saveCards();
                 },
@@ -1537,6 +1597,7 @@ class _HomePageState extends State<HomePage> {
                 onShowVisibleCount: _showVisibleCountDialog,
                 onBackup: _backupWithPicker,
                 onRestore: _restoreWithPicker,
+                onResetSettings: _confirmResetSettings,
                 onShowAbout: _showAbout,
               ),
         body: SafeArea(
@@ -1686,6 +1747,8 @@ class _HomePageState extends State<HomePage> {
     final isTapAnimated = _tapAnimatedCardId == card.id;
     final useImageOverlay =
         _useImageOverlayLabel && card.imagePath != null;
+    final cardTextColor =
+        _applyTextColorToCards ? Color(_themeTextColor) : Colors.white;
 
     return GestureDetector(
       onTap: () async {
@@ -1771,7 +1834,7 @@ class _HomePageState extends State<HomePage> {
                         child: Text(
                           displayLabel,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: cardTextColor,
                             fontSize: isTablet ? 20 : 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -1810,8 +1873,8 @@ class _HomePageState extends State<HomePage> {
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.white,
+                  style: TextStyle(
+                      color: cardTextColor,
                       fontSize: isTablet ? 20 : 16,
                       fontWeight: FontWeight.bold,
                       shadows: const [
