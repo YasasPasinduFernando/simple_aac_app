@@ -71,6 +71,7 @@ class _HomePageState extends State<HomePage> {
   double _ttsBarSize = 1.0;
   bool _showTtsActions = true;
   bool _hideTtsText = false;
+  bool _useImageOverlayLabel = false;
 
   @override
   void initState() {
@@ -159,6 +160,7 @@ class _HomePageState extends State<HomePage> {
     _ttsBarSize = prefs.getDouble('ttsBarSize') ?? 1.0;
     _showTtsActions = prefs.getBool('showTtsActions') ?? true;
     _hideTtsText = prefs.getBool('hideTtsText') ?? false;
+    _useImageOverlayLabel = prefs.getBool('useImageOverlayLabel') ?? false;
 
     _updateCategories();
     _migrateVisibleCountIfNeeded(prefs);
@@ -226,6 +228,7 @@ class _HomePageState extends State<HomePage> {
     await prefs.setDouble('ttsBarSize', _ttsBarSize);
     await prefs.setBool('showTtsActions', _showTtsActions);
     await prefs.setBool('hideTtsText', _hideTtsText);
+    await prefs.setBool('useImageOverlayLabel', _useImageOverlayLabel);
   }
 
   Future<void> _speak(String text) async {
@@ -1309,6 +1312,7 @@ class _HomePageState extends State<HomePage> {
                 headerColor: themePrimary,
                 headerTextColor: themeText,
                 hideTtsText: _hideTtsText,
+                useImageOverlayLabel: _useImageOverlayLabel,
                 onSelectCategory: _showCategoryDialog,
                 onAddCategory: _showAddCategoryDialog,
                 onToggleEdit: _toggleEditMode,
@@ -1323,6 +1327,13 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   setState(() {
                     _hideTtsText = !_hideTtsText;
+                  });
+                  _saveCards();
+                },
+                onToggleCardImageLabel: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _useImageOverlayLabel = !_useImageOverlayLabel;
                   });
                   _saveCards();
                 },
@@ -1527,6 +1538,8 @@ class _HomePageState extends State<HomePage> {
   Widget _buildCardWidget(AACCard card, bool isTablet) {
     final displayLabel = card.getLabel(currentLanguage);
     final isTapAnimated = _tapAnimatedCardId == card.id;
+    final useImageOverlay =
+        _useImageOverlayLabel && card.imagePath != null;
 
     return GestureDetector(
       onTap: () async {
@@ -1578,51 +1591,93 @@ class _HomePageState extends State<HomePage> {
           ),
           child: Stack(
             children: [
-              Column(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: card.imagePath != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(isTablet ? 20 : 16)),
-                            child: Image.file(
-                              File(card.imagePath!),
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Center(
-                                  child: Icon(Icons.broken_image,
-                                      size: 60, color: Colors.white70),
-                                );
-                              },
+              if (!useImageOverlay)
+                Column(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: card.imagePath != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(isTablet ? 20 : 16)),
+                              child: Image.file(
+                                File(card.imagePath!),
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Icon(Icons.broken_image,
+                                        size: 60, color: Colors.white70),
+                                  );
+                                },
+                              ),
+                            )
+                          : Center(
+                              child: Icon(Icons.image,
+                                  size: isTablet ? 80 : 60,
+                                  color: Colors.white70),
                             ),
-                          )
-                        : Center(
-                            child: Icon(Icons.image,
-                                size: isTablet ? 80 : 60,
-                                color: Colors.white70),
+                    ),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        alignment: Alignment.center,
+                        child: Text(
+                          displayLabel,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isTablet ? 20 : 16,
+                            fontWeight: FontWeight.bold,
                           ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      alignment: Alignment.center,
-                      child: Text(
-                        displayLabel,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: isTablet ? 20 : 16,
-                          fontWeight: FontWeight.bold,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                  ],
+                ),
+              if (useImageOverlay)
+                ClipRRect(
+                  borderRadius:
+                      BorderRadius.circular(isTablet ? 20 : 16),
+                  child: Image.file(
+                    File(card.imagePath!),
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Icon(Icons.broken_image,
+                            size: 60, color: Colors.white70),
+                      );
+                    },
                   ),
-                ],
-              ),
+                ),
+              if (useImageOverlay)
+                Positioned(
+                  left: 10,
+                  right: 10,
+                  bottom: 10,
+                  child: Text(
+                    displayLabel,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isTablet ? 20 : 16,
+                      fontWeight: FontWeight.bold,
+                      shadows: const [
+                        Shadow(
+                          blurRadius: 6,
+                          color: Colors.black54,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               if (card.voicePath != null)
                 Positioned(
                   top: 8,

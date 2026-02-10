@@ -12,11 +12,13 @@ class HomeDrawer extends StatelessWidget {
   final Color headerColor;
   final Color headerTextColor;
   final bool hideTtsText;
+  final bool useImageOverlayLabel;
   final VoidCallback onSelectCategory;
   final VoidCallback onAddCategory;
   final VoidCallback onToggleEdit;
   final VoidCallback onToggleTtsInput;
   final VoidCallback onToggleTtsText;
+  final VoidCallback onToggleCardImageLabel;
   final VoidCallback onChangeOrientation;
   final VoidCallback onPickPrimaryColor;
   final VoidCallback onPickTextColor;
@@ -43,11 +45,13 @@ class HomeDrawer extends StatelessWidget {
     required this.headerColor,
     required this.headerTextColor,
     required this.hideTtsText,
+    required this.useImageOverlayLabel,
     required this.onSelectCategory,
     required this.onAddCategory,
     required this.onToggleEdit,
     required this.onToggleTtsInput,
     required this.onToggleTtsText,
+    required this.onToggleCardImageLabel,
     required this.onChangeOrientation,
     required this.onPickPrimaryColor,
     required this.onPickTextColor,
@@ -110,6 +114,15 @@ class HomeDrawer extends StatelessWidget {
               onChanged: (_) => onToggleTtsText(),
             ),
             onTap: onToggleTtsText,
+          ),
+          ListTile(
+            leading: const Icon(Icons.image),
+            title: const Text('Card Text On Image'),
+            trailing: Switch(
+              value: useImageOverlayLabel,
+              onChanged: (_) => onToggleCardImageLabel(),
+            ),
+            onTap: onToggleCardImageLabel,
           ),
           ListTile(
             leading: const Icon(Icons.screen_rotation),
