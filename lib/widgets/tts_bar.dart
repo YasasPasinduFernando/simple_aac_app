@@ -33,7 +33,7 @@ class TtsBar extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: (isTablet ? 16 : 12) * sizeFactor,
-        vertical: (isTablet ? 10 : 8) * sizeFactor,
+        vertical: 0,
       ),
       color: Colors.grey.shade200,
       child: Row(
@@ -48,7 +48,7 @@ class TtsBar extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 6 * sizeFactor,
-                        vertical: 2 * sizeFactor,
+                        vertical: 1 * sizeFactor,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
