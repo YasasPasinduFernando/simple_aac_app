@@ -13,6 +13,7 @@ class TtsBar extends StatelessWidget {
   final Color? speakerColor;
   final double sizeFactor;
   final bool showActions;
+  final bool showText;
 
   const TtsBar({
     Key? key,
@@ -24,6 +25,7 @@ class TtsBar extends StatelessWidget {
     this.speakerColor,
     this.sizeFactor = 1.0,
     this.showActions = true,
+    this.showText = true,
   }) : super(key: key);
 
   @override
@@ -73,13 +75,15 @@ class TtsBar extends StatelessWidget {
                                   : Icon(Icons.image, size: 16 * sizeFactor),
                             ),
                           ),
-                          SizedBox(width: 6 * sizeFactor),
-                          Text(
-                            token.label,
-                            style: TextStyle(
-                              fontSize: (isTablet ? 14 : 12) * sizeFactor,
+                          if (showText) ...[
+                            SizedBox(width: 6 * sizeFactor),
+                            Text(
+                              token.label,
+                              style: TextStyle(
+                                fontSize: (isTablet ? 14 : 12) * sizeFactor,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),

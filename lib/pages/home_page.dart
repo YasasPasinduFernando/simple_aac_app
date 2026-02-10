@@ -70,6 +70,7 @@ class _HomePageState extends State<HomePage> {
   int _themeBackgroundColor = Colors.white.value;
   double _ttsBarSize = 1.0;
   bool _showTtsActions = true;
+  bool _hideTtsText = false;
 
   @override
   void initState() {
@@ -157,6 +158,7 @@ class _HomePageState extends State<HomePage> {
         prefs.getInt('themeBackgroundColor') ?? Colors.white.value;
     _ttsBarSize = prefs.getDouble('ttsBarSize') ?? 1.0;
     _showTtsActions = prefs.getBool('showTtsActions') ?? true;
+    _hideTtsText = prefs.getBool('hideTtsText') ?? false;
 
     _updateCategories();
     _migrateVisibleCountIfNeeded(prefs);
@@ -223,6 +225,7 @@ class _HomePageState extends State<HomePage> {
     await prefs.setInt('themeBackgroundColor', _themeBackgroundColor);
     await prefs.setDouble('ttsBarSize', _ttsBarSize);
     await prefs.setBool('showTtsActions', _showTtsActions);
+    await prefs.setBool('hideTtsText', _hideTtsText);
   }
 
   Future<void> _speak(String text) async {
@@ -1305,6 +1308,7 @@ class _HomePageState extends State<HomePage> {
                 fullScreen: fullScreen,
                 headerColor: themePrimary,
                 headerTextColor: themeText,
+                hideTtsText: _hideTtsText,
                 onSelectCategory: _showCategoryDialog,
                 onAddCategory: _showAddCategoryDialog,
                 onToggleEdit: _toggleEditMode,
@@ -1312,6 +1316,13 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   setState(() {
                     showTtsInput = !showTtsInput;
+                  });
+                  _saveCards();
+                },
+                onToggleTtsText: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _hideTtsText = !_hideTtsText;
                   });
                   _saveCards();
                 },
@@ -1480,6 +1491,7 @@ class _HomePageState extends State<HomePage> {
             speakerColor: themePrimary,
             sizeFactor: _ttsBarSize,
             showActions: _showTtsActions,
+            showText: !_hideTtsText,
           ),
         Expanded(
           child: _getDisplayedCards().isEmpty

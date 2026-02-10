@@ -11,10 +11,12 @@ class HomeDrawer extends StatelessWidget {
   final bool fullScreen;
   final Color headerColor;
   final Color headerTextColor;
+  final bool hideTtsText;
   final VoidCallback onSelectCategory;
   final VoidCallback onAddCategory;
   final VoidCallback onToggleEdit;
   final VoidCallback onToggleTtsInput;
+  final VoidCallback onToggleTtsText;
   final VoidCallback onChangeOrientation;
   final VoidCallback onPickPrimaryColor;
   final VoidCallback onPickTextColor;
@@ -40,10 +42,12 @@ class HomeDrawer extends StatelessWidget {
     required this.fullScreen,
     required this.headerColor,
     required this.headerTextColor,
+    required this.hideTtsText,
     required this.onSelectCategory,
     required this.onAddCategory,
     required this.onToggleEdit,
     required this.onToggleTtsInput,
+    required this.onToggleTtsText,
     required this.onChangeOrientation,
     required this.onPickPrimaryColor,
     required this.onPickTextColor,
@@ -97,6 +101,15 @@ class HomeDrawer extends StatelessWidget {
               onChanged: (_) => onToggleTtsInput(),
             ),
             onTap: onToggleTtsInput,
+          ),
+          ListTile(
+            leading: const Icon(Icons.text_fields),
+            title: const Text('Hide TTS Text'),
+            trailing: Switch(
+              value: hideTtsText,
+              onChanged: (_) => onToggleTtsText(),
+            ),
+            onTap: onToggleTtsText,
           ),
           ListTile(
             leading: const Icon(Icons.screen_rotation),
