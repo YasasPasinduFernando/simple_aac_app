@@ -99,7 +99,7 @@ class HomeDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.volume_up),
-            title: const Text('Type to Speak'),
+            title: const Text('Tap to Speak'),
             trailing: Switch(
               value: showTtsInput,
               onChanged: (_) => onToggleTtsInput(),
