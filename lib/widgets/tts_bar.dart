@@ -33,7 +33,7 @@ class TtsBar extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: (isTablet ? 16 : 12) * sizeFactor,
-        vertical: 0,
+        vertical: (isTablet ? 10 : 8) * sizeFactor,
       ),
       color: Colors.grey.shade200,
       child: Row(
