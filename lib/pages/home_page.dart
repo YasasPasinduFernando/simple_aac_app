@@ -655,64 +655,99 @@ class _HomePageState extends State<HomePage> {
 
   void _showSearchDialog() {
     final controller = TextEditingController(text: searchQuery);
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        scrollable: true,
-        title: const Text('Search'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Search cards',
-            border: OutlineInputBorder(),
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final viewInsets = MediaQuery.of(context).viewInsets;
+        return AnimatedPadding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            bottom: viewInsets.bottom + 32,
+            top: 16,
           ),
-          autofocus: true,
-        ),
-        actions: [
-          Wrap(
-            spacing: 8,
-            children: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOut,
+          child: Material(
+            borderRadius: BorderRadius.circular(16),
+            color: Theme.of(context).dialogBackgroundColor,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Search',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: controller,
+                      decoration: const InputDecoration(
+                        labelText: 'Search cards',
+                        border: OutlineInputBorder(),
+                      ),
+                      autofocus: true,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Cancel'),
+                        ),
+                        const SizedBox(width: 8),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              searchQuery = '';
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Clear'),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () {
+                            final pattern = controller.text.trim();
+                            if (pattern.isEmpty) {
+                              setState(() {
+                                searchQuery = '';
+                              });
+                              Navigator.pop(context);
+                              return;
+                            }
+                            try {
+                              RegExp(pattern);
+                              setState(() {
+                                searchQuery = pattern;
+                              });
+                              Navigator.pop(context);
+                            } catch (_) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Invalid regex pattern')),
+                              );
+                            }
+                          },
+                          child: const Text('Apply'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    searchQuery = '';
-                  });
-                  Navigator.pop(context);
-                },
-                child: const Text('Clear'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final pattern = controller.text.trim();
-                  if (pattern.isEmpty) {
-                    setState(() {
-                      searchQuery = '';
-                    });
-                    Navigator.pop(context);
-                    return;
-                  }
-                  try {
-                    RegExp(pattern);
-                    setState(() {
-                      searchQuery = pattern;
-                    });
-                    Navigator.pop(context);
-                  } catch (_) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Invalid regex pattern')),
-                    );
-                  }
-                },
-                child: const Text('Apply'),
-              ),
-            ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
