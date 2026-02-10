@@ -751,6 +751,27 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Map<String, dynamic> _buildBackupSettings() {
+    return {
+      'gridColumns': gridColumns,
+      'visibleCardIdsByParent': visibleCardIdsByParent.map(
+        (key, value) => MapEntry(key, value.toList()),
+      ),
+      'showTtsInput': showTtsInput,
+      'orientationMode': orientationMode,
+      'fullScreen': fullScreen,
+      'language': currentLanguage,
+      'themePrimaryColor': _themePrimaryColor,
+      'themeTextColor': _themeTextColor,
+      'themeBackgroundColor': _themeBackgroundColor,
+      'ttsBarSize': _ttsBarSize,
+      'showTtsActions': _showTtsActions,
+      'hideTtsText': _hideTtsText,
+      'useImageOverlayLabel': _useImageOverlayLabel,
+      'selectedCategory': selectedCategory,
+    };
+  }
+
   Widget _buildGridOption(int columns, String label) {
     return RadioListTile<int>(
       title: Text(label),
@@ -1111,7 +1132,10 @@ class _HomePageState extends State<HomePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Backup started...')),
     );
-    final zipBytes = await BackupService.buildBackupZip(cards);
+    final zipBytes = await BackupService.buildBackupZip(
+      cards,
+      settings: _buildBackupSettings(),
+    );
     if (zipBytes == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Backup failed to create zip')),
@@ -1131,7 +1155,10 @@ class _HomePageState extends State<HomePage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Backup started...')),
     );
-    final zipBytes = await BackupService.buildBackupZip(cards);
+    final zipBytes = await BackupService.buildBackupZip(
+      cards,
+      settings: _buildBackupSettings(),
+    );
     if (zipBytes == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Backup failed to create zip')),
@@ -1180,30 +1207,77 @@ class _HomePageState extends State<HomePage> {
       );
       return;
     }
-    final restored = await BackupService.restoreFromZipBytes(zipBytes);
-    if (restored.isEmpty) {
+    final payload = await BackupService.restoreFromZipBytes(zipBytes);
+    if (payload.cards.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Backup not found in selected file')),
       );
       return;
     }
-    _applyRestoredCards(restored);
+    _applyRestoredBackup(payload);
   }
 
-  void _applyRestoredCards(List<AACCard> restored) {
+  void _applyRestoredBackup(BackupPayload payload) {
+    final settings = payload.settings;
+    final restoredCards = payload.cards;
     setState(() {
-      cards = restored;
+      cards = restoredCards;
       activeParentCard = null;
-      selectedCategory = 'All';
-      visibleCardIdsByParent.clear();
+      selectedCategory = settings['selectedCategory']?.toString() ?? 'All';
+
+      final visibleRaw = settings['visibleCardIdsByParent'];
+      if (visibleRaw is Map) {
+        visibleCardIdsByParent = visibleRaw.map(
+          (key, value) => MapEntry(
+            key.toString(),
+            (value as List).map((v) => v.toString()).toSet(),
+          ),
+        );
+      } else {
+        visibleCardIdsByParent.clear();
+      }
+
+      gridColumns = (settings['gridColumns'] as num?)?.toInt() ?? gridColumns;
+      showTtsInput = settings['showTtsInput'] as bool? ?? showTtsInput;
+      orientationMode =
+          settings['orientationMode']?.toString() ?? orientationMode;
+      fullScreen = settings['fullScreen'] as bool? ?? fullScreen;
+      currentLanguage = settings['language']?.toString() ?? currentLanguage;
+      _themePrimaryColor =
+          (settings['themePrimaryColor'] as num?)?.toInt() ??
+              _themePrimaryColor;
+      _themeTextColor =
+          (settings['themeTextColor'] as num?)?.toInt() ?? _themeTextColor;
+      _themeBackgroundColor =
+          (settings['themeBackgroundColor'] as num?)?.toInt() ??
+              _themeBackgroundColor;
+      _ttsBarSize =
+          (settings['ttsBarSize'] as num?)?.toDouble() ?? _ttsBarSize;
+      _showTtsActions =
+          settings['showTtsActions'] as bool? ?? _showTtsActions;
+      _hideTtsText = settings['hideTtsText'] as bool? ?? _hideTtsText;
+      _useImageOverlayLabel =
+          settings['useImageOverlayLabel'] as bool? ??
+              _useImageOverlayLabel;
+
       _resetTtsInput();
     });
     _updateCategories();
+    if (!allCategories.contains(selectedCategory)) {
+      setState(() {
+        selectedCategory = 'All';
+      });
+    }
+    UiModeHelper.applyOrientation(orientationMode);
+    UiModeHelper.applySystemUi(fullScreen);
     _saveCards();
   }
 
   Future<void> _backupToAppDocsZip() async {
-    final zipBytes = await BackupService.buildBackupZip(cards);
+    final zipBytes = await BackupService.buildBackupZip(
+      cards,
+      settings: _buildBackupSettings(),
+    );
     if (zipBytes == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Backup failed to create zip')),
@@ -1225,16 +1299,16 @@ class _HomePageState extends State<HomePage> {
       );
       return;
     }
-    final restored = await BackupService.restoreFromZipBytes(
+    final payload = await BackupService.restoreFromZipBytes(
       await zipFile.readAsBytes(),
     );
-    if (restored.isEmpty) {
+    if (payload.cards.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Backup not found in app folder file')),
       );
       return;
     }
-    _applyRestoredCards(restored);
+    _applyRestoredBackup(payload);
   }
 
   void _showAbout() {

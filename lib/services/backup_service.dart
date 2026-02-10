@@ -8,6 +8,16 @@ import 'package:path_provider/path_provider.dart';
 
 import '../models/aac_card_model.dart';
 
+class BackupPayload {
+  final List<AACCard> cards;
+  final Map<String, dynamic> settings;
+
+  const BackupPayload({
+    required this.cards,
+    required this.settings,
+  });
+}
+
 class BackupService {
   static const MethodChannel _channel = MethodChannel('aac_backup');
 
@@ -20,6 +30,7 @@ class BackupService {
   static Future<void> _writeBackupToDirectory(
     List<AACCard> cards,
     Directory backupDir,
+    Map<String, dynamic>? settings,
   ) async {
     final docsDir = await getApplicationDocumentsDirectory();
     final filesDir = Directory('${backupDir.path}/files');
@@ -85,6 +96,11 @@ class BackupService {
     await manifestFile.writeAsString(
       jsonEncode(clonedCards.map((c) => c.toJson()).toList()),
     );
+
+    if (settings != null && settings.isNotEmpty) {
+      final settingsFile = File('${backupDir.path}/settings.json');
+      await settingsFile.writeAsString(jsonEncode(settings));
+    }
   }
 
   static List<int> _zipDirectory(Directory dir) {
@@ -104,11 +120,14 @@ class BackupService {
     return zipEncoder.encode(archive) ?? <int>[];
   }
 
-  static Future<List<int>?> buildBackupZip(List<AACCard> cards) async {
+  static Future<List<int>?> buildBackupZip(
+    List<AACCard> cards, {
+    Map<String, dynamic>? settings,
+  }) async {
     final tempDir = await Directory.systemTemp.createTemp('aac_backup_');
     final backupRoot = Directory('${tempDir.path}/AAC_Backup');
     try {
-      await _writeBackupToDirectory(cards, backupRoot);
+      await _writeBackupToDirectory(cards, backupRoot, settings);
       return _zipDirectory(backupRoot);
     } finally {
       await tempDir.delete(recursive: true);
@@ -180,6 +199,20 @@ class BackupService {
     return restored;
   }
 
+  static Future<Map<String, dynamic>> _readSettings(
+    Directory backupDir,
+  ) async {
+    final file = File('${backupDir.path}/settings.json');
+    if (!await file.exists()) return {};
+    try {
+      final decoded = jsonDecode(await file.readAsString());
+      if (decoded is Map) {
+        return decoded.cast<String, dynamic>();
+      }
+    } catch (_) {}
+    return {};
+  }
+
   static Future<void> _extractZipBytesToDirectory(
     List<int> bytes,
     Directory target,
@@ -198,20 +231,24 @@ class BackupService {
     }
   }
 
-  static Future<List<AACCard>> restoreFromZipBytes(List<int> bytes) async {
+  static Future<BackupPayload> restoreFromZipBytes(List<int> bytes) async {
     final tempDir = await Directory.systemTemp.createTemp('aac_restore_');
     try {
       await _extractZipBytesToDirectory(bytes, tempDir);
       final directManifest = File('${tempDir.path}/cards.json');
       final nestedManifest = File('${tempDir.path}/AAC_Backup/cards.json');
       if (await directManifest.exists()) {
-        return await restoreFromBackupDir(tempDir);
+        final restored = await restoreFromBackupDir(tempDir);
+        final settings = await _readSettings(tempDir);
+        return BackupPayload(cards: restored, settings: settings);
       }
       if (await nestedManifest.exists()) {
-        return await restoreFromBackupDir(
-            Directory('${tempDir.path}/AAC_Backup'));
+        final dir = Directory('${tempDir.path}/AAC_Backup');
+        final restored = await restoreFromBackupDir(dir);
+        final settings = await _readSettings(dir);
+        return BackupPayload(cards: restored, settings: settings);
       }
-      return [];
+      return const BackupPayload(cards: [], settings: {});
     } finally {
       await tempDir.delete(recursive: true);
     }
