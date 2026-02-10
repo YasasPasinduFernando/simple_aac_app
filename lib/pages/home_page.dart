@@ -68,6 +68,8 @@ class _HomePageState extends State<HomePage> {
   int _themePrimaryColor = Colors.brown.value;
   int _themeTextColor = Colors.white.value;
   int _themeBackgroundColor = Colors.white.value;
+  double _ttsBarSize = 1.0;
+  bool _showTtsActions = true;
 
   @override
   void initState() {
@@ -153,6 +155,8 @@ class _HomePageState extends State<HomePage> {
     _themeTextColor = prefs.getInt('themeTextColor') ?? Colors.white.value;
     _themeBackgroundColor =
         prefs.getInt('themeBackgroundColor') ?? Colors.white.value;
+    _ttsBarSize = prefs.getDouble('ttsBarSize') ?? 1.0;
+    _showTtsActions = prefs.getBool('showTtsActions') ?? true;
 
     _updateCategories();
     _migrateVisibleCountIfNeeded(prefs);
@@ -217,6 +221,8 @@ class _HomePageState extends State<HomePage> {
     await prefs.setInt('themePrimaryColor', _themePrimaryColor);
     await prefs.setInt('themeTextColor', _themeTextColor);
     await prefs.setInt('themeBackgroundColor', _themeBackgroundColor);
+    await prefs.setDouble('ttsBarSize', _ttsBarSize);
+    await prefs.setBool('showTtsActions', _showTtsActions);
   }
 
   Future<void> _speak(String text) async {
@@ -924,6 +930,73 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showTtsBarSizeDialog() {
+    Navigator.pop(context);
+    double tempSize = _ttsBarSize;
+    bool tempShowActions = _showTtsActions;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('TTS Bar Size'),
+        content: StatefulBuilder(
+          builder: (context, setLocalState) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Slider(
+                value: tempSize,
+                min: 0.5,
+                max: 2.5,
+                divisions: 20,
+                label: '${(tempSize * 100).round()}%',
+                onChanged: (value) {
+                  setLocalState(() => tempSize = value);
+                },
+              ),
+              Text('Size: ${(tempSize * 100).round()}%'),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Show Delete/Clear'),
+                value: tempShowActions,
+                onChanged: (value) {
+                  setLocalState(() => tempShowActions = value);
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                _ttsBarSize = 1.0;
+                _showTtsActions = true;
+              });
+              _saveCards();
+              Navigator.pop(context);
+            },
+            child: const Text('Reset'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _ttsBarSize = tempSize;
+                _showTtsActions = tempShowActions;
+              });
+              _saveCards();
+              Navigator.pop(context);
+            },
+            child: const Text('Apply'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _backupWithPicker() async {
     Navigator.pop(context);
     showDialog(
@@ -1282,6 +1355,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   );
                 },
+                onShowTtsBarSize: _showTtsBarSizeDialog,
                 onToggleFullScreen: () {
                   Navigator.pop(context);
                   setState(() {
@@ -1404,6 +1478,8 @@ class _HomePageState extends State<HomePage> {
               }
             },
             speakerColor: themePrimary,
+            sizeFactor: _ttsBarSize,
+            showActions: _showTtsActions,
           ),
         Expanded(
           child: _getDisplayedCards().isEmpty

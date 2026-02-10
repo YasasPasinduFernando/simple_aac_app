@@ -11,6 +11,8 @@ class TtsBar extends StatelessWidget {
   final VoidCallback onClear;
   final VoidCallback onSpeak;
   final Color? speakerColor;
+  final double sizeFactor;
+  final bool showActions;
 
   const TtsBar({
     Key? key,
@@ -20,14 +22,16 @@ class TtsBar extends StatelessWidget {
     required this.onClear,
     required this.onSpeak,
     this.speakerColor,
+    this.sizeFactor = 1.0,
+    this.showActions = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isTablet ? 16 : 12,
-        vertical: isTablet ? 10 : 8,
+        horizontal: (isTablet ? 16 : 12) * sizeFactor,
+        vertical: (isTablet ? 10 : 8) * sizeFactor,
       ),
       color: Colors.grey.shade200,
       child: Row(
@@ -40,7 +44,10 @@ class TtsBar extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(right: 6),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6 * sizeFactor,
+                        vertical: 2 * sizeFactor,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
@@ -51,25 +58,26 @@ class TtsBar extends StatelessWidget {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(6),
                             child: SizedBox(
-                              width: 26,
-                              height: 26,
+                              width: 26 * sizeFactor,
+                              height: 26 * sizeFactor,
                               child: token.imagePath != null
                                   ? Image.file(
                                       File(token.imagePath!),
                                       fit: BoxFit.cover,
                                       errorBuilder:
                                           (context, error, stackTrace) {
-                                        return const Icon(Icons.image, size: 16);
+                                        return Icon(Icons.image,
+                                            size: 16 * sizeFactor);
                                       },
                                     )
-                                  : const Icon(Icons.image, size: 16),
+                                  : Icon(Icons.image, size: 16 * sizeFactor),
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6 * sizeFactor),
                           Text(
                             token.label,
                             style: TextStyle(
-                              fontSize: isTablet ? 14 : 12,
+                              fontSize: (isTablet ? 14 : 12) * sizeFactor,
                             ),
                           ),
                         ],
@@ -80,54 +88,58 @@ class TtsBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 6),
-          Row(
-            children: [
-              InkWell(
-                onTap: onDelete,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.backspace, size: 18),
-                      SizedBox(height: 2),
-                      Text(
-                        'Delete',
-                        style: TextStyle(fontSize: 9),
-                      ),
-                    ],
+          SizedBox(width: 6 * sizeFactor),
+          if (showActions)
+            Row(
+              children: [
+                InkWell(
+                  onTap: onDelete,
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 4 * sizeFactor),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.backspace, size: 18 * sizeFactor),
+                        SizedBox(height: 2 * sizeFactor),
+                        Text(
+                          'Delete',
+                          style: TextStyle(fontSize: 9 * sizeFactor),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 2),
-              InkWell(
-                onTap: onClear,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.clear, size: 18),
-                      SizedBox(height: 2),
-                      Text(
-                        'Clear',
-                        style: TextStyle(fontSize: 9),
-                      ),
-                    ],
+                SizedBox(width: 2 * sizeFactor),
+                InkWell(
+                  onTap: onClear,
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 4 * sizeFactor),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.clear, size: 18 * sizeFactor),
+                        SizedBox(height: 2 * sizeFactor),
+                        Text(
+                          'Clear',
+                          style: TextStyle(fontSize: 9 * sizeFactor),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 6),
+              ],
+            ),
+          SizedBox(width: 6 * sizeFactor),
           Container(
             decoration: BoxDecoration(
               color: speakerColor ?? Colors.brown.shade700,
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: Icon(Icons.volume_up, size: isTablet ? 36 : 28),
+              icon: Icon(Icons.volume_up,
+                  size: (isTablet ? 36 : 28) * sizeFactor),
               color: Colors.white,
               onPressed: onSpeak,
             ),

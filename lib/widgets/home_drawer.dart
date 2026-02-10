@@ -19,6 +19,7 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onPickPrimaryColor;
   final VoidCallback onPickTextColor;
   final VoidCallback onPickBackgroundColor;
+  final VoidCallback onShowTtsBarSize;
   final VoidCallback onToggleFullScreen;
   final VoidCallback onShowLanguage;
   final VoidCallback onShowGrid;
@@ -47,6 +48,7 @@ class HomeDrawer extends StatelessWidget {
     required this.onPickPrimaryColor,
     required this.onPickTextColor,
     required this.onPickBackgroundColor,
+    required this.onShowTtsBarSize,
     required this.onToggleFullScreen,
     required this.onShowLanguage,
     required this.onShowGrid,
@@ -145,6 +147,11 @@ class HomeDrawer extends StatelessWidget {
             leading: const Icon(Icons.format_color_fill),
             title: const Text('Background Color'),
             onTap: onPickBackgroundColor,
+          ),
+          ListTile(
+            leading: const Icon(Icons.format_size),
+            title: const Text('TTS Bar Size'),
+            onTap: onShowTtsBarSize,
           ),
           ListTile(
             leading: const Icon(Icons.category),
