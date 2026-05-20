@@ -60,11 +60,17 @@ class AACCard {
   }
 
   String getLabel(String language) {
+    String localizedOrDefault(String? localized) {
+      final value = localized?.trim();
+      if (value == null || value.isEmpty) return label;
+      return value;
+    }
+
     switch (language) {
       case 'si':
-        return labelSinhala ?? label;
+        return localizedOrDefault(labelSinhala);
       case 'ta':
-        return labelTamil ?? label;
+        return localizedOrDefault(labelTamil);
       default:
         return label;
     }

@@ -293,7 +293,8 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                           child: TextField(
                             controller: _controllerSi,
                             decoration: const InputDecoration(
-                              labelText: 'Sinhala (?????)',
+                              labelText:
+                                  'Sinhala (\u0dc3\u0dd2\u0d82\u0dc4\u0dbd)',
                               border: OutlineInputBorder(),
                             ),
                           ),
@@ -303,7 +304,8 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                           child: TextField(
                             controller: _controllerTa,
                             decoration: const InputDecoration(
-                              labelText: 'Tamil (?????)',
+                              labelText:
+                                  'Tamil (\u0ba4\u0bae\u0bbf\u0bb4\u0bcd)',
                               border: OutlineInputBorder(),
                             ),
                           ),

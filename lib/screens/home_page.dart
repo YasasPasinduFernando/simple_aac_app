@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import '../data/default_seed_cards.dart';
 import '../models/aac_card_model.dart';
 import '../services/card_storage_service.dart';
 import '../services/tts_service.dart';
@@ -47,49 +48,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<AACCard> _createDefaultCards() {
-    return [
-      AACCard(
-        id: 'seed_hello',
-        label: 'Hello',
-        imagePath: 'assets/images/seed/hello.png',
-        colorValue: Colors.yellow.shade300.value,
-      ),
-      AACCard(
-        id: 'seed_happy',
-        label: 'Happy',
-        imagePath: 'assets/images/seed/happy.png',
-        colorValue: Colors.lightBlue.shade200.value,
-      ),
-      AACCard(
-        id: 'seed_sad',
-        label: 'Sad',
-        imagePath: 'assets/images/seed/sad.png',
-        colorValue: Colors.lightBlue.shade300.value,
-      ),
-      AACCard(
-        id: 'seed_angry',
-        label: 'Angry',
-        imagePath: 'assets/images/seed/angry.png',
-        colorValue: Colors.red.shade300.value,
-      ),
-      AACCard(
-        id: 'seed_more',
-        label: 'More',
-        colorValue: Colors.indigo.shade500.value,
-      ),
-      AACCard(
-        id: 'seed_rotation_turn_change',
-        label: 'Rotation/Turn/Change',
-        imagePath: 'assets/images/seed/turn.png',
-        colorValue: Colors.teal.shade300.value,
-      ),
-      AACCard(
-        id: 'seed_blocks_toys_play',
-        label: 'Blocks/Toys/Play',
-        imagePath: 'assets/images/seed/blocks.png',
-        colorValue: Colors.deepPurple.shade300.value,
-      ),
-    ];
+    return createDefaultSeedCards();
   }
 
   Future<void> _saveData() async {

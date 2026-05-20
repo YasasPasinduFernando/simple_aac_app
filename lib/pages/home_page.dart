@@ -11,6 +11,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../data/default_seed_cards.dart';
 import '../models/aac_card_model.dart';
 import '../models/tts_token.dart';
 import '../services/backup_service.dart';
@@ -96,63 +97,12 @@ class _HomePageState extends State<HomePage> {
       defaultCards: _createSeedImageCards(),
     );
     if (!mounted) return;
-    final String? saved = _encodeCardsForLoad(loadedCards);
+    final String saved = _encodeCardsForLoad(loadedCards);
 
-    if (saved != null) {
-      final List decoded = jsonDecode(saved);
-      setState(() {
-        cards = decoded.map((c) => AACCard.fromJson(c)).toList();
-      });
-    } else {
-      setState(() {
-        cards = [
-          AACCard(
-            id: '1',
-            label: 'Hello',
-            labelSinhala: 'ආයුබෝවන්',
-            labelTamil: 'வணக்கம்',
-            colorValue: Colors.pink.shade300.value,
-          ),
-          AACCard(
-            id: '2',
-            label: 'Food',
-            labelSinhala: 'ආහාර',
-            labelTamil: 'உணவு',
-            colorValue: Colors.orange.shade300.value,
-            subCards: [
-              AACCard(
-                id: '2-1',
-                label: 'Rice',
-                labelSinhala: 'බත්',
-                labelTamil: 'சோறு',
-                colorValue: Colors.orange.shade200.value,
-              ),
-              AACCard(
-                id: '2-2',
-                label: 'Bread',
-                labelSinhala: 'පාන්',
-                labelTamil: 'ரொட்டி',
-                colorValue: Colors.orange.shade200.value,
-              ),
-            ],
-          ),
-          AACCard(
-            id: '3',
-            label: 'Water',
-            labelSinhala: 'වතුර',
-            labelTamil: 'தண்ணீர்',
-            colorValue: Colors.blue.shade300.value,
-          ),
-          AACCard(
-            id: '4',
-            label: 'Help',
-            labelSinhala: 'උදව්',
-            labelTamil: 'உதவி',
-            colorValue: Colors.red.shade300.value,
-          ),
-        ];
-      });
-    }
+    final List decoded = jsonDecode(saved);
+    setState(() {
+      cards = decoded.map((c) => AACCard.fromJson(c)).toList();
+    });
 
     gridColumns = prefs.getInt('gridColumns') ?? 2;
     _loadVisibleSelections(prefs);
@@ -182,122 +132,17 @@ class _HomePageState extends State<HomePage> {
     UiModeHelper.applySystemUi(fullScreen);
   }
 
-  String? _encodeCardsForLoad(List<AACCard> loadedCards) {
+  String _encodeCardsForLoad(List<AACCard> loadedCards) {
     return jsonEncode(loadedCards.map((c) => c.toJson()).toList());
   }
 
   List<AACCard> _createSeedImageCards() {
-    return [
-      AACCard(
-        id: 'seed_hello',
-        label: 'Hello',
-        imagePath: 'assets/images/seed/hello.png',
-        colorValue: Colors.yellow.shade300.value,
-      ),
-      AACCard(
-        id: 'seed_happy',
-        label: 'Happy',
-        imagePath: 'assets/images/seed/happy.png',
-        colorValue: Colors.lightBlue.shade200.value,
-      ),
-      AACCard(
-        id: 'seed_sad',
-        label: 'Sad',
-        imagePath: 'assets/images/seed/sad.png',
-        colorValue: Colors.lightBlue.shade300.value,
-      ),
-      AACCard(
-        id: 'seed_angry',
-        label: 'Angry',
-        imagePath: 'assets/images/seed/angry.png',
-        colorValue: Colors.red.shade300.value,
-      ),
-      AACCard(
-        id: 'seed_more',
-        label: 'More',
-        colorValue: Colors.indigo.shade500.value,
-      ),
-      AACCard(
-        id: 'seed_rotation_turn_change',
-        label: 'Rotation/Turn/Change',
-        imagePath: 'assets/images/seed/turn.png',
-        colorValue: Colors.teal.shade300.value,
-      ),
-      AACCard(
-        id: 'seed_blocks_toys_play',
-        label: 'Blocks/Toys/Play',
-        imagePath: 'assets/images/seed/blocks.png',
-        colorValue: Colors.deepPurple.shade300.value,
-      ),
-    ];
+    return createDefaultSeedCards();
   }
 
   // ignore: unused_element
   List<AACCard> _createDefaultCards() {
     return _createSeedImageCards();
-    /*
-    final defaultCards = <AACCard>[
-      AACCard(
-        id: '1',
-        label: 'Hello',
-        labelSinhala: 'à¶†à¶ºà·”à¶¶à·à·€à¶±à·Š',
-        labelTamil: 'à®µà®£à®•à¯à®•à®®à¯',
-        colorValue: Colors.pink.shade300.value,
-      ),
-      AACCard(
-        id: '2',
-        label: 'Food',
-        labelSinhala: 'à¶†à·„à·à¶»',
-        labelTamil: 'à®‰à®£à®µà¯',
-        colorValue: Colors.orange.shade300.value,
-        subCards: [
-          AACCard(
-            id: '2-1',
-            label: 'Rice',
-            labelSinhala: 'à¶¶à¶­à·Š',
-            labelTamil: 'à®šà¯‹à®±à¯',
-            colorValue: Colors.orange.shade200.value,
-          ),
-          AACCard(
-            id: '2-2',
-            label: 'Bread',
-            labelSinhala: 'à¶´à·à¶±à·Š',
-            labelTamil: 'à®°à¯Šà®Ÿà¯à®Ÿà®¿',
-            colorValue: Colors.orange.shade200.value,
-          ),
-        ],
-      ),
-      AACCard(
-        id: '3',
-        label: 'Water',
-        labelSinhala: 'à·€à¶­à·”à¶»',
-        labelTamil: 'à®¤à®£à¯à®£à¯€à®°à¯',
-        colorValue: Colors.blue.shade300.value,
-      ),
-      AACCard(
-        id: '4',
-        label: 'Help',
-        labelSinhala: 'à¶‹à¶¯à·€à·Š',
-        labelTamil: 'à®‰à®¤à®µà®¿',
-        colorValue: Colors.red.shade300.value,
-      ),
-    ];
-    defaultCards[0].labelSinhala =
-        '\u0d86\u0dba\u0dd4\u0db6\u0ddd\u0dc0\u0db1\u0dca';
-    defaultCards[0].labelTamil = '\u0bb5\u0ba3\u0b95\u0bcd\u0b95\u0bae\u0bcd';
-    defaultCards[1].labelSinhala = '\u0d86\u0dc4\u0dcf\u0dbb';
-    defaultCards[1].labelTamil = '\u0b89\u0ba3\u0bb5\u0bc1';
-    defaultCards[1].subCards[0].labelSinhala = '\u0db6\u0dad\u0dca';
-    defaultCards[1].subCards[0].labelTamil = '\u0b9a\u0bcb\u0bb1\u0bc1';
-    defaultCards[1].subCards[1].labelSinhala = '\u0db4\u0dcf\u0db1\u0dca';
-    defaultCards[1].subCards[1].labelTamil =
-        '\u0bb0\u0bca\u0b9f\u0bcd\u0b9f\u0bbf';
-    defaultCards[2].labelSinhala = '\u0dc0\u0dad\u0dd4\u0dbb';
-    defaultCards[2].labelTamil = '\u0ba4\u0ba3\u0bcd\u0ba3\u0bc0\u0bb0\u0bcd';
-    defaultCards[3].labelSinhala = '\u0d8b\u0daf\u0dc0\u0dca';
-    defaultCards[3].labelTamil = '\u0b89\u0ba4\u0bb5\u0bbf';
-    return defaultCards;
-    */
   }
 
   void _loadVisibleSelections(SharedPreferences prefs) {
@@ -690,9 +535,9 @@ class _HomePageState extends State<HomePage> {
   String _getLanguageName(String code) {
     switch (code) {
       case 'si':
-        return 'සිංහල (Sinhala)';
+        return '\u0dc3\u0dd2\u0d82\u0dc4\u0dbd (Sinhala)';
       case 'ta':
-        return 'தமிழ் (Tamil)';
+        return '\u0ba4\u0bae\u0bbf\u0bb4\u0bcd (Tamil)';
       default:
         return 'English';
     }
@@ -718,7 +563,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('සිංහල (Sinhala)'),
+              title: const Text('\u0dc3\u0dd2\u0d82\u0dc4\u0dbd (Sinhala)'),
               value: 'si',
               groupValue: currentLanguage,
               onChanged: (value) {
@@ -729,7 +574,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('தமிழ் (Tamil)'),
+              title: const Text('\u0ba4\u0bae\u0bbf\u0bb4\u0bcd (Tamil)'),
               value: 'ta',
               groupValue: currentLanguage,
               onChanged: (value) {

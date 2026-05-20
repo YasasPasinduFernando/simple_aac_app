@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/aac_card_model.dart';
 
 class CardStorageService {
-  static const int defaultCatalogVersion = 4;
+  static const int defaultCatalogVersion = 5;
 
   static const String _cardsFileName = 'aac_cards_v1.json';
   static const String _cardsBackupFileName = 'aac_cards_v1.json.bak';
@@ -67,12 +67,12 @@ class CardStorageService {
         file,
         backupFile,
       );
-      final seedAssetChanged = _normalizeSeedAssetMappings(
+      final seedCatalogChanged = _normalizeSeedCatalog(
         cards,
         defaultCards,
       );
       final mediaChanged = await _migrateMediaFilesToDocuments(cards);
-      if (seedAssetChanged || mediaChanged) {
+      if (seedCatalogChanged || mediaChanged) {
         await _writeCardsFile(file, backupFile, cards);
       }
       await _markSeeded(prefs);
@@ -87,7 +87,7 @@ class CardStorageService {
     final backupCards = await _readCardsFile(backupFile, source: 'backup');
     if (backupCards != null) {
       _mergeMissingDefaults(backupCards, defaultCards);
-      _normalizeSeedAssetMappings(backupCards, defaultCards);
+      _normalizeSeedCatalog(backupCards, defaultCards);
       await _migrateMediaFilesToDocuments(backupCards);
       await _writeCardsFile(file, backupFile, backupCards);
       await _markSeeded(prefs);
@@ -102,7 +102,7 @@ class CardStorageService {
     final legacyCards = _readLegacyPrefsCards(prefs);
     if (legacyCards != null) {
       _mergeMissingDefaults(legacyCards, defaultCards);
-      _normalizeSeedAssetMappings(legacyCards, defaultCards);
+      _normalizeSeedCatalog(legacyCards, defaultCards);
       await _migrateMediaFilesToDocuments(legacyCards);
       await _writeCardsFile(file, backupFile, legacyCards);
       await _markSeeded(prefs);
@@ -148,7 +148,6 @@ class CardStorageService {
       '(${countCards(cards)} total) to ${file.path}',
     );
 
-    _normalizeSeedAssetMappings(cards, const []);
     await _migrateMediaFilesToDocuments(cards);
     await _writeCardsFile(file, backupFile, cards);
     await _markSeeded(prefs);
@@ -214,42 +213,246 @@ class CardStorageService {
     return changed;
   }
 
-  static bool _normalizeSeedAssetMappings(
+  static bool _normalizeSeedCatalog(
     List<AACCard> cards,
     List<AACCard> defaultCards,
   ) {
-    final defaultsById = <String, AACCard>{
-      for (final card in defaultCards) card.id: card,
-    };
+    if (defaultCards.isEmpty) return false;
+
+    final defaultsById = _indexDefaultsById(defaultCards);
+    var changed = _migrateDeprecatedSeedCards(cards, defaultsById);
+    changed = _normalizeKnownSeedCards(cards, defaultsById) || changed;
+    return changed;
+  }
+
+  static Map<String, AACCard> _indexDefaultsById(List<AACCard> defaultCards) {
+    final indexed = <String, AACCard>{};
+
+    void visit(AACCard card) {
+      indexed[card.id] = card;
+      for (final subCard in card.subCards) {
+        visit(subCard);
+      }
+    }
+
+    for (final card in defaultCards) {
+      visit(card);
+    }
+    return indexed;
+  }
+
+  static bool _migrateDeprecatedSeedCards(
+    List<AACCard> cards,
+    Map<String, AACCard> defaultsById,
+  ) {
+    final more = _findDirectChild(cards, 'seed_more');
+    if (more == null) {
+      final removedRotation =
+          _removeDirectChild(cards, 'seed_rotation_turn_change') != null;
+      final removedBlocks =
+          _removeDirectChild(cards, 'seed_blocks_toys_play') != null;
+      if (removedRotation || removedBlocks) {
+        debugPrint(
+          '[CardStorage] removed deprecated seed cards without reseeding More',
+        );
+      }
+      return removedRotation || removedBlocks;
+    }
+
+    var changed = false;
+    changed = _replaceDeprecatedSeed(
+          cards,
+          more,
+          deprecatedId: 'seed_rotation_turn_change',
+          replacement: defaultsById['seed_good'],
+        ) ||
+        changed;
+    changed = _replaceDeprecatedSeed(
+          cards,
+          more,
+          deprecatedId: 'seed_blocks_toys_play',
+          replacement: defaultsById['seed_play'],
+        ) ||
+        changed;
+    changed = _moveTopLevelSeedUnderMore(
+          cards,
+          more,
+          seedId: 'seed_good',
+        ) ||
+        changed;
+    changed = _moveTopLevelSeedUnderMore(
+          cards,
+          more,
+          seedId: 'seed_play',
+        ) ||
+        changed;
+    return changed;
+  }
+
+  static bool _replaceDeprecatedSeed(
+    List<AACCard> cards,
+    AACCard more, {
+    required String deprecatedId,
+    required AACCard? replacement,
+  }) {
+    final removed = _removeDirectChild(cards, deprecatedId);
+    if (removed == null) return false;
+
+    if (replacement != null &&
+        _findDirectChild(more.subCards, replacement.id) == null) {
+      more.subCards.add(_cloneCard(replacement));
+    }
+    debugPrint(
+      '[CardStorage] removed deprecated seed card $deprecatedId '
+      'and migrated it to ${replacement?.id ?? 'no replacement'}',
+    );
+    return true;
+  }
+
+  static bool _moveTopLevelSeedUnderMore(
+    List<AACCard> cards,
+    AACCard more, {
+    required String seedId,
+  }) {
+    final stray = _removeDirectChild(cards, seedId);
+    if (stray == null) return false;
+
+    if (_findDirectChild(more.subCards, seedId) == null) {
+      more.subCards.add(stray);
+      debugPrint('[CardStorage] moved $seedId under seed_more');
+    } else {
+      debugPrint('[CardStorage] removed duplicate top-level $seedId');
+    }
+    return true;
+  }
+
+  static AACCard? _removeDirectChild(List<AACCard> cards, String id) {
+    for (var i = 0; i < cards.length; i++) {
+      if (cards[i].id == id) {
+        return cards.removeAt(i);
+      }
+    }
+    return null;
+  }
+
+  static bool _normalizeKnownSeedCards(
+    List<AACCard> cards,
+    Map<String, AACCard> defaultsById,
+  ) {
     var changed = false;
     for (final card in cards) {
-      if (card.id == 'seed_more' && isAssetImagePath(card.imagePath)) {
-        card.imagePath = null;
-        changed = true;
-        debugPrint(
-          '[CardStorage] removed deprecated image mapping from More card',
-        );
-      }
-
       final defaultCard = defaultsById[card.id];
-      final defaultImagePath = defaultCard?.imagePath;
-      if (defaultImagePath != null &&
-          isAssetImagePath(card.imagePath) &&
-          card.imagePath != defaultImagePath) {
-        card.imagePath = defaultImagePath;
-        changed = true;
-        debugPrint(
-          '[CardStorage] refreshed bundled seed image path for ${card.id}',
-        );
+      if (defaultCard != null) {
+        changed = _normalizeSeedCardData(card, defaultCard) || changed;
       }
-
-      changed = _normalizeSeedAssetMappings(
-            card.subCards,
-            defaultCard?.subCards ?? const [],
-          ) ||
-          changed;
+      changed =
+          _normalizeKnownSeedCards(card.subCards, defaultsById) || changed;
     }
     return changed;
+  }
+
+  static bool _normalizeSeedCardData(AACCard card, AACCard defaultCard) {
+    var changed = false;
+
+    if (_shouldRefreshSeedText(
+        card.id, 'label', card.label, defaultCard.label)) {
+      card.label = defaultCard.label;
+      changed = true;
+    }
+    if (_shouldRefreshSeedText(
+      card.id,
+      'labelSinhala',
+      card.labelSinhala,
+      defaultCard.labelSinhala,
+      localized: true,
+    )) {
+      card.labelSinhala = defaultCard.labelSinhala;
+      changed = true;
+    }
+    if (_shouldRefreshSeedText(
+      card.id,
+      'labelTamil',
+      card.labelTamil,
+      defaultCard.labelTamil,
+      localized: true,
+    )) {
+      card.labelTamil = defaultCard.labelTamil;
+      changed = true;
+    }
+
+    if (_shouldRefreshSeedImage(card.imagePath, defaultCard.imagePath)) {
+      card.imagePath = defaultCard.imagePath;
+      changed = true;
+      debugPrint(
+        '[CardStorage] refreshed bundled seed image path for ${card.id}',
+      );
+    }
+
+    if (card.id == 'seed_more' && card.type != defaultCard.type) {
+      card.type = defaultCard.type;
+      changed = true;
+      debugPrint('[CardStorage] normalized seed_more as folder navigation');
+    }
+
+    if (defaultCard.subCards.isNotEmpty) {
+      changed =
+          _mergeMissingDefaults(card.subCards, defaultCard.subCards) || changed;
+    }
+
+    if (changed) {
+      debugPrint('[CardStorage] normalized seed data for ${card.id}');
+    }
+    return changed;
+  }
+
+  static bool _shouldRefreshSeedText(
+    String cardId,
+    String field,
+    String? current,
+    String? desired, {
+    bool localized = false,
+  }) {
+    if (desired == null || desired.isEmpty) return false;
+
+    final value = current?.trim() ?? '';
+    if (value.isEmpty) return true;
+    if (value == desired) return false;
+    if (_previousSeedTextValues(cardId, field).contains(value)) return true;
+    if (localized && _looksCorruptLocalizedText(value)) return true;
+    return false;
+  }
+
+  static bool _shouldRefreshSeedImage(
+    String? current,
+    String? desired,
+  ) {
+    if (desired == null || desired.isEmpty) return false;
+    if (current == null || current.isEmpty) return true;
+    if (current == desired) return false;
+    return isAssetImagePath(current);
+  }
+
+  static Set<String> _previousSeedTextValues(String cardId, String field) {
+    if (field == 'label') {
+      return switch (cardId) {
+        'seed_sad' => {'sad'},
+        'seed_good' => {'Rotation/Turn/Change'},
+        'seed_play' => {'Blocks/Toys/Play'},
+        _ => const <String>{},
+      };
+    }
+    return const <String>{};
+  }
+
+  static bool _looksCorruptLocalizedText(String value) {
+    return value.contains('?') ||
+        value.runes.any(
+          (codePoint) =>
+              codePoint == 0x00C3 ||
+              codePoint == 0x00C2 ||
+              codePoint == 0x00E0 ||
+              codePoint == 0xFFFD,
+        );
   }
 
   static Future<bool> _migrateCardMediaFiles(AACCard card) async {
