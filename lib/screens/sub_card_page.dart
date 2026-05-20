@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/aac_card.dart';
+import '../models/aac_card_model.dart';
 import '../widgets/aac_card_widget.dart';
 
 class SubCardPage extends StatelessWidget {
@@ -18,7 +18,7 @@ class SubCardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${parentCard.label}'),
+        title: Text(parentCard.label),
         backgroundColor: Color(parentCard.colorValue),
       ),
       body: parentCard.subCards.isEmpty

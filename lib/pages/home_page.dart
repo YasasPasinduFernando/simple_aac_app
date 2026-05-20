@@ -14,6 +14,7 @@ import 'package:share_plus/share_plus.dart';
 import '../models/aac_card_model.dart';
 import '../models/tts_token.dart';
 import '../services/backup_service.dart';
+import '../services/card_storage_service.dart';
 import '../widgets/card_editor_dialog.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,6 +25,7 @@ import '../widgets/home_drawer.dart';
 import '../widgets/landscape_menu.dart';
 import '../widgets/tts_bar.dart';
 import '../widgets/visible_cards_dialog.dart';
+import '../utils/card_image.dart';
 import '../utils/ui_mode_helper.dart';
 
 class HomePage extends StatefulWidget {
@@ -88,8 +90,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadCards() async {
+    debugPrint('[HomePage] app startup storage initialization started');
     final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getString('cards');
+    final loadedCards = await CardStorageService.loadCards(
+      defaultCards: _createSeedImageCards(),
+    );
+    if (!mounted) return;
+    final String? saved = _encodeCardsForLoad(loadedCards);
 
     if (saved != null) {
       final List decoded = jsonDecode(saved);
@@ -162,13 +169,135 @@ class _HomePageState extends State<HomePage> {
     _showTtsActions = prefs.getBool('showTtsActions') ?? true;
     _hideTtsText = prefs.getBool('hideTtsText') ?? false;
     _useImageOverlayLabel = prefs.getBool('useImageOverlayLabel') ?? false;
-    _applyTextColorToCards =
-        prefs.getBool('applyTextColorToCards') ?? false;
+    _applyTextColorToCards = prefs.getBool('applyTextColorToCards') ?? false;
 
     _updateCategories();
     _migrateVisibleCountIfNeeded(prefs);
+    _logCardMediaPaths('load', cards);
+    debugPrint(
+      '[HomePage] card load complete: ${cards.length} top-level cards, '
+      '${CardStorageService.countCards(cards)} total cards',
+    );
     UiModeHelper.applyOrientation(orientationMode);
     UiModeHelper.applySystemUi(fullScreen);
+  }
+
+  String? _encodeCardsForLoad(List<AACCard> loadedCards) {
+    return jsonEncode(loadedCards.map((c) => c.toJson()).toList());
+  }
+
+  List<AACCard> _createSeedImageCards() {
+    return [
+      AACCard(
+        id: 'seed_hello',
+        label: 'Hello',
+        imagePath: 'assets/images/seed/hello.png',
+        colorValue: Colors.yellow.shade300.value,
+      ),
+      AACCard(
+        id: 'seed_happy',
+        label: 'Happy',
+        imagePath: 'assets/images/seed/happy.png',
+        colorValue: Colors.lightBlue.shade200.value,
+      ),
+      AACCard(
+        id: 'seed_sad',
+        label: 'Sad',
+        imagePath: 'assets/images/seed/sad.png',
+        colorValue: Colors.lightBlue.shade300.value,
+      ),
+      AACCard(
+        id: 'seed_angry',
+        label: 'Angry',
+        imagePath: 'assets/images/seed/angry.png',
+        colorValue: Colors.red.shade300.value,
+      ),
+      AACCard(
+        id: 'seed_more',
+        label: 'More',
+        colorValue: Colors.indigo.shade500.value,
+      ),
+      AACCard(
+        id: 'seed_rotation_turn_change',
+        label: 'Rotation/Turn/Change',
+        imagePath: 'assets/images/seed/turn.png',
+        colorValue: Colors.teal.shade300.value,
+      ),
+      AACCard(
+        id: 'seed_blocks_toys_play',
+        label: 'Blocks/Toys/Play',
+        imagePath: 'assets/images/seed/blocks.png',
+        colorValue: Colors.deepPurple.shade300.value,
+      ),
+    ];
+  }
+
+  // ignore: unused_element
+  List<AACCard> _createDefaultCards() {
+    return _createSeedImageCards();
+    /*
+    final defaultCards = <AACCard>[
+      AACCard(
+        id: '1',
+        label: 'Hello',
+        labelSinhala: 'à¶†à¶ºà·”à¶¶à·à·€à¶±à·Š',
+        labelTamil: 'à®µà®£à®•à¯à®•à®®à¯',
+        colorValue: Colors.pink.shade300.value,
+      ),
+      AACCard(
+        id: '2',
+        label: 'Food',
+        labelSinhala: 'à¶†à·„à·à¶»',
+        labelTamil: 'à®‰à®£à®µà¯',
+        colorValue: Colors.orange.shade300.value,
+        subCards: [
+          AACCard(
+            id: '2-1',
+            label: 'Rice',
+            labelSinhala: 'à¶¶à¶­à·Š',
+            labelTamil: 'à®šà¯‹à®±à¯',
+            colorValue: Colors.orange.shade200.value,
+          ),
+          AACCard(
+            id: '2-2',
+            label: 'Bread',
+            labelSinhala: 'à¶´à·à¶±à·Š',
+            labelTamil: 'à®°à¯Šà®Ÿà¯à®Ÿà®¿',
+            colorValue: Colors.orange.shade200.value,
+          ),
+        ],
+      ),
+      AACCard(
+        id: '3',
+        label: 'Water',
+        labelSinhala: 'à·€à¶­à·”à¶»',
+        labelTamil: 'à®¤à®£à¯à®£à¯€à®°à¯',
+        colorValue: Colors.blue.shade300.value,
+      ),
+      AACCard(
+        id: '4',
+        label: 'Help',
+        labelSinhala: 'à¶‹à¶¯à·€à·Š',
+        labelTamil: 'à®‰à®¤à®µà®¿',
+        colorValue: Colors.red.shade300.value,
+      ),
+    ];
+    defaultCards[0].labelSinhala =
+        '\u0d86\u0dba\u0dd4\u0db6\u0ddd\u0dc0\u0db1\u0dca';
+    defaultCards[0].labelTamil = '\u0bb5\u0ba3\u0b95\u0bcd\u0b95\u0bae\u0bcd';
+    defaultCards[1].labelSinhala = '\u0d86\u0dc4\u0dcf\u0dbb';
+    defaultCards[1].labelTamil = '\u0b89\u0ba3\u0bb5\u0bc1';
+    defaultCards[1].subCards[0].labelSinhala = '\u0db6\u0dad\u0dca';
+    defaultCards[1].subCards[0].labelTamil = '\u0b9a\u0bcb\u0bb1\u0bc1';
+    defaultCards[1].subCards[1].labelSinhala = '\u0db4\u0dcf\u0db1\u0dca';
+    defaultCards[1].subCards[1].labelTamil =
+        '\u0bb0\u0bca\u0b9f\u0bcd\u0b9f\u0bbf';
+    defaultCards[2].labelSinhala = '\u0dc0\u0dad\u0dd4\u0dbb';
+    defaultCards[2].labelTamil = '\u0ba4\u0ba3\u0bcd\u0ba3\u0bc0\u0bb0\u0bcd';
+    defaultCards[3].labelSinhala = '\u0d8b\u0daf\u0dc0\u0dca';
+    defaultCards[3].labelTamil = '\u0b89\u0ba4\u0bb5\u0bbf';
+    return defaultCards;
+    */
   }
 
   void _loadVisibleSelections(SharedPreferences prefs) {
@@ -211,6 +340,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _saveCards() async {
+    debugPrint(
+      '[HomePage] card saving requested: ${cards.length} top-level cards, '
+      '${CardStorageService.countCards(cards)} total cards',
+    );
+    _logCardMediaPaths('save', cards);
+    await CardStorageService.saveCards(cards);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
         'cards', jsonEncode(cards.map((c) => c.toJson()).toList()));
@@ -233,6 +368,37 @@ class _HomePageState extends State<HomePage> {
     await prefs.setBool('hideTtsText', _hideTtsText);
     await prefs.setBool('useImageOverlayLabel', _useImageOverlayLabel);
     await prefs.setBool('applyTextColorToCards', _applyTextColorToCards);
+    debugPrint('[HomePage] settings and cards saved');
+  }
+
+  void _logCardMediaPaths(String phase, List<AACCard> cardsList) {
+    void visit(AACCard card) {
+      final imagePath = card.imagePath;
+      if (imagePath != null && imagePath.isNotEmpty) {
+        final exists =
+            isAssetImagePath(imagePath) || File(imagePath).existsSync();
+        debugPrint(
+          '[HomePage] card media $phase: id=${card.id}, '
+          'imagePath=$imagePath, exists=$exists',
+        );
+      }
+
+      final voicePath = card.voicePath;
+      if (voicePath != null && voicePath.isNotEmpty) {
+        debugPrint(
+          '[HomePage] card media $phase: id=${card.id}, '
+          'voicePath=$voicePath, exists=${File(voicePath).existsSync()}',
+        );
+      }
+
+      for (final subCard in card.subCards) {
+        visit(subCard);
+      }
+    }
+
+    for (final card in cardsList) {
+      visit(card);
+    }
   }
 
   Future<void> _speak(String text) async {
@@ -337,10 +503,29 @@ class _HomePageState extends State<HomePage> {
     if (source != null) {
       final image = await _picker.pickImage(source: source, imageQuality: 80);
       if (image != null) {
-        setState(() {
-          card.imagePath = image.path;
-        });
-        _saveCards();
+        try {
+          final permanentPath = await CardStorageService.persistMediaFile(
+            image.path,
+            cardId: card.id,
+            mediaType: 'images',
+          );
+          debugPrint(
+            '[HomePage] image selected for card ${card.id}: '
+            'pickerPath=${image.path}, savedPath=$permanentPath',
+          );
+          setState(() {
+            card.imagePath = permanentPath;
+          });
+          _saveCards();
+        } catch (error, stackTrace) {
+          debugPrint('[HomePage] image save failed: $error');
+          debugPrint(stackTrace.toString());
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Image could not be saved')),
+            );
+          }
+        }
       }
     }
   }
@@ -388,6 +573,10 @@ class _HomePageState extends State<HomePage> {
     if (action == CardEditorAction.addSubCard) {
       _createCard(parent: card);
     } else if (action == CardEditorAction.saved) {
+      debugPrint(
+        '[HomePage] card editor saved: id=${card.id}, label=${card.label}, '
+        'imagePath=${card.imagePath}, voicePath=${card.voicePath}',
+      );
       if (onSave != null) {
         onSave(card);
       } else {
@@ -409,6 +598,10 @@ class _HomePageState extends State<HomePage> {
           ? parent.category
           : (selectedCategory == 'All' ? 'General' : selectedCategory),
     );
+    debugPrint(
+      '[HomePage] opening create card editor: id=${newCard.id}, '
+      'parentId=${parent?.id}',
+    );
 
     _editCard(
       newCard,
@@ -427,6 +620,10 @@ class _HomePageState extends State<HomePage> {
         });
         _updateCategories();
         _saveCards();
+        debugPrint(
+          '[HomePage] new card saved: id=${savedCard.id}, '
+          'parentId=${parent?.id}, imagePath=${savedCard.imagePath}',
+        );
         _setHighlight(savedCard.id);
         _scrollToEnd();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -468,6 +665,10 @@ class _HomePageState extends State<HomePage> {
           ),
           ElevatedButton(
             onPressed: () {
+              debugPrint(
+                '[HomePage] deleting card: id=${card.id}, '
+                'label=${card.label}, activeParentId=${activeParentCard?.id}',
+              );
               setState(() {
                 if (activeParentCard != null) {
                   activeParentCard!.subCards.remove(card);
@@ -557,14 +758,14 @@ class _HomePageState extends State<HomePage> {
                   title: Text(cat),
                   value: cat,
                   groupValue: selectedCategory,
-                onChanged: (value) {
-                  setState(() {
-                    selectedCategory = value!;
-                    activeParentCard = null;
-                    _resetTtsInput();
-                  });
-                  Navigator.pop(context);
-                },
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCategory = value!;
+                      activeParentCard = null;
+                      _resetTtsInput();
+                    });
+                    Navigator.pop(context);
+                  },
                 )),
           ],
         ),
@@ -687,6 +888,9 @@ class _HomePageState extends State<HomePage> {
           ),
           ElevatedButton(
             onPressed: () {
+              debugPrint(
+                '[HomePage] resetting settings only; card data is preserved',
+              );
               setState(() {
                 gridColumns = 2;
                 showTtsInput = true;
@@ -858,19 +1062,6 @@ class _HomePageState extends State<HomePage> {
     };
   }
 
-  Widget _buildGridOption(int columns, String label) {
-    return RadioListTile<int>(
-      title: Text(label),
-      value: columns,
-      groupValue: gridColumns,
-      onChanged: (value) {
-        setState(() => gridColumns = value!);
-        _saveCards();
-        Navigator.pop(context);
-      },
-    );
-  }
-
   List<AACCard> _getFilteredCards() {
     if (selectedCategory == 'All') {
       return cards;
@@ -969,12 +1160,11 @@ class _HomePageState extends State<HomePage> {
 
   void _undoEditChanges() {
     if (_editSnapshotCards == null) return;
+    debugPrint('[HomePage] undoing edit-mode changes from snapshot');
     setState(() {
       cards = _cloneCards(_editSnapshotCards!);
-      visibleCardIdsByParent =
-          _cloneVisibleMap(_editSnapshotVisible ?? {});
-      allCategories =
-          Set<String>.from(_editSnapshotCategories ?? {'All'});
+      visibleCardIdsByParent = _cloneVisibleMap(_editSnapshotVisible ?? {});
+      allCategories = Set<String>.from(_editSnapshotCategories ?? {'All'});
       selectedCategory = _editSnapshotSelectedCategory ?? 'All';
       activeParentCard = _editSnapshotActiveParentId == null
           ? null
@@ -987,8 +1177,7 @@ class _HomePageState extends State<HomePage> {
     return source.map((card) => AACCard.fromJson(card.toJson())).toList();
   }
 
-  Map<String, Set<String>> _cloneVisibleMap(
-      Map<String, Set<String>> source) {
+  Map<String, Set<String>> _cloneVisibleMap(Map<String, Set<String>> source) {
     return source.map(
       (key, value) => MapEntry(key, Set<String>.from(value)),
     );
@@ -1306,6 +1495,11 @@ class _HomePageState extends State<HomePage> {
   void _applyRestoredBackup(BackupPayload payload) {
     final settings = payload.settings;
     final restoredCards = payload.cards;
+    debugPrint(
+      '[HomePage] applying restored backup: ${restoredCards.length} '
+      'top-level cards, ${CardStorageService.countCards(restoredCards)} '
+      'total cards',
+    );
     setState(() {
       cards = restoredCards;
       activeParentCard = null;
@@ -1329,25 +1523,20 @@ class _HomePageState extends State<HomePage> {
           settings['orientationMode']?.toString() ?? orientationMode;
       fullScreen = settings['fullScreen'] as bool? ?? fullScreen;
       currentLanguage = settings['language']?.toString() ?? currentLanguage;
-      _themePrimaryColor =
-          (settings['themePrimaryColor'] as num?)?.toInt() ??
-              _themePrimaryColor;
+      _themePrimaryColor = (settings['themePrimaryColor'] as num?)?.toInt() ??
+          _themePrimaryColor;
       _themeTextColor =
           (settings['themeTextColor'] as num?)?.toInt() ?? _themeTextColor;
       _themeBackgroundColor =
           (settings['themeBackgroundColor'] as num?)?.toInt() ??
               _themeBackgroundColor;
-      _ttsBarSize =
-          (settings['ttsBarSize'] as num?)?.toDouble() ?? _ttsBarSize;
-      _showTtsActions =
-          settings['showTtsActions'] as bool? ?? _showTtsActions;
+      _ttsBarSize = (settings['ttsBarSize'] as num?)?.toDouble() ?? _ttsBarSize;
+      _showTtsActions = settings['showTtsActions'] as bool? ?? _showTtsActions;
       _hideTtsText = settings['hideTtsText'] as bool? ?? _hideTtsText;
       _useImageOverlayLabel =
-          settings['useImageOverlayLabel'] as bool? ??
-              _useImageOverlayLabel;
+          settings['useImageOverlayLabel'] as bool? ?? _useImageOverlayLabel;
       _applyTextColorToCards =
-          settings['applyTextColorToCards'] as bool? ??
-              _applyTextColorToCards;
+          settings['applyTextColorToCards'] as bool? ?? _applyTextColorToCards;
 
       _resetTtsInput();
     });
@@ -1512,9 +1701,8 @@ class _HomePageState extends State<HomePage> {
                 visibleCardsLabel: _getVisibleCardsLabel(),
                 isEditMode: isEditMode,
                 showTtsInput: showTtsInput,
-                orientationLabel: orientationMode == 'landscape'
-                    ? 'Landscape'
-                    : 'Portrait',
+                orientationLabel:
+                    orientationMode == 'landscape' ? 'Landscape' : 'Portrait',
                 fullScreen: fullScreen,
                 headerColor: themePrimary,
                 headerTextColor: themeText,
@@ -1725,8 +1913,8 @@ class _HomePageState extends State<HomePage> {
               ? Center(
                   child: Text(
                     'No cards in this category. Tap + to add a card!',
-                    style:
-                        TextStyle(fontSize: isTablet ? 18 : 16, color: Colors.grey),
+                    style: TextStyle(
+                        fontSize: isTablet ? 18 : 16, color: Colors.grey),
                   ),
                 )
               : GridView.builder(
@@ -1754,8 +1942,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildCardWidget(AACCard card, bool isTablet) {
     final displayLabel = card.getLabel(currentLanguage);
     final isTapAnimated = _tapAnimatedCardId == card.id;
-    final useImageOverlay =
-        _useImageOverlayLabel && card.imagePath != null;
+    final useImageOverlay = _useImageOverlayLabel && card.imagePath != null;
     final cardTextColor =
         _applyTextColorToCards ? Color(_themeTextColor) : Colors.white;
 
@@ -1818,8 +2005,8 @@ class _HomePageState extends State<HomePage> {
                           ? ClipRRect(
                               borderRadius: BorderRadius.vertical(
                                   top: Radius.circular(isTablet ? 20 : 16)),
-                              child: Image.file(
-                                File(card.imagePath!),
+                              child: buildCardImage(
+                                card.imagePath!,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
                                 errorBuilder: (context, error, stackTrace) {
@@ -1857,10 +2044,9 @@ class _HomePageState extends State<HomePage> {
                 ),
               if (useImageOverlay)
                 ClipRRect(
-                  borderRadius:
-                      BorderRadius.circular(isTablet ? 20 : 16),
-                  child: Image.file(
-                    File(card.imagePath!),
+                  borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
+                  child: buildCardImage(
+                    card.imagePath!,
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,
@@ -1882,7 +2068,7 @@ class _HomePageState extends State<HomePage> {
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                    style: TextStyle(
                       color: cardTextColor,
                       fontSize: isTablet ? 20 : 16,
                       fontWeight: FontWeight.bold,

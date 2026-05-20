@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/aac_card.dart';
+import '../models/aac_card_model.dart';
+import 'card_storage_service.dart';
 
 class StorageService {
   static const String _cardsKey = 'aac_cards';
   static const String _gridColumnsKey = 'grid_columns';
 
   static Future<void> saveCards(List<AACCard> cards) async {
+    await CardStorageService.saveCards(cards);
     final prefs = await SharedPreferences.getInstance();
     final jsonList = cards.map((card) => card.toJson()).toList();
     await prefs.setString(_cardsKey, jsonEncode(jsonList));

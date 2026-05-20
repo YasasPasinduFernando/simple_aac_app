@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../models/aac_card_model.dart';
+import '../utils/card_image.dart';
 
 class VisibleCardsDialog extends StatefulWidget {
   final List<AACCard> cards;
@@ -80,8 +79,8 @@ class _VisibleCardsDialogState extends State<VisibleCardsDialog> {
                   width: 32,
                   height: 32,
                   child: card.imagePath != null
-                      ? Image.file(
-                          File(card.imagePath!),
+                      ? buildCardImage(
+                          card.imagePath!,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return const Icon(Icons.image, size: 18);

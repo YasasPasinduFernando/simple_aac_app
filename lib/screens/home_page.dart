@@ -1,5 +1,7 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import '../models/aac_card.dart';
+import '../models/aac_card_model.dart';
+import '../services/card_storage_service.dart';
 import '../services/tts_service.dart';
 import '../services/storage_service.dart';
 import '../widgets/aac_card_widget.dart';
@@ -16,6 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TTSService _ttsService = TTSService();
   final TextEditingController _textController = TextEditingController();
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   List<AACCard> cards = [];
   int gridColumns = 2;
@@ -32,11 +35,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadData() async {
-    final loadedCards = await StorageService.loadCards();
+    final loadedCards = await CardStorageService.loadCards(
+      defaultCards: _createDefaultCards(),
+    );
     final loadedColumns = await StorageService.loadGridColumns();
 
     setState(() {
-      cards = loadedCards.isEmpty ? _createDefaultCards() : loadedCards;
+      cards = loadedCards;
       gridColumns = loadedColumns;
     });
   }
@@ -44,36 +49,45 @@ class _HomePageState extends State<HomePage> {
   List<AACCard> _createDefaultCards() {
     return [
       AACCard(
-        id: '1',
+        id: 'seed_hello',
         label: 'Hello',
-        colorValue: Colors.pink.shade300.value,
+        imagePath: 'assets/images/seed/hello.png',
+        colorValue: Colors.yellow.shade300.value,
       ),
       AACCard(
-        id: '2',
-        label: 'Food',
-        colorValue: Colors.orange.shade300.value,
-        subCards: [
-          AACCard(
-            id: '2-1',
-            label: 'Rice',
-            colorValue: Colors.orange.shade200.value,
-          ),
-          AACCard(
-            id: '2-2',
-            label: 'Bread',
-            colorValue: Colors.orange.shade200.value,
-          ),
-        ],
+        id: 'seed_happy',
+        label: 'Happy',
+        imagePath: 'assets/images/seed/happy.png',
+        colorValue: Colors.lightBlue.shade200.value,
       ),
       AACCard(
-        id: '3',
-        label: 'Water',
-        colorValue: Colors.blue.shade300.value,
+        id: 'seed_sad',
+        label: 'Sad',
+        imagePath: 'assets/images/seed/sad.png',
+        colorValue: Colors.lightBlue.shade300.value,
       ),
       AACCard(
-        id: '4',
-        label: 'Help',
+        id: 'seed_angry',
+        label: 'Angry',
+        imagePath: 'assets/images/seed/angry.png',
         colorValue: Colors.red.shade300.value,
+      ),
+      AACCard(
+        id: 'seed_more',
+        label: 'More',
+        colorValue: Colors.indigo.shade500.value,
+      ),
+      AACCard(
+        id: 'seed_rotation_turn_change',
+        label: 'Rotation/Turn/Change',
+        imagePath: 'assets/images/seed/turn.png',
+        colorValue: Colors.teal.shade300.value,
+      ),
+      AACCard(
+        id: 'seed_blocks_toys_play',
+        label: 'Blocks/Toys/Play',
+        imagePath: 'assets/images/seed/blocks.png',
+        colorValue: Colors.deepPurple.shade300.value,
       ),
     ];
   }
@@ -87,18 +101,23 @@ class _HomePageState extends State<HomePage> {
     await _ttsService.speak(text);
   }
 
-  void _showCardEditor(AACCard card) {
-    showDialog(
+  Future<void> _showCardEditor(AACCard card) async {
+    final action = await showDialog<CardEditorAction>(
       context: context,
       builder: (context) => CardEditorDialog(
         card: card,
-        onSave: (updatedCard) {
-          setState(() {});
-          _saveData();
-        },
-        onAddSubCard: () => _addSubCard(card),
+        isNew: false,
+        categories: const ['General'],
+        audioPlayer: _audioPlayer,
+        onPickImage: () {},
       ),
     );
+    if (action == CardEditorAction.saved) {
+      setState(() {});
+      _saveData();
+    } else if (action == CardEditorAction.addSubCard) {
+      _addSubCard(card);
+    }
   }
 
   void _addSubCard(AACCard parentCard) {
@@ -293,6 +312,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    _audioPlayer.dispose();
     _ttsService.stop();
     _textController.dispose();
     super.dispose();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
-import '../models/aac_card.dart';
+
+import '../models/aac_card_model.dart';
+import '../utils/card_image.dart';
 
 class AACCardWidget extends StatelessWidget {
   final AACCard card;
@@ -47,8 +48,8 @@ class AACCardWidget extends StatelessWidget {
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(16),
                         ),
-                        child: Image.file(
-                          File(card.imagePath!),
+                        child: buildCardImage(
+                          card.imagePath!,
                           fit: BoxFit.cover,
                           width: double.infinity,
                           errorBuilder: (context, error, stackTrace) {

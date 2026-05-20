@@ -36,23 +36,28 @@ class AACCard {
         'type': type,
       };
 
-  factory AACCard.fromJson(Map<String, dynamic> json) => AACCard(
-        id: json['id'],
-        label: json['label'],
-        labelSinhala: json['labelSinhala'],
-        labelTamil: json['labelTamil'],
-        imagePath: json['imagePath'],
-        voicePath: json['voicePath'],
-        category: json['category'] ?? 'General',
-        colorValue: json['colorValue'],
-        subCards: (json['subCards'] as List?)
-            ?.map((c) => AACCard.fromJson(c))
-            .toList(),
-        type: json['type'] ??
-            (((json['subCards'] as List?)?.isNotEmpty ?? false)
-                ? 'folder'
-                : 'word'),
-      );
+  factory AACCard.fromJson(Map<String, dynamic> json) {
+    final subCardsJson = json['subCards'] as List?;
+    final subCards = subCardsJson
+        ?.whereType<Map>()
+        .map((c) => AACCard.fromJson(Map<String, dynamic>.from(c)))
+        .toList();
+    final hasSubCards = subCards?.isNotEmpty ?? false;
+
+    return AACCard(
+      id: json['id']?.toString() ??
+          'card_${DateTime.now().microsecondsSinceEpoch}',
+      label: json['label']?.toString() ?? 'Untitled',
+      labelSinhala: json['labelSinhala']?.toString(),
+      labelTamil: json['labelTamil']?.toString(),
+      imagePath: json['imagePath']?.toString(),
+      voicePath: json['voicePath']?.toString(),
+      category: json['category']?.toString() ?? 'General',
+      colorValue: (json['colorValue'] as num?)?.toInt() ?? 0xFF90CAF9,
+      subCards: subCards,
+      type: json['type']?.toString() ?? (hasSubCards ? 'folder' : 'word'),
+    );
+  }
 
   String getLabel(String language) {
     switch (language) {

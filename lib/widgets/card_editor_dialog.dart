@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 import '../models/aac_card_model.dart';
+import '../services/card_storage_service.dart';
 
 enum CardEditorAction { saved, addSubCard }
 
@@ -54,8 +54,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   void initState() {
     super.initState();
     _controllerEn = TextEditingController(text: widget.card.label);
-    _controllerSi =
-        TextEditingController(text: widget.card.labelSinhala ?? '');
+    _controllerSi = TextEditingController(text: widget.card.labelSinhala ?? '');
     _controllerTa = TextEditingController(text: widget.card.labelTamil ?? '');
     _selectedCategory = widget.card.category;
     _selectedType = widget.card.type;
@@ -89,6 +88,9 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     });
     if (path != null) {
       widget.card.voicePath = path;
+      debugPrint(
+        '[CardEditor] recorded voice saved for card ${widget.card.id}: $path',
+      );
     }
   }
 
@@ -104,10 +106,13 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       return;
     }
 
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = await CardStorageService.mediaDirectory('voices');
     final safeId = _safeIdForFile(widget.card.id);
     final path =
         '${dir.path}/voice_${safeId}_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    debugPrint(
+      '[CardEditor] recording voice for card ${widget.card.id} to $path',
+    );
 
     await _recorder.start(const RecordConfig(), path: path);
     _recordStart = DateTime.now();
@@ -118,8 +123,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
 
     _recordTimer = Timer.periodic(const Duration(milliseconds: 100), (t) {
       if (_recordStart == null) return;
-      final elapsedMs =
-          DateTime.now().difference(_recordStart!).inMilliseconds;
+      final elapsedMs = DateTime.now().difference(_recordStart!).inMilliseconds;
       final progress = (elapsedMs / 15000).clamp(0.0, 1.0);
       if (!mounted) return;
       setState(() {
@@ -220,6 +224,11 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     if (widget.card.type == 'word') {
       widget.card.subCards.clear();
     }
+    debugPrint(
+      '[CardEditor] card save requested: id=${widget.card.id}, '
+      'label=${widget.card.label}, imagePath=${widget.card.imagePath}, '
+      'voicePath=${widget.card.voicePath}, type=${widget.card.type}',
+    );
     Navigator.pop(context, CardEditorAction.saved);
   }
 

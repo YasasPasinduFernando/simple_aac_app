@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../models/tts_token.dart';
+import '../utils/card_image.dart';
 
 class TtsBar extends StatelessWidget {
   final List<TtsToken> tokens;
@@ -63,8 +62,8 @@ class TtsBar extends StatelessWidget {
                               width: 26 * sizeFactor,
                               height: 26 * sizeFactor,
                               child: token.imagePath != null
-                                  ? Image.file(
-                                      File(token.imagePath!),
+                                  ? buildCardImage(
+                                      token.imagePath!,
                                       fit: BoxFit.cover,
                                       errorBuilder:
                                           (context, error, stackTrace) {
@@ -99,8 +98,7 @@ class TtsBar extends StatelessWidget {
                 InkWell(
                   onTap: onDelete,
                   child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 4 * sizeFactor),
+                    padding: EdgeInsets.symmetric(horizontal: 4 * sizeFactor),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -118,8 +116,7 @@ class TtsBar extends StatelessWidget {
                 InkWell(
                   onTap: onClear,
                   child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 4 * sizeFactor),
+                    padding: EdgeInsets.symmetric(horizontal: 4 * sizeFactor),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

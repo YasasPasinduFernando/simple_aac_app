@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../models/aac_card_model.dart';
+import 'card_storage_service.dart';
 
 class BackupPayload {
   final List<AACCard> cards;
@@ -32,8 +33,12 @@ class BackupService {
     Directory backupDir,
     Map<String, dynamic>? settings,
   ) async {
-    final docsDir = await getApplicationDocumentsDirectory();
     final filesDir = Directory('${backupDir.path}/files');
+    debugPrint(
+      '[BackupService] writing backup to ${backupDir.path}: '
+      '${cards.length} top-level cards, '
+      '${CardStorageService.countCards(cards)} total cards',
+    );
 
     if (!await backupDir.exists()) {
       await backupDir.create(recursive: true);
@@ -47,6 +52,7 @@ class BackupService {
 
     Future<String?> copyMedia(String? path) async {
       if (path == null) return null;
+      if (_isAssetPath(path)) return path;
       final file = File(path);
       if (!await file.exists()) return null;
       if (pathMap.containsKey(path)) return pathMap[path];
@@ -63,6 +69,10 @@ class BackupService {
       await file.copy(destPath);
       final relPath = 'files/$fileName';
       pathMap[path] = relPath;
+      debugPrint(
+        '[BackupService] copied media into backup: source=$path, '
+        'backupPath=$relPath',
+      );
       return relPath;
     }
 
@@ -127,6 +137,7 @@ class BackupService {
     final tempDir = await Directory.systemTemp.createTemp('aac_backup_');
     final backupRoot = Directory('${tempDir.path}/AAC_Backup');
     try {
+      debugPrint('[BackupService] building backup zip in ${backupRoot.path}');
       await _writeBackupToDirectory(cards, backupRoot, settings);
       return _zipDirectory(backupRoot);
     } finally {
@@ -138,6 +149,7 @@ class BackupService {
     final docsDir = await getApplicationDocumentsDirectory();
     final path = '${docsDir.path}/aac_backup.zip';
     await File(path).writeAsBytes(zipBytes, flush: true);
+    debugPrint('[BackupService] saved backup zip to app documents: $path');
     return path;
   }
 
@@ -158,35 +170,45 @@ class BackupService {
   static Future<List<AACCard>> restoreFromBackupDir(
     Directory backupDir,
   ) async {
-    final docsDir = await getApplicationDocumentsDirectory();
     final manifestFile = File('${backupDir.path}/cards.json');
     final decoded = jsonDecode(await manifestFile.readAsString()) as List;
     final restored = decoded.map((c) => AACCard.fromJson(c)).toList();
+    debugPrint(
+      '[BackupService] restoring backup from ${backupDir.path}: '
+      '${restored.length} top-level cards, '
+      '${CardStorageService.countCards(restored)} total cards',
+    );
 
-    Future<String?> restoreMedia(String? relPath) async {
+    Future<String?> restoreMedia(String? relPath, String mediaType) async {
       if (relPath == null) return null;
+      if (_isAssetPath(relPath)) return relPath;
       final sourcePath = '${backupDir.path}/${relPath.replaceAll('\\', '/')}';
       final sourceFile = File(sourcePath);
       if (!await sourceFile.exists()) return null;
 
       final base = _basename(sourcePath);
-      final destPath = '${docsDir.path}/$base';
+      final mediaDir = await CardStorageService.mediaDirectory(mediaType);
+      final destPath = '${mediaDir.path}/$base';
       var targetPath = destPath;
       var counter = 1;
       while (await File(targetPath).exists()) {
         final dot = base.lastIndexOf('.');
         final name = dot == -1 ? base : base.substring(0, dot);
         final ext = dot == -1 ? '' : base.substring(dot);
-        targetPath = '${docsDir.path}/${name}_$counter$ext';
+        targetPath = '${mediaDir.path}/${name}_$counter$ext';
         counter++;
       }
       await sourceFile.copy(targetPath);
+      debugPrint(
+        '[BackupService] restored $mediaType file: source=$sourcePath, '
+        'target=$targetPath',
+      );
       return targetPath;
     }
 
     Future<void> fixCard(AACCard card) async {
-      card.imagePath = await restoreMedia(card.imagePath);
-      card.voicePath = await restoreMedia(card.voicePath);
+      card.imagePath = await restoreMedia(card.imagePath, 'images');
+      card.voicePath = await restoreMedia(card.voicePath, 'voices');
       for (final sub in card.subCards) {
         await fixCard(sub);
       }
@@ -252,5 +274,9 @@ class BackupService {
     } finally {
       await tempDir.delete(recursive: true);
     }
+  }
+
+  static bool _isAssetPath(String path) {
+    return path.startsWith('assets/');
   }
 }
