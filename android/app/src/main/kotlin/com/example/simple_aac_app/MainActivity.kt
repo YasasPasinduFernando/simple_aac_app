@@ -30,6 +30,8 @@ class MainActivity : FlutterActivity() {
                     } catch (e: Exception) {
                         result.error("SAVE_FAILED", e.message, null)
                     }
+                } else if (call.method == "getSdkVersion") {
+                    result.success(Build.VERSION.SDK_INT)
                 } else {
                     result.notImplemented()
                 }

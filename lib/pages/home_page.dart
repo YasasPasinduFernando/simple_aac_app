@@ -1287,13 +1287,18 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (Platform.isAndroid) {
-      try {
-        final status = await Permission.storage.status;
-        if (!status.isGranted) {
-          await Permission.storage.request();
+      final sdk = await BackupService.getSdkVersion();
+      // On Android 10+ (API 29+), MediaStore.Downloads requires zero storage permissions.
+      // Only legacy devices (Android 9 / API 28 and older) require WRITE_EXTERNAL_STORAGE.
+      if (sdk > 0 && sdk <= 28) {
+        try {
+          final status = await Permission.storage.status;
+          if (!status.isGranted) {
+            await Permission.storage.request();
+          }
+        } catch (e) {
+          debugPrint('[HomePage] Storage permission request skipped: $e');
         }
-      } catch (e) {
-        debugPrint('[HomePage] Storage permission check skipped: $e');
       }
     }
 

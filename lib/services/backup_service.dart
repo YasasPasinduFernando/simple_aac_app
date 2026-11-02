@@ -153,6 +153,16 @@ class BackupService {
     return path;
   }
 
+  static Future<int> getSdkVersion() async {
+    if (!Platform.isAndroid) return 0;
+    try {
+      final sdk = await _channel.invokeMethod<int>('getSdkVersion');
+      return sdk ?? 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
   static Future<String?> saveZipToDownloads(List<int> zipBytes) async {
     try {
       return await _channel.invokeMethod<String>(
