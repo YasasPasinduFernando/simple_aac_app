@@ -57,11 +57,10 @@ android {
     buildTypes {
         release {
             val releaseSigning = signingConfigs.getByName("release")
-            signingConfig = if (releaseSigning.storeFile?.exists() == true) {
-                releaseSigning
-            } else {
-                signingConfigs.getByName("debug")
+            if (releaseSigning.storeFile == null || !releaseSigning.storeFile!!.exists()) {
+                throw GradleException("Production release build requires a valid key.properties and keystore file. Release signing cannot fall back to debug.")
             }
+            signingConfig = releaseSigning
         }
     }
 }
