@@ -1286,7 +1286,16 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    await Permission.storage.request();
+    if (Platform.isAndroid) {
+      try {
+        final status = await Permission.storage.status;
+        if (!status.isGranted) {
+          await Permission.storage.request();
+        }
+      } catch (e) {
+        debugPrint('[HomePage] Storage permission check skipped: $e');
+      }
+    }
 
     try {
       final savedPath = await BackupService.saveZipToDownloads(zipBytes);
