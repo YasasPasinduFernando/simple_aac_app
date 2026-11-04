@@ -1,4 +1,4 @@
-package com.example.simple_aac_app
+package lk.yasas.simpleaac
 
 import android.content.ContentValues
 import android.os.Build
