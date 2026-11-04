@@ -18,7 +18,7 @@ class EditModeBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonColor = baseColor.withOpacity(0.9);
+    final buttonColor = baseColor.withValues(alpha: 0.9);
 
     return Container(
       color: baseColor,
@@ -79,24 +79,26 @@ class _EditBarButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 46,
+      height: 52,
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          elevation: 1,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 18),
             const SizedBox(height: 2),
             Text(
               label,
-              style: const TextStyle(fontSize: 10),
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
             ),
           ],
         ),

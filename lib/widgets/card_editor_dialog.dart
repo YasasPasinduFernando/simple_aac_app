@@ -3,10 +3,14 @@ import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:record/record.dart';
 
 import '../models/aac_card_model.dart';
 import '../services/card_storage_service.dart';
+import '../services/multilingual_concept_service.dart';
+import '../services/network_policy_service.dart';
+import 'smart_image_search_dialog.dart';
 
 enum CardEditorAction { saved, addSubCard }
 
@@ -15,7 +19,7 @@ class CardEditorDialog extends StatefulWidget {
   final bool isNew;
   final List<String> categories;
   final AudioPlayer audioPlayer;
-  final VoidCallback onPickImage;
+  final VoidCallback? onPickImage;
 
   const CardEditorDialog({
     Key? key,
@@ -23,7 +27,7 @@ class CardEditorDialog extends StatefulWidget {
     required this.isNew,
     required this.categories,
     required this.audioPlayer,
-    required this.onPickImage,
+    this.onPickImage,
   }) : super(key: key);
 
   @override
@@ -32,8 +36,8 @@ class CardEditorDialog extends StatefulWidget {
 
 class _CardEditorDialogState extends State<CardEditorDialog> {
   final AudioRecorder _recorder = AudioRecorder();
-  StreamSubscription<Duration>? _positionSub;
-  StreamSubscription<Duration>? _durationSub;
+  final ImagePicker _picker = ImagePicker();
+
   StreamSubscription<void>? _completeSub;
 
   late final TextEditingController _controllerEn;
@@ -46,9 +50,8 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   double _recordProgress = 0.0;
   Timer? _recordTimer;
   DateTime? _recordStart;
-  Duration _playDuration = Duration.zero;
-  Duration _playPosition = Duration.zero;
   bool _isPlaying = false;
+  String _detectedConcept = '';
 
   @override
   void initState() {
@@ -58,13 +61,28 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     _controllerTa = TextEditingController(text: widget.card.labelTamil ?? '');
     _selectedCategory = widget.card.category;
     _selectedType = widget.card.type;
+
+    _controllerEn.addListener(_updateConcept);
+    _controllerSi.addListener(_updateConcept);
+    _controllerTa.addListener(_updateConcept);
+    _updateConcept();
+  }
+
+  void _updateConcept() {
+    final text = _controllerSi.text.isNotEmpty
+        ? _controllerSi.text
+        : (_controllerTa.text.isNotEmpty ? _controllerTa.text : _controllerEn.text);
+    final concept = MultilingualConceptService.normalizeConcept(text);
+    if (concept != _detectedConcept) {
+      setState(() {
+        _detectedConcept = concept;
+      });
+    }
   }
 
   @override
   void dispose() {
     _recordTimer?.cancel();
-    _positionSub?.cancel();
-    _durationSub?.cancel();
     _completeSub?.cancel();
     _recorder.dispose();
     _controllerEn.dispose();
@@ -75,6 +93,64 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
 
   String _safeIdForFile(String raw) {
     return raw.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+  }
+
+  Future<void> _pickFromGallery() async {
+    final image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
+    if (image != null) {
+      final permanentPath = await CardStorageService.persistMediaFile(
+        image.path,
+        cardId: widget.card.id,
+        mediaType: 'images',
+      );
+      setState(() {
+        widget.card.imagePath = permanentPath;
+      });
+    }
+  }
+
+  Future<void> _pickFromCamera() async {
+    final photo = await _picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+    if (photo != null) {
+      final permanentPath = await CardStorageService.persistMediaFile(
+        photo.path,
+        cardId: widget.card.id,
+        mediaType: 'images',
+      );
+      setState(() {
+        widget.card.imagePath = permanentPath;
+      });
+    }
+  }
+
+  Future<void> _openSmartSearch() async {
+    final isOnline = NetworkPolicyService.instance.isOnlineEnabled;
+    if (!isOnline) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Online Features are currently disabled in the drawer menu.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+
+    final query = _detectedConcept.isNotEmpty
+        ? _detectedConcept
+        : (_controllerEn.text.isNotEmpty ? _controllerEn.text : '');
+
+    final resultPath = await showDialog<String>(
+      context: context,
+      builder: (context) => SmartImageSearchDialog(
+        initialQuery: query,
+        cardId: widget.card.id,
+      ),
+    );
+
+    if (resultPath != null && mounted) {
+      setState(() {
+        widget.card.imagePath = resultPath;
+      });
+    }
   }
 
   Future<void> _stopRecording() async {
@@ -88,9 +164,6 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     });
     if (path != null) {
       widget.card.voicePath = path;
-      debugPrint(
-        '[CardEditor] recorded voice saved for card ${widget.card.id}: $path',
-      );
     }
   }
 
@@ -108,11 +181,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
 
     final dir = await CardStorageService.mediaDirectory('voices');
     final safeId = _safeIdForFile(widget.card.id);
-    final path =
-        '${dir.path}/voice_${safeId}_${DateTime.now().millisecondsSinceEpoch}.m4a';
-    debugPrint(
-      '[CardEditor] recording voice for card ${widget.card.id} to $path',
-    );
+    final path = '${dir.path}/voice_${safeId}_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     await _recorder.start(const RecordConfig(), path: path);
     _recordStart = DateTime.now();
@@ -136,11 +205,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   }
 
   void _disposePlayback() {
-    _positionSub?.cancel();
-    _durationSub?.cancel();
     _completeSub?.cancel();
-    _positionSub = null;
-    _durationSub = null;
     _completeSub = null;
   }
 
@@ -150,7 +215,6 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     if (!mounted) return;
     setState(() {
       _isPlaying = false;
-      _playPosition = Duration.zero;
     });
   }
 
@@ -169,23 +233,10 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     }
     _disposePlayback();
 
-    _durationSub = widget.audioPlayer.onDurationChanged.listen((d) {
-      if (!mounted) return;
-      setState(() {
-        _playDuration = d;
-      });
-    });
-    _positionSub = widget.audioPlayer.onPositionChanged.listen((p) {
-      if (!mounted) return;
-      setState(() {
-        _playPosition = p;
-      });
-    });
     _completeSub = widget.audioPlayer.onPlayerComplete.listen((_) {
       if (!mounted) return;
       setState(() {
         _isPlaying = false;
-        _playPosition = Duration.zero;
       });
       _disposePlayback();
     });
@@ -214,21 +265,14 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   }
 
   void _saveCard() {
-    widget.card.label = _controllerEn.text;
-    widget.card.labelSinhala =
-        _controllerSi.text.isEmpty ? null : _controllerSi.text;
-    widget.card.labelTamil =
-        _controllerTa.text.isEmpty ? null : _controllerTa.text;
+    widget.card.label = _controllerEn.text.trim();
+    widget.card.labelSinhala = _controllerSi.text.trim().isEmpty ? null : _controllerSi.text.trim();
+    widget.card.labelTamil = _controllerTa.text.trim().isEmpty ? null : _controllerTa.text.trim();
     widget.card.category = _selectedCategory;
     widget.card.type = _selectedType;
     if (widget.card.type == 'word') {
       widget.card.subCards.clear();
     }
-    debugPrint(
-      '[CardEditor] card save requested: id=${widget.card.id}, '
-      'label=${widget.card.label}, imagePath=${widget.card.imagePath}, '
-      'voicePath=${widget.card.voicePath}, type=${widget.card.type}',
-    );
     Navigator.pop(context, CardEditorAction.saved);
   }
 
@@ -236,218 +280,72 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context).size;
     final isLandscape = media.width > media.height;
-    final maxWidth = (isLandscape ? media.width * 0.7 : media.width * 0.9)
-        .clamp(320.0, 520.0);
-    final maxHeight = media.height * 0.8;
-    final fieldSpacing = isLandscape ? 12.0 : 8.0;
+    final maxWidth = (isLandscape ? media.width * 0.75 : media.width * 0.95).clamp(320.0, 560.0);
+    final maxHeight = (isLandscape ? media.height * 0.58 : media.height * 0.64).clamp(280.0, 640.0);
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
         await _stopAll();
-        return true;
+        if (context.mounted) {
+          Navigator.pop(context);
+        }
       },
       child: AlertDialog(
-        title: Text(widget.isNew ? 'Create Card' : 'Edit Card'),
-        insetPadding: EdgeInsets.symmetric(
-          horizontal: isLandscape ? 24 : 16,
-          vertical: 16,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        actionsPadding: const EdgeInsets.all(16),
+        title: Row(
+          children: [
+            Icon(
+              widget.isNew ? Icons.add_circle : Icons.edit,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              widget.isNew ? 'Create New Card' : 'Edit Card',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
         ),
         content: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
-          ),
+          constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
           child: SingleChildScrollView(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                int columns = 1;
-                if (isLandscape && constraints.maxWidth >= 700) {
-                  columns = 3;
-                } else if (isLandscape && constraints.maxWidth >= 420) {
-                  columns = 2;
-                }
-                final totalSpacing = fieldSpacing * (columns - 1);
-                final fieldWidth = columns == 1
-                    ? constraints.maxWidth
-                    : (constraints.maxWidth - totalSpacing) / columns;
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Image Preview & Action Selector Card
+                _buildImageSection(context),
+                const SizedBox(height: 16),
 
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Wrap(
-                      spacing: fieldSpacing,
-                      runSpacing: fieldSpacing,
-                      children: [
-                        SizedBox(
-                          width: fieldWidth,
-                          child: TextField(
-                            controller: _controllerEn,
-                            decoration: const InputDecoration(
-                              labelText: 'English',
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: fieldWidth,
-                          child: TextField(
-                            controller: _controllerSi,
-                            decoration: const InputDecoration(
-                              labelText:
-                                  'Sinhala (\u0dc3\u0dd2\u0d82\u0dc4\u0dbd)',
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: fieldWidth,
-                          child: TextField(
-                            controller: _controllerTa,
-                            decoration: const InputDecoration(
-                              labelText:
-                                  'Tamil (\u0ba4\u0bae\u0bbf\u0bb4\u0bcd)',
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: fieldWidth,
-                          child: DropdownButtonFormField<String>(
-                            value: _selectedCategory,
-                            decoration: const InputDecoration(
-                              labelText: 'Category',
-                              border: OutlineInputBorder(),
-                            ),
-                            items: widget.categories
-                                .map((cat) => DropdownMenuItem(
-                                      value: cat,
-                                      child: Text(cat),
-                                    ))
-                                .toList(),
-                            onChanged: (value) {
-                              setState(
-                                  () => _selectedCategory = value ?? 'General');
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                          width: fieldWidth,
-                          child: DropdownButtonFormField<String>(
-                            value: _selectedType,
-                            decoration: const InputDecoration(
-                              labelText: 'Type',
-                              border: OutlineInputBorder(),
-                            ),
-                            items: const [
-                              DropdownMenuItem(
-                                  value: 'word', child: Text('Word')),
-                              DropdownMenuItem(
-                                  value: 'folder', child: Text('Folder')),
-                            ],
-                            onChanged: (value) {
-                              setState(() => _selectedType = value ?? 'word');
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: widget.onPickImage,
-                            icon: const Icon(Icons.add_photo_alternate),
-                            label: const Text('Photo'),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () async {
-                              if (_isRecording) {
-                                await _stopRecording();
-                              } else {
-                                await _startRecording();
-                              }
-                            },
-                            icon: Icon(_isRecording ? Icons.stop : Icons.mic),
-                            label: Text(_isRecording ? 'Stop' : 'Voice'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isRecording ? Colors.red : null,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (_isRecording)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: Column(
-                          children: [
-                            LinearProgressIndicator(value: _recordProgress),
-                            const SizedBox(height: 6),
-                            Text(
-                                'Recording ${(_recordProgress * 15).ceil()}/15s'),
-                          ],
-                        ),
-                      ),
-                    if (widget.card.voicePath != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(_isPlaying
-                                      ? Icons.stop
-                                      : Icons.play_arrow),
-                                  onPressed: () async {
-                                    if (_isPlaying) {
-                                      await _stopPlayback();
-                                    } else {
-                                      await _startPlayback();
-                                    }
-                                  },
-                                ),
-                                const Text('Play Recorded Voice'),
-                              ],
-                            ),
-                            Slider(
-                              value: _playDuration.inMilliseconds == 0
-                                  ? 0
-                                  : _playPosition.inMilliseconds
-                                      .clamp(0, _playDuration.inMilliseconds)
-                                      .toDouble(),
-                              max: _playDuration.inMilliseconds == 0
-                                  ? 1
-                                  : _playDuration.inMilliseconds.toDouble(),
-                              onChanged: (value) async {
-                                if (_playDuration.inMilliseconds == 0) return;
-                                final position =
-                                    Duration(milliseconds: value.toInt());
-                                await widget.audioPlayer.seek(position);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      onPressed: widget.isNew
-                          ? null
-                          : () async {
-                              await _stopAll();
-                              Navigator.pop(
-                                  context, CardEditorAction.addSubCard);
-                            },
-                      icon: const Icon(Icons.add_box),
-                      label: const Text('Add Sub-Card'),
-                    ),
-                  ],
-                );
-              },
+                // Multilingual Label Fields
+                _buildLabelSection(context),
+                const SizedBox(height: 16),
+
+                // Audio Recording & Playback Section
+                _buildAudioSection(context),
+                const SizedBox(height: 16),
+
+                // Card Properties (Category & Type)
+                _buildPropertiesSection(context),
+
+                if (!widget.isNew && widget.card.type == 'folder') ...[
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.folder_open),
+                    label: const Text('Manage Sub-Cards'),
+                    onPressed: () async {
+                      await _stopAll();
+                      if (context.mounted) {
+                        Navigator.pop(context, CardEditorAction.addSubCard);
+                      }
+                    },
+                  ),
+                ],
+              ],
             ),
           ),
         ),
@@ -455,19 +353,352 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
           TextButton(
             onPressed: () async {
               await _stopAll();
-              Navigator.pop(context);
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
             },
             child: const Text('Cancel'),
           ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
             onPressed: () async {
               await _stopAll();
               _saveCard();
             },
-            child: const Text('Save'),
+            child: const Text('Save Card', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildImageSection(BuildContext context) {
+    final imagePath = widget.card.imagePath;
+    final hasImage = imagePath != null && imagePath.isNotEmpty;
+    final isOnline = NetworkPolicyService.instance.isOnlineEnabled;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          // Image Preview Container
+          Container(
+            height: 140,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: hasImage
+                ? Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      _buildImageView(imagePath),
+                      Positioned(
+                        top: 6,
+                        right: 6,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.black.withOpacity(0.6),
+                          radius: 16,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: const Icon(Icons.close, color: Colors.white, size: 18),
+                            onPressed: () {
+                              setState(() {
+                                widget.card.imagePath = null;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.image_outlined, size: 40, color: Colors.grey.shade400),
+                        const SizedBox(height: 6),
+                        Text(
+                          'No Image Selected',
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
+          const SizedBox(height: 10),
+
+          // Concept hint chip if detected
+          if (_detectedConcept.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: InkWell(
+                onTap: _openSmartSearch,
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.blue.shade200),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.auto_awesome, size: 14, color: Colors.blue.shade700),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Concept: "$_detectedConcept"',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.blue.shade800),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '(Tap to search)',
+                        style: TextStyle(fontSize: 10, color: Colors.blue.shade600),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+
+          // Action Chips: Smart Search | Gallery | Camera
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: Icon(
+                    Icons.auto_awesome,
+                    size: 16,
+                    color: isOnline ? const Color(0xFF0288D1) : Colors.grey,
+                  ),
+                  label: Text(
+                    isOnline ? 'Smart Search' : 'Search (Offline)',
+                    style: TextStyle(fontSize: 11, color: isOnline ? null : Colors.grey),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: _openSmartSearch,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.photo_library, size: 16),
+                  label: const Text('Gallery', style: TextStyle(fontSize: 11)),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: _pickFromGallery,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.camera_alt, size: 16),
+                  label: const Text('Camera', style: TextStyle(fontSize: 11)),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: _pickFromCamera,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageView(String path) {
+    if (path.startsWith('assets/')) {
+      return Image.asset(path, fit: BoxFit.contain);
+    }
+    final file = File(path);
+    if (file.existsSync()) {
+      return Image.file(file, fit: BoxFit.contain);
+    }
+    return Image.network(
+      path,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 40, color: Colors.grey),
+    );
+  }
+
+  Widget _buildLabelSection(BuildContext context) {
+    return Column(
+      children: [
+        TextField(
+          controller: _controllerEn,
+          decoration: InputDecoration(
+            labelText: 'English Label',
+            hintText: 'e.g., Cat, Water, Happy',
+            prefixIcon: const Icon(Icons.language, size: 20),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          ),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _controllerSi,
+          decoration: InputDecoration(
+            labelText: 'Sinhala Label (සිංහල)',
+            hintText: 'e.g., පූසා, වතුර, සතුටුයි',
+            prefixIcon: const Icon(Icons.translate, size: 20),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          ),
+        ),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _controllerTa,
+          decoration: InputDecoration(
+            labelText: 'Tamil Label (தமிழ்)',
+            hintText: 'e.g., பூனை, தண்ணீர், மகிழ்ச்சி',
+            prefixIcon: const Icon(Icons.g_translate, size: 20),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAudioSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.blue.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.mic, size: 18, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 8),
+              const Text(
+                'Custom Voice Recording (Optional)',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    if (_isRecording) {
+                      await _stopRecording();
+                    } else {
+                      await _startRecording();
+                    }
+                  },
+                  icon: Icon(_isRecording ? Icons.stop : Icons.fiber_manual_record, size: 18),
+                  label: Text(_isRecording ? 'Stop Recording' : 'Record Voice'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isRecording ? Colors.red : Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ),
+              if (widget.card.voicePath != null) ...[
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  icon: Icon(_isPlaying ? Icons.stop : Icons.play_arrow),
+                  onPressed: () async {
+                    if (_isPlaying) {
+                      await _stopPlayback();
+                    } else {
+                      await _startPlayback();
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  onPressed: () {
+                    setState(() {
+                      widget.card.voicePath = null;
+                    });
+                  },
+                ),
+              ],
+            ],
+          ),
+          if (_isRecording) ...[
+            const SizedBox(height: 8),
+            LinearProgressIndicator(value: _recordProgress, color: Colors.red),
+            const SizedBox(height: 4),
+            Text(
+              'Recording ${(_recordProgress * 15).ceil()}/15s',
+              style: const TextStyle(fontSize: 11, color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPropertiesSection(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: DropdownButtonFormField<String>(
+            initialValue: _selectedCategory,
+            decoration: InputDecoration(
+              labelText: 'Category',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
+            items: widget.categories
+                .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
+                .toList(),
+            onChanged: (value) {
+              setState(() => _selectedCategory = value ?? 'General');
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: DropdownButtonFormField<String>(
+            initialValue: _selectedType,
+            decoration: InputDecoration(
+              labelText: 'Card Type',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
+            items: const [
+              DropdownMenuItem(value: 'word', child: Text('Word Card')),
+              DropdownMenuItem(value: 'folder', child: Text('Folder Card')),
+            ],
+            onChanged: (value) {
+              setState(() => _selectedType = value ?? 'word');
+            },
+          ),
+        ),
+      ],
     );
   }
 }

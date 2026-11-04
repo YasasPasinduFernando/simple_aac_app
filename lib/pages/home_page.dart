@@ -16,6 +16,7 @@ import '../models/aac_card_model.dart';
 import '../models/tts_token.dart';
 import '../services/backup_service.dart';
 import '../services/card_storage_service.dart';
+import '../services/network_policy_service.dart';
 import '../widgets/card_editor_dialog.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -1568,6 +1569,11 @@ class _HomePageState extends State<HomePage> {
                 hideTtsText: _hideTtsText,
                 useImageOverlayLabel: _useImageOverlayLabel,
                 applyTextColorToCards: _applyTextColorToCards,
+                isOnlineEnabled: NetworkPolicyService.instance.isOnlineEnabled,
+                onToggleOnline: (enabled) async {
+                  await NetworkPolicyService.instance.setOnlineEnabled(enabled);
+                  if (mounted) setState(() {});
+                },
                 onSelectCategory: _showCategoryDialog,
                 onAddCategory: _showAddCategoryDialog,
                 onToggleEdit: _toggleEditMode,

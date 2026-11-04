@@ -63,9 +63,10 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       automaticallyImplyLeading: false,
-      leadingWidth: showPin && showBack ? 96 : 56,
+      leadingWidth: showPin && showBack ? 116 : 64,
       leading: (showPin || showBack)
           ? Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 if (showPin)
                   _AppBarIconButton(
@@ -109,12 +110,14 @@ class _AppBarIconButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Ink(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15),
+          color: Colors.white.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
         ),
         child: IconButton(
-          icon: Icon(icon),
+          constraints: const BoxConstraints(minWidth: 42, minHeight: 42),
+          padding: EdgeInsets.zero,
+          icon: Icon(icon, size: 22),
           onPressed: onPressed,
         ),
       ),
