@@ -10,12 +10,12 @@
 
 | Rule / Requirement | Verification Outcome | Detail & Evidence |
 | :--- | :--- | :--- |
-| **Official Proposal Format Adherence** | **PASSED** | Structured strictly according to Ruhuna `Format_of_Research_Proposal.docx`: Title, Introduction & Justification (1000–3000w), Literature Review (1000–3000w), Objectives, Methodology (5.1–5.8), Referencing (<50 references), Gantt chart, Budget. |
-| **Official Application Form Authenticity** | **PASSED** | Built directly from a fresh blank copy of `Application for Human Research.docx` (Annexure UOR/03-001) retrieved from `medi.ruh.ac.lk/ethics`. Preserves all tables, declaration cages, checkboxes, and section sequencing. |
+| **Official Proposal Format Adherence** | **PASSED** | Structured strictly according to Ruhuna `Format_of_Research_Proposal.docx`: Title, Introduction & Justification (1000–3000w), Literature Review (1000–3000w), Objectives, Methodology (5.1–5.8), Referencing (<50 references), Gantt chart, Budget. Generated: `protocol/04_AAC_ERC_Research_Protocol_DRAFT.docx` (9 pages). |
+| **Official Application Form Authenticity** | **PASSED** | Built directly from a fresh blank copy of `Application for Human Research.docx` (Annexure UOR/03-001) retrieved from `medi.ruh.ac.lk/ethics`. Preserves all tables, declaration cages, checkboxes, and section sequencing. Generated: `forms/02_Human_Research_Application_DRAFT.docx` (26 pages). |
 | **No Blanks in Application** | **PASSED** | Every cage is completed. Inapplicable sections (e.g. animal research, ionizing radiation, clinical trial SCOCT approvals, biological sample storage) are explicitly filled with "Not applicable" rather than left blank. |
 | **Mandatory Headers and Footers** | **PASSED** | All documents specify the version number (`Version 1.0 (DRAFT)`) and date in the header, and page numbers in the footer, per Ruhuna ERC formatting rules. |
-| **Submission Structure (Hard & Soft Copies)** | **PASSED** | Hard copies accommodate Items 1 to 8. Soft copies accommodate exactly TWO files: `01_Complete_ERC_Application.pdf` (Items 1–7) and `02_Anonymous_Research_Proposal.pdf` (Item 4 only). |
-| **Strict Proposal Anonymization** | **PASSED** | In Soft Copy 2, all investigator names, emails, and institutional affiliations are systematically excluded from title pages, headers, footers, body text, and PDF metadata. |
+| **Submission Structure (Hard & Soft Copies)** | **PASSED** | Hard copies accommodate Items 1 to 8. Soft copies accommodate exactly TWO files: `01_Complete_ERC_Application.pdf` (62 pages) and `02_Anonymous_Research_Proposal.pdf` (24 pages). |
+| **Strict Proposal Anonymization** | **PASSED (0 LEAKS)** | In Soft Copy 2, all investigator names, emails, student IDs, and package ID identifiers are systematically excluded/redacted. Automated string scanning confirmed 0 leaks. |
 
 ---
 

@@ -1,7 +1,10 @@
 # Local build and private artifacts for Ruhuna ERC
 build/
 dist/
+__pycache__/
+*.pyc
 *.tmp
 *.temp
 *PRIVATE*
 *CONFIDENTIAL*
+
