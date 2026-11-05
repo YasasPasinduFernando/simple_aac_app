@@ -94,4 +94,21 @@ This log records every staged, committed, and pushed milestone for the Universit
 
 ---
 
+### Milestone 5: Critical Correction of Research Ownership, Team Leadership & PI Designation
+- **Objectives**:
+  1. Realign research leadership and ownership: Explicitly establish undergraduate medical student researchers **Thamalka D. J. G.** and **D. V. W. Gunawardana** (Faculty of Medicine, University of Ruhuna) as the primary student researchers leading the clinical protocol, participant evaluations, and ethics application under the academic supervision of **Dr. Gayani Punchihewa** (Senior Lecturer in Psychiatry & Consultant Psychiatrist).
+  2. Revoke unauthorized Principal Investigator appointment: Consistently mark PI cages and declarations across all forms and protocols as `[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED: Lead Medical Student Researcher / Academic Supervisor]` pending formal departmental confirmation per Faculty ERC regulations.
+  3. Accurately position **E.K.Y.P. Fernando (Yasas Pasindu Fernando)** as **Technical Research Collaborator, AAC Application Developer & Technical Implementation Lead**. Clarify that his MSc in Artificial Intelligence studies (Kingston University, ongoing) and BEng (Hons) in Software Engineering (London Metropolitan University, completed) represent personal academic qualifications only; this study is an independent Ruhuna medical student project and NOT a foreign university dissertation or sponsored thesis.
+  4. Audit, correct, and regenerate all 15 DOCX documents across `forms/`, `protocol/`, `annexures/`, `data_management/`, and `qa/`. In `forms/10_CV_Principal_Investigator_DRAFT.docx`, establish Section A as the official PI CV Template [Confirmation Required] and Section B as the Technical Collaborator CV.
+  5. Privacy audit & sanitization: Sanitized personal email address (`Dulithvisura7@gmail.com`) to placeholders in git files. Confirmed all private contact details, authentic signatures, and final PDF packages remain isolated in untracked `.local_erc_private/`.
+  6. Rebuild and verify PDF packages locally:
+     - `01_Complete_ERC_Application.pdf` (71 pages, 1.23 MB, Items 1 through 7 + submission verification checklist)
+     - `02_Anonymous_Research_Proposal.pdf` (24 pages, 0.55 MB, Item 4 only, strictly de-identified with **PASSED: Zero investigator names, emails, or student identity leaks**).
+  7. Update `README.md`, `source_register.md`, `applicability_and_missing_info.md`, `source_fact_matrix.md`, `qa/qa_report.md`, `qa/submission_checklist.md`, and `qa/document_inventory.md`.
+- **Staged Paths**: `docs/ethics/ruhuna_erc/`
+- **Commit Hash**: *(Recorded upon execution)*
+- **Push Status**: *(Recorded upon execution)*
+
+---
+
 *(Further milestones logged upon completion)*

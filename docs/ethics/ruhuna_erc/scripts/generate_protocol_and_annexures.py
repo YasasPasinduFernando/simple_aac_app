@@ -65,20 +65,27 @@ def build_research_protocol(output_path, is_anonymous=False):
     
     if not is_anonymous:
         t_meta.cell(3, 0).text = "Investigator & Research Team"
-        t_meta.cell(3, 1).text = "Research Supervisor: Dr. Gayani Punchihewa, MBBS, MD (Psychiatry)\n" \
+        t_meta.cell(3, 1).text = "Primary Student Research Team (Lead Student Investigators):\n" \
+                                 "• Thamalka D. J. G. — Medical Student, Faculty of Medicine, University of Ruhuna\n" \
+                                 "• D. V. W. Gunawardana — Medical Student, Faculty of Medicine, University of Ruhuna\n\n" \
+                                 "Proposed Research Supervisor:\n" \
+                                 "• Dr. Gayani Punchihewa, MBBS, MD (Psychiatry)\n" \
                                  "Senior Lecturer in Psychiatry, Department of Psychiatry, Faculty of Medicine, University of Ruhuna;\n" \
                                  "Consultant Psychiatrist, Teaching Hospital Karapitiya, Galle\n\n" \
-                                 "Researcher & Technical Implementation Lead: Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n" \
-                                 "MSc in Artificial Intelligence (Kingston University, UK - Ongoing);\n" \
-                                 "BEng (Hons) in Software Engineering (London Metropolitan University, UK - Completed)\n" \
-                                 "Lead Software Developer & Health Informatics Researcher, Simple AAC Platform\n\n" \
-                                 "Student Co-Investigators: Thamalka D. J. G., D. V. W. Gunawardana\n" \
-                                 "Undergraduate Medical Students, Faculty of Medicine, University of Ruhuna"
+                                 "Technical Research Collaborator & AAC Application Developer:\n" \
+                                 "• Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n" \
+                                 "MSc in Artificial Intelligence candidate, Kingston University, UK; BEng (Hons) in Software Engineering, London Metropolitan University, UK (Completed)\n" \
+                                 "Role: Technical Research Collaborator, AAC Application Developer & Technical Implementation Lead " \
+                                 "(Advising on technical feasibility, system architecture, and evaluation methods; developing and implementing the Pragathi AAC mobile application; " \
+                                 "supporting technical research planning and interpreting software evaluation metrics)\n" \
+                                 "*(Academic qualifications background only; does NOT represent institutional sponsorship or thesis supervision for this Ruhuna medical student project)*\n\n" \
+                                 "Principal Investigator Designation:\n" \
+                                 "• [PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED: Lead Medical Student Researcher / Academic Supervisor per Faculty ERC Regulations]"
         t_meta.cell(4, 0).text = "Institutional Governance & Collaborating Bodies"
-        t_meta.cell(4, 1).text = "Lead Community Intervention Facility: PRAGATHI – Child Intervention Centre, Galle\n" \
-                                 "Collaborating Academic Department: Department of Psychiatry, Faculty of Medicine, University of Ruhuna\n" \
-                                 "Endorsing Health Authority: Ministry of Health, Sri Lanka (Secretary of Health, Director of Health Information, Director of Mental Health)\n" \
-                                 "Publishing & Distribution Partner: Idea-Hub (Pvt) Ltd, Nugegoda (Apple App Store publishing partner)"
+        t_meta.cell(4, 1).text = "Academic Collaborating Department: Department of Psychiatry, Faculty of Medicine, University of Ruhuna\n" \
+                                 "Lead Community Intervention Facility: PRAGATHI – Child Intervention Centre, Galle (Proposed Clinical Usability Site Partner)\n" \
+                                 "Proposed Endorsing Health Authority: Ministry of Health, Sri Lanka (Secretary of Health, Director of Health Information, Director of Mental Health — Subject to formal documentary confirmation)\n" \
+                                 "Referenced Publishing Partner: Idea-Hub (Pvt) Ltd, Nugegoda (Referenced Apple App Store publishing partner, subject to confirmation)"
 
     doc.add_paragraph() # Spacer
 
@@ -374,11 +381,12 @@ def build_information_sheet(output_path, is_anonymous=False):
     add_heading_2(doc, "8. Contact Persons for Questions or Complaints")
     if not is_anonymous:
         add_body_paragraph(doc, "If you have any questions, concerns, or wish to report any issue regarding this study, please contact:\n\n"
-                                "• Research Supervisor: Dr. Gayani Punchihewa | Senior Lecturer, Department of Psychiatry, Faculty of Medicine, University of Ruhuna | Phone: 091-2234801 Ext 161 | Email: gayani@med.ruh.ac.lk\n"
-                                "• Researcher & Technical Lead: Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando) | Email: [PLACEHOLDER: Local Only] | Phone: [PLACEHOLDER: Local Only]\n"
+                                "• Lead Student Researchers: Thamalka D. J. G. & D. V. W. Gunawardana | Undergraduate Medical Students, Faculty of Medicine, University of Ruhuna | Email: [PLACEHOLDER: Local Only]\n"
+                                "• Research Supervisor: Dr. Gayani Punchihewa | Senior Lecturer, Department of Psychiatry, Faculty of Medicine, University of Ruhuna | Phone: 091-2234801 Ext 161 | Email: [PLACEHOLDER: gayani@med.ruh.ac.lk]\n"
+                                "• Technical Research Collaborator & Developer: Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando) | Email: [PLACEHOLDER: Local Only] | Phone: [PLACEHOLDER: Local Only]\n"
                                 "• Ethics Review Committee Office: CIU Building, Faculty of Medicine, University of Ruhuna, Galle | Phone: 091-2234801 Ext 161 | Email: ethics@med.ruh.ac.lk")
     else:
-        add_body_paragraph(doc, "[Investigator, supervisor, and institutional contact numbers redacted for peer review. Official contact lines for the Research Supervisor, Lead Researcher, and Ruhuna ERC Secretariat are provided on the participant copy.]")
+        add_body_paragraph(doc, "[Investigator, supervisor, and institutional contact details redacted for peer review. Official contact lines for the Student Research Team, Research Supervisor, Technical Collaborator, and Ruhuna ERC Secretariat are provided on the participant copy.]")
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     doc.save(output_path)
@@ -585,10 +593,21 @@ def build_site_permission_letters(output_path, is_anonymous=False):
                             "at the PRAGATHI Child Intervention Centre, Galle, subject to obtaining formal ethical clearance from the Ethics Review Committee, Faculty of Medicine, University of Ruhuna.")
     add_body_paragraph(doc, "The study will involve recruiting approximately 15 to 20 child-caregiver dyads receiving services at your centre for a single 15-to-20 minute usability trial of our offline trilingual AAC app. "
                             "Participation will be completely voluntary, requiring written parental consent and ongoing child assent. Routine therapy sessions will not be disrupted in any manner.")
-    add_body_paragraph(doc, "Thank you for your continuous support of assistive innovation for children in the Southern Province.\n\n"
-                            "Yours sincerely,\n"
-                            "_____________________________________\n"
-                            "Principal Investigator & Research Team")
+    if not is_anonymous:
+        sig_text = "Yours sincerely,\n\n" \
+                   "[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED]\n" \
+                   "Thamalka D. J. G. (Lead Medical Student Researcher, UOR)\n" \
+                   "D. V. W. Gunawardana (Medical Student Researcher, UOR)\n" \
+                   "Dr. Gayani Punchihewa (Proposed Research Supervisor, Senior Lecturer in Psychiatry)\n" \
+                   "E.K.Y.P. Fernando (Technical Research Collaborator & AAC Developer)"
+    else:
+        sig_text = "Yours sincerely,\n\n" \
+                   "[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED]\n" \
+                   "[Lead Medical Student Researcher — Identity Redacted for Peer Review]\n" \
+                   "[Medical Student Researcher — Identity Redacted for Peer Review]\n" \
+                   "[Research Supervisor — Identity Redacted for Peer Review]\n" \
+                   "[Technical Research Collaborator & Developer — Identity Redacted for Peer Review]"
+    add_body_paragraph(doc, f"Thank you for your continuous support of assistive innovation for children in the Southern Province.\n\n{sig_text}")
 
     add_heading_2(doc, "Institutional Endorsement Block (PRAGATHI Centre):")
     add_body_paragraph(doc, "I hereby grant provisional administrative permission to conduct the aforementioned research at PRAGATHI Child Intervention Centre, Galle, conditional upon formal ERC approval.\n\n"
@@ -607,9 +626,7 @@ def build_site_permission_letters(output_path, is_anonymous=False):
     add_body_paragraph(doc, "Dear Head of Department,")
     add_body_paragraph(doc, "We respectfully request permission to screen eligible pediatric participants attending the Child and Adolescent Mental Health Outpatient Clinic for our prospective AAC usability study. "
                             "All recruitment will adhere strictly to Ruhuna ERC guidelines and departmental clinical supervision.\n\n"
-                            "Yours sincerely,\n"
-                            "_____________________________________\n"
-                            "Research Team")
+                            f"Yours respectfully,\n\n{sig_text}")
 
     add_heading_2(doc, "Departmental Endorsement Block:")
     add_body_paragraph(doc, "Permission granted for clinical recruitment conditional upon formal ERC clearance.\n\n"
@@ -639,7 +656,7 @@ def build_data_management_plan(output_path, is_anonymous=False):
     add_bullet_point(doc, "Category 4: Excluded Data — NO biometric facial recognition, NO voice recordings for surveillance, NO GPS geolocation, and NO medical history records outside communication needs.", bold_prefix="• ")
 
     add_heading_2(doc, "2. Pseudonymization & Encryption Architecture")
-    access_roles = "the designated Lead Researcher and Research Supervisor" if is_anonymous else "Lead Researcher E.K.Y.P. Fernando and Research Supervisor Dr. Gayani Punchihewa"
+    access_roles = "the designated Principal Investigator, Student Research Team, and Research Supervisor" if is_anonymous else "the officially designated Principal Investigator, Student Researchers (Thamalka D. J. G., D. V. W. Gunawardana), and Research Supervisor Dr. Gayani Punchihewa (with Technical Collaborator E.K.Y.P. Fernando managing technical encryption protocols)"
     add_body_paragraph(doc, f"A master linking key connecting participant names to alphanumeric codes will be generated as a single encrypted file. "
                             f"This key is encrypted using AES-256 bit encryption and stored on a password-protected, air-gapped physical drive in the Department of Psychiatry, accessible exclusively to {access_roles}. "
                             f"All operational research sheets, observation matrices, and statistical datasets will utilize the coded identifier only.")

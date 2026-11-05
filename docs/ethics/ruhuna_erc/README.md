@@ -59,7 +59,11 @@ simple_aac_app/
 ### 2. Research Overview
 
 - **Title of Research**: *SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation*
-- **Lead Clinical / Community Institution**: PRAGATHI – Child Intervention Centre, Galle, Sri Lanka.
+- **Primary Student Research Team**: Thamalka D. J. G. & D. V. W. Gunawardana (Undergraduate Medical Students, Faculty of Medicine, University of Ruhuna) — Leading medical research planning, clinical protocol execution, and ethics application under faculty supervision.
+- **Proposed Research Supervisor**: Dr. Gayani Punchihewa, MBBS, MD (Psychiatry), Senior Lecturer in Psychiatry, Department of Psychiatry, Faculty of Medicine, University of Ruhuna; Consultant Psychiatrist, Teaching Hospital Karapitiya.
+- **Principal Investigator Designation**: `[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED: Lead Medical Student Researcher / Academic Supervisor per Faculty ERC Regulations]`.
+- **Technical Research Collaborator & AAC Developer**: E.K.Y.P. Fernando (Yasas Pasindu Fernando), MSc AI candidate (Kingston University, UK), BEng (Hons) Software Engineering (London Metropolitan University, UK). Specialist software engineering collaborator; engineered the offline-first Pragathi AAC mobile app; advises on technical feasibility and digital usability evaluation. (Academic background only; not an institutional sponsor or foreign thesis project).
+- **Lead Clinical / Community Institution**: PRAGATHI – Child Intervention Centre, Galle, Sri Lanka (Proposed clinical usability site).
 - **Collaborating Academic Institution**: Department of Psychiatry, Faculty of Medicine, University of Ruhuna, Sri Lanka.
 - **Target Population**: Children aged 2–12 years with Autism Spectrum Disorder (ASD), Attention Deficit Hyperactivity Disorder (ADHD), and related speech/language communication difficulties; accompanied by parents/caregivers, speech-language therapists, and special educators.
 - **Study Nature**: **Prospective** observational usability and feasibility evaluation. No experimental medication, no invasive procedures, no clinical diagnostic claims, and no prior unapproved human data collection.

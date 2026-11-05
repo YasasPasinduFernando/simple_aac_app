@@ -39,25 +39,28 @@ def populate_application_form(template_path, output_path):
                 run.font.bold = True
 
     # 3. Details of Principal Investigator / Applicant (Table 1)
+    # CRITICAL: Under Ruhuna ERC rules for undergraduate student projects, the PI is formally designated
+    # by the department/team (either the lead medical student researcher or academic supervisor).
     t1 = doc.tables[1]
-    t1.cell(0, 0).text = "Title(Prof./Dr./Mr/Ms): Mr."
-    t1.cell(0, 1).text = "Name: E.K.Y.P. Fernando (Yasas Pasindu Fernando)"
+    t1.cell(0, 0).text = "Title(Prof./Dr./Mr/Ms): [FORMAL CONFIRMATION REQUIRED]"
+    t1.cell(0, 1).text = "Name: [PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED:\n" \
+                         "Lead Medical Student Researcher (Thamalka D. J. G. / D. V. W. Gunawardana) or\n" \
+                         "Academic Supervisor (Dr. Gayani Punchihewa) per Faculty ERC Regulations]"
     t1.cell(1, 0).text = "Current designation and name and address of institution where the applicant is attached:\n" \
-                         "Researcher, Software Developer & Technical Implementation Lead, Simple AAC Platform;\n" \
-                         "Research Collaborator, PRAGATHI – Child Intervention Centre, Galle, Sri Lanka."
+                         "Faculty of Medicine, University of Ruhuna, Karapitiya, Galle, Sri Lanka / Department of Psychiatry."
     t1.cell(2, 0).text = "Highest educational qualification of applicant:\n" \
-                         "MSc in Artificial Intelligence (Kingston University, UK - Ongoing);\n" \
-                         "BEng (Hons) in Software Engineering (London Metropolitan University, UK - Completed)"
+                         "[Undergraduate Medical Student (MBBS in progress) / MBBS, MD (Psychiatry) — Pending Formal Team Confirmation]"
     t1.cell(3, 0).text = "Mailing address:\n" \
-                         "PRAGATHI – Child Intervention Centre, Galle / Department of Psychiatry, Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle."
-    t1.cell(4, 0).text = "Phone no for contact: [PLACEHOLDER: +94 XX XXXXXXX - Local Only]"
+                         "Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle, Sri Lanka."
+    t1.cell(4, 0).text = "Phone no for contact: [PLACEHOLDER: Official Faculty/Student Contact - Local Only]"
     t1.cell(4, 2).text = "e-mail: [PLACEHOLDER: Official Email - Local Only]"
 
     # 4. Question 3: Postgraduate degree requirement (No)
     for p in doc.paragraphs[20:25]:
         if "3. Is this study a requirement" in p.text or "Yes" in p.text:
             p.text = "3. Is this study a requirement for a postgraduate degree/requirement by PGIM for Board\n" \
-                     "    Certification, Faculty of Graduate studies (FGS)?    Yes [  ]      No [ X ]  (Independent Assistive Health Research)"
+                     "    Certification, Faculty of Graduate studies (FGS)?    Yes [  ]      No [ X ]\n" \
+                     "    (Faculty of Medicine Undergraduate Medical Student Research Project / Academic Department Collaboration)"
 
     # 5. Question 4: Supervisors (Yes)
     for p in doc.paragraphs[24:28]:
@@ -76,52 +79,54 @@ def populate_application_form(template_path, output_path):
     t3.cell(3, 0).text = "Mailing address:\n" \
                          "Department of Psychiatry, Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle, Sri Lanka."
     t3.cell(4, 0).text = "Phone: +94 91 2234801 / Ext 161"
-    t3.cell(4, 2).text = "e-mail: [PLACEHOLDER: gayani@med.ruh.ac.lk]"
+    t3.cell(4, 2).text = "e-mail: [PLACEHOLDER: gayani@med.ruh.ac.lk - Local Only]"
 
     # 6. Question 5: Co-investigators (Yes)
     for p in doc.paragraphs[28:34]:
         if "5.  Are there Co-investigators" in p.text:
             p.text = "5.  Are there Co-investigators for this project?    Yes [ X ]    No [  ]"
 
-    # Table 4: Co-investigator 1 (Thamalka D. J. G.)
+    # Table 4: Co-investigator 1 (Thamalka D. J. G. - Lead Medical Student Researcher)
     t4 = doc.tables[4]
     t4.cell(0, 0).text = "Title: Mr."
     t4.cell(0, 1).text = "Name: Thamalka D. J. G."
     t4.cell(1, 0).text = "Institutional affiliations:\n" \
-                         "Medical Student, Faculty of Medicine, University of Ruhuna, Karapitiya, Galle."
+                         "Lead Medical Student Researcher, Faculty of Medicine, University of Ruhuna, Karapitiya, Galle."
     t4.cell(2, 0).text = "Highest educational qualification :\n" \
                          "Undergraduate Medical Student (MBBS in progress)"
     t4.cell(3, 0).text = "Mailing address:\n" \
-                         "Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle."
+                         "Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle, Sri Lanka."
     t4.cell(4, 0).text = "Phone: [PLACEHOLDER: Student Mobile - Local Only]"
-    t4.cell(4, 2).text = "e-mail: [PLACEHOLDER]@med.ruh.ac.lk"
+    t4.cell(4, 2).text = "e-mail: [PLACEHOLDER: Student Faculty Email - Local Only]"
 
-    # Table 5: Co-investigator 2 (D. V. W. Gunawardana)
+    # Table 5: Co-investigator 2 (D. V. W. Gunawardana - Medical Student Researcher)
     t5 = doc.tables[5]
     t5.cell(0, 0).text = "Title: Mr."
     t5.cell(0, 1).text = "Name: D. V. W. Gunawardana"
     t5.cell(1, 0).text = "Institutional affiliations:\n" \
-                         "Medical Student, Faculty of Medicine, University of Ruhuna, Karapitiya, Galle."
+                         "Medical Student Researcher, Faculty of Medicine, University of Ruhuna, Karapitiya, Galle."
     t5.cell(2, 0).text = "Highest educational qualification :\n" \
                          "Undergraduate Medical Student (MBBS in progress)"
     t5.cell(3, 0).text = "Mailing address:\n" \
-                         "Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle."
+                         "Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle, Sri Lanka."
     t5.cell(4, 0).text = "Phone: [PLACEHOLDER: Student Mobile - Local Only]"
-    t5.cell(4, 2).text = "e-mail: Dulithvisura7@gmail.com"
+    t5.cell(4, 2).text = "e-mail: [PLACEHOLDER: Student Email - Local Only]"
 
-    # Table 6: Governance & Institutional Collaborators
+    # Table 6: Co-investigator 3 (E.K.Y.P. Fernando - Technical Research Collaborator & Developer)
     t6 = doc.tables[6]
-    t6.cell(0, 0).text = "Title: Lead Centre"
-    t6.cell(0, 1).text = "Collaborating Entity: PRAGATHI – Child Intervention Centre, Galle"
-    t6.cell(1, 0).text = "Institutional affiliations:\n" \
-                         "Lead Community Intervention Facility; Endorsed by Ministry of Health, Sri Lanka.\n" \
-                         "Publishing Partner: Idea-Hub (Pvt) Ltd, Nugegoda (Apple App Store publishing partner)."
-    t6.cell(2, 0).text = "Collaborative Oversight:\n" \
-                         "Clinical accuracy guided by child psychiatry & early intervention specialists."
+    t6.cell(0, 0).text = "Title: Mr."
+    t6.cell(0, 1).text = "Name: E.K.Y.P. Fernando (Yasas Pasindu Fernando)"
+    t6.cell(1, 0).text = "Institutional affiliations & Research Role:\n" \
+                         "Technical Research Collaborator, AAC Application Developer & Technical Implementation Lead;\n" \
+                         "External Technical Collaborator with Department of Psychiatry & PRAGATHI Child Intervention Centre.\n" \
+                         "(Role: Specialist software engineering guidance, AAC mobile app architecture, technical instrumentation, usability data interpretation)."
+    t6.cell(2, 0).text = "Highest educational qualification :\n" \
+                         "MSc in Artificial Intelligence (Kingston University, UK - Ongoing);\n" \
+                         "BEng (Hons) in Software Engineering (London Metropolitan University, UK - Completed)"
     t6.cell(3, 0).text = "Mailing address:\n" \
-                         "PRAGATHI – Child Intervention Centre, Galle, Sri Lanka."
-    t6.cell(4, 0).text = "Phone: [PLACEHOLDER: Centre Contact]"
-    t6.cell(4, 2).text = "e-mail: [PLACEHOLDER: info@pragathi.lk]"
+                         "[PLACEHOLDER: External Collaborator Address - Local Only]"
+    t6.cell(4, 0).text = "Phone: [PLACEHOLDER: External Collaborator Contact - Local Only]"
+    t6.cell(4, 2).text = "e-mail: [PLACEHOLDER: External Collaborator Email - Local Only]"
 
     # 7. Question 6: Has any other ERC approved? (No)
     for p in doc.paragraphs[48:54]:
@@ -205,7 +210,7 @@ def populate_application_form(template_path, output_path):
         (2, True, True, "Data obtained via direct usability observation, parent survey, and therapist interviews; no biological samples. (Protocol Section 5.6, p. 8)"),
         (3, True, True, "Anonymized digital data kept for 5 years in locked, encrypted departmental storage, then wiped. (Protocol Section 5.8 & DMP, p. 11)"),
         (4, True, True, "Minimal contact details collected solely for session coordination; stored separately under encrypted key. (Protocol Section 5.8 & DMP, p. 11)"),
-        (5, True, True, "Restricted strictly to the Principal Investigator and designated academic supervisors. (Protocol Section 5.8 & DMP, p. 11)"),
+        (5, True, True, "Restricted strictly to the designated Principal Investigator, Student Research Team, and Academic Supervisor. (Protocol Section 5.8 & DMP, p. 11)"),
         (6, True, True, "Confidentiality maintained via alphanumeric pseudonymization (e.g., AAC-DYAD-001); no names on research records. (Protocol Section 5.8, p. 11)"),
         (7, True, True, "Stored locally on AES-256 encrypted drives; zero cloud synchronization; hard copies in locked fireproof cabinets. (Protocol Section 5.8 & DMP, p. 11)"),
         (8, True, True, "Cryptographic data wiping for digital media; cross-cut shredding for hard copies following retention. (Protocol Section 5.8 & DMP, p. 12)")
@@ -376,36 +381,44 @@ def populate_application_form(template_path, output_path):
     # 16. Question 21: Declaration of Applicant (P187-200)
     for p in doc.paragraphs[187:201]:
         if "Full name of Principal Investigator:" in p.text:
-            p.text = "Full name of Principal Investigator / Applicant: E.K.Y.P. Fernando (Yasas Pasindu Fernando)"
+            p.text = "Full name of Principal Investigator / Applicant: [PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED:\n" \
+                     "Lead Medical Student Researcher (Thamalka D. J. G. / D. V. W. Gunawardana) or Academic Supervisor (Dr. Gayani Punchihewa)]"
 
     # 17. Question 22: Consent from all Investigators (Table 37)
     t37 = doc.tables[37]
     # Row 0: Headers
-    # Row 1: Applicant / Researcher
-    t37.cell(1, 0).text = "E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n[Researcher, Software Developer & Technical Lead]"
-    t37.cell(1, 1).text = "MSc Artificial Intelligence (Kingston, ongoing);\nBEng (Hons) Software Eng (London Met)"
-    t37.cell(1, 2).text = "Simple AAC Project / PRAGATHI Centre"
+    # Row 1: Designated Principal Investigator
+    t37.cell(1, 0).text = "[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED]\n[Lead Medical Student Researcher / Academic Supervisor]"
+    t37.cell(1, 1).text = "[MBBS in progress / MBBS, MD (Psychiatry) — Pending Formal Team Confirmation]"
+    t37.cell(1, 2).text = "Faculty of Medicine, University of Ruhuna, Karapitiya, Galle"
     t37.cell(1, 3).text = "_______________________\n[Wet-ink signature]"
-    
-    # Row 2: Research Supervisor
-    t37.cell(2, 0).text = "Dr. Gayani Punchihewa\n[Research Supervisor]"
-    t37.cell(2, 1).text = "MBBS, MD (Psychiatry)"
-    t37.cell(2, 2).text = "Senior Lecturer, Dept of Psychiatry, Faculty of Medicine, University of Ruhuna; Consultant Psychiatrist"
+
+    # Row 2: Lead Medical Student Researcher (Thamalka D. J. G.)
+    t37.cell(2, 0).text = "Thamalka D. J. G.\n[Lead Medical Student Researcher]"
+    t37.cell(2, 1).text = "Undergraduate Medical Student (MBBS in progress)"
+    t37.cell(2, 2).text = "Faculty of Medicine, University of Ruhuna"
     t37.cell(2, 3).text = "_______________________\n[Wet-ink signature]"
 
-    # Row 3: Co-Investigator 1
-    t37.cell(3, 0).text = "Thamalka D. J. G.\n[Co-Investigator]"
+    # Row 3: Medical Student Researcher (D. V. W. Gunawardana)
+    t37.cell(3, 0).text = "D. V. W. Gunawardana\n[Medical Student Researcher]"
     t37.cell(3, 1).text = "Undergraduate Medical Student (MBBS in progress)"
     t37.cell(3, 2).text = "Faculty of Medicine, University of Ruhuna"
     t37.cell(3, 3).text = "_______________________\n[Wet-ink signature]"
 
-    # Row 4: Co-Investigator 2
-    t37.cell(4, 0).text = "D. V. W. Gunawardana\n[Co-Investigator]"
-    t37.cell(4, 1).text = "Undergraduate Medical Student (MBBS in progress)"
-    t37.cell(4, 2).text = "Faculty of Medicine, University of Ruhuna"
+    # Row 4: Research Supervisor (Dr. Gayani Punchihewa)
+    t37.cell(4, 0).text = "Dr. Gayani Punchihewa\n[Proposed Research Supervisor]"
+    t37.cell(4, 1).text = "MBBS, MD (Psychiatry)"
+    t37.cell(4, 2).text = "Senior Lecturer, Dept of Psychiatry, Faculty of Medicine, University of Ruhuna; Consultant Psychiatrist"
     t37.cell(4, 3).text = "_______________________\n[Wet-ink signature]"
 
-    for r in range(5, len(t37.rows)):
+    # Row 5: Technical Research Collaborator & Developer (E.K.Y.P. Fernando)
+    if len(t37.rows) > 5:
+        t37.cell(5, 0).text = "E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n[Technical Research Collaborator & Software Developer]"
+        t37.cell(5, 1).text = "MSc Artificial Intelligence (Kingston, ongoing);\nBEng (Hons) Software Eng (London Met, completed)"
+        t37.cell(5, 2).text = "Simple AAC Project / Technical Collaborator"
+        t37.cell(5, 3).text = "_______________________\n[Wet-ink signature]"
+
+    for r in range(6, len(t37.rows)):
         t37.cell(r, 0).text = "Not applicable"
         t37.cell(r, 1).text = "Not applicable"
         t37.cell(r, 2).text = "Not applicable"

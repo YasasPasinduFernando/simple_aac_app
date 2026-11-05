@@ -29,7 +29,7 @@ This inventory catalogs all documents comprising the Platform B AAC research eth
 | `07_Child_Assent_Protocol_DRAFT.docx` | `annexures/` | DOCX | Draft | Developmentally tailored assent explanation and monitoring protocol |
 | `08_Study_Instruments_DRAFT.docx` | `annexures/` | DOCX | Draft | Usability evaluation tools, observation sheets, and survey scales |
 | `09_Site_Permission_Request_Letters_DRAFT.docx` | `annexures/` | DOCX | Draft | Administrative clearance requests for PRAGATHI and Psychiatry clinic |
-| `10_CV_Principal_Investigator_DRAFT.docx` | `forms/` | DOCX | Draft | Academic curriculum vitae of Principal Investigator (Item 5) |
+| `10_CV_Principal_Investigator_DRAFT.docx` | `forms/` | DOCX | Draft | Curriculum vitae dossier: Designated Principal Investigator template [Confirmation Required] and Technical Research Collaborator CV (Item 5) |
 | `11_Data_Management_Plan_DRAFT.docx` | `data_management/` | DOCX | Draft | Ethics and privacy data management plan for child participants |
 | `12_ERC_Submission_Checklist.docx` | `qa/` | DOCX | Draft | Official submission checklist verification form |
 | `13_Training_Certificates_PI_Supervisor_DRAFT.docx` | `forms/` | DOCX | Draft | Training certificates cover and verification dossier (Item 6) |
