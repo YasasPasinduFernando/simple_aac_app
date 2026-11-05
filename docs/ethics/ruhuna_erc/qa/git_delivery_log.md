@@ -114,4 +114,21 @@ This log records every staged, committed, and pushed milestone for the Universit
 
 ---
 
+### Milestone 6: Neutral ERC Chairperson Addressee & Fee Schedule Classification Alignment
+- **Objectives**:
+  1. Neutralize ERC Chairperson addressee: Replaced individual chairperson references with "The Chairperson, Ethics Review Committee, Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle, Sri Lanka" across `forms/01_Cover_Letter_DRAFT.docx`, `forms/14_Animal_Handling_Statement_DRAFT.docx`, and document registries, preventing discrepancies from differing website/secretariat personnel notices.
+  2. Reconcile ERC processing fee classification with official faculty instructions (`https://www.medi.ruh.ac.lk/ethics/instructions.html`): Replaced assumed fixed Category I (LKR 3,000) with "PENDING PI DESIGNATION AND ERC CONFIRMATION: Category I (LKR 3,000 if Faculty Academic Staff PI) / Category III (No fee / Free if Undergraduate Medical Student PI for curriculum project)".
+  3. Update `forms/15_Fee_Payment_Receipt_Placeholder_DRAFT.docx`, `forms/01_Cover_Letter_DRAFT.docx`, `protocol/04_AAC_ERC_Research_Protocol_DRAFT.docx` (budget), `qa/12_ERC_Submission_Checklist.docx`, `applicability_and_missing_info.md`, `source_fact_matrix.md`, `qa/submission_checklist.md`, and `qa/qa_report.md`.
+  4. Regenerate all 15 DOCX documents and recompile submission packages:
+     - `01_Complete_ERC_Application.pdf` (71 pages, 1.24 MB, Items 1 through 7 + submission verification checklist)
+     - `02_Anonymous_Research_Proposal.pdf` (24 pages, 0.55 MB, Item 4 only, strictly de-identified with **PASSED: Zero investigator names, emails, or student identity leaks**).
+- **Staged Paths**: `docs/ethics/ruhuna_erc/`
+- **Commit Hash**: `32953503b22cf331b26284646543b59df515e197` (short: `3295350`)
+- **Working Branch**: `feature/modern-ui-offline-smart-images`
+- **Configured Remote**: `origin https://github.com/YasasPasinduFernando/simple_aac_app.git`
+- **Push Result**: **SUCCESSFUL** (`a0ae172..3295350  feature/modern-ui-offline-smart-images -> feature/modern-ui-offline-smart-images`).
+- **Privacy Status**: Verified zero anonymity leaks in Soft Copy 2. All private identity-bearing PDFs and private details kept strictly in `.local_erc_private/` (untracked).
+
+---
+
 *(Further milestones logged upon completion)*
