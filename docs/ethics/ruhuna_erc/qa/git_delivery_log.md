@@ -46,6 +46,21 @@ This log records every staged, committed, and pushed milestone for the Universit
 - **Push Result**: **SUCCESSFUL** (`cf90d63..67a8e33  feature/modern-ui-offline-smart-images -> feature/modern-ui-offline-smart-images`).
 - **Privacy Status**: Zero leaks in Soft Copy 2. All identity-bearing PDFs and private details kept strictly in `.local_erc_private/` (untracked).
 
+---
+
+### Milestone 3: Team Revisions & Proposal Fact Incorporation
+- **Objectives**:
+  1. Incorporate **Dr. Gayani Punchihewa**, MBBS, MD (Psychiatry), Senior Lecturer in Psychiatry at University of Ruhuna / Consultant Psychiatrist at Teaching Hospital Karapitiya, as Proposed Research Supervisor across Cover Letter, Application Form, Supervisor Consent Letter, Protocol, Information Sheet, and Permission Letters.
+  2. Explicitly establish **E.K.Y.P. Fernando (Yasas Pasindu Fernando)** as Researcher, Software Developer & Technical Implementation Lead, recognizing substantive research contributions to design, evaluation, and documentation; update academic qualifications to MSc in Artificial Intelligence (Kingston University, ongoing) and BEng (Hons) in Software Engineering (London Metropolitan University, completed).
+  3. Integrate features and governance from `SL_AAC_Project_Proposal.docx`: Pragathi AAC / Simple AAC, 6 daily categories (food & drink, emotions, activities, school items, family members, basic needs: eating, drinking, toilet, sleep), early learning modules, Ministry of Health endorsement, and Idea-Hub publishing partnership.
+  4. Rebuild both PDF packages locally in `.local_erc_private/exports_private/`:
+     - `01_Complete_ERC_Application.pdf` (64 pages, 1.07 MB)
+     - `02_Anonymous_Research_Proposal.pdf` (24 pages, 0.55 MB, verified 0 anonymity leaks across all investigator/supervisor names and universities)
+  5. Update audit registers, applicability notes, and QA records.
+- **Staged Paths**: `docs/ethics/ruhuna_erc/`
+- **Commit Hash**: *(Recorded upon execution)*
+- **Push Status**: *(Recorded upon execution)*
+
 
 ---
 

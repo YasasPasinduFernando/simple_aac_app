@@ -23,7 +23,7 @@ def populate_application_form(template_path, output_path):
                 run.font.size = Pt(10)
                 run.font.bold = True
         elif "Name of Applicant:" in p.text:
-            p.text = "Name of Applicant: Mr. Yasas Pasindu Fernando [Lead Developer / Health Informatics Researcher]"
+            p.text = "Name of Applicant: Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando) [Researcher & Technical Implementation Lead]"
             for run in p.runs:
                 run.font.name = "Calibri"
                 run.font.size = Pt(10)
@@ -38,15 +38,16 @@ def populate_application_form(template_path, output_path):
                 run.font.size = Pt(10.5)
                 run.font.bold = True
 
-    # 3. Details of Principal Investigator (Table 1)
+    # 3. Details of Principal Investigator / Applicant (Table 1)
     t1 = doc.tables[1]
-    t1.cell(0, 0).text = "Title(Prof./Dr./Mr/Ms): Mr. / Dr. [PLACEHOLDER]"
-    t1.cell(0, 1).text = "Name: Yasas Pasindu Fernando [or Designated Faculty Lead PI]"
+    t1.cell(0, 0).text = "Title(Prof./Dr./Mr/Ms): Mr."
+    t1.cell(0, 1).text = "Name: E.K.Y.P. Fernando (Yasas Pasindu Fernando)"
     t1.cell(1, 0).text = "Current designation and name and address of institution where the applicant is attached:\n" \
-                         "Lead Software Developer & Health Informatics Researcher, Simple AAC Project;\n" \
-                         "Collaborator, PRAGATHI – Child Intervention Centre, Galle, Sri Lanka."
+                         "Researcher, Software Developer & Technical Implementation Lead, Simple AAC Platform;\n" \
+                         "Research Collaborator, PRAGATHI – Child Intervention Centre, Galle, Sri Lanka."
     t1.cell(2, 0).text = "Highest educational qualification of applicant:\n" \
-                         "BSc (Hons) in Information Technology / Software Engineering [PLACEHOLDER: Verify Degree]"
+                         "MSc in Artificial Intelligence (Kingston University, UK - Ongoing);\n" \
+                         "BEng (Hons) in Software Engineering (London Metropolitan University, UK - Completed)"
     t1.cell(3, 0).text = "Mailing address:\n" \
                          "PRAGATHI – Child Intervention Centre, Galle / Department of Psychiatry, Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle."
     t1.cell(4, 0).text = "Phone no for contact: [PLACEHOLDER: +94 XX XXXXXXX - Local Only]"
@@ -63,18 +64,19 @@ def populate_application_form(template_path, output_path):
         if "4. Are there supervisors" in p.text:
             p.text = "4. Are there supervisors for this project?    Yes [ X ]    No [  ]"
 
-    # Table 3: Supervisor Details
+    # Table 3: Supervisor Details (Dr. Gayani Punchihewa)
     t3 = doc.tables[3]
-    t3.cell(0, 0).text = "Title: Prof. / Dr."
-    t3.cell(0, 1).text = "Name: [PLACEHOLDER: Senior Academic Member / Consultant Psychiatrist]"
+    t3.cell(0, 0).text = "Title: Dr."
+    t3.cell(0, 1).text = "Name: Dr. Gayani Punchihewa"
     t3.cell(1, 0).text = "Institutional affiliations:\n" \
-                         "Department of Psychiatry, Faculty of Medicine, University of Ruhuna, Karapitiya, Galle, Sri Lanka."
+                         "Senior Lecturer in Psychiatry, Department of Psychiatry, Faculty of Medicine, University of Ruhuna;\n" \
+                         "Consultant Psychiatrist, Teaching Hospital Karapitiya, Galle, Sri Lanka."
     t3.cell(2, 0).text = "Highest educational qualification :\n" \
-                         "MBBS, MD (Psychiatry), MRCPsych [PLACEHOLDER: Academic & Clinical Credentials]"
+                         "MBBS, MD (Psychiatry)"
     t3.cell(3, 0).text = "Mailing address:\n" \
                          "Department of Psychiatry, Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle, Sri Lanka."
     t3.cell(4, 0).text = "Phone: +94 91 2234801 / Ext 161"
-    t3.cell(4, 2).text = "e-mail: [PLACEHOLDER]@med.ruh.ac.lk"
+    t3.cell(4, 2).text = "e-mail: [PLACEHOLDER: gayani@med.ruh.ac.lk]"
 
     # 6. Question 5: Co-investigators (Yes)
     for p in doc.paragraphs[28:34]:
@@ -107,18 +109,19 @@ def populate_application_form(template_path, output_path):
     t5.cell(4, 0).text = "Phone: [PLACEHOLDER: Student Mobile - Local Only]"
     t5.cell(4, 2).text = "e-mail: Dulithvisura7@gmail.com"
 
-    # Table 6: Co-investigator 3 (Yasas Pasindu Fernando if Faculty Staff is Lead PI, or N/A)
+    # Table 6: Governance & Institutional Collaborators
     t6 = doc.tables[6]
-    t6.cell(0, 0).text = "Title: Mr."
-    t6.cell(0, 1).text = "Name: Yasas Pasindu Fernando [Lead Software Developer & Architect]"
+    t6.cell(0, 0).text = "Title: Lead Centre"
+    t6.cell(0, 1).text = "Collaborating Entity: PRAGATHI – Child Intervention Centre, Galle"
     t6.cell(1, 0).text = "Institutional affiliations:\n" \
-                         "Lead Developer, Simple AAC Project; Collaborator, PRAGATHI Child Intervention Centre, Galle."
-    t6.cell(2, 0).text = "Highest educational qualification :\n" \
-                         "BSc (Hons) in Information Technology / Software Engineering [PLACEHOLDER]"
+                         "Lead Community Intervention Facility; Endorsed by Ministry of Health, Sri Lanka.\n" \
+                         "Publishing Partner: Idea-Hub (Pvt) Ltd, Nugegoda (Apple App Store publishing partner)."
+    t6.cell(2, 0).text = "Collaborative Oversight:\n" \
+                         "Clinical accuracy guided by child psychiatry & early intervention specialists."
     t6.cell(3, 0).text = "Mailing address:\n" \
                          "PRAGATHI – Child Intervention Centre, Galle, Sri Lanka."
-    t6.cell(4, 0).text = "Phone: [PLACEHOLDER: Contact Number - Local Only]"
-    t6.cell(4, 2).text = "e-mail: [PLACEHOLDER: Contact Email - Local Only]"
+    t6.cell(4, 0).text = "Phone: [PLACEHOLDER: Centre Contact]"
+    t6.cell(4, 2).text = "e-mail: [PLACEHOLDER: info@pragathi.lk]"
 
     # 7. Question 6: Has any other ERC approved? (No)
     for p in doc.paragraphs[48:54]:
@@ -285,19 +288,25 @@ def populate_application_form(template_path, output_path):
     for p in doc.paragraphs[115:124]:
         if "12.1 What is the procedure" in p.text:
             p.text = "12.1 What is the procedure to be carried out on these subjects:\n\n" \
-                     "1. Orientation & Baseline Survey: The parent/caregiver completes a brief demographic and communication background questionnaire regarding the child's primary communication mode and device familiarity.\n" \
-                     "2. Guided Usability Observation (15–20 minutes): The child and caregiver are introduced to the Simple AAC mobile application on an Android tablet/phone in a child-friendly therapy room. Under therapist observation, the child is invited to perform 3 standard communicative tasks using the visual card grid: (a) requesting a preferred snack/drink, (b) expressing a feeling (happy/tired), and (c) choosing a play activity. Time to select, assistance level, and non-verbal engagement are recorded.\n" \
-                     "3. Caregiver Usability Evaluation: The caregiver completes an adapted System Usability Scale (SUS) assessing ease of navigation, card customization, and perceived child utility.\n" \
-                     "4. Therapist Qualitative Feedback: The supervising speech therapist completes a semi-structured usability assessment regarding clinical utility and cultural appropriateness.\n\n" \
-                     "*Note: No biological samples, blood, medications, or invasive procedures are involved. No facial expression recognition models or biometric recordings are active in this software evaluation.*"
+                     "The research evaluates the Pragathi AAC / Simple AAC application (Platform B), designed for children aged 2–12 years with Autism Spectrum Disorder (ASD), ADHD, and speech impairments. The application includes a picture-based visual communication board with voice output across 6 daily communication categories (food and drink, emotions, activities, school items, family members, basic needs: eating, drinking, toilet, sleep) and early learning modules (basic vocabulary, object recognition, emotional recognition, social communication, daily routine), functioning completely offline in Sinhala, Tamil, and English.\n\n" \
+                     "The clinical evaluation protocol comprises:\n" \
+                     "1. Orientation & Baseline Profiling (5 minutes): The caregiver completes a brief demographic and communication background survey regarding the child's primary communication mode and touchscreen familiarity.\n" \
+                     "2. Guided Usability Observation (15–20 minutes): In a child-friendly therapy room at PRAGATHI Centre or Ruhuna Psychiatry clinic, the child and caregiver interact with the app on an Android tablet under therapist observation. The child is gently invited to perform 3 standard communicative tasks: (a) requesting a preferred snack/drink, (b) expressing an emotional feeling (happy/tired), and (c) choosing a daily play activity. Task completion (independent / prompted / incomplete), latency (seconds), and engagement behaviors are recorded.\n" \
+                     "3. Caregiver Usability Evaluation: The caregiver completes an adapted System Usability Scale (SUS) assessing ease of navigation, card customization, and child engagement.\n" \
+                     "4. Therapist Qualitative Feedback: The attending therapist completes a semi-structured interview regarding clinical utility, linguistic appropriateness, and session integration.\n\n" \
+                     "*Note: The study is entirely non-invasive. No biological samples, blood, medications, or clinical diagnostic procedures are involved. No facial recognition or biometric emotion classification models exist in this application.*"
 
     # 14. Question 13.1: Experience of Investigators (P125)
     for p in doc.paragraphs[123:130]:
         if "13.1 Please provide a brief description" in p.text:
             p.text = "13.1 Experience of Investigators with this type of research:\n\n" \
-                     "(i) Principal Investigator (Yasas Pasindu Fernando): Software engineer with specialized expertise in assistive mobile applications, Human-Computer Interaction (HCI), and health informatics. Developer of the Simple AAC platform.\n" \
-                     "(ii) Research Team (Thamalka D. J. G. and D. V. W. Gunawardana): Medical students at the Faculty of Medicine, University of Ruhuna, with clinical training in pediatric communication disorders and clinical communication skills.\n" \
-                     "(iii) Clinical Supervision: Senior academic psychiatrists and developmental clinicians at the Department of Psychiatry, Faculty of Medicine, University of Ruhuna, and PRAGATHI Child Intervention Centre, possessing extensive experience in neurodevelopmental assessments (ASD/ADHD), clinical research ethics, and pediatric safeguarding."
+                     "(i) Researcher, Software Developer & Technical Implementation Lead (Mr. E.K.Y.P. Fernando / Yasas Pasindu Fernando): " \
+                     "MSc in Artificial Intelligence candidate (Kingston University, UK) and BEng (Hons) in Software Engineering graduate (London Metropolitan University, UK). Specialist in assistive mobile system engineering, Human-Computer Interaction (HCI), and offline-first digital health platforms. Principal architect of the Simple AAC / Pragathi AAC system.\n" \
+                     "(ii) Research Supervisor (Dr. Gayani Punchihewa): " \
+                     "Senior Lecturer in Psychiatry, Department of Psychiatry, Faculty of Medicine, University of Ruhuna, and Consultant Psychiatrist, Teaching Hospital Karapitiya. Extensive expertise in general and child/adolescent psychiatry, neurodevelopmental assessment, clinical research governance, and pediatric ethical oversight.\n" \
+                     "(iii) Co-Investigators (Thamalka D. J. G. and D. V. W. Gunawardana): " \
+                     "Undergraduate medical students, Faculty of Medicine, University of Ruhuna, trained in clinical pediatric communication, neurodevelopmental clinical observation, and medical research methodology.\n" \
+                     "(iv) Clinical Collaborators: Specialists and speech therapists at PRAGATHI Child Intervention Centre, Galle, with dedicated expertise in early intervention for autism and ADHD."
 
     # 15. Part III: Risks and Benefits (P134 to P186)
     for p in doc.paragraphs[134:144]:
@@ -367,32 +376,32 @@ def populate_application_form(template_path, output_path):
     # 16. Question 21: Declaration of Applicant (P187-200)
     for p in doc.paragraphs[187:201]:
         if "Full name of Principal Investigator:" in p.text:
-            p.text = "Full name of Principal Investigator: Yasas Pasindu Fernando [or Designated Faculty Lead PI]"
+            p.text = "Full name of Principal Investigator / Applicant: E.K.Y.P. Fernando (Yasas Pasindu Fernando)"
 
     # 17. Question 22: Consent from all Investigators (Table 37)
     t37 = doc.tables[37]
     # Row 0: Headers
-    # Row 1: PI
-    t37.cell(1, 0).text = "Yasas Pasindu Fernando [Lead PI / Developer]"
-    t37.cell(1, 1).text = "BSc (Hons) IT / Software Eng [PLACEHOLDER]"
+    # Row 1: Applicant / Researcher
+    t37.cell(1, 0).text = "E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n[Researcher, Software Developer & Technical Lead]"
+    t37.cell(1, 1).text = "MSc Artificial Intelligence (Kingston, ongoing);\nBEng (Hons) Software Eng (London Met)"
     t37.cell(1, 2).text = "Simple AAC Project / PRAGATHI Centre"
     t37.cell(1, 3).text = "_______________________\n[Wet-ink signature]"
     
-    # Row 2: Lead Academic Supervisor
-    t37.cell(2, 0).text = "[PLACEHOLDER: Consultant Child Psychiatrist / Supervisor]"
-    t37.cell(2, 1).text = "MBBS, MD (Psychiatry), MRCPsych"
-    t37.cell(2, 2).text = "Dept of Psychiatry, Faculty of Medicine, University of Ruhuna"
+    # Row 2: Research Supervisor
+    t37.cell(2, 0).text = "Dr. Gayani Punchihewa\n[Research Supervisor]"
+    t37.cell(2, 1).text = "MBBS, MD (Psychiatry)"
+    t37.cell(2, 2).text = "Senior Lecturer, Dept of Psychiatry, Faculty of Medicine, University of Ruhuna; Consultant Psychiatrist"
     t37.cell(2, 3).text = "_______________________\n[Wet-ink signature]"
 
     # Row 3: Co-Investigator 1
-    t37.cell(3, 0).text = "Thamalka D. J. G."
-    t37.cell(3, 1).text = "Undergraduate Medical Student"
+    t37.cell(3, 0).text = "Thamalka D. J. G.\n[Co-Investigator]"
+    t37.cell(3, 1).text = "Undergraduate Medical Student (MBBS in progress)"
     t37.cell(3, 2).text = "Faculty of Medicine, University of Ruhuna"
     t37.cell(3, 3).text = "_______________________\n[Wet-ink signature]"
 
     # Row 4: Co-Investigator 2
-    t37.cell(4, 0).text = "D. V. W. Gunawardana"
-    t37.cell(4, 1).text = "Undergraduate Medical Student"
+    t37.cell(4, 0).text = "D. V. W. Gunawardana\n[Co-Investigator]"
+    t37.cell(4, 1).text = "Undergraduate Medical Student (MBBS in progress)"
     t37.cell(4, 2).text = "Faculty of Medicine, University of Ruhuna"
     t37.cell(4, 3).text = "_______________________\n[Wet-ink signature]"
 

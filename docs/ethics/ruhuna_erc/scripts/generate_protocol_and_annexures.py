@@ -64,14 +64,21 @@ def build_research_protocol(output_path, is_anonymous=False):
     t_meta.cell(2, 1).text = "Ethics Review Committee, Faculty of Medicine, University of Ruhuna, Sri Lanka"
     
     if not is_anonymous:
-        t_meta.cell(3, 0).text = "Investigator Team"
-        t_meta.cell(3, 1).text = "Principal Investigator: Mr. Yasas Pasindu Fernando (Lead Developer & Informatics Researcher)\n" \
-                                 "Student Co-Investigators: Thamalka D. J. G., D. V. W. Gunawardana (Medical Students, Faculty of Medicine, University of Ruhuna)\n" \
-                                 "Lead Academic & Clinical Supervisors: Senior Academic Psychiatrists, Department of Psychiatry, Faculty of Medicine, University of Ruhuna"
-        t_meta.cell(4, 0).text = "Institutional Affiliations & Study Sites"
-        t_meta.cell(4, 1).text = "Lead Community Site: PRAGATHI – Child Intervention Centre, Galle\n" \
+        t_meta.cell(3, 0).text = "Investigator & Research Team"
+        t_meta.cell(3, 1).text = "Research Supervisor: Dr. Gayani Punchihewa, MBBS, MD (Psychiatry)\n" \
+                                 "Senior Lecturer in Psychiatry, Department of Psychiatry, Faculty of Medicine, University of Ruhuna;\n" \
+                                 "Consultant Psychiatrist, Teaching Hospital Karapitiya, Galle\n\n" \
+                                 "Researcher & Technical Implementation Lead: Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n" \
+                                 "MSc in Artificial Intelligence (Kingston University, UK - Ongoing);\n" \
+                                 "BEng (Hons) in Software Engineering (London Metropolitan University, UK - Completed)\n" \
+                                 "Lead Software Developer & Health Informatics Researcher, Simple AAC Platform\n\n" \
+                                 "Student Co-Investigators: Thamalka D. J. G., D. V. W. Gunawardana\n" \
+                                 "Undergraduate Medical Students, Faculty of Medicine, University of Ruhuna"
+        t_meta.cell(4, 0).text = "Institutional Governance & Collaborating Bodies"
+        t_meta.cell(4, 1).text = "Lead Community Intervention Facility: PRAGATHI – Child Intervention Centre, Galle\n" \
                                  "Collaborating Academic Department: Department of Psychiatry, Faculty of Medicine, University of Ruhuna\n" \
-                                 "Endorsing Health Body: Ministry of Health, Sri Lanka"
+                                 "Endorsing Health Authority: Ministry of Health, Sri Lanka (Secretary of Health, Director of Health Information, Director of Mental Health)\n" \
+                                 "Publishing & Distribution Partner: Idea-Hub (Pvt) Ltd, Nugegoda (Apple App Store publishing partner)"
 
     doc.add_paragraph() # Spacer
 
@@ -114,14 +121,17 @@ def build_research_protocol(output_path, is_anonymous=False):
 
     add_heading_2(doc, "2.2 Justification of the Proposed Research")
     pkg_id = "lk.[REDACTED].simpleaac" if is_anonymous else "lk.yasas.simpleaac"
-    add_body_paragraph(doc, f"To bridge this critical technological and clinical divide, a multi-disciplinary collaborative initiative was undertaken between software engineering and clinical psychiatry teams from PRAGATHI – Child Intervention Centre, Galle, and the Department of Psychiatry, Faculty of Medicine, University of Ruhuna. "
-                            f"This collaboration resulted in the architecture and development of the **Simple AAC Application** (Platform B, package ID: `{pkg_id}`), an open-access, offline-first assistive mobile platform specifically engineered for Android and mobile hardware prevalent in Sri Lanka.")
+    add_body_paragraph(doc, f"To bridge this critical technological and clinical divide, a multi-disciplinary collaborative initiative was undertaken between software engineering and clinical psychiatry teams from PRAGATHI – Child Intervention Centre, Galle, and the Department of Psychiatry, Faculty of Medicine, University of Ruhuna, with policy endorsement from the Ministry of Health, Sri Lanka. "
+                            f"This collaboration resulted in the architecture and development of the **Pragathi AAC / Simple AAC Application** (Platform B, package ID: `{pkg_id}`), an open-access, offline-first assistive mobile platform specifically engineered for mobile hardware prevalent in Sri Lanka, supported by publishing partner Idea-Hub (Pvt) Ltd for Apple App Store distribution.")
 
-    add_body_paragraph(doc, "The application incorporates several distinct innovations tailored to the local population:")
-    add_bullet_point(doc, "Trilingual Architectural Design: Full indigenous support for Sinhala, Tamil, and English communication cards, allowing immediate switching between maternal languages and clinical English terms.", bold_prefix="• ")
-    add_bullet_point(doc, "Offline-First Integrity: All communication boards, visual cards, custom photograph libraries, and text-to-speech audio playback operate entirely on-device without requiring internet access or cloud synchronization.", bold_prefix="• ")
-    add_bullet_point(doc, "Caregiver & Therapist Co-Customization: Caregivers and clinicians can personalize communication grids in real time by capturing authentic local photographs (e.g., the child's specific water bottle or family members) and recording natural maternal voice clips.", bold_prefix="• ")
-    add_bullet_point(doc, "Zero Cost & Privacy by Design: Distributed free of charge with zero commercial tracking, third-party analytics, or remote data extraction.", bold_prefix="• ")
+    add_body_paragraph(doc, "The application incorporates core communication and learning modules tailored to the local pediatric population:")
+    add_bullet_point(doc, "Picture-Based Visual Communication Board: Visual grid displaying standardized pictorial cards representing daily needs, actions, and feelings, generating immediate clear voice output in Sinhala, Tamil, or English.", bold_prefix="• ")
+    add_bullet_point(doc, "Six Daily Communication Categories: Comprehensively structured into (1) Food & Drink, (2) Emotions, (3) Play & Learning Activities, (4) School Items, (5) Family Members, and (6) Basic Physiological Needs (eating, drinking, toilet, sleep).", bold_prefix="• ")
+    add_bullet_point(doc, "Interactive Early Learning Modules: Structured sections supporting basic vocabulary development, object recognition, emotional recognition, social communication skills, and daily routine comprehension.", bold_prefix="• ")
+    add_bullet_point(doc, "Caregiver & Therapist Co-Customization: Caregivers and clinicians can personalize communication grids in real time by capturing authentic local photographs (e.g., the child's specific water cup or family members) and recording natural maternal voice clips on the local device.", bold_prefix="• ")
+    add_bullet_point(doc, "Child-Friendly, Low-Cognitive-Load Interface: Large high-contrast touch targets, intuitive visual hierarchy, minimal text, and offline design suitable for young children with fine-motor or attention challenges.", bold_prefix="• ")
+    add_bullet_point(doc, "Strict Offline Functionality & Privacy by Design: Functions completely without internet connectivity. No personal health information is required, no user tracking is embedded, and zero analytics, cookies, or third-party data processing tools are utilized.", bold_prefix="• ")
+    add_bullet_point(doc, "Sustainable Non-Commercial Deployment: Voluntary development distributed entirely free of charge with no advertisements, sponsorships, or monetization, absorbing maintenance within institutional resources.", bold_prefix="• ")
 
     add_body_paragraph(doc, "The Critical Need for Empirical Usability Evaluation:", bold_prefix="Scientific Justification: ")
     add_body_paragraph(doc, "While the software engineering scaffold has been developed and bench-tested using synthetic datasets, **it has not undergone systematic, ethically approved prospective clinical usability evaluation with children and caregivers in Sri Lanka**. "
@@ -364,11 +374,11 @@ def build_information_sheet(output_path, is_anonymous=False):
     add_heading_2(doc, "8. Contact Persons for Questions or Complaints")
     if not is_anonymous:
         add_body_paragraph(doc, "If you have any questions, concerns, or wish to report any issue regarding this study, please contact:\n\n"
-                                "• Principal Investigator: Mr. Yasas Pasindu Fernando | Email: [PLACEHOLDER] | Phone: [PLACEHOLDER]\n"
-                                "• Clinical Supervisor: Department of Psychiatry, Faculty of Medicine, University of Ruhuna | Phone: 091-2234801 Ext 161\n"
+                                "• Research Supervisor: Dr. Gayani Punchihewa | Senior Lecturer, Department of Psychiatry, Faculty of Medicine, University of Ruhuna | Phone: 091-2234801 Ext 161 | Email: gayani@med.ruh.ac.lk\n"
+                                "• Researcher & Technical Lead: Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando) | Email: [PLACEHOLDER: Local Only] | Phone: [PLACEHOLDER: Local Only]\n"
                                 "• Ethics Review Committee Office: CIU Building, Faculty of Medicine, University of Ruhuna, Galle | Phone: 091-2234801 Ext 161 | Email: ethics@med.ruh.ac.lk")
     else:
-        add_body_paragraph(doc, "[Investigator and institutional contact numbers redacted for peer review. Official contact lines for the Principal Investigator, Clinical Supervisor, and Ruhuna ERC Secretariat are provided on the participant copy.]")
+        add_body_paragraph(doc, "[Investigator, supervisor, and institutional contact numbers redacted for peer review. Official contact lines for the Research Supervisor, Lead Researcher, and Ruhuna ERC Secretariat are provided on the participant copy.]")
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     doc.save(output_path)
@@ -629,9 +639,10 @@ def build_data_management_plan(output_path, is_anonymous=False):
     add_bullet_point(doc, "Category 4: Excluded Data — NO biometric facial recognition, NO voice recordings for surveillance, NO GPS geolocation, and NO medical history records outside communication needs.", bold_prefix="• ")
 
     add_heading_2(doc, "2. Pseudonymization & Encryption Architecture")
-    add_body_paragraph(doc, "A master linking key connecting participant names to alphanumeric codes will be generated as a single encrypted file. "
-                            "This key is encrypted using AES-256 bit encryption and stored on a password-protected, air-gapped physical drive in the Department of Psychiatry, accessible exclusively to the Principal Investigator and Lead Clinical Supervisor. "
-                            "All operational research sheets, observation matrices, and statistical datasets will utilize the coded identifier only.")
+    access_roles = "the designated Lead Researcher and Research Supervisor" if is_anonymous else "Lead Researcher E.K.Y.P. Fernando and Research Supervisor Dr. Gayani Punchihewa"
+    add_body_paragraph(doc, f"A master linking key connecting participant names to alphanumeric codes will be generated as a single encrypted file. "
+                            f"This key is encrypted using AES-256 bit encryption and stored on a password-protected, air-gapped physical drive in the Department of Psychiatry, accessible exclusively to {access_roles}. "
+                            f"All operational research sheets, observation matrices, and statistical datasets will utilize the coded identifier only.")
 
     add_heading_2(doc, "3. Offline Mobile App Privacy Boundary")
     pkg_id = "lk.[REDACTED].simpleaac" if is_anonymous else "lk.yasas.simpleaac"

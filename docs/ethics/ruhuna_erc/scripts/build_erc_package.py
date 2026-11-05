@@ -156,7 +156,7 @@ def main():
 
     # Step 5: Verification of Anonymization in Soft Copy 2
     print("\n--- Step 5: Verifying Zero Anonymity Leakage in Soft Copy 2 ---")
-    forbidden = ["Yasas", "Fernando", "Thamalka", "Gunawardana", "Dulithvisura7"]
+    forbidden = ["Yasas", "Fernando", "Punchihewa", "Gayani", "Thamalka", "Gunawardana", "Dulithvisura7", "E.K.Y.P.", "Kingston", "London Metropolitan"]
     leaks = verify_anonymization(out_sc2, forbidden)
     if leaks:
         print(f"WARNING: Potential de-identification leak detected in Soft Copy 2: {leaks}")

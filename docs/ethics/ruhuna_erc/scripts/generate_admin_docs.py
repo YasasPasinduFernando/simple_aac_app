@@ -36,22 +36,28 @@ def build_cover_letter(output_path):
                             "\"SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation\" "
                             "for the formal ethical review and approval of the Ethics Review Committee, Faculty of Medicine, University of Ruhuna.")
 
-    add_body_paragraph(doc, "Study Nature and Institutional Context:", bold_prefix="1. ")
-    add_body_paragraph(doc, "This research represents a prospective, non-invasive observational usability and acceptability study of a digital assistive technology intervention. "
-                            "The project is conducted under a collaborative academic framework between the Department of Psychiatry, Faculty of Medicine, University of Ruhuna, and PRAGATHI – Child Intervention Centre, Galle. "
+    add_body_paragraph(doc, "Study Nature and Institutional Context:", bold_prefix="1. Institutional & Research Context: ")
+    add_body_paragraph(doc, "This research represents a prospective, non-invasive observational usability and acceptability study of a digital assistive technology intervention (the Pragathi AAC / Simple AAC mobile application). "
+                            "The project is conducted under a collaborative academic framework between the Department of Psychiatry, Faculty of Medicine, University of Ruhuna, and PRAGATHI – Child Intervention Centre, Galle, with endorsement from the Ministry of Health, Sri Lanka. "
+                            "The study is academically supervised by Dr. Gayani Punchihewa (Senior Lecturer in Psychiatry, Faculty of Medicine, University of Ruhuna; Consultant Psychiatrist), with research design, software engineering, and technical evaluation led by Researcher E.K.Y.P. Fernando (Yasas Pasindu Fernando), in collaboration with medical student co-investigators Thamalka D. J. G. and D. V. W. Gunawardana. "
                             "The application provides trilingual (Sinhala, Tamil, English) picture-based augmentative and alternative communication (AAC) with text-to-speech audio for children aged 2–12 years presenting with Autism Spectrum Disorder (ASD), ADHD, and severe speech/language impairments.")
 
-    add_body_paragraph(doc, "Ethical Standards and Child Safeguarding:", bold_prefix="2. ")
+    add_body_paragraph(doc, "Research Team & Investigator Recognition:", bold_prefix="2. Investigator Recognition & Supervision: ")
+    add_body_paragraph(doc, "Mr. E.K.Y.P. Fernando (MSc Artificial Intelligence candidate, Kingston University; BEng (Hons) Software Engineering, London Metropolitan University) serves as Researcher, Software Developer, and Technical Implementation Lead. "
+                            "He is actively contributing to the research conceptualization, study design, technical instrumentation, usability data collection, and qualitative evaluation alongside the supervisory team. "
+                            "Clinical governance and child safeguarding are provided under the direct supervision of Dr. Gayani Punchihewa.")
+
+    add_body_paragraph(doc, "Ethical Standards and Child Safeguarding:", bold_prefix="3. Ethical Standards & Safeguards: ")
     add_body_paragraph(doc, "Given that participants are young children with neurodevelopmental and communication vulnerabilities, the protocol has been formulated in strict accordance with the Declaration of Helsinki, CIOMS guidelines, and the University of Ruhuna ERC Standard Operating Procedures. "
                             "Key safeguards include written parental proxy informed consent, developmentally adapted ongoing child assent, an immediate cessation rule upon any indication of child fatigue or distress, and privacy-by-design architecture (fully offline local device storage with zero cloud transmission or third-party analytics).")
 
-    add_body_paragraph(doc, "Documentation Dossier:", bold_prefix="3. ")
+    add_body_paragraph(doc, "Documentation Dossier:", bold_prefix="4. Submission Dossier: ")
     add_body_paragraph(doc, "In full compliance with the submission checklist of the Ethics Review Committee, the submission package comprises:")
     add_bullet_point(doc, "01 original signed cover letter", bold_prefix="• ")
     add_bullet_point(doc, "01 duly completed Application Form for Human Research (Annexure UOR/03-001)", bold_prefix="• ")
-    add_bullet_point(doc, "01 Letter of Consent and Academic Endorsement from Clinical Supervisors", bold_prefix="• ")
+    add_bullet_point(doc, "01 Letter of Consent and Academic Endorsement from Research Supervisor Dr. Gayani Punchihewa", bold_prefix="• ")
     add_bullet_point(doc, "02 complete hard copies of the Detailed Research Proposal including all annexures", bold_prefix="• ")
-    add_bullet_point(doc, "01 Curriculum Vitae of the Principal Investigator", bold_prefix="• ")
+    add_bullet_point(doc, "01 Curriculum Vitae of the Principal Investigator / Lead Researcher", bold_prefix="• ")
     add_bullet_point(doc, "Certificates of training in Good Clinical Practice and Research Ethics", bold_prefix="• ")
     add_bullet_point(doc, "Receipt of payment of the stipulated ERC processing fee (Shroff Counter, Faculty of Medicine)", bold_prefix="• ")
     add_bullet_point(doc, "Two soft copies transmitted via email to ethics@med.ruh.ac.lk (Complete Application PDF and strictly Anonymized Research Proposal PDF)", bold_prefix="• ")
@@ -62,12 +68,14 @@ def build_cover_letter(output_path):
 
     add_body_paragraph(doc, "Yours sincerely,\n\n\n\n"
                             "_____________________________________\n"
-                            "[PLACEHOLDER: Signature of Principal Investigator]\n"
-                            "Full Name: Yasas Pasindu Fernando [or Designated Faculty Lead PI]\n"
-                            "Lead Developer & Informatics Researcher, Simple AAC Project\n"
+                            "[PLACEHOLDER: Signature of Applicant / Lead Researcher]\n"
+                            "Full Name: E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n"
+                            "Researcher, Software Developer & Technical Implementation Lead\n"
+                            "MSc in Artificial Intelligence (Kingston University, ongoing)\n"
+                            "BEng (Hons) in Software Engineering (London Metropolitan University)\n"
                             "Collaborator, PRAGATHI – Child Intervention Centre, Galle\n"
-                            "Email: [PLACEHOLDER: Official Email]\n"
-                            "Contact Number: [PLACEHOLDER: Official Mobile/Landline Number]")
+                            "Email: [PLACEHOLDER: Official Email - Local Only]\n"
+                            "Contact Number: [PLACEHOLDER: Official Contact - Local Only]")
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     doc.save(output_path)
@@ -76,7 +84,7 @@ def build_cover_letter(output_path):
 def build_supervisor_letter(output_path):
     doc = create_styled_document()
     setup_header_footer(doc, "Item 3: Supervisor Consent Letter")
-    add_draft_notice(doc, "DRAFT SUPERVISOR CONSENT LETTER — REQUIRES REVIEW & WET-INK SIGNATURE BY ACADEMIC SUPERVISOR(S)")
+    add_draft_notice(doc, "DRAFT SUPERVISOR CONSENT LETTER — REQUIRES REVIEW & WET-INK SIGNATURE BY DR. GAYANI PUNCHIHEWA")
 
     add_body_paragraph(doc, "Date: [PLACEHOLDER: Date, November 2026]")
     add_body_paragraph(doc, "To:\n"
@@ -89,25 +97,26 @@ def build_supervisor_letter(output_path):
 
     add_body_paragraph(doc, "Dear Chairperson,")
 
-    add_body_paragraph(doc, "I / We, the undersigned academic and clinical staff members of the Department of Psychiatry, Faculty of Medicine, University of Ruhuna, hereby confirm that we have reviewed and consented to supervise the research project titled:")
+    add_body_paragraph(doc, "I, Dr. Gayani Punchihewa, Senior Lecturer in Psychiatry at the Department of Psychiatry, Faculty of Medicine, University of Ruhuna, and Consultant Psychiatrist, hereby confirm that I have reviewed and consented to serve as the Research Supervisor for the research project titled:")
 
     add_body_paragraph(doc, "\"SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation\"", italic=True)
 
-    add_body_paragraph(doc, "Conducted by Principal Investigator Mr. Yasas Pasindu Fernando and Co-Investigators Thamalka D. J. G. and D. V. W. Gunawardana (Medical Students, Faculty of Medicine, University of Ruhuna).")
+    add_body_paragraph(doc, "Conducted in collaboration with Lead Researcher & Software Developer Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando) and Student Co-Investigators Thamalka D. J. G. and D. V. W. Gunawardana (Undergraduate Medical Students, Faculty of Medicine, University of Ruhuna).")
 
     add_body_paragraph(doc, "Academic & Clinical Supervision Statement:", bold_prefix="1. Scientific Validity & Supervision: ")
-    add_body_paragraph(doc, "We have critically evaluated the research protocol, study objectives, and proposed methodology. We confirm that the study addresses a critical gap in assistive technology for children with Autism Spectrum Disorder (ASD), ADHD, and developmental speech/language delays in Sri Lanka. The prospective usability evaluation is scientifically sound, methodologically rigorous, and clinically appropriate.")
+    add_body_paragraph(doc, "I have critically evaluated the research protocol, study objectives, and proposed methodology. The research addresses an urgent public health need in Sri Lanka: providing accessible, trilingual (Sinhala, Tamil, English) Augmentative and Alternative Communication tools for non-verbal and minimally verbal children diagnosed with Autism Spectrum Disorder (ASD), ADHD, and developmental speech/language delays. "
+                            "Mr. E.K.Y.P. Fernando is explicitly recognised as a key researcher who has engineered the application architecture and contributed substantively to the study design, technical instrumentation, and usability evaluation framework, working in close collaboration with our clinical team and medical students.")
 
     add_body_paragraph(doc, "Child Protection & Vulnerability Oversight:", bold_prefix="2. Ethical Oversight & Safeguarding: ")
-    add_body_paragraph(doc, "Given the vulnerable nature of the pediatric cohort, our clinical team will maintain continuous oversight over all participant-facing activities. "
-                            "We confirm that parental proxy informed consent, ongoing child assent procedures, and immediate cessation protocols for child distress will be strictly enforced during all evaluation sessions at PRAGATHI Child Intervention Centre and the Department of Psychiatry Outpatient Clinic. "
+    add_body_paragraph(doc, "Given the vulnerable pediatric population, clinical supervision will be maintained over all participant-facing activities. "
+                            "I confirm that parental proxy informed consent, ongoing child assent procedures, and immediate cessation protocols for child distress will be strictly enforced during all evaluation sessions at PRAGATHI Child Intervention Centre and the Department of Psychiatry Outpatient Clinic. "
                             "Participation is entirely voluntary, and routine clinical care and developmental therapy will continue unaffected regardless of participation status.")
 
     add_body_paragraph(doc, "Regulatory Declarations:", bold_prefix="3. Regulatory Undertaking: ")
-    add_body_paragraph(doc, "We confirm that no research procedures involving human participants have commenced and none will begin prior to obtaining formal ethical clearance from the University of Ruhuna ERC and administrative approvals from the respective study sites. "
-                            "We undertake to ensure that all progress reports, protocol amendments, or unexpected incidents will be promptly reported to the ERC in accordance with published guidelines.")
+    add_body_paragraph(doc, "I confirm that no research procedures involving human participants have commenced and none will begin prior to obtaining formal ethical clearance from the University of Ruhuna ERC and administrative approvals from the respective study sites. "
+                            "I undertake to ensure that all progress reports, protocol amendments, or unexpected incidents will be promptly reported to the ERC in accordance with published guidelines.")
 
-    add_body_paragraph(doc, "We strongly endorse this application for ethical review and clearance.")
+    add_body_paragraph(doc, "I strongly endorse this application for ethical review and clearance.")
 
     add_body_paragraph(doc, "Sincerely,")
 
@@ -116,39 +125,37 @@ def build_supervisor_letter(output_path):
     format_table_headers_and_borders(table, col_widths=[3.2, 3.2])
     
     # Row 0
-    table.cell(0, 0).text = "Lead Academic Supervisor"
-    table.cell(0, 1).text = "Clinical Co-Supervisor"
+    table.cell(0, 0).text = "Research Supervisor"
+    table.cell(0, 1).text = "Head of Academic Department"
     
     # Row 1
     table.cell(1, 0).text = "Signature: ___________________________\n\n" \
-                            "Name: [PLACEHOLDER: Consultant Child Psychiatrist]\n" \
-                            "Designation: Professor / Senior Lecturer in Psychiatry\n" \
+                            "Name: Dr. Gayani Punchihewa\n" \
+                            "Qualifications: MBBS, MD (Psychiatry)\n" \
+                            "Designation: Senior Lecturer in Psychiatry / Consultant Psychiatrist\n" \
                             "Department: Department of Psychiatry\n" \
                             "Institution: Faculty of Medicine, University of Ruhuna\n" \
-                            "SLMC Reg No: [PLACEHOLDER]\n" \
-                            "Email: [PLACEHOLDER]@med.ruh.ac.lk\n" \
+                            "Clinical Base: Teaching Hospital Karapitiya\n" \
+                            "Official Email: [PLACEHOLDER: gayani@med.ruh.ac.lk]\n" \
                             "Date: ___ / ___ / ______"
 
-    table.cell(1, 1).text = "Signature: ___________________________\n\n" \
-                            "Name: [PLACEHOLDER: Clinical Supervisor / Consultant]\n" \
-                            "Designation: Consultant / Clinical Psychologist / SLT\n" \
-                            "Department: Department of Psychiatry / PRAGATHI Centre\n" \
-                            "Institution: Faculty of Medicine, University of Ruhuna\n" \
-                            "SLMC Reg No: [PLACEHOLDER]\n" \
-                            "Email: [PLACEHOLDER]\n" \
-                            "Date: ___ / ___ / ______"
-
-    # Row 2 (Optional Department Head Endorsement)
-    table.cell(2, 0).text = "Endorsement by Head of Department:\n\n" \
+    table.cell(1, 1).text = "Endorsement by Head of Department:\n\n" \
                             "Signature: ___________________________\n" \
                             "Head, Department of Psychiatry\n" \
                             "Faculty of Medicine, University of Ruhuna\n" \
                             "Official Stamp & Date: ___________________"
-                            
-    table.cell(2, 1).text = "Lead Institution Endorsement:\n\n" \
+
+    # Row 2 (Lead Clinical / Partner Endorsement)
+    table.cell(2, 0).text = "Lead Community Partner Endorsement:\n\n" \
                             "Signature: ___________________________\n" \
-                            "Director / Centre Lead\n" \
+                            "Director / Centre In-Charge\n" \
                             "PRAGATHI – Child Intervention Centre, Galle\n" \
+                            "Official Stamp & Date: ___________________"
+                            
+    table.cell(2, 1).text = "Publishing & Technical Partner:\n\n" \
+                            "Signature: ___________________________\n" \
+                            "Executive Representative\n" \
+                            "Idea-Hub (Pvt) Ltd, Nugegoda\n" \
                             "Official Stamp & Date: ___________________"
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -157,56 +164,60 @@ def build_supervisor_letter(output_path):
 
 def build_pi_cv(output_path):
     doc = create_styled_document()
-    setup_header_footer(doc, "Item 5: Curriculum Vitae of Principal Investigator")
-    add_draft_notice(doc, "CURRICULUM VITAE DRAFT — PRINCIPAL INVESTIGATOR FACT SHEET")
+    setup_header_footer(doc, "Item 5: Curriculum Vitae of Researcher / Lead Developer")
+    add_draft_notice(doc, "CURRICULUM VITAE DRAFT — RESEARCHER & SOFTWARE DEVELOPER FACT SHEET")
 
     add_heading_1(doc, "CURRICULUM VITAE")
-    add_heading_2(doc, "YASAS PASINDU FERNANDO")
+    add_heading_2(doc, "E.K.Y.P. FERNANDO (YASAS PASINDU FERNANDO)")
 
     add_body_paragraph(doc, "Professional Summary:", bold_prefix="1. Profile: ")
-    add_body_paragraph(doc, "Software Engineer and Health Informatics Researcher specializing in mobile application engineering, digital health systems, and assistive communication technologies. "
-                            "Lead developer of the Simple AAC Application (Platform B), designed to provide offline-first, culturally and linguistically adapted Augmentative and Alternative Communication (AAC) tools in Sinhala, Tamil, and English for children with neurodevelopmental disabilities.")
+    add_body_paragraph(doc, "Health Informatics Researcher, Software Engineer, and Technical Implementation Lead specializing in mobile system architecture, Human-Computer Interaction (HCI), and assistive communication technologies for pediatric neurodevelopmental disorders. "
+                            "Lead researcher and developer of the Simple AAC / Pragathi AAC application (Platform B), designed to provide offline-first, culturally and linguistically adapted Augmentative and Alternative Communication (AAC) tools in Sinhala, Tamil, and English for children with Autism Spectrum Disorder (ASD), ADHD, and speech impairments.")
 
     add_heading_2(doc, "2. Personal & Contact Information")
     t_contact = doc.add_table(rows=6, cols=2)
     format_table_headers_and_borders(t_contact, col_widths=[2.2, 4.3])
     t_contact.cell(0, 0).text = "Field"
     t_contact.cell(0, 1).text = "Details (Verified / Placeholder)"
-    t_contact.cell(1, 0).text = "Full Name"
-    t_contact.cell(1, 1).text = "Yasas Pasindu Fernando"
-    t_contact.cell(2, 0).text = "Current Institutional Role"
-    t_contact.cell(2, 1).text = "Lead Developer & System Architect, Simple AAC Platform; Research Collaborator, PRAGATHI Child Intervention Centre, Galle"
+    t_contact.cell(1, 0).text = "Full Official Name"
+    t_contact.cell(1, 1).text = "Edirisinghe Kankanamge Yasas Pasindu Fernando (E.K.Y.P. Fernando)"
+    t_contact.cell(2, 0).text = "Academic & Research Roles"
+    t_contact.cell(2, 1).text = "Researcher, Software Developer & Technical Implementation Lead, Simple AAC Platform; Research Collaborator, PRAGATHI Child Intervention Centre, Galle"
     t_contact.cell(3, 0).text = "Mailing Address"
-    t_contact.cell(3, 1).text = "[PLACEHOLDER: Official Correspondence Address, Galle / Colombo]"
+    t_contact.cell(3, 1).text = "[PLACEHOLDER: Official Correspondence Address, Galle / Colombo - Local Only]"
     t_contact.cell(4, 0).text = "Electronic Mail"
-    t_contact.cell(4, 1).text = "[PLACEHOLDER: Institutional / Academic Email - Local Only]"
+    t_contact.cell(4, 1).text = "[PLACEHOLDER: Official Email - Local Only]"
     t_contact.cell(5, 0).text = "Contact Telephone"
     t_contact.cell(5, 1).text = "[PLACEHOLDER: Contact Telephone Number - Local Only]"
 
     add_heading_2(doc, "3. Academic Qualifications")
-    add_bullet_point(doc, "Bachelor of Science (Honours) in Information Technology / Software Engineering [PLACEHOLDER: Confirm Degree, Class, Institution, Year].", bold_prefix="• ")
-    add_bullet_point(doc, "Relevant Coursework: Human-Computer Interaction (HCI), Mobile Systems Architecture, Data Privacy and Cryptography, Software Engineering Standards.", bold_prefix="• ")
+    add_bullet_point(doc, "Master of Science in Artificial Intelligence (MSc AI) — Kingston University, United Kingdom (Ongoing).", bold_prefix="• ")
+    add_bullet_point(doc, "Bachelor of Engineering (Honours) in Software Engineering (BEng Hons) — London Metropolitan University, United Kingdom (Completed).", bold_prefix="• ")
+    add_bullet_point(doc, "Relevant Specializations: Human-Computer Interaction (HCI), Assistive Mobile Technologies, Machine Learning Foundations, System Privacy and Data Protection.", bold_prefix="• ")
 
-    add_heading_2(doc, "4. Research & Assistive Technology Projects")
+    add_heading_2(doc, "4. Research Contributions & Technical Projects")
     add_body_paragraph(doc, "Platform B – Simple AAC Application (2024–Present):", bold_prefix="• ")
-    add_body_paragraph(doc, "Architected and developed a full-scale, offline-first assistive communication application in Flutter (package ID: lk.yasas.simpleaac). Engineered trilingual concept structures for Sinhala, Tamil, and English speech synthesis, local media storage, and offline backup/recovery.")
+    add_body_paragraph(doc, "Architected, engineered, and maintained the complete production codebase for the Simple AAC Flutter application (`lk.yasas.simpleaac`). "
+                            "Developed trilingual linguistic structures for Sinhala, Tamil, and English communication cards; local audio playback; offline-first scoped storage; and zero-cloud privacy architecture. "
+                            "Led research protocol design, usability task formulation, and instrument development in collaboration with clinical supervisors.")
 
-    add_body_paragraph(doc, "Digital Health Collaboration with PRAGATHI Centre & Ruhuna Psychiatry (2025–Present):", bold_prefix="• ")
-    add_body_paragraph(doc, "Collaborated with clinical psychiatrists, speech therapists, and medical student investigators to co-design early childhood communication interfaces for children with Autism Spectrum Disorder and ADHD in the Southern Province.")
+    add_body_paragraph(doc, "Clinical & Academic Collaboration (2025–Present):", bold_prefix="• ")
+    add_body_paragraph(doc, "Collaborated with Dr. Gayani Punchihewa (Department of Psychiatry, Faculty of Medicine, University of Ruhuna), PRAGATHI Child Intervention Centre, and undergraduate medical students to co-design pediatric usability evaluation protocols for children with neurodevelopmental disabilities.")
 
     add_heading_2(doc, "5. Ethics & Research Methodology Training")
-    add_bullet_point(doc, "Basic Research Ethics & Good Clinical Practice (GCP) for Human Participant Research [PLACEHOLDER: Course Title, Certifying Body, Date].", bold_prefix="• ")
-    add_bullet_point(doc, "Pediatric Research Safeguarding & Human Subject Protection Training [PLACEHOLDER: Confirm Date & Provider].", bold_prefix="• ")
+    add_bullet_point(doc, "Good Clinical Practice (GCP) & Research Ethics Training for Human Subject Research [PLACEHOLDER: Certifying Institution, Date].", bold_prefix="• ")
+    add_bullet_point(doc, "Pediatric Safeguarding & Ethical Data Management in Digital Health [PLACEHOLDER: Training Body, Date].", bold_prefix="• ")
 
     add_heading_2(doc, "6. Technical Proficiencies")
     add_bullet_point(doc, "Frameworks & Languages: Flutter, Dart, Python, Android SDK, iOS Swift/Objective-C.", bold_prefix="• ")
-    add_bullet_point(doc, "Assistive Tech & Multilingual NLP: AAC visual board design, Text-to-Speech (TTS) integration, Unicode Sinhala/Tamil text tokenization.", bold_prefix="• ")
+    add_bullet_point(doc, "Assistive Tech & Multilingual NLP: AAC visual communication grids, Text-to-Speech (TTS) integration, Unicode Sinhala/Tamil text tokenization.", bold_prefix="• ")
     add_bullet_point(doc, "Privacy & Data Security: Scoped storage architecture, local encryption, offline-first networking, zero-telemetry design.", bold_prefix="• ")
 
     add_heading_2(doc, "7. Declaration")
     add_body_paragraph(doc, "I hereby certify that the information provided in this curriculum vitae is true, accurate, and complete to the best of my knowledge.\n\n\n"
                             "_____________________________________\n"
-                            "Signature of Principal Investigator\n"
+                            "Signature of Researcher / Lead Developer\n"
+                            "E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n"
                             "Date: ___ / ___ / ______")
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
