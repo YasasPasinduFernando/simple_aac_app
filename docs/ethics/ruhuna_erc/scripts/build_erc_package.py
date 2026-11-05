@@ -94,6 +94,9 @@ def main():
         os.path.join(erc_root, "annexures", "08_Study_Instruments_DRAFT.docx"),
         os.path.join(erc_root, "annexures", "09_Site_Permission_Request_Letters_DRAFT.docx"),
         os.path.join(erc_root, "forms", "10_CV_Principal_Investigator_DRAFT.docx"),
+        os.path.join(erc_root, "forms", "13_Training_Certificates_PI_Supervisor_DRAFT.docx"),
+        os.path.join(erc_root, "forms", "14_Animal_Handling_Statement_DRAFT.docx"),
+        os.path.join(erc_root, "forms", "15_Fee_Payment_Receipt_Placeholder_DRAFT.docx"),
         os.path.join(erc_root, "data_management", "11_Data_Management_Plan_DRAFT.docx"),
         os.path.join(erc_root, "qa", "12_ERC_Submission_Checklist.docx"),
         # Anonymized variants
@@ -129,6 +132,8 @@ def main():
         converted_pdfs["09_Site_Permission_Request_Letters_DRAFT.docx"],
         converted_pdfs["11_Data_Management_Plan_DRAFT.docx"],
         converted_pdfs["10_CV_Principal_Investigator_DRAFT.docx"],
+        converted_pdfs["13_Training_Certificates_PI_Supervisor_DRAFT.docx"],
+        converted_pdfs["14_Animal_Handling_Statement_DRAFT.docx"],
         converted_pdfs["12_ERC_Submission_Checklist.docx"]
     ]
     out_sc1 = os.path.join(exports_dir, "01_Complete_ERC_Application.pdf")

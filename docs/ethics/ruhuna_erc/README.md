@@ -22,10 +22,13 @@ simple_aac_app/
 │           ├── protocol/
 │           │   └── 04_AAC_ERC_Research_Protocol_DRAFT.docx # Ruhuna ERC structured proposal
 │           ├── forms/
-│           │   ├── 01_Cover_Letter_DRAFT.docx             # Cover letter to ERC Chairperson
-│           │   ├── 02_Human_Research_Application_DRAFT.docx # Official Ruhuna ERC application form
-│           │   ├── 03_Supervisor_Letter_DRAFT.docx        # Supervisor endorsement & consent letter
-│           │   └── 10_CV_Principal_Investigator_DRAFT.docx# PI academic CV template
+│           │   ├── 01_Cover_Letter_DRAFT.docx             # Cover letter to ERC Chairperson (Item 1)
+│           │   ├── 02_Human_Research_Application_DRAFT.docx # Official Ruhuna ERC application form (Item 2)
+│           │   ├── 03_Supervisor_Letter_DRAFT.docx        # Supervisor endorsement & consent letter (Item 3)
+│           │   ├── 10_CV_Principal_Investigator_DRAFT.docx# PI academic CV template (Item 5)
+│           │   ├── 13_Training_Certificates_PI_Supervisor_DRAFT.docx # GCP & Ethics training certificates dossier (Item 6)
+│           │   ├── 14_Animal_Handling_Statement_DRAFT.docx# Animal handling non-applicability declaration (Item 7)
+│           │   └── 15_Fee_Payment_Receipt_Placeholder_DRAFT.docx # Faculty Shroff fee payment receipt record (Item 8)
 │           ├── annexures/
 │           │   ├── 05_Parent_or_Guardian_Information_Sheet_DRAFT.docx # Participant information
 │           │   ├── 06_Parent_or_Guardian_Consent_Form_DRAFT.docx     # Parental proxy consent

@@ -58,9 +58,36 @@ This log records every staged, committed, and pushed milestone for the Universit
      - `02_Anonymous_Research_Proposal.pdf` (24 pages, 0.55 MB, verified 0 anonymity leaks across all investigator/supervisor names and universities)
   5. Update audit registers, applicability notes, and QA records.
 - **Staged Paths**: `docs/ethics/ruhuna_erc/`
+- **Commit Hash**: `7cd027b5993685f403e061806fb6b0a8f71bb2f0` (short: `7cd027b`)
+- **Working Branch**: `feature/modern-ui-offline-smart-images`
+- **Configured Remote**: `origin https://github.com/YasasPasinduFernando/simple_aac_app.git`
+- **Push Result**: **SUCCESSFUL** (`a2ceb48..7cd027b  feature/modern-ui-offline-smart-images -> feature/modern-ui-offline-smart-images`).
+- **Privacy Status**: Verified zero anonymity leaks in Soft Copy 2. All private identity-bearing PDFs and private details kept strictly in `.local_erc_private/` (untracked).
+
+---
+
+### Milestone 4: Complete Submission Dossier Alignment with Published ERC Website Guidelines
+- **Objectives**:
+  1. Author dedicated formal documents for:
+     - Item 6: `forms/13_Training_Certificates_PI_Supervisor_DRAFT.docx` (Certificates of training of PI and Supervisor in Research Methodology, Basic Research Ethics, and Good Clinical Practice / GCP).
+     - Item 7: `forms/14_Animal_Handling_Statement_DRAFT.docx` (Formal declaration of non-applicability of animal handling training; strictly human-computer interaction and non-invasive assistive software evaluation).
+     - Item 8: `forms/15_Fee_Payment_Receipt_Placeholder_DRAFT.docx` (Faculty Shroff payment record and verification placeholder for the physical hard-copy dossier).
+  2. Update `build_erc_package.py` and compilation pipeline to sequence Soft Copy 1 (`01_Complete_ERC_Application.pdf`) in exact 1-to-7 order as mandated on the official website:
+     - Item 1: Cover letter to Chairperson (`01_Cover_Letter_DRAFT.docx`)
+     - Item 2: Completed Application Form (`02_Human_Research_Application_DRAFT.docx`)
+     - Item 3: Supervisor Consent Letter (`03_Supervisor_Letter_DRAFT.docx`)
+     - Item 4: Detailed Research Protocol + All Annexures (`04_AAC_ERC_Research_Protocol_DRAFT.docx`, `05`, `06`, `07`, `08`, `09`, `11`)
+     - Item 5: Curriculum Vitae of Principal Investigator / Researcher (`10_CV_Principal_Investigator_DRAFT.docx`)
+     - Item 6: Training Certificates Dossier (`13_Training_Certificates_PI_Supervisor_DRAFT.docx`)
+     - Item 7: Animal Handling Training Non-Applicability Declaration (`14_Animal_Handling_Statement_DRAFT.docx`)
+     - Verification Checklist (`12_ERC_Submission_Checklist.docx`)
+  3. Recompile and verify packages:
+     - `01_Complete_ERC_Application.pdf` (68 pages, 1.21 MB)
+     - `02_Anonymous_Research_Proposal.pdf` (24 pages, 0.55 MB, verified 0 anonymity leaks)
+  4. Update `README.md`, `qa/document_inventory.md`, `qa/submission_checklist.md`, `qa/qa_report.md`, and production logs.
+- **Staged Paths**: `docs/ethics/ruhuna_erc/`
 - **Commit Hash**: *(Recorded upon execution)*
 - **Push Status**: *(Recorded upon execution)*
-
 
 ---
 

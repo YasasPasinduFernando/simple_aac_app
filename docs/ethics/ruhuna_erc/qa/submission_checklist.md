@@ -13,9 +13,9 @@ This checklist corresponds directly to the official requirements published on `h
 | **3** | Letter of consent from supervisor/s where relevant | 01 | Draft Generated (`forms/03_Supervisor_Letter_DRAFT.docx`) | Print on University of Ruhuna letterhead; wet-ink signature by Academic Supervisor(s). |
 | **4** | Detailed research proposal (including study instruments, consent form and information sheet in English, Sinhala & Tamil if relevant, permission seeking letters) | 02 | Draft Generated (`protocol/04_AAC_ERC_Research_Protocol_DRAFT.docx` + `annexures/`) | Print 2 bound/stapled hard copies including all annexures (instruments, consent, information sheets, site letters). |
 | **5** | Curriculum vitae of the principal investigator (PI)/s | 01 | Draft Generated (`forms/10_CV_Principal_Investigator_DRAFT.docx`) | Update with latest publications/employment; wet-ink signature by PI. |
-| **6** | Certificates of training of PI/Supervisor (on Research Methodology, Basic Research Ethics, Good Clinical Practice Training) | 01 | Pending User Provision | Attach authentic printed certificates of GCP / Research Ethics training. |
-| **7** | A letter indicating that investigator(s) have undergone training to handle animals (if relevant) | 01 | **NOT APPLICABLE** | Marked N/A. No animal experimentation is involved in this software research. |
-| **8** | Receipt of payment of processing fee (according to payment category) | 01 | Pending Payment | Pay fee at Shroff Counter, Faculty of Medicine, University of Ruhuna; attach original receipt. |
+| **6** | Certificates of training of PI/Supervisor (on Research Methodology, Basic Research Ethics, Good Clinical Practice Training) | 01 | Draft Dossier Generated (`forms/13_Training_Certificates_PI_Supervisor_DRAFT.docx`) | Attach authentic printed/scanned certificates of GCP & Research Ethics training. |
+| **7** | A letter indicating that investigator(s) have undergone training to handle animals (if relevant) | 01 | Formal Declaration Generated (`forms/14_Animal_Handling_Statement_DRAFT.docx`) | Signed statement of non-applicability; no animal handling required. |
+| **8** | Receipt of payment of processing fee (according to payment category) | 01 | Attachment Record Generated (`forms/15_Fee_Payment_Receipt_Placeholder_DRAFT.docx`) | Pay fee (LKR 3,000 Category I) at Shroff Counter, Faculty of Medicine, Karapitiya; attach original receipt. |
 
 ---
 

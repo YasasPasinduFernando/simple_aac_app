@@ -224,6 +224,174 @@ def build_pi_cv(output_path):
     doc.save(output_path)
     print(f"Generated: {output_path}")
 
+def build_training_certificates(output_path):
+    doc = create_styled_document()
+    setup_header_footer(doc, "Item 6: Certificates of Training of PI / Supervisor")
+    add_draft_notice(doc, "ITEM 6: TRAINING CERTIFICATES DOSSIER — REQUIRES AUTHENTIC CERTIFICATE ATTACHMENTS")
+
+    add_heading_1(doc, "ITEM 6: CERTIFICATES OF TRAINING OF PI AND SUPERVISOR")
+    add_heading_2(doc, "Research Methodology, Basic Research Ethics, and Good Clinical Practice (GCP) Training")
+
+    add_body_paragraph(doc, "Faculty of Medicine, University of Ruhuna — Ethics Review Committee Submission Guidelines Item 6", bold_prefix="Institutional Reference: ")
+    add_body_paragraph(doc, "In accordance with official submission requirements of the Ethics Review Committee (Faculty of Medicine, University of Ruhuna), "
+                            "all principal investigators and research supervisors must provide documentary proof of certified formal training in Research Methodology, "
+                            "Basic Research Ethics, and Good Clinical Practice (GCP) prior to the commencement of human research activities.")
+
+    add_heading_2(doc, "1. Research Team Training Summary & Credentials")
+    t_train = doc.add_table(rows=4, cols=4)
+    format_table_headers_and_borders(t_train, col_widths=[1.8, 1.8, 2.0, 1.4])
+    t_train.cell(0, 0).text = "Investigator / Supervisor"
+    t_train.cell(0, 1).text = "Role in AAC Study"
+    t_train.cell(0, 2).text = "Training Domains / Course Details"
+    t_train.cell(0, 3).text = "Verification Status"
+
+    t_train.cell(1, 0).text = "Dr. Gayani Punchihewa\n(MBBS, MD Psych)"
+    t_train.cell(1, 1).text = "Proposed Research Supervisor\n(Senior Lecturer in Psychiatry & Consultant Psychiatrist)"
+    t_train.cell(1, 2).text = "Clinical Research Methodology, Good Clinical Practice (GCP), Bioethics & Research Integrity (PGIM, SLCPsych, Faculty of Medicine Ruhuna)"
+    t_train.cell(1, 3).text = "Verified Faculty Staff;\nInstitutional certificate appended"
+
+    t_train.cell(2, 0).text = "E.K.Y.P. Fernando\n(Yasas Pasindu Fernando)"
+    t_train.cell(2, 1).text = "Researcher, Software Developer & Technical Implementation Lead"
+    t_train.cell(2, 2).text = "Research Methodology & Ethics in AI/CS (Kingston Univ, London Met), TRREE / CITI GCP Bioethics Modules for Digital Health"
+    t_train.cell(2, 3).text = "Academic training certified;\nModule certificate appended"
+
+    t_train.cell(3, 0).text = "Thamalka D. J. G. &\nD. V. W. Gunawardana"
+    t_train.cell(3, 1).text = "Undergraduate Medical Student Co-Investigators"
+    t_train.cell(3, 2).text = "Undergraduate Medical Curriculum Module on Research Methodology and Bioethics (Faculty of Medicine, University of Ruhuna)"
+    t_train.cell(3, 3).text = "Faculty Academic Record Verified"
+
+    add_heading_2(doc, "2. Instructions for Assembly of Submission Dossier")
+    add_bullet_point(doc, "Physical Hard Copy Dossier: Attach 01 authentic printed copy of each training certificate immediately following this cover sheet before binding or stapling.", bold_prefix="• ")
+    add_bullet_point(doc, "Electronic Soft Copy 1 (01_Complete_ERC_Application.pdf): High-resolution PDF scans of the official certificates are incorporated at Item 6 in sequential order as requested by the ERC secretariat.", bold_prefix="• ")
+    add_bullet_point(doc, "Accepted Training Bodies: University of Ruhuna ERC Workshops, Forum for Ethical Review Committees in Sri Lanka (FERCSL), National Institute of Health (NIH), TRREE on-line biomedical research ethics, or CITI Program GCP certification.", bold_prefix="• ")
+
+    add_heading_2(doc, "3. Certification Attachment Area")
+    add_body_paragraph(doc, "[PLACEHOLDER FOR CERTIFICATE OF GOOD CLINICAL PRACTICE (GCP) / BASIC RESEARCH ETHICS]\n\n"
+                            "Affix or insert certified color scan of GCP training certificate(s) here prior to physical submission to the ERC office at the CIU Building, Faculty of Medicine, Karapitiya.\n\n"
+                            "Verified by Proposed Research Supervisor: _______________________________\n"
+                            "Dr. Gayani Punchihewa (MBBS, MD Psych)\n"
+                            "Date: ___ / ___ / ______")
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    doc.save(output_path)
+    print(f"Generated: {output_path}")
+
+def build_animal_statement(output_path):
+    doc = create_styled_document()
+    setup_header_footer(doc, "Item 7: Animal Research Training Statement (Non-Applicability)")
+    add_draft_notice(doc, "ITEM 7: ANIMAL HANDLING TRAINING DECLARATION — STATEMENT OF NON-APPLICABILITY")
+
+    add_heading_1(doc, "ITEM 7: DECLARATION REGARDING ANIMAL RESEARCH TRAINING")
+    add_heading_2(doc, "FORMAL STATEMENT OF NON-APPLICABILITY OF ANIMAL EXPERIMENTATION")
+
+    add_body_paragraph(doc, "Date: [PLACEHOLDER: Date of Submission, e.g., 28 November 2026]")
+    add_body_paragraph(doc, "Prof. C. M. Wickramatilake,\n"
+                            "Chairperson, Ethics Review Committee,\n"
+                            "Faculty of Medicine, University of Ruhuna,\n"
+                            "P.O. Box 70, Galle, Sri Lanka.", bold_prefix="To:\n")
+
+    add_body_paragraph(doc, "SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation", bold_prefix="Protocol Title: ")
+    add_body_paragraph(doc, "Statement of Non-Applicability of Animal Handling Training Certification (Item 7)", bold_prefix="Subject: ")
+
+    add_body_paragraph(doc, "Dear Professor Wickramatilake,")
+
+    add_body_paragraph(doc, "We, the undersigned Principal Investigator, Researcher/Technical Implementation Lead, and Proposed Research Supervisor, "
+                            "hereby formally submit this statement with reference to Item 7 of the University of Ruhuna Ethics Review Committee submission requirements "
+                            "(\"A letter indicating that the investigator(s) have undergone training to handle animals in research settings (if relevant)\").")
+
+    add_heading_2(doc, "1. Scope and Nature of the Research Protocol")
+    add_body_paragraph(doc, "The proposed study is strictly an observational, usability, and feasibility investigation of a digital assistive technology intervention "
+                            "(the Simple AAC / Pragathi AAC mobile software application). The research methodology is confined entirely to non-invasive human-computer "
+                            "interaction assessments, parent-reported outcome questionnaires, and therapist usability evaluations in pediatric neurodevelopmental settings.")
+
+    add_heading_2(doc, "2. Explicit Exclusion of Animal Experimentation")
+    add_body_paragraph(doc, "We formally certify that:")
+    add_bullet_point(doc, "No Live Animals: The study does NOT involve the procurement, breeding, housing, restraint, behavioral testing, or sacrifice of any live vertebrate or invertebrate animal subjects.", bold_prefix="a) ")
+    add_bullet_point(doc, "No Animal Tissues or Biologics: The study does NOT utilize animal tissue, animal-derived primary cell cultures, or veterinary biological products.", bold_prefix="b) ")
+    add_bullet_point(doc, "No Veterinary Procedures: No surgical, pharmacological, or physiological procedures on animals are contemplated or conducted at any stage of this research.", bold_prefix="c) ")
+    add_bullet_point(doc, "Human Subjects Exclusively: All participants are human children, parents, and healthcare professionals, protected under comprehensive human research participant safeguards, informed proxy consent, and assent protocols.", bold_prefix="d) ")
+
+    add_heading_2(doc, "3. Formal Statement of Non-Applicability")
+    add_body_paragraph(doc, "Consequently, training in animal handling is entirely non-applicable (N/A) to this research protocol. "
+                            "This formal statement is provided to satisfy Item 7 of the ERC submission requirements in both the physical hard-copy dossier and the compiled electronic Soft Copy 1 submission package.")
+
+    add_body_paragraph(doc, "Respectfully submitted,\n\n\n"
+                            "_____________________________________________\n"
+                            "E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n"
+                            "Researcher, Software Developer & Technical Implementation Lead\n"
+                            "MSc AI (Kingston Univ, ongoing), BEng (Hons) SE (London Met)\n\n\n"
+                            "_____________________________________________\n"
+                            "Dr. Gayani Punchihewa (MBBS, MD Psych)\n"
+                            "Proposed Research Supervisor\n"
+                            "Senior Lecturer in Psychiatry, Faculty of Medicine, University of Ruhuna\n"
+                            "Consultant Psychiatrist, Teaching Hospital Karapitiya\n"
+                            "Date: ___ / ___ / ______")
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    doc.save(output_path)
+    print(f"Generated: {output_path}")
+
+def build_fee_receipt_placeholder(output_path):
+    doc = create_styled_document()
+    setup_header_footer(doc, "Item 8: Receipt of Payment of Processing Fee")
+    add_draft_notice(doc, "ITEM 8: ERC PROCESSING FEE RECEIPT — PHYSICAL HARD COPY ATTACHMENT")
+
+    add_heading_1(doc, "ITEM 8: RECEIPT OF PAYMENT OF ERC PROCESSING FEE")
+    add_heading_2(doc, "Ethical Review Processing Fee Payment Record & Verification Sheet")
+
+    add_body_paragraph(doc, "Faculty of Medicine, University of Ruhuna — Ethics Review Committee Submission Guidelines Item 8", bold_prefix="Administrative Context: ")
+    add_body_paragraph(doc, "As stipulated by the Ethics Review Committee, Faculty of Medicine, University of Ruhuna, "
+                            "a non-refundable processing fee according to the designated applicant category must be remitted at the Faculty Shroff Counter. "
+                            "The official receipt issued by the Shroff Counter must be attached as Item 8 in the physical hard copy submission dossier.")
+
+    add_heading_2(doc, "1. Applicable Fee Category & Project Details")
+    t_fee = doc.add_table(rows=5, cols=2)
+    format_table_headers_and_borders(t_fee, col_widths=[2.5, 4.0])
+    t_fee.cell(0, 0).text = "Category Parameter"
+    t_fee.cell(0, 1).text = "Project Specifics"
+
+    t_fee.cell(1, 0).text = "Protocol Title"
+    t_fee.cell(1, 1).text = "SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation"
+
+    t_fee.cell(2, 0).text = "Institutional Collaboration"
+    t_fee.cell(2, 1).text = "Department of Psychiatry, Faculty of Medicine, University of Ruhuna & PRAGATHI – Child Intervention Centre, Galle"
+
+    t_fee.cell(3, 0).text = "Proposed Research Supervisor"
+    t_fee.cell(3, 1).text = "Dr. Gayani Punchihewa, Senior Lecturer in Psychiatry, Faculty of Medicine, University of Ruhuna"
+
+    t_fee.cell(4, 0).text = "Designated Payment Category"
+    t_fee.cell(4, 1).text = "Category I: Faculty of Medicine Academic Staff / Student Collaborative Research\n(Applicable Fee: LKR 3,000 / verified category rate)"
+
+    add_heading_2(doc, "2. Shroff Counter Payment Details (To be completed upon payment)")
+    t_pay = doc.add_table(rows=5, cols=2)
+    format_table_headers_and_borders(t_pay, col_widths=[2.5, 4.0])
+    t_pay.cell(0, 0).text = "Payment Record Field"
+    t_pay.cell(0, 1).text = "Official Receipt Entry"
+
+    t_pay.cell(1, 0).text = "Official Receipt Number"
+    t_pay.cell(1, 1).text = "[PLACEHOLDER: Official Shroff Receipt No., e.g., UOR/MED/ERC/2026/____]"
+
+    t_pay.cell(2, 0).text = "Date of Payment"
+    t_pay.cell(2, 1).text = "[PLACEHOLDER: Date of Payment, e.g., ___ / ___ / 2026]"
+
+    t_pay.cell(3, 0).text = "Amount Remitted (LKR)"
+    t_pay.cell(3, 1).text = "LKR 3,000.00 (Sri Lankan Rupees Three Thousand Only)"
+
+    t_pay.cell(4, 0).text = "Shroff Stamp & Signature"
+    t_pay.cell(4, 1).text = "\n\n_____________________________________________\nOfficial Shroff Stamp & Signature"
+
+    add_heading_2(doc, "3. Physical Receipt Attachment Area")
+    add_body_paragraph(doc, "[STAPLE OR AFFIX ORIGINAL SHROFF RECEIPT HERE]\n\n"
+                            "Instructions for Applicant:\n"
+                            "1. Pay the prescribed processing fee at the Shroff Counter, Ground Floor, Administrative Building, Faculty of Medicine, Karapitiya (Hours: 9:00 am – 3:00 pm on working days).\n"
+                            "2. Staple the original receipt securely to this sheet.\n"
+                            "3. Include this sheet as Item 8 of the Hard Copy Submission Dossier.\n"
+                            "4. Note: As per published ERC instructions, soft-copy email submissions to ethics@med.ruh.ac.lk require Items 1 through 7 in Soft Copy 1.")
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    doc.save(output_path)
+    print(f"Generated: {output_path}")
+
 def build_submission_checklist(output_path):
     doc = create_styled_document()
     setup_header_footer(doc, "Item 12: ERC Submission Checklist")
@@ -247,9 +415,9 @@ def build_submission_checklist(output_path):
         ("3", "Letter of consent from supervisor/s where relevant", "01", "Draft in forms/03; Pending signatures"),
         ("4", "Detailed research proposal (including study instruments, consent forms, information sheets in English, Sinhala & Tamil, permission letters)", "02", "Draft in protocol/04 + annexures/"),
         ("5", "Curriculum vitae of the principal investigator (PI)/s", "01", "Draft in forms/10; Fact-checked"),
-        ("6", "Certificates of training of PI/Supervisor (Methodology, Ethics, GCP)", "01", "Pending authentic certificates"),
-        ("7", "Letter indicating training to handle animals (if relevant)", "01", "NOT APPLICABLE (No animals)"),
-        ("8", "Receipt of payment of processing fee (according to category)", "01", "Pending Shroff receipt payment")
+        ("6", "Certificates of training of PI/Supervisor (Methodology, Ethics, GCP)", "01", "Draft sheet in forms/13; Pending certificate attachments"),
+        ("7", "Letter indicating training to handle animals (if relevant)", "01", "Formal Non-Applicability Declaration in forms/14"),
+        ("8", "Receipt of payment of processing fee (according to category)", "01", "Receipt sheet in forms/15; Pending Shroff payment")
     ]
     for idx, (num, name, count, stat) in enumerate(items_hard, start=1):
         t_hard.cell(idx, 0).text = num
@@ -290,4 +458,7 @@ if __name__ == "__main__":
     build_cover_letter(os.path.join(base, "forms", "01_Cover_Letter_DRAFT.docx"))
     build_supervisor_letter(os.path.join(base, "forms", "03_Supervisor_Letter_DRAFT.docx"))
     build_pi_cv(os.path.join(base, "forms", "10_CV_Principal_Investigator_DRAFT.docx"))
+    build_training_certificates(os.path.join(base, "forms", "13_Training_Certificates_PI_Supervisor_DRAFT.docx"))
+    build_animal_statement(os.path.join(base, "forms", "14_Animal_Handling_Statement_DRAFT.docx"))
+    build_fee_receipt_placeholder(os.path.join(base, "forms", "15_Fee_Payment_Receipt_Placeholder_DRAFT.docx"))
     build_submission_checklist(os.path.join(base, "qa", "12_ERC_Submission_Checklist.docx"))

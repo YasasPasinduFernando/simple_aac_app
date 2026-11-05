@@ -8,7 +8,7 @@
 
 | Deliverable Name | Local File Path | Pages | Size (MB) | Anonymization Status |
 | :--- | :--- | :---: | :---: | :--- |
-| **Soft Copy 1 (Complete ERC Application)** | `.local_erc_private/exports_private/01_Complete_ERC_Application.pdf` | 64 | 1.07 MB | Identifiable Submission Dossier |
+| **Soft Copy 1 (Complete ERC Application)** | `.local_erc_private/exports_private/01_Complete_ERC_Application.pdf` | 68 | 1.21 MB | Identifiable Submission Dossier |
 | **Soft Copy 2 (Anonymous Research Proposal)** | `.local_erc_private/exports_private/02_Anonymous_Research_Proposal.pdf` | 24 | 0.55 MB | **STRICTLY ANONYMIZED (0 leaks)** |
 
 ## 2. Component Page Counts
@@ -23,8 +23,11 @@
 - `08_Study_Instruments_DRAFT.docx`: 3 pages (112908 bytes)
 - `09_Site_Permission_Request_Letters_DRAFT.docx`: 2 pages (71549 bytes)
 - `10_CV_Principal_Investigator_DRAFT.docx`: 2 pages (95645 bytes)
+- `13_Training_Certificates_PI_Supervisor_DRAFT.docx`: 2 pages (91097 bytes)
+- `14_Animal_Handling_Statement_DRAFT.docx`: 2 pages (77597 bytes)
+- `15_Fee_Payment_Receipt_Placeholder_DRAFT.docx`: 2 pages (90524 bytes)
 - `11_Data_Management_Plan_DRAFT.docx`: 2 pages (76935 bytes)
-- `12_ERC_Submission_Checklist.docx`: 3 pages (106709 bytes)
+- `12_ERC_Submission_Checklist.docx`: 3 pages (106661 bytes)
 - `04_AAC_ERC_Research_Protocol_ANONYMOUS_DRAFT.docx`: 12 pages (207701 bytes)
 - `05_Parent_or_Guardian_Information_Sheet_ANONYMOUS_DRAFT.docx`: 2 pages (81791 bytes)
 - `06_Parent_or_Guardian_Consent_Form_ANONYMOUS_DRAFT.docx`: 2 pages (85323 bytes)
