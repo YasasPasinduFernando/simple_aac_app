@@ -15,7 +15,7 @@ This checklist corresponds directly to the official requirements published on `h
 | **5** | Curriculum vitae of the principal investigator (PI)/s | 01 | Draft Dossier Generated (`forms/10_CV_Principal_Investigator_DRAFT.docx`) | Official PI CV Template [Confirmation Required] + Technical Research Collaborator CV. |
 | **6** | Certificates of training of PI/Supervisor (on Research Methodology, Basic Research Ethics, Good Clinical Practice Training) | 01 | Draft Dossier Generated (`forms/13_Training_Certificates_PI_Supervisor_DRAFT.docx`) | Attach authentic printed/scanned certificates of GCP & Research Ethics training. |
 | **7** | A letter indicating that investigator(s) have undergone training to handle animals (if relevant) | 01 | Formal Declaration Generated (`forms/14_Animal_Handling_Statement_DRAFT.docx`) | Signed statement of non-applicability; no animal handling required. |
-| **8** | Receipt of payment of processing fee (according to payment category) | 01 | Attachment Record Generated (`forms/15_Fee_Payment_Receipt_Placeholder_DRAFT.docx`) | Pay fee (LKR 3,000 Category I) at Shroff Counter, Faculty of Medicine, Karapitiya; attach original receipt. |
+| **8** | Receipt of payment of processing fee (according to payment category) | 01 | Attachment Record Generated (`forms/15_Fee_Payment_Receipt_Placeholder_DRAFT.docx`) | Status: Pending formal PI designation and ERC confirmation (Category I: LKR 3,000 if Faculty Staff PI; Category III: No fee if Ruhuna Undergraduate Medical Student PI). Obtain Shroff receipt or fee exemption slip. |
 
 ---
 

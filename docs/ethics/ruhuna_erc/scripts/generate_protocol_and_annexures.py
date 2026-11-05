@@ -320,8 +320,8 @@ def build_research_protocol(output_path, is_anonymous=False):
         ("Clinical Rooms & Evaluation Facilities (PRAGATHI / Clinic)", "0.00", "Institutional Resource"),
         ("Mobile Hardware for Evaluation (Android Tablets)", "0.00", "Provided by Investigators"),
         ("Printing of Information Sheets, Consent Forms & Instruments", "5,000.00", "Covered by Research Team"),
-        ("Ruhuna ERC Submission Processing Fee (Category I / III)", "3,000.00", "Covered by Research Team"),
-        ("Total Financial Expenditure", "8,000.00 LKR", "Self-Funded by Team")
+        ("Ruhuna ERC Submission Processing Fee (Pending PI Confirmation: Cat I: LKR 3,000 / Cat III: LKR 0.00)", "0.00 – 3,000.00", "Covered by Research Team if applicable"),
+        ("Total Financial Expenditure", "5,000.00 – 8,000.00 LKR", "Self-Funded by Team")
     ]
     for idx, (item, cost, mech) in enumerate(budget_items, start=1):
         t_budget.cell(idx, 0).text = item

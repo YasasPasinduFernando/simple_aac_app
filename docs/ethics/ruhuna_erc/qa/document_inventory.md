@@ -20,7 +20,7 @@ This inventory catalogs all documents comprising the Platform B AAC research eth
 
 | File Name | Path | Format | Status | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `01_Cover_Letter_DRAFT.docx` | `forms/` | DOCX | Draft | Formal cover letter to Prof. C. M. Wickramatilake, Chairperson ERC |
+| `01_Cover_Letter_DRAFT.docx` | `forms/` | DOCX | Draft | Formal cover letter to The Chairperson, Ethics Review Committee |
 | `02_Human_Research_Application_DRAFT.docx` | `forms/` | DOCX | Draft | Official Ruhuna ERC Application Form (Annexure UOR/03-001) |
 | `03_Supervisor_Letter_DRAFT.docx` | `forms/` | DOCX | Draft | Letter of consent and academic endorsement from supervisor |
 | `04_AAC_ERC_Research_Protocol_DRAFT.docx` | `protocol/` | DOCX | Draft | Detailed Research Proposal adhering strictly to Ruhuna 2021 format |

@@ -23,14 +23,14 @@ def build_cover_letter(output_path):
 
     # Date and Recipient Block
     add_body_paragraph(doc, "Date: [PLACEHOLDER: Date of Submission, e.g., 28 November 2026]")
-    add_body_paragraph(doc, "Prof. C. M. Wickramatilake,\n"
-                            "Chairperson, Ethics Review Committee,\n"
+    add_body_paragraph(doc, "The Chairperson,\n"
+                            "Ethics Review Committee,\n"
                             "Faculty of Medicine, University of Ruhuna,\n"
                             "P.O. Box 70, Galle, Sri Lanka.", bold_prefix="To:\n")
 
     add_heading_2(doc, "SUBMISSION OF RESEARCH PROPOSAL FOR ETHICAL REVIEW: SL AAC MOBILE APPLICATION USABILITY AND FEASIBILITY EVALUATION")
 
-    add_body_paragraph(doc, "Dear Professor Wickramatilake,")
+    add_body_paragraph(doc, "Dear Chairperson,")
 
     add_body_paragraph(doc, "We have the honour to submit herewith our research protocol titled "
                             "\"SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation\" "
@@ -67,7 +67,7 @@ def build_cover_letter(output_path):
     add_bullet_point(doc, "01 Curriculum Vitae of the Principal Investigator [Formal Confirmation Required] and Technical Research Collaborator", bold_prefix="• ")
     add_bullet_point(doc, "Certificates of training in Good Clinical Practice and Research Ethics (Item 6)", bold_prefix="• ")
     add_bullet_point(doc, "Formal declaration regarding non-applicability of animal handling training (Item 7)", bold_prefix="• ")
-    add_bullet_point(doc, "Receipt of payment of the stipulated ERC processing fee (Category I: LKR 3,000 / verified rate)", bold_prefix="• ")
+    add_bullet_point(doc, "Receipt of payment of the stipulated ERC processing fee (Status: Pending formal PI designation and ERC confirmation — Category I: LKR 3,000 if academic staff PI; Category III: No fee if undergraduate student curriculum PI)", bold_prefix="• ")
     add_bullet_point(doc, "Two soft copies transmitted via email to ethics@med.ruh.ac.lk (Complete Application PDF and strictly Anonymized Research Proposal PDF)", bold_prefix="• ")
 
     add_body_paragraph(doc, "We confirm that this study has not commenced, no human participants have been recruited, and no data collection will take place prior to obtaining formal ethical clearance and institutional administrative permissions.")
@@ -339,15 +339,15 @@ def build_animal_statement(output_path):
     add_heading_2(doc, "FORMAL STATEMENT OF NON-APPLICABILITY OF ANIMAL EXPERIMENTATION")
 
     add_body_paragraph(doc, "Date: [PLACEHOLDER: Date of Submission, e.g., 28 November 2026]")
-    add_body_paragraph(doc, "Prof. C. M. Wickramatilake,\n"
-                            "Chairperson, Ethics Review Committee,\n"
+    add_body_paragraph(doc, "The Chairperson,\n"
+                            "Ethics Review Committee,\n"
                             "Faculty of Medicine, University of Ruhuna,\n"
                             "P.O. Box 70, Galle, Sri Lanka.", bold_prefix="To:\n")
 
     add_body_paragraph(doc, "SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation", bold_prefix="Protocol Title: ")
     add_body_paragraph(doc, "Statement of Non-Applicability of Animal Handling Training Certification (Item 7)", bold_prefix="Subject: ")
 
-    add_body_paragraph(doc, "Dear Professor Wickramatilake,")
+    add_body_paragraph(doc, "Dear Chairperson,")
 
     add_body_paragraph(doc, "We, the undersigned Undergraduate Medical Student Researchers, Technical Research Collaborator & Developer, and Proposed Research Supervisor, "
                             "hereby formally submit this statement with reference to Item 7 of the University of Ruhuna Ethics Review Committee submission requirements "
@@ -418,8 +418,11 @@ def build_fee_receipt_placeholder(output_path):
     t_fee.cell(3, 0).text = "Proposed Research Supervisor"
     t_fee.cell(3, 1).text = "Dr. Gayani Punchihewa, Senior Lecturer in Psychiatry, Faculty of Medicine, University of Ruhuna"
 
-    t_fee.cell(4, 0).text = "Designated Payment Category"
-    t_fee.cell(4, 1).text = "Category I: Faculty of Medicine Academic Staff / Student Collaborative Research\n(Applicable Fee: LKR 3,000 / verified category rate)"
+    t_fee.cell(4, 0).text = "Designated Payment Category & Fee Status"
+    t_fee.cell(4, 1).text = "STATUS: PENDING PI DESIGNATION AND ERC CONFIRMATION\n" \
+                            "• If Dr. Gayani Punchihewa (Faculty Academic Staff) is formally confirmed as PI: Category I applies (Fee: LKR 3,000.00).\n" \
+                            "• If Thamalka D. J. G. / D. V. W. Gunawardana (Undergraduate Medical Student) is formally confirmed as PI for a curriculum-required project: Category III applies (No Fee / Free of charge).\n" \
+                            "• Note: Official fee category will be confirmed with the ERC Secretariat / Faculty Shroff upon finalizing the PI appointment."
 
     add_heading_2(doc, "2. Shroff Counter Payment Details (To be completed upon payment)")
     t_pay = doc.add_table(rows=5, cols=2)
@@ -428,24 +431,25 @@ def build_fee_receipt_placeholder(output_path):
     t_pay.cell(0, 1).text = "Official Receipt Entry"
 
     t_pay.cell(1, 0).text = "Official Receipt Number"
-    t_pay.cell(1, 1).text = "[PLACEHOLDER: Official Shroff Receipt No., e.g., UOR/MED/ERC/2026/____]"
+    t_pay.cell(1, 1).text = "[PENDING SHROFF PAYMENT — Category I: Receipt No. / Category III: Fee Exemption Record]"
 
     t_pay.cell(2, 0).text = "Date of Payment"
-    t_pay.cell(2, 1).text = "[PLACEHOLDER: Date of Payment, e.g., ___ / ___ / 2026]"
+    t_pay.cell(2, 1).text = "[PENDING PAYMENT / CONFIRMATION — Date: ___ / ___ / 2026]"
 
     t_pay.cell(3, 0).text = "Amount Remitted (LKR)"
-    t_pay.cell(3, 1).text = "LKR 3,000.00 (Sri Lankan Rupees Three Thousand Only)"
+    t_pay.cell(3, 1).text = "LKR 3,000.00 (If Category I Staff PI) / LKR 0.00 (If Category III Undergraduate Student PI)"
 
     t_pay.cell(4, 0).text = "Shroff Stamp & Signature"
-    t_pay.cell(4, 1).text = "\n\n_____________________________________________\nOfficial Shroff Stamp & Signature"
+    t_pay.cell(4, 1).text = "\n\n_____________________________________________\nOfficial Shroff Stamp & Signature (or Category III Exemption Endorsement)"
 
-    add_heading_2(doc, "3. Physical Receipt Attachment Area")
-    add_body_paragraph(doc, "[STAPLE OR AFFIX ORIGINAL SHROFF RECEIPT HERE]\n\n"
+    add_heading_2(doc, "3. Physical Receipt / Exemption Attachment Area")
+    add_body_paragraph(doc, "[STAPLE OR AFFIX ORIGINAL SHROFF RECEIPT OR CATEGORY III EXEMPTION SLIP HERE]\n\n"
                             "Instructions for Applicant:\n"
-                            "1. Pay the prescribed processing fee at the Shroff Counter, Ground Floor, Administrative Building, Faculty of Medicine, Karapitiya (Hours: 9:00 am – 3:00 pm on working days).\n"
-                            "2. Staple the original receipt securely to this sheet.\n"
-                            "3. Include this sheet as Item 8 of the Hard Copy Submission Dossier.\n"
-                            "4. Note: As per published ERC instructions, soft-copy email submissions to ethics@med.ruh.ac.lk require Items 1 through 7 in Soft Copy 1.")
+                            "1. Confirm formal PI designation with the Department of Psychiatry and ERC Secretariat.\n"
+                            "2. If Category I (Staff PI): Pay the prescribed processing fee (LKR 3,000) at the Shroff Counter, Ground Floor, Administrative Building, Faculty of Medicine, Karapitiya (Hours: 9:00 am – 3:00 pm on working days) and staple the original receipt securely to this sheet.\n"
+                            "3. If Category III (Undergraduate Student PI): Obtain formal confirmation/endorsement of fee exemption for undergraduate curriculum research.\n"
+                            "4. Include this sheet as Item 8 of the Hard Copy Submission Dossier.\n"
+                            "5. Note: As per published ERC instructions, soft-copy email submissions to ethics@med.ruh.ac.lk require Items 1 through 7 in Soft Copy 1.")
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     doc.save(output_path)
@@ -476,7 +480,7 @@ def build_submission_checklist(output_path):
         ("5", "Curriculum vitae of the principal investigator (PI)/s", "01", "Dossier in forms/10: PI CV Template [Confirmation Required] + Tech Collaborator CV"),
         ("6", "Certificates of training of PI/Supervisor (Methodology, Ethics, GCP)", "01", "Draft sheet in forms/13; Pending certificate attachments"),
         ("7", "Letter indicating training to handle animals (if relevant)", "01", "Formal Non-Applicability Declaration in forms/14"),
-        ("8", "Receipt of payment of processing fee (according to category)", "01", "Receipt sheet in forms/15; Pending Shroff payment")
+        ("8", "Receipt of payment of processing fee (according to category)", "01", "Receipt sheet in forms/15; Pending PI confirmation & Shroff payment (Cat I: LKR 3,000 / Cat III: No fee)")
     ]
     for idx, (num, name, count, stat) in enumerate(items_hard, start=1):
         t_hard.cell(idx, 0).text = num

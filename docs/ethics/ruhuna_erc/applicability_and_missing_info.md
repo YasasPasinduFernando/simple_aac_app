@@ -39,7 +39,7 @@ The generated draft documents contain clear, conspicuous placeholders (`[PLACEHO
 | **M-5** | Sinhala & Tamil Translation Verification | Complete formal back-translation certificates for the Information Sheet and Consent Form. | Fluent native clinical speakers in Sinhala and Tamil must review the local-language sheets prior to submission. |
 | **M-6** | Formal Administrative Clearance Letters | Signed letters from the Director/Head of PRAGATHI Child Intervention Centre and Head of Department of Psychiatry granting site access. | Issue letters on official institutional letterheads. |
 | **M-7** | Investigator Ethics Training | GCP (Good Clinical Practice) or Basic Research Ethics training certificates for Dr. Gayani Punchihewa, student investigators, and technical collaborator. | Gather authentic PDF/hard-copy certificates for Item 6 of submission package. |
-| **M-8** | Fee Payment Receipt | Receipt of payment of processing fee to the Shroff Counter, Faculty of Medicine, University of Ruhuna. | Pay fee according to Category I (LKR 3,000 / verified category rate) and attach receipt. |
+| **M-8** | Fee Payment Receipt / Exemption Confirmation | Receipt of payment of processing fee to the Faculty Shroff Counter or undergraduate curriculum fee-exemption record. | Confirm formal PI designation: Category I (LKR 3,000) if Faculty Academic Staff PI; Category III (No fee / Free) if Ruhuna Undergraduate Medical Student PI. Obtain Shroff receipt or exemption endorsement. |
 
 ---
 
