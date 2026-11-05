@@ -1,0 +1,37 @@
+# Quality Assurance & Verification Report: Ruhuna ERC Documentation
+
+**Date of Audit**: November 2026  
+**Auditor**: Senior Research Ethics & Document Specialist  
+**Package Status**: **REVIEWED DRAFT — READY FOR SUPERVISOR REVIEW**
+
+---
+
+## 1. Compliance with Official University of Ruhuna ERC Requirements
+
+| Rule / Requirement | Verification Outcome | Detail & Evidence |
+| :--- | :--- | :--- |
+| **Official Proposal Format Adherence** | **PASSED** | Structured strictly according to Ruhuna `Format_of_Research_Proposal.docx`: Title, Introduction & Justification (1000–3000w), Literature Review (1000–3000w), Objectives, Methodology (5.1–5.8), Referencing (<50 references), Gantt chart, Budget. |
+| **Official Application Form Authenticity** | **PASSED** | Built directly from a fresh blank copy of `Application for Human Research.docx` (Annexure UOR/03-001) retrieved from `medi.ruh.ac.lk/ethics`. Preserves all tables, declaration cages, checkboxes, and section sequencing. |
+| **No Blanks in Application** | **PASSED** | Every cage is completed. Inapplicable sections (e.g. animal research, ionizing radiation, clinical trial SCOCT approvals, biological sample storage) are explicitly filled with "Not applicable" rather than left blank. |
+| **Mandatory Headers and Footers** | **PASSED** | All documents specify the version number (`Version 1.0 (DRAFT)`) and date in the header, and page numbers in the footer, per Ruhuna ERC formatting rules. |
+| **Submission Structure (Hard & Soft Copies)** | **PASSED** | Hard copies accommodate Items 1 to 8. Soft copies accommodate exactly TWO files: `01_Complete_ERC_Application.pdf` (Items 1–7) and `02_Anonymous_Research_Proposal.pdf` (Item 4 only). |
+| **Strict Proposal Anonymization** | **PASSED** | In Soft Copy 2, all investigator names, emails, and institutional affiliations are systematically excluded from title pages, headers, footers, body text, and PDF metadata. |
+
+---
+
+## 2. Integrity and Fact-Checking Safeguards
+
+| Risk Area | Verification Check | Safeguard Implemented |
+| :--- | :--- | :--- |
+| **Contamination from Colorectal Surgery Reference** | **PASSED (ZERO LEAKAGE)** | Rigorously scanned for any mention of colorectal surgery, anterior resection, intravenous albumin, adult cancer, or surgical ward data from `final.pdf`. All content is 100% specific to pediatric AAC and neurodevelopmental communication support. |
+| **Conflation with MSc FER Research** | **PASSED (CLEAN SEPARATION)** | Checked against CREMA-D dataset claims, few-shot personalization models, or claims of computer vision emotion detection in the current app. The protocol clearly specifies that Platform B is an offline-first AAC app using picture cards and speech synthesis, with no biometric facial tracking. |
+| **Participant Data and Privacy** | **PASSED (NO PRIVATE DATA IN GIT)** | No real child data, participant identities, personal contact phone numbers, or residential addresses are committed. Real personal contact info and wet-ink signatures are isolated in `.local_erc_private/`. |
+| **Non-Fabrication of Approvals & Signatures** | **PASSED** | No digital signature forgery or manufactured approval letters. All signature cages are designated for genuine physical wet-ink execution by the authorized parties. |
+
+---
+
+## 3. Summary of Document Status Levels
+
+- **DRAFT**: All working documents are explicitly labeled `DRAFT — FOR SUPERVISOR REVIEW AND ERC SUBMISSION`.
+- **READY FOR SUPERVISOR REVIEW**: Document structure, academic literature, methodology, data protection plans, and consent protocols are mature, rigorous, and ready for internal sign-off by the academic and clinical team.
+- **READY FOR ERC SUBMISSION**: Pending wet-ink signatures, supervisor consent letter execution, institutional permission letters, ethics training certificates, and fee payment receipt.

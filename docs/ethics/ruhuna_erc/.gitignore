@@ -1,0 +1,7 @@
+# Local build and private artifacts for Ruhuna ERC
+build/
+dist/
+*.tmp
+*.temp
+*PRIVATE*
+*CONFIDENTIAL*

@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Ruhuna ERC Private and Local-Only Research Data
+/.local_erc_private/
+docs/ethics/ruhuna_erc/scripts/build/
+docs/ethics/ruhuna_erc/scripts/dist/
+*.private.docx
+*.private.pdf
+

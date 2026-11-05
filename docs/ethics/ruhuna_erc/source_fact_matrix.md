@@ -1,0 +1,26 @@
+# Source-to-Draft Fact Matrix: Platform B AAC Ethics Submission
+
+This matrix traces every major claim, requirement, and parameter incorporated into the University of Ruhuna ERC documentation suite back to its authoritative source document, indicating its verification status.
+
+---
+
+| Domain / Claim | Claim Details in Draft Package | Source Document & Reference | Status |
+| :--- | :--- | :--- | :--- |
+| **Project Title** | *SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka* | `SL_AAC_Project_Proposal.docx`, Section 1 | **CONFIRMED** |
+| **Lead Clinical Institution** | PRAGATHI – Child Intervention Centre, Galle, Sri Lanka | `SL_AAC_Project_Proposal.docx`, Section 2 | **CONFIRMED** |
+| **Collaborating Academic Institution** | Department of Psychiatry, Faculty of Medicine, University of Ruhuna | `SL_AAC_Project_Proposal.docx`, Section 2 | **CONFIRMED** |
+| **Endorsing / Oversight Authority** | Ministry of Health, Sri Lanka (Secretary of Health, Director of Health Information, Director of Mental Health) | `SL_AAC_Project_Proposal.docx`, Section 3 & 8 | **CONFIRMED** |
+| **Target Population** | Children aged 2–12 years with Autism Spectrum Disorder (ASD), ADHD, and speech/language delays; and their parents/caregivers, therapists, and educators. | `SL_AAC_Project_Proposal.docx`, Section 6.2–6.3 | **CONFIRMED** |
+| **Supported Languages** | Trilingual: Sinhala, Tamil, and English. | `SL_AAC_Project_Proposal.docx`, Section 6.4; Verified in `lib/data/default_seed_cards.dart` | **CONFIRMED** |
+| **Application Features** | Picture-based visual grid, category navigation, text-to-speech audio, customizable cards, offline audio recording, backup/restore. | Verified in `lib/main.dart`, `lib/services/tts_service.dart`, `lib/pages/home_page.dart` | **CONFIRMED** |
+| **Offline Privacy Policy** | App operates locally without mandatory cloud sync, third-party analytics, user tracking, or backend account requirements. | `SL_AAC_Project_Proposal.docx`, Section 9; Verified in `lib/services/network_policy_service.dart` | **CONFIRMED** |
+| **Absence of FER in App** | Current Platform B app contains NO facial expression recognition ML models or camera emotion surveillance. Camera access is strictly for user card customisation. | Codebase inspection (`lib/`); Master prompt explicit warning | **CONFIRMED** |
+| **Lead Developer** | Yasas Pasindu Fernando | `SL_AAC_Project_Proposal.docx`, Section 8 & 14.1 | **CONFIRMED** |
+| **Student Co-Investigators** | Thamalka D. J. G. and D. V. W. Gunawardana (Medical Students, Faculty of Medicine, University of Ruhuna) | `SL_AAC_Project_Proposal.docx`, Section 14.2 | **CONFIRMED** |
+| **Lead Clinical Supervisor** | Senior Academic Psychiatrist / Consultant from Department of Psychiatry, Faculty of Medicine, University of Ruhuna | Mandatory ERC requirement; institutional linkage in proposal | **NEEDS USER INPUT** (Exact name & designation to be confirmed by research team) |
+| **Study Design** | Prospective observational usability and feasibility evaluation ($N = 30$ dyads over 6 months) | Ethics study protocol design | **DRAFT STUDY DESIGN** (Requires supervisor sign-off) |
+| **Proposal Format** | Title, Introduction & Justification, Literature Review, Objectives, Methodology (5.1–5.8), Referencing, Gantt chart, Budget. | Ruhuna ERC `Format_of_Research_Proposal.docx` (Effective 1 March 2021) | **CONFIRMED OFFICIAL FORMAT** |
+| **Application Form Layout** | Official Ruhuna Annexure (UOR/03-001) with Parts I, II, III, declaration blocks, and checkboxes. | Official `Application for Human Research.docx` directly downloaded from Ruhuna ERC | **CONFIRMED OFFICIAL TEMPLATE** |
+| **Submission Structure** | 8 Hard Copy items; 2 Soft Copy PDFs (01 Complete Application, 02 Anonymous Research Proposal). | Ruhuna ERC `instructions.html` and checklist photo | **CONFIRMED OFFICIAL RULE** |
+| **ERC Chairperson** | Prof. C. M. Wickramatilake, Chairperson, Ethical Review Committee, Department of Biochemistry, Faculty of Medicine, University of Ruhuna. | Official Ruhuna ERC website (`instructions.html`) | **CONFIRMED OFFICIAL CONTACT** |
+| **Colorectal Surgery Facts** | Adult colorectal cancer patients, anterior resection, prophylactic albumin, National Hospital Galle surgical unit. | `/home/yasas/Downloads/final.pdf` and sample application | **STRICTLY EXCLUDED** (Formatting reference only) |
