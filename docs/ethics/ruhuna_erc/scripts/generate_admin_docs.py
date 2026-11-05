@@ -50,7 +50,7 @@ def build_cover_letter(output_path):
     add_body_paragraph(doc, "The clinical and human research components are led by University of Ruhuna medical students Thamalka D. J. G. and D. V. W. Gunawardana. "
                             "In accordance with Faculty of Medicine ERC procedures for undergraduate student research, the formal Principal Investigator designation is subject to confirmation "
                             "by the research team and academic department ([PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED: Lead Medical Student Researcher / Academic Supervisor]). "
-                            "Mr. E.K.Y.P. Fernando serves as Technical Research Collaborator, AAC Application Developer, and Technical Implementation Lead. His academic qualifications "
+                            "Mr. E.K.Y.P. Fernando serves as Technical Research Collaborator & AAC Application Developer. His academic qualifications "
                             "(MSc AI candidate, Kingston University; BEng Hons, London Metropolitan University) provide relevant technical background; his studies do NOT constitute institutional "
                             "sponsorship, awarding body, or thesis oversight for this independent Ruhuna medical research project.")
 
@@ -86,7 +86,7 @@ def build_cover_letter(output_path):
                             "Lead Student Researcher / Supervisor\n" \
                             "Faculty of Medicine, University of Ruhuna"
     t_sig.cell(1, 1).text = "_____________________________________\n" \
-                            "Thamalka D. J. G.\n" \
+                            "Ms. Thamalka D. J. G.\n" \
                             "Undergraduate Medical Student\n" \
                             "Faculty of Medicine, University of Ruhuna"
     
@@ -101,11 +101,11 @@ def build_cover_letter(output_path):
                             "Senior Lecturer in Psychiatry / Consultant Psychiatrist\n" \
                             "Faculty of Medicine, University of Ruhuna"
 
-    t_sig.cell(4, 0).text = "Technical Research Collaborator & Developer"
+    t_sig.cell(4, 0).text = "Technical Research Collaborator & AAC Developer"
     t_sig.cell(4, 1).text = "Collaborating Centre Lead (PRAGATHI)"
     t_sig.cell(5, 0).text = "_____________________________________\n" \
                             "E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n" \
-                            "Technical Implementation Lead & AAC Developer\n" \
+                            "Technical Research Collaborator & AAC Application Developer\n" \
                             "MSc AI (Kingston, ongoing), BEng Hons (London Met)"
     t_sig.cell(5, 1).text = "_____________________________________\n" \
                             "Director / Centre In-Charge\n" \
@@ -238,7 +238,7 @@ def build_pi_cv(output_path):
 
     add_heading_2(doc, "SECTION B: CURRICULUM VITAE OF TECHNICAL RESEARCH COLLABORATOR & DEVELOPER")
     add_body_paragraph(doc, "E.K.Y.P. FERNANDO (YASAS PASINDU FERNANDO)", bold_prefix="Full Name: ")
-    add_body_paragraph(doc, "Technical Research Collaborator, AAC Application Developer & Technical Implementation Lead", bold_prefix="Designated Role: ")
+    add_body_paragraph(doc, "Technical Research Collaborator & AAC Application Developer", bold_prefix="Designated Role: ")
     add_body_paragraph(doc, "Health Informatics Researcher and Software Engineer specializing in mobile Human-Computer Interaction (HCI) and assistive communication technologies for pediatric neurodevelopmental delays. "
                             "Technical architect and developer of the Simple AAC / Pragathi AAC mobile application (Platform B), designed to provide offline-first, culturally and linguistically adapted Augmentative and Alternative Communication (AAC) tools in Sinhala, Tamil, and English for children with Autism Spectrum Disorder (ASD), ADHD, and speech impairments. "
                             "Serves as external technical research collaborator providing specialist software engineering knowledge to the University of Ruhuna medical student research team.", bold_prefix="Profile & Summary: ")
@@ -376,14 +376,14 @@ def build_animal_statement(output_path):
     t_anim.cell(0, 0).text = "Principal Investigator [Pending Formal Confirmation]"
     t_anim.cell(0, 1).text = "Lead Medical Student Researcher"
     t_anim.cell(1, 0).text = "_____________________________________\n[FORMAL CONFIRMATION REQUIRED]\nFaculty of Medicine, University of Ruhuna"
-    t_anim.cell(1, 1).text = "_____________________________________\nThamalka D. J. G.\nUndergraduate Medical Student, UOR"
+    t_anim.cell(1, 1).text = "_____________________________________\nMs. Thamalka D. J. G.\nUndergraduate Medical Student, UOR"
     t_anim.cell(2, 0).text = "Medical Student Researcher"
     t_anim.cell(2, 1).text = "Proposed Research Supervisor"
     t_anim.cell(3, 0).text = "_____________________________________\nD. V. W. Gunawardana\nUndergraduate Medical Student, UOR"
     t_anim.cell(3, 1).text = "_____________________________________\nDr. Gayani Punchihewa (MBBS, MD Psych)\nSenior Lecturer in Psychiatry / Consultant Psychiatrist"
-    t_anim.cell(4, 0).text = "Technical Research Collaborator & Developer"
+    t_anim.cell(4, 0).text = "Technical Research Collaborator & AAC Developer"
     t_anim.cell(4, 1).text = "Date & Place"
-    t_anim.cell(4, 0).text = "Technical Research Collaborator & Developer:\n_____________________________________\nE.K.Y.P. Fernando (Yasas Pasindu Fernando)\nMSc AI (Kingston, ongoing), BEng Hons (London Met)"
+    t_anim.cell(4, 0).text = "Technical Research Collaborator & AAC Application Developer:\n_____________________________________\nE.K.Y.P. Fernando (Yasas Pasindu Fernando)\nMSc AI (Kingston, ongoing), BEng Hons (London Met)"
     t_anim.cell(4, 1).text = "Date: ___ / ___ / ______\nFaculty of Medicine, University of Ruhuna,\nGalle, Sri Lanka"
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)

@@ -66,7 +66,7 @@ def build_research_protocol(output_path, is_anonymous=False):
     if not is_anonymous:
         t_meta.cell(3, 0).text = "Investigator & Research Team"
         t_meta.cell(3, 1).text = "Primary Student Research Team (Lead Student Investigators):\n" \
-                                 "• Thamalka D. J. G. — Medical Student, Faculty of Medicine, University of Ruhuna\n" \
+                                 "• Ms. Thamalka D. J. G. — Medical Student, Faculty of Medicine, University of Ruhuna\n" \
                                  "• D. V. W. Gunawardana — Medical Student, Faculty of Medicine, University of Ruhuna\n\n" \
                                  "Proposed Research Supervisor:\n" \
                                  "• Dr. Gayani Punchihewa, MBBS, MD (Psychiatry)\n" \
@@ -75,7 +75,7 @@ def build_research_protocol(output_path, is_anonymous=False):
                                  "Technical Research Collaborator & AAC Application Developer:\n" \
                                  "• Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n" \
                                  "MSc in Artificial Intelligence candidate, Kingston University, UK; BEng (Hons) in Software Engineering, London Metropolitan University, UK (Completed)\n" \
-                                 "Role: Technical Research Collaborator, AAC Application Developer & Technical Implementation Lead " \
+                                 "Role: Technical Research Collaborator & AAC Application Developer " \
                                  "(Advising on technical feasibility, system architecture, and evaluation methods; developing and implementing the Pragathi AAC mobile application; " \
                                  "supporting technical research planning and interpreting software evaluation metrics)\n" \
                                  "*(Academic qualifications background only; does NOT represent institutional sponsorship or thesis supervision for this Ruhuna medical student project)*\n\n" \
@@ -381,7 +381,7 @@ def build_information_sheet(output_path, is_anonymous=False):
     add_heading_2(doc, "8. Contact Persons for Questions or Complaints")
     if not is_anonymous:
         add_body_paragraph(doc, "If you have any questions, concerns, or wish to report any issue regarding this study, please contact:\n\n"
-                                "• Lead Student Researchers: Thamalka D. J. G. & D. V. W. Gunawardana | Undergraduate Medical Students, Faculty of Medicine, University of Ruhuna | Email: [PLACEHOLDER: Local Only]\n"
+                                "• Lead Student Researchers: Ms. Thamalka D. J. G. & D. V. W. Gunawardana | Undergraduate Medical Students, Faculty of Medicine, University of Ruhuna | Email: [PLACEHOLDER: Local Only]\n"
                                 "• Research Supervisor: Dr. Gayani Punchihewa | Senior Lecturer, Department of Psychiatry, Faculty of Medicine, University of Ruhuna | Phone: 091-2234801 Ext 161 | Email: [PLACEHOLDER: gayani@med.ruh.ac.lk]\n"
                                 "• Technical Research Collaborator & Developer: Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando) | Email: [PLACEHOLDER: Local Only] | Phone: [PLACEHOLDER: Local Only]\n"
                                 "• Ethics Review Committee Office: CIU Building, Faculty of Medicine, University of Ruhuna, Galle | Phone: 091-2234801 Ext 161 | Email: ethics@med.ruh.ac.lk")
@@ -596,7 +596,7 @@ def build_site_permission_letters(output_path, is_anonymous=False):
     if not is_anonymous:
         sig_text = "Yours sincerely,\n\n" \
                    "[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED]\n" \
-                   "Thamalka D. J. G. (Lead Medical Student Researcher, UOR)\n" \
+                   "Ms. Thamalka D. J. G. (Lead Medical Student Researcher, UOR)\n" \
                    "D. V. W. Gunawardana (Medical Student Researcher, UOR)\n" \
                    "Dr. Gayani Punchihewa (Proposed Research Supervisor, Senior Lecturer in Psychiatry)\n" \
                    "E.K.Y.P. Fernando (Technical Research Collaborator & AAC Developer)"

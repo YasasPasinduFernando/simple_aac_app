@@ -131,4 +131,19 @@ This log records every staged, committed, and pushed milestone for the Universit
 
 ---
 
+### Milestone 7: Final Role Terminology Simplification & Student Title Correction
+- **Objectives**:
+  1. Remove "Lead" designation from E.K.Y.P. Fernando's role across all documents: Updated title from "Technical Implementation Lead" to strictly "Technical Research Collaborator & AAC Application Developer", ensuring zero ambiguity regarding research project leadership.
+  2. Correct student investigator title & salutation: Explicitly designated lead medical student researcher as "Ms. Thamalka D. J. G." (`Title: Ms.`) across Application Form (Table 4 & Table 37), Cover Letter, Animal Statement, Protocol metadata, and Information Sheet contact lines.
+  3. Rebuild all 15 DOCX documents and recompile official PDF packages:
+     - `01_Complete_ERC_Application.pdf` (71 pages, 1.24 MB)
+     - `02_Anonymous_Research_Proposal.pdf` (24 pages, 0.55 MB, strictly de-identified with 0 leaks)
+  4. Update `source_fact_matrix.md`, `qa/qa_report.md`, `README.md`, and production logs.
+- **Staged Paths**: `docs/ethics/ruhuna_erc/`
+- **Working Branch**: `feature/modern-ui-offline-smart-images`
+- **Configured Remote**: `origin https://github.com/YasasPasinduFernando/simple_aac_app.git`
+- **Privacy Status**: Verified zero anonymity leaks in Soft Copy 2. All private identity-bearing PDFs and private details kept strictly in `.local_erc_private/` (untracked).
+
+---
+
 *(Further milestones logged upon completion)*

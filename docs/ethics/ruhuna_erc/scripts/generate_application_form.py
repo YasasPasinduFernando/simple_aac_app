@@ -23,7 +23,7 @@ def populate_application_form(template_path, output_path):
                 run.font.size = Pt(10)
                 run.font.bold = True
         elif "Name of Applicant:" in p.text:
-            p.text = "Name of Applicant: Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando) [Researcher & Technical Implementation Lead]"
+            p.text = "Name of Applicant: Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando) [Technical Research Collaborator & AAC Application Developer]"
             for run in p.runs:
                 run.font.name = "Calibri"
                 run.font.size = Pt(10)
@@ -88,7 +88,7 @@ def populate_application_form(template_path, output_path):
 
     # Table 4: Co-investigator 1 (Thamalka D. J. G. - Lead Medical Student Researcher)
     t4 = doc.tables[4]
-    t4.cell(0, 0).text = "Title: Mr."
+    t4.cell(0, 0).text = "Title: Ms."
     t4.cell(0, 1).text = "Name: Thamalka D. J. G."
     t4.cell(1, 0).text = "Institutional affiliations:\n" \
                          "Lead Medical Student Researcher, Faculty of Medicine, University of Ruhuna, Karapitiya, Galle."
@@ -117,7 +117,7 @@ def populate_application_form(template_path, output_path):
     t6.cell(0, 0).text = "Title: Mr."
     t6.cell(0, 1).text = "Name: E.K.Y.P. Fernando (Yasas Pasindu Fernando)"
     t6.cell(1, 0).text = "Institutional affiliations & Research Role:\n" \
-                         "Technical Research Collaborator, AAC Application Developer & Technical Implementation Lead;\n" \
+                         "Technical Research Collaborator & AAC Application Developer;\n" \
                          "External Technical Collaborator with Department of Psychiatry & PRAGATHI Child Intervention Centre.\n" \
                          "(Role: Specialist software engineering guidance, AAC mobile app architecture, technical instrumentation, usability data interpretation)."
     t6.cell(2, 0).text = "Highest educational qualification :\n" \
@@ -305,7 +305,7 @@ def populate_application_form(template_path, output_path):
     for p in doc.paragraphs[123:130]:
         if "13.1 Please provide a brief description" in p.text:
             p.text = "13.1 Experience of Investigators with this type of research:\n\n" \
-                     "(i) Researcher, Software Developer & Technical Implementation Lead (Mr. E.K.Y.P. Fernando / Yasas Pasindu Fernando): " \
+                     "(i) Technical Research Collaborator & AAC Application Developer (Mr. E.K.Y.P. Fernando / Yasas Pasindu Fernando): " \
                      "MSc in Artificial Intelligence candidate (Kingston University, UK) and BEng (Hons) in Software Engineering graduate (London Metropolitan University, UK). Specialist in assistive mobile system engineering, Human-Computer Interaction (HCI), and offline-first digital health platforms. Principal architect of the Simple AAC / Pragathi AAC system.\n" \
                      "(ii) Research Supervisor (Dr. Gayani Punchihewa): " \
                      "Senior Lecturer in Psychiatry, Department of Psychiatry, Faculty of Medicine, University of Ruhuna, and Consultant Psychiatrist, Teaching Hospital Karapitiya. Extensive expertise in general and child/adolescent psychiatry, neurodevelopmental assessment, clinical research governance, and pediatric ethical oversight.\n" \
@@ -394,7 +394,7 @@ def populate_application_form(template_path, output_path):
     t37.cell(1, 3).text = "_______________________\n[Wet-ink signature]"
 
     # Row 2: Lead Medical Student Researcher (Thamalka D. J. G.)
-    t37.cell(2, 0).text = "Thamalka D. J. G.\n[Lead Medical Student Researcher]"
+    t37.cell(2, 0).text = "Ms. Thamalka D. J. G.\n[Lead Medical Student Researcher]"
     t37.cell(2, 1).text = "Undergraduate Medical Student (MBBS in progress)"
     t37.cell(2, 2).text = "Faculty of Medicine, University of Ruhuna"
     t37.cell(2, 3).text = "_______________________\n[Wet-ink signature]"

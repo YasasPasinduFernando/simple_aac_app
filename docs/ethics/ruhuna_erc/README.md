@@ -59,7 +59,7 @@ simple_aac_app/
 ### 2. Research Overview
 
 - **Title of Research**: *SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation*
-- **Primary Student Research Team**: Thamalka D. J. G. & D. V. W. Gunawardana (Undergraduate Medical Students, Faculty of Medicine, University of Ruhuna) — Leading medical research planning, clinical protocol execution, and ethics application under faculty supervision.
+- **Primary Student Research Team**: Ms. Thamalka D. J. G. & D. V. W. Gunawardana (Undergraduate Medical Students, Faculty of Medicine, University of Ruhuna) — Leading medical research planning, clinical protocol execution, and ethics application under faculty supervision.
 - **Proposed Research Supervisor**: Dr. Gayani Punchihewa, MBBS, MD (Psychiatry), Senior Lecturer in Psychiatry, Department of Psychiatry, Faculty of Medicine, University of Ruhuna; Consultant Psychiatrist, Teaching Hospital Karapitiya.
 - **Principal Investigator Designation**: `[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED: Lead Medical Student Researcher / Academic Supervisor per Faculty ERC Regulations]`.
 - **Technical Research Collaborator & AAC Developer**: E.K.Y.P. Fernando (Yasas Pasindu Fernando), MSc AI candidate (Kingston University, UK), BEng (Hons) Software Engineering (London Metropolitan University, UK). Specialist software engineering collaborator; engineered the offline-first Pragathi AAC mobile app; advises on technical feasibility and digital usability evaluation. (Academic background only; not an institutional sponsor or foreign thesis project).
