@@ -108,18 +108,20 @@ def create_styled_document():
     for section in doc.sections:
         section.page_width = Cm(21.0)
         section.page_height = Cm(29.7)
-        section.top_margin = Cm(2.0)
-        section.bottom_margin = Cm(1.8)
+        section.top_margin = Cm(2.54)
+        section.bottom_margin = Cm(2.54)
         section.left_margin = Cm(2.54)
         section.right_margin = Cm(2.54)
-        section.header_distance = Cm(0.6)
-        section.footer_distance = Cm(0.5)
+        section.header_distance = Cm(1.0)
+        section.footer_distance = Cm(1.0)
         section.different_first_page_header_footer = False
     _set_style_font(doc.styles["Normal"], 12)
     normal = doc.styles["Normal"]
     normal.paragraph_format.space_before = Pt(0)
-    normal.paragraph_format.space_after = Pt(8)
-    normal.paragraph_format.line_spacing = 1.15
+    normal.paragraph_format.space_after = Pt(6)
+    normal.paragraph_format.line_spacing = 1.5
+    _configure_heading_style(doc, "Heading 1", 14, 12, 6)
+    _configure_heading_style(doc, "Heading 2", 12, 10, 4)
     props = doc.core_properties
     props.author = ""
     props.last_modified_by = ""
@@ -220,36 +222,61 @@ def add_text(paragraph, text, size=12, bold=False, italic=False):
     return run
 
 
+def _configure_heading_style(doc, style_name, size, before, after):
+    style = doc.styles[style_name]
+    _set_style_font(style, size)
+    style.font.bold = True
+    style.font.italic = False
+    style.font.color.rgb = BLACK
+    rpr = style.element.get_or_add_rPr()
+    color = rpr.find(qn("w:color"))
+    if color is None:
+        color = OxmlElement("w:color")
+        rpr.append(color)
+    color.set(qn("w:val"), "000000")
+    if qn("w:themeColor") in color.attrib:
+        del color.attrib[qn("w:themeColor")]
+    style.paragraph_format.space_before = Pt(before)
+    style.paragraph_format.space_after = Pt(after)
+    style.paragraph_format.line_spacing = 1.5
+    style.paragraph_format.keep_with_next = True
+
+
 def add_heading(doc, text, level=1):
-    paragraph = doc.add_paragraph()
+    paragraph = doc.add_paragraph(style="Heading 1" if level == 1 else "Heading 2")
     paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
     paragraph.paragraph_format.space_before = Pt(12 if level == 1 else 10)
-    paragraph.paragraph_format.space_after = Pt(6)
-    paragraph.paragraph_format.line_spacing = 1.15
+    paragraph.paragraph_format.space_after = Pt(4)
+    paragraph.paragraph_format.line_spacing = 1.5
     paragraph.paragraph_format.keep_with_next = True
     add_text(paragraph, text, 14 if level == 1 else 12, bold=True)
     return paragraph
 
 
-def add_body(doc, text, *, bold=False, italic=False, center=False, space_after=8, first_indent=None):
+def add_body(doc, text, *, bold=False, italic=False, center=False, justify=True, space_after=6, line_spacing=1.5, first_indent=None):
     paragraph = doc.add_paragraph()
-    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER if center else WD_ALIGN_PARAGRAPH.JUSTIFY
+    if center:
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    elif justify:
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    else:
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(space_after)
-    paragraph.paragraph_format.line_spacing = 1.15
+    paragraph.paragraph_format.line_spacing = line_spacing
     if first_indent:
         paragraph.paragraph_format.first_line_indent = first_indent
     add_text(paragraph, text, 12, bold, italic)
     return paragraph
 
 
-def add_mixed_body(doc, parts, *, center=False, space_after=8):
+def add_mixed_body(doc, parts, *, center=False, space_after=6):
     """parts: list of (text, bold)."""
     paragraph = doc.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER if center else WD_ALIGN_PARAGRAPH.JUSTIFY
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(space_after)
-    paragraph.paragraph_format.line_spacing = 1.15
+    paragraph.paragraph_format.line_spacing = 1.5
     for text, bold in parts:
         add_text(paragraph, text, 12, bold, False)
     return paragraph
@@ -262,19 +289,19 @@ def add_bullet(doc, text, *, level=0):
     paragraph.paragraph_format.first_line_indent = Cm(-0.4)
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(2)
-    paragraph.paragraph_format.line_spacing = 1.15
+    paragraph.paragraph_format.line_spacing = 1.5
     add_text(paragraph, "•  " + text, 12, False, False)
     return paragraph
 
 
-def add_numbered_item(doc, number, text):
+def add_numbered_item(doc, number, text, *, justify=True):
     paragraph = doc.add_paragraph()
-    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY if justify else WD_ALIGN_PARAGRAPH.LEFT
     paragraph.paragraph_format.left_indent = Cm(1.0)
     paragraph.paragraph_format.first_line_indent = Cm(-0.5)
     paragraph.paragraph_format.space_before = Pt(0)
-    paragraph.paragraph_format.space_after = Pt(4)
-    paragraph.paragraph_format.line_spacing = 1.15
+    paragraph.paragraph_format.space_after = Pt(3)
+    paragraph.paragraph_format.line_spacing = 1.5
     add_text(paragraph, f"{number}.  {text}", 12, False, False)
     return paragraph
 
@@ -316,6 +343,7 @@ def set_cell_text(cell, text, size=11, bold=False):
     paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
     paragraph.paragraph_format.space_after = Pt(2)
     paragraph.paragraph_format.space_before = Pt(0)
+    paragraph.paragraph_format.line_spacing = 1.15
     add_text(paragraph, text, size, bold, False)
 
 
@@ -345,10 +373,19 @@ def set_table_borders(table):
     tblpr.append(borders)
 
 
+def _keep_row_together(row):
+    tr = row._tr
+    trpr = tr.get_or_add_trPr()
+    cant = OxmlElement("w:cantSplit")
+    trpr.append(cant)
+
+
 def add_plain_table(doc, headers, rows, col_widths=None):
     table = doc.add_table(rows=1 + len(rows), cols=len(headers))
     table.autofit = True
     set_table_borders(table)
+    for row in table.rows:
+        _keep_row_together(row)
     for index, header in enumerate(headers):
         set_cell_text(table.rows[0].cells[index], header, 11, True)
     for r_index, row in enumerate(rows):

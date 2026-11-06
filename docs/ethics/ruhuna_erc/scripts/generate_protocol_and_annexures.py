@@ -101,10 +101,8 @@ def _team_block(doc, anonymous):
 
 
 def add_title_page(doc, anonymous):
-    add_body(doc, TITLE, bold=True, center=True, space_after=6)
-    for _ in range(3):
-        add_body(doc, "", space_after=0)
-    add_body(doc, "RESEARCH PROPOSAL", bold=True, center=True, space_after=12)
+    add_body(doc, TITLE, bold=True, center=True, space_after=12)
+    add_body(doc, "RESEARCH PROPOSAL", bold=True, center=True, space_after=10)
     add_body(
         doc,
         "Draft for review by the research team and the supervisor. "
@@ -155,11 +153,11 @@ def add_introduction(doc):
     )
     add_body(
         doc,
-        "No child, parent, caregiver or therapist has been recruited for the study in this proposal. "
-        "No consent has been taken. No session record exists. Earlier software work, including "
-        "trying the screens with made-up cards, is not human-participant research and cannot be "
-        "reported as a result. The work proposed here would start only after the Ethics Review "
-        "Committee has approved the study and after the centre has given written permission.",
+        "No child, parent, caregiver or therapist has been recruited. Consent has not been taken, "
+        "and no session record exists. Earlier work on the software, including trials with sample "
+        "cards that did not come from children, is not research with participants and will not be "
+        "reported as a result. The sitting in this proposal will begin only after the Ethics Review "
+        "Committee has approved the study and the centre has given written permission.",
     )
     add_body(
         doc,
@@ -199,11 +197,10 @@ def add_justification(doc):
     )
     add_body(
         doc,
-        "There is a further practical reason to write the study down now. The application is already "
-        "in existence. People who know the centre may be tempted to try it informally with children "
-        "and then describe those tries as research. This proposal separates that temptation from a "
-        "defined procedure. Informal use, if it occurs outside this protocol, is not part of the "
-        "study and must not be written up as though approval had been given.",
+        "The application already exists, so it could be shown to a child informally and later "
+        "described as research. This proposal is the procedure that would be followed. Use outside "
+        "that procedure is not part of the study, and it cannot be reported as if approval had "
+        "already been given.",
     )
 
 
@@ -259,11 +256,11 @@ def add_literature(doc):
     )
     add_body(
         doc,
-        "The literature therefore supports a modest design. The study should ask whether this "
-        "existing application can be operated, in the languages it claims to offer, by children and "
-        "caregivers at one centre, under consent, for one sitting. It should not be written as a "
-        "trial of treatment. If the sitting is acceptable, a later study could ask a different "
-        "question. That later study is not part of the present application.",
+        "Taken together, these sources support a modest design. The study asks whether children and "
+        "caregivers at one centre can operate this existing application, in the languages it offers, "
+        "during one sitting and with consent. It is not a trial of treatment. If the sitting is "
+        "acceptable, a later study could ask a different question. That later study is not part of "
+        "this application.",
     )
 
 
@@ -386,11 +383,10 @@ def add_methods(doc, anonymous):
     add_body(
         doc,
         "No sample size is stated. A calculation has not been done, because the team has not agreed "
-        "a primary numerical endpoint, an expected proportion, or the number of eligible children "
-        "who attend the centre. Inserting a convenient number would pretend that this judgement "
-        "has already been made. The supervisor and the student researchers must supply a "
-        "justification before the proposal is submitted. Until that number is written into a "
-        "revised version, and until ethics approval and site permission exist, nobody will be recruited.",
+        "a main numerical outcome, an expected proportion, or how many eligible children attend the "
+        "centre. A number will not be entered until the supervisor has agreed the basis for it. "
+        "Until that revision is made, and until ethics approval and site permission are in place, "
+        "no family will be recruited.",
     )
     add_heading(doc, "5.6 Data collection tools", 2)
     add_body(
@@ -544,11 +540,11 @@ def add_methods(doc, anonymous):
     )
     add_body(
         doc,
-        "There is an interest to declare. The technical collaborator developed the application. "
-        "He must not be the only person who records or interprets the sitting. The students will "
-        "complete the forms. The supervisor will review them. No payment, sale, or advertisement "
-        "has been identified in connection with this study. The investigators still have to sign "
-        "the conflict declaration on the application form. This paragraph does not replace that signature.",
+        "One interest has to be declared. The technical collaborator developed the application, so "
+        "he will not be the only person who records or interprets the sitting. The students will "
+        "complete the forms, and the supervisor will review them. No payment, sale or advertisement "
+        "has been identified. The investigators must still sign the conflict declaration on the "
+        "application form.",
     )
     add_body(
         doc,
@@ -577,7 +573,7 @@ def add_references(doc):
         "World Health Organization. Autism [Internet]. Geneva: World Health Organization; [cited 2026 Nov 6]. Available from: https://www.who.int/news-room/fact-sheets/detail/autism-spectrum-disorders",
     ]
     for index, ref in enumerate(refs, start=1):
-        add_numbered_item(doc, str(index), ref)
+        add_numbered_item(doc, str(index), ref, justify=False)
 
 
 def add_management(doc):
@@ -692,26 +688,28 @@ def add_annex_consent(doc, anonymous):
         "I know that I can refuse or withdraw, and that my child’s usual care will not change if I do. "
         "I agree to one supervised sitting with the picture application, and to answering the short questions.",
     )
-    add_body(doc, "Name of parent or guardian: ________________________________")
-    add_body(doc, "Signature: ________________________________    Date: ______________")
-    add_body(doc, "Name of child (for the centre’s copy only): ________________________________")
+    add_body(doc, "Name of parent or guardian: ________________________________", justify=False)
+    add_body(doc, "Signature: ________________________________    Date: ______________", justify=False)
+    add_body(doc, "Name of child (for the centre’s copy only): ________________________________", justify=False)
     add_body(
         doc,
         "I confirm that I explained the study and that I did not pressure this person to agree.",
     )
     if anonymous:
-        add_body(doc, "Name of the person who explained the study: ________________________________")
+        add_body(doc, "Name of the person who explained the study: ________________________________", justify=False)
     else:
         add_body(
             doc,
             "Name of the person who explained the study (student researcher): ________________________________",
+            justify=False,
         )
-    add_body(doc, "Signature: ________________________________    Date: ______________")
+    add_body(doc, "Signature: ________________________________    Date: ______________", justify=False)
     add_body(
         doc,
         "A witness is needed if the parent asks for one, or if the explanation was given orally "
-        "because the parent does not read English. Witness name and signature: ________________________________",
+        "because the parent does not read English.",
     )
+    add_body(doc, "Witness name and signature: ________________________________", justify=False)
 
 
 def add_annex_assent(doc):
@@ -727,9 +725,9 @@ def add_annex_assent(doc):
         "say no. You can stop. Nothing bad will happen if you stop.",
     )
     add_body(doc, "I am willing to look at the pictures today.")
-    add_body(doc, "Child’s name: ________________________________")
-    add_body(doc, "Child’s mark or signature: ________________________________    Date: ______________")
-    add_body(doc, "Parent present (name): ________________________________")
+    add_body(doc, "Child’s name: ________________________________", justify=False)
+    add_body(doc, "Child’s mark or signature: ________________________________    Date: ______________", justify=False)
+    add_body(doc, "Parent present (name): ________________________________", justify=False)
 
 
 def add_annex_tools(doc):
@@ -778,8 +776,8 @@ def add_annex_tools(doc):
             ["Did your child seem upset by the sitting?", "", "", ""],
         ],
     )
-    add_body(doc, "Comment, if the caregiver wishes to add one: ________________________________")
-    add_body(doc, "________________________________________________________________")
+    add_body(doc, "Comment, if the caregiver wishes to add one:", justify=False)
+    add_body(doc, "________________________________________________________________", justify=False)
 
 
 def add_annex_letters(doc, anonymous):
@@ -813,8 +811,9 @@ def add_annex_letters(doc, anonymous):
             doc,
             "From J.G.D. Thamalka and D.V.W. Gunawardana, medical student researchers, with "
             "Yasas Pasindu Fernando as technical research collaborator, under the proposed "
-            "supervision of Dr Gayani Punchihewa. Signature: ____________________ Date: ____________",
+            "supervision of Dr Gayani Punchihewa.",
         )
+        add_body(doc, "Signature: ____________________    Date: ____________", justify=False)
     add_body(doc, "Draft note to the Head, Department of Psychiatry", bold=True, space_after=4)
     if anonymous:
         add_body(

@@ -34,12 +34,14 @@ def _doc(path):
 
 def build_cover_letter(output_path):
     doc = _doc(output_path)
-    add_body(doc, "The Chairperson")
-    add_body(doc, "Ethics Review Committee", space_after=0)
-    add_body(doc, "Faculty of Medicine", space_after=0)
-    add_body(doc, "University of Ruhuna", space_after=0)
-    add_body(doc, "Galle, Sri Lanka")
-    add_body(doc, "Dear Chairperson,")
+    # Single spacing keeps this short letter, and its signature table, on one page.
+    letter = {"space_after": 8, "line_spacing": 1.0}
+    add_body(doc, "The Chairperson", justify=False, space_after=0, line_spacing=1.0)
+    add_body(doc, "Ethics Review Committee", justify=False, space_after=0, line_spacing=1.0)
+    add_body(doc, "Faculty of Medicine", justify=False, space_after=0, line_spacing=1.0)
+    add_body(doc, "University of Ruhuna", justify=False, space_after=0, line_spacing=1.0)
+    add_body(doc, "Galle, Sri Lanka", justify=False, space_after=10, line_spacing=1.0)
+    add_body(doc, "Dear Chairperson,", justify=False, space_after=8, line_spacing=1.0)
     add_body(
         doc,
         "We submit a draft application for ethical review of the study entitled “"
@@ -47,6 +49,7 @@ def build_cover_letter(output_path):
         + "”. The study would describe one supervised sitting with an existing picture-based "
         "communication application. No participant has been recruited. The application has not "
         "been shown to improve communication, and this draft does not claim that it has.",
+        **letter,
     )
     add_body(
         doc,
@@ -55,12 +58,14 @@ def build_cover_letter(output_path):
         "Yasas Pasindu Fernando is a researcher, technical research collaborator and the developer "
         "of the application. He is not proposed as the sole principal investigator. "
         "Dr Gayani Punchihewa is the proposed supervisor. She has not yet signed.",
+        **letter,
     )
     add_body(
         doc,
         "The person who will sign as the applicant has not been confirmed with Dr Punchihewa. "
         "Until that is agreed, all three investigators are named and the applicant line is left "
         "open. " + corresponding_contact_text(output_path),
+        **letter,
     )
     add_body(
         doc,
@@ -70,8 +75,9 @@ def build_cover_letter(output_path):
         "be chosen until the applicant and the curriculum status are confirmed). Sinhala and "
         "Tamil parent forms are still to be prepared. We ask the committee to treat this package "
         "as a draft for review by the supervisor, not as a signed submission.",
+        **letter,
     )
-    add_body(doc, "Yours faithfully,")
+    add_body(doc, "Yours faithfully,", justify=False, **letter)
     add_plain_table(
         doc,
         ["Signatory", "Signature", "Date"],

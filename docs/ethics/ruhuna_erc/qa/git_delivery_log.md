@@ -160,4 +160,12 @@ This log records every staged, committed, and pushed milestone for the Universit
 - **Push**: `9371bb6..cba4c49` to `origin/feature/modern-ui-offline-smart-images` succeeded. The log commit is `cba4c49`.
 - Named Word files were removed from the index and kept on disk. History was not rewritten, so older commits can still contain investigator names and the former publishing-partner name.
 
+## Formatting pass, 6 November 2026
+
+- Set the proposal to Times New Roman, 12 pt body, 14 pt main headings, 12 pt subheadings, 2.54 cm margins and 1.5 line spacing.
+- Left the official application form on its own US Letter layout.
+- Kept the cover letter on one page by using single spacing for that letter only.
+- Left-aligned references and consent lines so long web addresses and signature rules are not stretched.
+- Named file 44 pages. Anonymous proposal 17 pages. No identity leak in the anonymous file.
+
 *(Further milestones logged upon completion)*
