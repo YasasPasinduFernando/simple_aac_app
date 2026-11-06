@@ -157,6 +157,7 @@ This log records every staged, committed, and pushed milestone for the Universit
 - Stopped tracking named Word drafts. Telephone and email remain in `.local_erc_private/` only.
 - Anonymous proposal kept trackable. Private PDFs are not committed.
 - **Commit**: `7a53f4c7631fcac76df20e1f5865e9cd83ea313a` on `feature/modern-ui-offline-smart-images`.
+- **Push**: `9371bb6..cba4c49` to `origin/feature/modern-ui-offline-smart-images` succeeded. The log commit is `cba4c49`.
 - Named Word files were removed from the index and kept on disk. History was not rewritten, so older commits can still contain investigator names and the former publishing-partner name.
 
 *(Further milestones logged upon completion)*
