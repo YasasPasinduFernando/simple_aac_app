@@ -177,5 +177,6 @@ This log records every staged, committed, and pushed milestone for the Universit
 - Sample size left unset. Section 5.5 explains why a between-group power calculation does not fit, and the QA report marks the missing number as a blocker.
 - Editable Word files are copied to `.local_erc_private/review_word/`, with `MANIFEST.md`. They are not committed.
 - Named package 44 pages. Anonymous proposal 17 pages. No identity leak in the anonymous file.
+- **Commit**: `cfa0a6e` on `feature/modern-ui-offline-smart-images`. Private Word files and PDFs were not committed.
 
 *(Further milestones logged upon completion)*
