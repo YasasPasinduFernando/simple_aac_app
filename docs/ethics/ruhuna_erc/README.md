@@ -31,3 +31,5 @@ Private outputs:
 - `.local_erc_private/exports_private/02_Anonymous_Research_Proposal.pdf` — the proposal and its annexes only, without investigator names.
 
 The anonymous proposal in `protocol/` may be committed. Named Word files and the private PDFs stay out of git.
+
+Editable copies for the supervisor and the student researchers are written to `.local_erc_private/review_word/`. The file `MANIFEST.md` in that folder lists each Word document. The PDFs are previews. The sample size is still unset.

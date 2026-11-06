@@ -2,6 +2,12 @@
 
 This is a check of the rebuilt files. It is not a statement that the Ethics Review Committee has accepted them.
 
+## Blocker: sample size
+
+The number of children is not in the protocol. No figure was available for how many eligible children attend PRAGATHI Child Intervention Centre, and no expected proportion was agreed for the main observations. A power calculation for a difference between groups does not fit this study: there is one sitting, no comparison group, and no claim that communication improves. Dr Gayani Punchihewa needs to set the number with the student researchers before the proposal can be treated as complete. Until that number is written into section 5.5, no family will be recruited.
+
+The same decision is listed in `.local_erc_private/review_word/MANIFEST.md`, beside the editable Word files.
+
 ## Layout
 
 - Proposal pages are A4, with 2.54 cm margins. Body text is Times New Roman, 12 pt, justified, with 1.5 line spacing. Main headings are 14 pt bold. Subheadings are 12 pt bold.
@@ -16,7 +22,7 @@ This is a check of the rebuilt files. It is not a statement that the Ethics Revi
 
 Approximate word counts in the anonymous proposal, excluding the contents page: introduction 385, justification 291, literature review 530, methodology about 2,000 including the annexes’ methods text that sits before the references. The Faculty format guide suggests 1,000 to 3,000 words for the introduction and for the literature review. This draft is shorter on purpose. The supervisor may ask for a longer review. It was not padded.
 
-The named electronic file is 44 pages. The anonymous proposal is 17 pages. The increase from the previous 41 and 14 pages is the 1.5 line spacing. Certificates, a fee sheet, a separate data-management essay, and repeated annex covers are not inside the electronic files.
+The named electronic file is 44 pages. The anonymous proposal is 17 pages. Certificates, a fee sheet, a separate data-management essay, and repeated annex covers are not inside the electronic files. The cover letter places Dr Gayani Punchihewa in a “Through” block above the Chairperson. She is not addressed as the Chairperson.
 
 ## Identity
 

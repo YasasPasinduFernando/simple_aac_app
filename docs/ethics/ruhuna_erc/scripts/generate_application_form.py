@@ -86,13 +86,12 @@ def populate_application_form(template_path, output_path):
     _replace_starting(
         doc,
         "Version:",
-        "Version: 01     Date: 06 November 2026     Draft for supervisor review. Not signed.",
+        "Version: 01     Date: 06 November 2026     Unsigned. For supervisor review.",
     )
     _replace_starting(
         doc,
         "Name of Applicant:",
-        "Name of Applicant: Pending confirmation. Do not read Yasas Pasindu Fernando as the applicant. "
-        "The three investigators are named below until Dr Gayani Punchihewa and the medical students agree who will sign.",
+        "Name of Applicant: To be confirmed with Dr Gayani Punchihewa. Yasas Pasindu Fernando is not the applicant.",
     )
     _replace_starting(doc, "1. Title of Research Project:", "1. Title of Research Project: " + TITLE)
 
@@ -178,7 +177,7 @@ def populate_application_form(template_path, output_path):
         "Institutional affiliation: Medical student researcher, Faculty of Medicine, University of Ruhuna. "
         "The project note lists Thamalka D. J. G. The name order should be confirmed before signature.",
     )
-    _set_cell(first.cell(2, 0), "Highest educational qualification: Not supplied. Not guessed.")
+    _set_cell(first.cell(2, 0), "Highest educational qualification: To be entered by the student.")
     _set_cell(first.cell(3, 0), "Mailing address: Faculty of Medicine, University of Ruhuna, Galle.")
     _set_cell(first.cell(4, 0), "Phone: " + phone)
     _set_cell(first.cell(4, 2), "e-mail: " + email)
@@ -190,10 +189,10 @@ def populate_application_form(template_path, output_path):
         second.cell(1, 0),
         "Institutional affiliation: Medical student researcher, Faculty of Medicine, University of Ruhuna.",
     )
-    _set_cell(second.cell(2, 0), "Highest educational qualification: Not supplied. Not guessed.")
+    _set_cell(second.cell(2, 0), "Highest educational qualification: To be entered by the student.")
     _set_cell(second.cell(3, 0), "Mailing address: Faculty of Medicine, University of Ruhuna, Galle.")
-    _set_cell(second.cell(4, 0), "Phone: Not supplied.")
-    _set_cell(second.cell(4, 2), "e-mail: Not supplied.")
+    _set_cell(second.cell(4, 0), "Phone: To be entered by the student.")
+    _set_cell(second.cell(4, 2), "e-mail: To be entered by the student.")
 
     third = doc.tables[6]
     _set_cell(third.cell(0, 0), "Title: To be confirmed")
@@ -209,9 +208,9 @@ def populate_application_form(template_path, output_path):
         "Qualifications supplied by him: MSc Artificial Intelligence, Kingston University, ongoing; "
         "BEng (Hons) Software Engineering, London Metropolitan University, completed.",
     )
-    _set_cell(third.cell(3, 0), "Mailing address: Not supplied.")
-    _set_cell(third.cell(4, 0), "Phone: Not supplied for this form.")
-    _set_cell(third.cell(4, 2), "e-mail: Not supplied for this form.")
+    _set_cell(third.cell(3, 0), "Mailing address: To be entered if the committee requires it.")
+    _set_cell(third.cell(4, 0), "Phone: To be entered if the committee requires it.")
+    _set_cell(third.cell(4, 2), "e-mail: To be entered if the committee requires it.")
 
     _replace_starting(
         doc,
@@ -337,7 +336,7 @@ def populate_application_form(template_path, output_path):
         doc.tables[23],
         4,
         False,
-        "No sample size is stated. A calculation has not been done. Section 5.5. This must be completed before submission.",
+        "The number of children is not yet set. A between-group power calculation does not apply. The supervisor must enter the number before submission. Section 5.5.",
     )
 
     _mark(doc.tables[24], 2, True, "Observer record and five caregiver questions. No biological samples. Section 5.6 and Annex D.")
@@ -536,41 +535,40 @@ def populate_application_form(template_path, output_path):
     _replace_starting(
         doc,
         "Full name of Principal Investigator:",
-        "Full name of Principal Investigator: Pending confirmation. Not signed. "
-        "Signature and date remain blank.",
+        "Full name of Principal Investigator: To be confirmed. Unsigned.",
     )
 
     signatures = doc.tables[37]
     rows = [
         (
-            "Applicant: name pending confirmation",
-            "Not entered until the applicant is agreed",
-            "Faculty of Medicine, University of Ruhuna, if a student or Dr Punchihewa is appointed",
-            "Signature not made",
-        ),
-        (
-            "J.G.D. Thamalka",
-            "Not supplied",
-            "Medical student researcher, Faculty of Medicine, University of Ruhuna",
-            "Signature not made",
-        ),
-        (
-            "D.V.W. Gunawardana",
-            "Not supplied",
-            "Medical student researcher, Faculty of Medicine, University of Ruhuna",
-            "Signature not made",
+            "Applicant: to be confirmed",
+            "To be entered when the applicant is named",
+            "Faculty of Medicine, University of Ruhuna",
+            "",
         ),
         (
             "Dr Gayani Punchihewa",
             "MBBS, MD Psych, from the Faculty staff page",
-            "Senior Lecturer and Psychiatrist, Department of Psychiatry. Proposed supervisor. Consent not yet given.",
-            "Signature not made",
+            "Senior Lecturer and Psychiatrist, Department of Psychiatry. Proposed supervisor. Unsigned.",
+            "",
+        ),
+        (
+            "J.G.D. Thamalka",
+            "To be entered by the student",
+            "Medical student researcher, Faculty of Medicine, University of Ruhuna",
+            "",
+        ),
+        (
+            "D.V.W. Gunawardana",
+            "To be entered by the student",
+            "Medical student researcher, Faculty of Medicine, University of Ruhuna",
+            "",
         ),
         (
             "Yasas Pasindu Fernando",
             "MSc Artificial Intelligence, Kingston University, ongoing; BEng (Hons) Software Engineering, London Metropolitan University, completed",
-            "Researcher, technical research collaborator and application developer. Not the applicant on this draft.",
-            "Signature not made",
+            "Researcher, technical research collaborator and developer of the application. Not the applicant.",
+            "",
         ),
     ]
     for index, values in enumerate(rows, start=1):

@@ -267,6 +267,48 @@ def main():
         log.write("\n## Contents page numbers, anonymous proposal\n\n")
         for heading in HEADINGS:
             log.write(f"- {heading}: {anon_toc.get(heading, 'not found')}\n")
+    review = os.path.join(private, "review_word")
+    os.makedirs(review, exist_ok=True)
+    review_files = [
+        ("01_Cover_Letter.docx", os.path.join(named_dir, "01_Cover_Letter.docx")),
+        ("02_Application_Form.docx", os.path.join(named_dir, "02_Application.docx")),
+        ("03_Supervisor_Letter.docx", os.path.join(named_dir, "03_Supervisor_Letter.docx")),
+        ("04_Research_Proposal.docx", os.path.join(named_dir, "04_Research_Proposal_NAMED.docx")),
+        ("04_Research_Proposal_ANONYMOUS.docx", anon_docx),
+        ("05_CV_notes.docx", os.path.join(named_dir, "05_CV_notes.docx")),
+    ]
+    manifest_lines = [
+        "# Editable Word files for supervisor review",
+        "",
+        "Version 01. 06 November 2026. Unsigned.",
+        "",
+        "Open these in Word. The PDF files in `exports_private` are previews only.",
+        "",
+    ]
+    for dest_name, source in review_files:
+        target = os.path.join(review, dest_name)
+        shutil.copy2(source, target)
+        manifest_lines.append(f"- `{target}`")
+    manifest_lines.extend(
+        [
+            "",
+            "## Required before this package can be treated as complete",
+            "",
+            "1. Sample size. Dr Gayani Punchihewa must set the number of children. No number has been entered. A power calculation for a difference between groups does not fit this one-sitting descriptive study. The number depends on how many eligible children attend the centre and on the proportion she will accept for the main observations.",
+            "2. The person who will sign as the applicant. This has not been confirmed. Yasas Pasindu Fernando is not the applicant.",
+            "3. The supervisor’s signature. The Faculty staff page lists her as Senior Lecturer and Psychiatrist. The cover letter uses Senior Lecturer in Psychiatry, which she should confirm.",
+            "4. Whether the study is required by the undergraduate curriculum, and which fee applies.",
+            "5. Written permission from PRAGATHI Child Intervention Centre.",
+            "6. Sinhala and Tamil parent forms, checked by competent speakers.",
+            "7. Training certificates, student registration numbers, and the place where consent forms will be locked.",
+            "",
+        ]
+    )
+    manifest_path = os.path.join(review, "MANIFEST.md")
+    with open(manifest_path, "w", encoding="utf-8") as handle:
+        handle.write("\n".join(manifest_lines))
+    print("Review Word files:", review)
+
     print(f"Complete pages: {complete_pages}")
     print(f"Anonymous pages: {anonymous_pages}")
     print(f"Leaks: {leaks if leaks else 'none'}")

@@ -34,109 +34,114 @@ def _doc(path):
 
 def build_cover_letter(output_path):
     doc = _doc(output_path)
-    # Single spacing keeps this short letter, and its signature table, on one page.
-    letter = {"space_after": 8, "line_spacing": 1.0}
+    # Single spacing keeps the through-block and the signature table together.
+    letter = {"space_after": 4, "line_spacing": 1.0}
+    add_body(doc, "From", justify=False, space_after=0, line_spacing=1.0)
+    add_body(doc, "J.G.D. Thamalka and D.V.W. Gunawardana", justify=False, space_after=0, line_spacing=1.0)
+    add_body(doc, "Medical student researchers", justify=False, space_after=0, line_spacing=1.0)
+    add_body(doc, "Faculty of Medicine, University of Ruhuna", justify=False, space_after=8, line_spacing=1.0)
+    add_body(doc, "Through", justify=False, space_after=0, line_spacing=1.0)
+    add_body(doc, "Dr Gayani Punchihewa", justify=False, space_after=0, line_spacing=1.0)
+    add_body(doc, "Senior Lecturer in Psychiatry", justify=False, space_after=0, line_spacing=1.0)
+    add_body(doc, "Department of Psychiatry", justify=False, space_after=0, line_spacing=1.0)
+    add_body(doc, "Faculty of Medicine", justify=False, space_after=0, line_spacing=1.0)
+    add_body(doc, "University of Ruhuna", justify=False, space_after=8, line_spacing=1.0)
+    add_body(doc, "To", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "The Chairperson", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "Ethics Review Committee", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "Faculty of Medicine", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "University of Ruhuna", justify=False, space_after=0, line_spacing=1.0)
-    add_body(doc, "Galle, Sri Lanka", justify=False, space_after=10, line_spacing=1.0)
-    add_body(doc, "Dear Chairperson,", justify=False, space_after=8, line_spacing=1.0)
+    add_body(doc, "Galle, Sri Lanka", justify=False, space_after=8, line_spacing=1.0)
+    add_body(doc, "Dear Chairperson,", justify=False, space_after=6, line_spacing=1.0)
     add_body(
         doc,
-        "We submit a draft application for ethical review of the study entitled “"
+        "We submit an unsigned application for ethical review of the study entitled “"
         + TITLE
         + "”. The study would describe one supervised sitting with an existing picture-based "
         "communication application. No participant has been recruited. The application has not "
-        "been shown to improve communication, and this draft does not claim that it has.",
+        "been shown to improve communication.",
         **letter,
     )
     add_body(
         doc,
-        "The medical student researchers are J.G.D. Thamalka and D.V.W. Gunawardana, Faculty of "
-        "Medicine, University of Ruhuna. They lead the clinical planning and this application. "
-        "Yasas Pasindu Fernando is a researcher, technical research collaborator and the developer "
-        "of the application. He is not proposed as the sole principal investigator. "
-        "Dr Gayani Punchihewa is the proposed supervisor. She has not yet signed.",
+        "The proposed supervisor is Dr Gayani Punchihewa, Senior Lecturer in Psychiatry, "
+        "Department of Psychiatry, Faculty of Medicine, University of Ruhuna. She is not the "
+        "Chairperson, and she has not signed. The medical student researchers, J.G.D. Thamalka "
+        "and D.V.W. Gunawardana, lead the clinical planning of this application. Yasas Pasindu "
+        "Fernando is a researcher, technical collaborator and the developer of the application. "
+        "He is not proposed as the principal investigator.",
         **letter,
     )
     add_body(
         doc,
         "The person who will sign as the applicant has not been confirmed with Dr Punchihewa. "
-        "Until that is agreed, all three investigators are named and the applicant line is left "
-        "open. " + corresponding_contact_text(output_path),
+        "Until that is agreed, the applicant line is left open. "
+        + corresponding_contact_text(output_path),
         **letter,
     )
     add_body(
         doc,
-        "Hard-copy items that are not enclosed with this electronic file are the training "
-        "certificates (none have been supplied), the animal-handling letter (not applicable, "
-        "because the study involves no animals), and the fee receipt (the fee category cannot "
-        "be chosen until the applicant and the curriculum status are confirmed). Sinhala and "
-        "Tamil parent forms are still to be prepared. We ask the committee to treat this package "
-        "as a draft for review by the supervisor, not as a signed submission.",
+        "Training certificates have not been supplied. The study involves no animals. The fee "
+        "category cannot be chosen until the applicant and the curriculum status are confirmed, "
+        "so no receipt is enclosed. Sinhala and Tamil parent forms are still to be prepared. "
+        "Please treat this package as unsigned and for review by the supervisor.",
         **letter,
     )
-    add_body(doc, "Yours faithfully,", justify=False, **letter)
+    add_body(doc, "Yours faithfully,", justify=False, space_after=4, line_spacing=1.0)
     add_plain_table(
         doc,
         ["Signatory", "Signature", "Date"],
         [
-            ["Applicant (name to be confirmed)", "", ""],
+            ["Dr Gayani Punchihewa, supervisor", "", ""],
             ["J.G.D. Thamalka", "", ""],
             ["D.V.W. Gunawardana", "", ""],
             ["Yasas Pasindu Fernando", "", ""],
-            ["Dr Gayani Punchihewa, supervisor", "", ""],
         ],
     )
-    add_body(doc, "The signature cells are blank. No signature is represented by this draft.", italic=True, space_after=2)
-    save_doc(doc, output_path, "Cover letter draft")
+    save_doc(doc, output_path, "Cover letter")
     return output_path
 
 
 def build_supervisor_letter(output_path):
     doc = _doc(output_path)
-    add_body(doc, "The Chairperson")
-    add_body(doc, "Ethics Review Committee", space_after=0)
-    add_body(doc, "Faculty of Medicine", space_after=0)
-    add_body(doc, "University of Ruhuna", space_after=0)
-    add_body(doc, "Galle, Sri Lanka")
-    add_body(doc, "Dear Chairperson,")
+    add_body(doc, "Dr Gayani Punchihewa", justify=False, space_after=0)
+    add_body(doc, "Senior Lecturer in Psychiatry", justify=False, space_after=0)
+    add_body(doc, "Department of Psychiatry", justify=False, space_after=0)
+    add_body(doc, "Faculty of Medicine", justify=False, space_after=0)
+    add_body(doc, "University of Ruhuna", justify=False, space_after=8)
+    add_body(doc, "The Chairperson", justify=False, space_after=0)
+    add_body(doc, "Ethics Review Committee", justify=False, space_after=0)
+    add_body(doc, "Faculty of Medicine", justify=False, space_after=0)
+    add_body(doc, "University of Ruhuna", justify=False, space_after=0)
+    add_body(doc, "Galle, Sri Lanka", justify=False)
+    add_body(doc, "Dear Chairperson,", justify=False)
     add_body(
         doc,
-        "This letter is a draft for Dr Gayani Punchihewa to accept, amend or decline. It is not "
-        "her consent, and it does not say that she has read or approved the proposal.",
+        "I have been asked to supervise the study entitled “" + TITLE + "”. I have not signed "
+        "this letter. My signature below, if I add it, will mean that I am willing to supervise "
+        "J.G.D. Thamalka and D.V.W. Gunawardana, medical student researchers of the Faculty of "
+        "Medicine, University of Ruhuna.",
     )
     add_body(
         doc,
-        "If she agrees to supervise, the letter she signs would need to say that she is willing "
-        "to supervise J.G.D. Thamalka and D.V.W. Gunawardana, medical student researchers of the "
-        "Faculty of Medicine, University of Ruhuna, in the study entitled “" + TITLE + "”, and "
-        "that Yasas Pasindu Fernando will take part as a researcher and as the technical "
-        "collaborator who developed the application. The students would be responsible for "
-        "explaining the study, taking consent, and completing the session forms. The technical "
-        "collaborator would be responsible for the version of the application used in the sitting "
+        "The students would explain the study, take consent, and complete the session forms. "
+        "Yasas Pasindu Fernando would take part as a researcher and as the technical collaborator "
+        "who developed the application. He would be responsible for the version used in the sitting "
         "and for dealing with faults. He would not take consent.",
     )
     add_body(
         doc,
-        "Before the letter is signed, the team needs her decision on four points: who will be "
-        "named as the applicant; whether the project is a requirement of the undergraduate "
-        "curriculum; what sample size she will accept; and whether PRAGATHI Child Intervention "
-        "Centre is an appropriate and available site. The Faculty staff page lists her as "
-        "Dr Gayani D. Punchihewa, MBBS, MD Psych, Senior Lecturer and Psychiatrist. This draft "
-        "uses only that public description. It does not add posts, training certificates, or "
-        "clinical duties she has not confirmed.",
+        "Four points still need my decision before I sign: who will be named as the applicant; "
+        "whether the project is a requirement of the undergraduate curriculum; what sample size I "
+        "will accept; and whether PRAGATHI Child Intervention Centre is an appropriate and available "
+        "site. The Faculty staff page lists me as Dr Gayani D. Punchihewa, MBBS, MD Psych, Senior "
+        "Lecturer and Psychiatrist. The wording “Senior Lecturer in Psychiatry” on this letter "
+        "should be confirmed against that page before signature.",
     )
-    add_body(doc, "Signature of supervisor: ___________________________")
-    add_body(doc, "Name: Dr Gayani Punchihewa")
-    add_body(doc, "Date: ______________")
-    add_body(
-        doc,
-        "The signature line is blank. Nothing on this page should be read as an endorsement already given.",
-        italic=True,
-    )
-    save_doc(doc, output_path, "Supervisor letter draft")
+    add_body(doc, "Signature: ___________________________", justify=False)
+    add_body(doc, "Name: Dr Gayani Punchihewa", justify=False)
+    add_body(doc, "Date: ______________", justify=False)
+    save_doc(doc, output_path, "Supervisor letter")
     return output_path
 
 
@@ -151,18 +156,36 @@ def build_cv(output_path):
         "for the person concerned to complete. Nothing here is a claim of research-ethics training.",
         italic=True,
     )
-    add_heading(doc, "A. J.G.D. Thamalka", 2)
-    add_body(doc, "Role in this study: medical student researcher, Faculty of Medicine, University of Ruhuna.")
+    add_heading(doc, "A. Dr Gayani Punchihewa, proposed supervisor", 2)
+    add_body(
+        doc,
+        "Faculty of Medicine staff page, Department of Psychiatry, read on 6 November 2026: "
+        "Dr Gayani D. Punchihewa, MBBS, MD Psych, Senior Lecturer and Psychiatrist. Special "
+        "interests stated there: general adult psychiatry and maternal mental health. The cover "
+        "letter also uses “Senior Lecturer in Psychiatry”, which she should confirm.",
+    )
+    add_body(
+        doc,
+        "The departmental services page lists her as the consultant in charge of the maternal "
+        "mental health clinic at Teaching Hospital Mahamodara and the adult psychiatry clinic at "
+        "Teaching Hospital Karapitiya. The child and adolescent clinic on that page is listed "
+        "under another consultant. This summary does not call her Head of Department, because the "
+        "staff page names Dr S.A.C. Senadheera as Head, while another Faculty page has used a "
+        "different description.",
+    )
+    add_body(doc, "Ethics training certificates: none have been placed in this file.")
+    add_heading(doc, "B. J.G.D. Thamalka", 2)
+    add_body(doc, "Role in this study: medical student researcher, Faculty of Medicine, University of Ruhuna. Leads the clinical planning with D.V.W. Gunawardana.")
     add_body(doc, "The project note gives the same person as Thamalka D. J. G. The order of the name should be confirmed before the form is signed.")
     add_body(doc, "Student registration number: to be entered by the student.")
-    add_body(doc, "Qualifications, posts and previous research: not supplied. Not invented in this draft.")
+    add_body(doc, "Qualifications, posts and previous research: to be entered by the student.")
     add_body(doc, "Research ethics or methods certificates: none supplied.")
-    add_heading(doc, "B. D.V.W. Gunawardana", 2)
-    add_body(doc, "Role in this study: medical student researcher, Faculty of Medicine, University of Ruhuna.")
+    add_heading(doc, "C. D.V.W. Gunawardana", 2)
+    add_body(doc, "Role in this study: medical student researcher, Faculty of Medicine, University of Ruhuna. Leads the clinical planning with J.G.D. Thamalka.")
     add_body(doc, "Student registration number: to be entered by the student.")
-    add_body(doc, "Qualifications, posts and previous research: not supplied. Not invented in this draft.")
+    add_body(doc, "Qualifications, posts and previous research: to be entered by the student.")
     add_body(doc, "Research ethics or methods certificates: none supplied.")
-    add_heading(doc, "C. Yasas Pasindu Fernando", 2)
+    add_heading(doc, "D. Yasas Pasindu Fernando", 2)
     add_body(
         doc,
         "Role in this study: researcher, technical research collaborator and developer of the "
@@ -174,25 +197,8 @@ def build_cv(output_path):
         "Those degrees are his education. Kingston University and London Metropolitan University "
         "are not sponsors or sites of this study, and the study is not his dissertation.",
     )
-    add_body(doc, "Other posts, publications and training certificates: not supplied. Not invented in this draft.")
-    add_body(doc, "If the form requires initials, the legal name must be confirmed. Initials are not guessed here.")
-    add_heading(doc, "D. Dr Gayani Punchihewa — public summary, not a curriculum vitae she has supplied", 2)
-    add_body(
-        doc,
-        "Faculty of Medicine staff page, Department of Psychiatry, read on 6 November 2026: "
-        "Dr Gayani D. Punchihewa, MBBS, MD Psych, Senior Lecturer and Psychiatrist. Special "
-        "interests stated there: general adult psychiatry and maternal mental health.",
-    )
-    add_body(
-        doc,
-        "The departmental services page lists her as the consultant in charge of the maternal "
-        "mental health clinic at Teaching Hospital Mahamodara and the adult psychiatry clinic at "
-        "Teaching Hospital Karapitiya. The child and adolescent clinic on that page is listed "
-        "under another consultant. This summary does not call her Head of Department, because the "
-        "staff page names Dr S.A.C. Senadheera as Head, while another Faculty page has used a "
-        "different description. She should confirm her designation before the letter is signed.",
-    )
-    add_body(doc, "Ethics training certificates: none have been placed in this file. Completion is not claimed.")
+    add_body(doc, "Other posts, publications and training certificates: to be entered by him if the form requires them.")
+    add_body(doc, "If the form requires initials, the legal name must be confirmed before they are entered.")
     save_doc(doc, output_path, "Curriculum vitae notes")
     return output_path
 
@@ -210,10 +216,10 @@ def build_training_status(output_path):
         doc,
         ["Person", "Certificate in this file"],
         [
+            ["Dr Gayani Punchihewa", "None supplied"],
             ["J.G.D. Thamalka", "None supplied"],
             ["D.V.W. Gunawardana", "None supplied"],
             ["Yasas Pasindu Fernando", "None supplied"],
-            ["Dr Gayani Punchihewa", "None supplied"],
         ],
     )
     add_body(

@@ -65,9 +65,8 @@ def corresponding_contact_text(output_path):
         )
     return (
         f"Telephone: {contacts['phone']}. Email: {contacts['email']}. "
-        "The research team supplied these as the corresponding applicant details and asked "
-        "that they be associated with J.G.D. Thamalka. They are not confirmation that this "
-        "person has been appointed principal investigator."
+        "The team asked that these be linked with J.G.D. Thamalka. "
+        "This does not appoint that person as principal investigator."
     )
 
 
@@ -395,7 +394,6 @@ def add_plain_table(doc, headers, rows, col_widths=None):
         for row in table.rows:
             for index, width in enumerate(col_widths):
                 row.cells[index].width = Cm(width)
-    doc.add_paragraph().paragraph_format.space_after = Pt(4)
     return table
 
 

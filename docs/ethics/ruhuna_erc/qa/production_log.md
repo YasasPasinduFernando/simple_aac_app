@@ -29,7 +29,7 @@ Draft date used in the headers: 06 November 2026. Version 01.
 - 5.7 Data analysis plan: 9
 - 5.8 Data collection procedure: 9
 - 5.9 Administrative requirements: 10
-- 5.10 Ethical consideration: 10
+- 5.10 Ethical consideration: 11
 - 6. References: 12
 - 7. Management matter: 12
 - 8. Annexures: 14

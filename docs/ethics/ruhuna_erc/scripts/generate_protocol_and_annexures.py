@@ -78,24 +78,26 @@ def _team_block(doc, anonymous):
             space_after=8,
         )
         return
-    add_body(doc, "Investigators named by the research team", bold=True, center=True, space_after=4)
+    add_body(doc, "Proposed supervisor", bold=True, center=True, space_after=2)
     add_body(
         doc,
-        "J.G.D. Thamalka and D.V.W. Gunawardana, medical student researchers, Faculty of Medicine, "
-        "University of Ruhuna. They lead the clinical planning of this proposal and the ethics application.",
-        space_after=4,
+        "Dr Gayani Punchihewa, Senior Lecturer in Psychiatry, Department of Psychiatry, Faculty of "
+        "Medicine, University of Ruhuna. She has not signed. She is not entered as the principal "
+        "investigator. The applicant has not yet been confirmed.",
+        space_after=6,
     )
+    add_body(doc, "Medical student researchers", bold=True, center=True, space_after=2)
     add_body(
         doc,
-        "Yasas Pasindu Fernando, researcher, technical research collaborator and developer of the "
-        "communication application. He is not the sole research leader and is not entered as the "
-        "principal investigator.",
-        space_after=4,
+        "J.G.D. Thamalka and D.V.W. Gunawardana, Faculty of Medicine, University of Ruhuna. They "
+        "lead the clinical planning of this proposal and the ethics application.",
+        space_after=6,
     )
+    add_body(doc, "Researcher and technical collaborator", bold=True, center=True, space_after=2)
     add_body(
         doc,
-        "Supervisor: Dr Gayani Punchihewa. Her consent and signature have not yet been given. "
-        "The person who will sign as the applicant has not yet been confirmed.",
+        "Yasas Pasindu Fernando, developer of the communication application. He is not the principal "
+        "investigator, and this study is not his degree dissertation.",
         space_after=6,
     )
 
@@ -356,7 +358,8 @@ def add_methods(doc, anonymous):
     add_body(
         doc,
         "The sample is the children and caregivers who meet the criteria below and whose parents "
-        "agree to take part during the study window. The window has no calendar dates yet.",
+        "agree to take part. The recruitment period will be agreed with the centre and the "
+        "supervisor before any family is invited.",
     )
     add_heading(doc, "Inclusion criteria", 2)
     add_bullet(doc, "The child attends the proposed centre.")
@@ -382,11 +385,14 @@ def add_methods(doc, anonymous):
     )
     add_body(
         doc,
-        "No sample size is stated. A calculation has not been done, because the team has not agreed "
-        "a main numerical outcome, an expected proportion, or how many eligible children attend the "
-        "centre. A number will not be entered until the supervisor has agreed the basis for it. "
-        "Until that revision is made, and until ethics approval and site permission are in place, "
-        "no family will be recruited.",
+        "The number of children is not yet entered. This is a descriptive study of one sitting. It "
+        "does not compare groups, and it does not test whether communication improves, so a power "
+        "calculation for a difference between groups is not the calculation required. The number "
+        "still has to be set by the supervisor. It depends on how many eligible children attend the "
+        "centre, and on what proportion she is prepared to use for the main observations: a picture "
+        "selected, the categories opened, and the caregiver’s answers. Those figures have not been "
+        "supplied. Until she writes the number into this section, this proposal is not ready for "
+        "submission, and no family will be recruited.",
     )
     add_heading(doc, "5.6 Data collection tools", 2)
     add_body(

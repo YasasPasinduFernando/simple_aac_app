@@ -170,4 +170,12 @@ This log records every staged, committed, and pushed milestone for the Universit
 - **Commit**: `4193c35` on `feature/modern-ui-offline-smart-images`. Private PDFs were not committed.
 - **Push**: `bd374a8..4e4752d` to `origin/feature/modern-ui-offline-smart-images` succeeded. The log commit is `4e4752d`.
 
+## Voice-note corrections, 6 November 2026
+
+- Cover letter: the students are the senders. Dr Gayani Punchihewa appears in a Through block above the Chairperson, with the designation requested for review. She is not addressed as the Chairperson.
+- Team order: supervisor, then the two medical student researchers, then the technical collaborator. The applicant is still unconfirmed.
+- Sample size left unset. Section 5.5 explains why a between-group power calculation does not fit, and the QA report marks the missing number as a blocker.
+- Editable Word files are copied to `.local_erc_private/review_word/`, with `MANIFEST.md`. They are not committed.
+- Named package 44 pages. Anonymous proposal 17 pages. No identity leak in the anonymous file.
+
 *(Further milestones logged upon completion)*
