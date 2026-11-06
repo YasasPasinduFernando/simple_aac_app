@@ -91,7 +91,7 @@ def populate_application_form(template_path, output_path):
     _replace_starting(
         doc,
         "Name of Applicant:",
-        "Name of Applicant: To be confirmed with Dr Gayani Punchihewa. Yasas Pasindu Fernando is not the applicant.",
+        "Name of Applicant: To be confirmed with Dr Gayani Punchihewa. E.K.Y.P. Fernando is not the applicant.",
     )
     _replace_starting(doc, "1. Title of Research Project:", "1. Title of Research Project: " + TITLE)
 
@@ -101,7 +101,7 @@ def populate_application_form(template_path, output_path):
         applicant.cell(0, 1),
         "Name: Pending confirmation. The applicant will be one of J.G.D. Thamalka, "
         "D.V.W. Gunawardana, or, if the Faculty requires a staff applicant, Dr Gayani Punchihewa. "
-        "Yasas Pasindu Fernando is not entered in this box.",
+        "E.K.Y.P. Fernando is not entered in this box.",
     )
     _set_cell(
         applicant.cell(1, 0),
@@ -196,7 +196,7 @@ def populate_application_form(template_path, output_path):
 
     third = doc.tables[6]
     _set_cell(third.cell(0, 0), "Title: To be confirmed")
-    _set_cell(third.cell(0, 1), "Name: Yasas Pasindu Fernando")
+    _set_cell(third.cell(0, 1), "Name: E.K.Y.P. Fernando")
     _set_cell(
         third.cell(1, 0),
         "Role: Researcher, technical research collaborator and developer of the application. "
@@ -444,7 +444,7 @@ def populate_application_form(template_path, output_path):
         "They will be shown by the supervisor how to explain the study and how to stop a sitting before anyone is invited.\n"
         "Dr Gayani Punchihewa is proposed as supervisor. Her public appointment is summarised in the curriculum-vitae note. "
         "This form does not invent a list of her research.\n"
-        "Yasas Pasindu Fernando developed the application. Other research experience has not been supplied. "
+        "E.K.Y.P. Fernando developed the application. Other research experience has not been supplied. "
         "He will not take consent.",
     )
     _replace_starting(
@@ -517,7 +517,7 @@ def populate_application_form(template_path, output_path):
     _replace_starting(
         doc,
         "18.3",
-        "18.3 Intellectually: Yasas Pasindu Fernando developed the application that the sitting will use. "
+        "18.3 Intellectually: E.K.Y.P. Fernando developed the application that the sitting will use. "
         "The students will complete the forms. The supervisor will review them. He will not take consent.",
     )
     _replace_starting(doc, "18.4", "18.4 Other: none identified.")
@@ -565,7 +565,7 @@ def populate_application_form(template_path, output_path):
             "",
         ),
         (
-            "Yasas Pasindu Fernando",
+            "E.K.Y.P. Fernando",
             "MSc Artificial Intelligence, Kingston University, ongoing; BEng (Hons) Software Engineering, London Metropolitan University, completed",
             "Researcher, technical research collaborator and developer of the application. Not the applicant.",
             "",

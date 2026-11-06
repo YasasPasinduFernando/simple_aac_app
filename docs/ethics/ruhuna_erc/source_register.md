@@ -1,6 +1,6 @@
 # Source register
 
-Corrected on 6 November 2026. Where this register still describes an older draft, `source_fact_matrix.md` prevails. In particular: no publishing partner is named in the ERC drafts; no sample size is stated; Yasas Pasindu Fernando is not given an unconfirmed legal expansion; and Dr Gayani Punchihewa is described only as Senior Lecturer and Psychiatrist (MBBS, MD Psych) from the Faculty staff page.
+Corrected on 6 November 2026. Where this register still describes an older draft, `source_fact_matrix.md` prevails. In particular: no publishing partner is named in the ERC drafts; no sample size is stated; the technical collaborator is named E.K.Y.P. Fernando, without expanding those initials; and Dr Gayani Punchihewa is described only as Senior Lecturer and Psychiatrist (MBBS, MD Psych) from the Faculty staff page.
 
 # Source Register: University of Ruhuna ERC Submission
 
@@ -16,7 +16,7 @@ This document registers all source files, templates, reference artifacts, and co
 | **P-2** | Platform B Repository Codebase (`simple_aac_app/`) | Application package ID (`lk.yasas.simpleaac`), Flutter framework, implemented features: visual card grid, category browsing, trilingual labels (Sinhala, Tamil, English), TTS voice output (`flutter_tts`), custom card image capture/picking, voice recording (`record`), offline zip backup/restore, offline-first network policy. | **Factual Codebase Truth.** All technical descriptions in the protocol reflect verified implementation. Confirms NO facial expression recognition (FER) model or camera emotion tracking is currently active in Platform B. |
 | **P-3** | `ANTIGRAVITY_CODEX_PLATFORM_B_AAC_ERC_MASTER_PROMPT.md` | Master instructions, repository workflow rules, staged git delivery protocol, privacy boundaries, document numbering, checklist requirements. | **Operational Directive.** Followed in full. |
 | **P-4** | Verified Academic Profile: Dr. Gayani Punchihewa | MBBS, MD (Psychiatry). Senior Lecturer in Psychiatry, Department of Psychiatry, Faculty of Medicine, University of Ruhuna; Consultant Psychiatrist, Teaching Hospital Karapitiya. | **Verified Research Supervisor.** Confirmed institutional staff eligibility under Ruhuna ERC Category I. |
-| **P-5** | Team instruction, 6 November 2026 | Yasas Pasindu Fernando. MSc Artificial Intelligence, Kingston University, ongoing; BEng (Hons) Software Engineering, London Metropolitan University, completed. No longer legal name and no initials were supplied. | Researcher, technical research collaborator and application developer. The universities are not sponsors. |
+| **P-5** | Team instruction, 6 November 2026 | E.K.Y.P. Fernando. MSc Artificial Intelligence, Kingston University, ongoing; BEng (Hons) Software Engineering, London Metropolitan University, completed. Initials confirmed for the forms; they are not expanded. | Researcher, technical research collaborator and application developer. The universities are not sponsors. |
 | **P-6** | Verified Profile: Ruhuna Medical Student Researchers | Thamalka D. J. G. and D. V. W. Gunawardana, Undergraduate Medical Students, Faculty of Medicine, University of Ruhuna. | **Primary Student Research Team.** Leading medical/clinical research components, participant interaction, and ethics submission under Dr. Gayani Punchihewa's supervision. |
 
 ---

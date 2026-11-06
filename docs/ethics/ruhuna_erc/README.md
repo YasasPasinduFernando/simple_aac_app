@@ -7,7 +7,7 @@ The study would ask whether children with communication difficulties and their c
 ## Investigators
 
 - **J.G.D. Thamalka** and **D.V.W. Gunawardana** — medical student researchers, Faculty of Medicine, University of Ruhuna. They lead the clinical planning and the ethics application.
-- **Yasas Pasindu Fernando** — researcher, technical research collaborator and developer of the application. He is not entered as the applicant.
+- **E.K.Y.P. Fernando** — researcher, technical research collaborator and developer of the application. He is not entered as the applicant.
 - **Dr Gayani Punchihewa** — proposed supervisor. She has not signed. The Faculty staff page lists her as Senior Lecturer and Psychiatrist (MBBS, MD Psych). She is not described here as Head of Department.
 
 The person who will sign as the applicant has **not** been confirmed. Telephone and email are kept in `.local_erc_private/investigator_contacts.json` and are printed only in the private named file.

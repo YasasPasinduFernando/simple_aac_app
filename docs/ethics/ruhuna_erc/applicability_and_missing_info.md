@@ -8,12 +8,12 @@ The study would be one supervised sitting with an existing picture-based communi
 
 | Item | What is missing | Who decides |
 | :--- | :--- | :--- |
-| Applicant | Which of J.G.D. Thamalka, D.V.W. Gunawardana, or Dr Gayani Punchihewa will sign as the applicant. Yasas Pasindu Fernando is not proposed for that line. | Supervisor and the two medical students. |
+| Applicant | Which of J.G.D. Thamalka, D.V.W. Gunawardana, or Dr Gayani Punchihewa will sign as the applicant. E.K.Y.P. Fernando is not proposed for that line. | Supervisor and the two medical students. |
 | Contact details | The telephone and email in the private file were supplied for J.G.D. Thamalka. They are not proof that this person is the applicant. | The person whose details they are, and the supervisor. |
 | Curriculum | Whether the project is required by the undergraduate curriculum. This decides the fee category. | The students and the department. |
 | Sample size | No number is stated, because no calculation has been agreed. | Supervisor, before submission. |
 | Name order | The project note says Thamalka D. J. G. The team asked for J.G.D. Thamalka. | The student. |
-| Legal name | Yasas Pasindu Fernando is the name used. Initials were not guessed. | Him, if the form requires initials. |
+| Name on the forms | E.K.Y.P. Fernando, written in the same way as J.G.D. Thamalka and D.V.W. Gunawardana. | Confirmed by him on 6 November 2026. The initials are not expanded. |
 | Supervisor’s designation | Staff page: Senior Lecturer and Psychiatrist, MBBS, MD Psych. Another Faculty page has listed her as Head, while the staff page names Dr S.A.C. Senadheera as Head. | Dr Punchihewa. |
 | Her consent | The supervisor letter is a draft for her to edit or decline. | Dr Punchihewa. |
 | Site | PRAGATHI Child Intervention Centre has not given permission. No hospital clinic is included. | The centre, in writing. |

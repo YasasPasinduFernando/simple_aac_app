@@ -67,7 +67,7 @@ def build_cover_letter(output_path):
         "The proposed supervisor is Dr Gayani Punchihewa, Senior Lecturer in Psychiatry, "
         "Department of Psychiatry, Faculty of Medicine, University of Ruhuna. She is not the "
         "Chairperson, and she has not signed. The medical student researchers, J.G.D. Thamalka "
-        "and D.V.W. Gunawardana, lead the clinical planning of this application. Yasas Pasindu "
+        "and D.V.W. Gunawardana, lead the clinical planning of this application. E.K.Y.P. "
         "Fernando is a researcher, technical collaborator and the developer of the application. "
         "He is not proposed as the principal investigator.",
         **letter,
@@ -95,7 +95,7 @@ def build_cover_letter(output_path):
             ["Dr Gayani Punchihewa, supervisor", "", ""],
             ["J.G.D. Thamalka", "", ""],
             ["D.V.W. Gunawardana", "", ""],
-            ["Yasas Pasindu Fernando", "", ""],
+            ["E.K.Y.P. Fernando", "", ""],
         ],
     )
     save_doc(doc, output_path, "Cover letter")
@@ -125,7 +125,7 @@ def build_supervisor_letter(output_path):
     add_body(
         doc,
         "The students would explain the study, take consent, and complete the session forms. "
-        "Yasas Pasindu Fernando would take part as a researcher and as the technical collaborator "
+        "E.K.Y.P. Fernando would take part as a researcher and as the technical collaborator "
         "who developed the application. He would be responsible for the version used in the sitting "
         "and for dealing with faults. He would not take consent.",
     )
@@ -185,7 +185,7 @@ def build_cv(output_path):
     add_body(doc, "Student registration number: to be entered by the student.")
     add_body(doc, "Qualifications, posts and previous research: to be entered by the student.")
     add_body(doc, "Research ethics or methods certificates: none supplied.")
-    add_heading(doc, "D. Yasas Pasindu Fernando", 2)
+    add_heading(doc, "D. E.K.Y.P. Fernando", 2)
     add_body(
         doc,
         "Role in this study: researcher, technical research collaborator and developer of the "
@@ -219,7 +219,7 @@ def build_training_status(output_path):
             ["Dr Gayani Punchihewa", "None supplied"],
             ["J.G.D. Thamalka", "None supplied"],
             ["D.V.W. Gunawardana", "None supplied"],
-            ["Yasas Pasindu Fernando", "None supplied"],
+            ["E.K.Y.P. Fernando", "None supplied"],
         ],
     )
     add_body(

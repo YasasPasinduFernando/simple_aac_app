@@ -96,7 +96,7 @@ def _team_block(doc, anonymous):
     add_body(doc, "Researcher and technical collaborator", bold=True, center=True, space_after=2)
     add_body(
         doc,
-        "Yasas Pasindu Fernando, developer of the communication application. He is not the principal "
+        "E.K.Y.P. Fernando, developer of the communication application. He is not the principal "
         "investigator, and this study is not his degree dissertation.",
         space_after=6,
     )
@@ -816,7 +816,7 @@ def add_annex_letters(doc, anonymous):
         add_body(
             doc,
             "From J.G.D. Thamalka and D.V.W. Gunawardana, medical student researchers, with "
-            "Yasas Pasindu Fernando as technical research collaborator, under the proposed "
+            "E.K.Y.P. Fernando as technical research collaborator, under the proposed "
             "supervision of Dr Gayani Punchihewa.",
         )
         add_body(doc, "Signature: ____________________    Date: ____________", justify=False)

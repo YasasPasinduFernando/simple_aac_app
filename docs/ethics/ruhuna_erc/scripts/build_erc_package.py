@@ -295,7 +295,7 @@ def main():
             "## Required before this package can be treated as complete",
             "",
             "1. Sample size. Dr Gayani Punchihewa must set the number of children. No number has been entered. A power calculation for a difference between groups does not fit this one-sitting descriptive study. The number depends on how many eligible children attend the centre and on the proportion she will accept for the main observations.",
-            "2. The person who will sign as the applicant. This has not been confirmed. Yasas Pasindu Fernando is not the applicant.",
+            "2. The person who will sign as the applicant. This has not been confirmed. E.K.Y.P. Fernando is not the applicant.",
             "3. The supervisor’s signature. The Faculty staff page lists her as Senior Lecturer and Psychiatrist. The cover letter uses Senior Lecturer in Psychiatry, which she should confirm.",
             "4. Whether the study is required by the undergraduate curriculum, and which fee applies.",
             "5. Written permission from PRAGATHI Child Intervention Centre.",
