@@ -228,10 +228,9 @@ def main():
         "Ideahub",
         "E.K.Y.P",
     ]
-    if contacts.get("phone"):
-        forbidden.append(contacts["phone"])
-    if contacts.get("email"):
-        forbidden.append(contacts["email"])
+    for key in ("phone", "email", "fernando_phone", "fernando_email"):
+        if contacts.get(key):
+            forbidden.append(contacts[key])
     body, meta = text_of_pdf(anonymous)
     leaks = []
     haystack = (body + "\n" + meta).lower()

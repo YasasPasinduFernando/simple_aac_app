@@ -67,6 +67,24 @@ def _mark(table, row_index, yes, note):
     no_cell.text = "" if yes else "No"
 
 
+def _fernando_contact_pair(output_path):
+    """Phone and email for E.K.Y.P. Fernando, only where co-investigators have those fields."""
+    if not is_private_output(output_path):
+        return (
+            "Omitted from this tracked draft.",
+            "Omitted from this tracked draft.",
+        )
+    contacts = load_private_contacts() or {}
+    phone = contacts.get("fernando_phone", "")
+    email = contacts.get("fernando_email", "")
+    if not phone or not email:
+        return (
+            "To be entered if the committee requires it.",
+            "To be entered if the committee requires it.",
+        )
+    return (phone, email)
+
+
 def _contact_pair(output_path):
     if not is_private_output(output_path):
         return (
@@ -209,8 +227,9 @@ def populate_application_form(template_path, output_path):
         "BEng (Hons) Software Engineering, London Metropolitan University, completed.",
     )
     _set_cell(third.cell(3, 0), "Mailing address: To be entered if the committee requires it.")
-    _set_cell(third.cell(4, 0), "Phone: To be entered if the committee requires it.")
-    _set_cell(third.cell(4, 2), "e-mail: To be entered if the committee requires it.")
+    fernando_phone, fernando_email = _fernando_contact_pair(output_path)
+    _set_cell(third.cell(4, 0), "Phone: " + fernando_phone)
+    _set_cell(third.cell(4, 2), "e-mail: " + fernando_email)
 
     _replace_starting(
         doc,

@@ -43,7 +43,12 @@ def load_private_contacts():
     email = str(data.get("email", "")).strip()
     if not phone or not email:
         return None
-    return {"phone": phone, "email": email}
+    contacts = {"phone": phone, "email": email}
+    for key in ("fernando_phone", "fernando_email"):
+        value = str(data.get(key, "")).strip()
+        if value:
+            contacts[key] = value
+    return contacts
 
 
 def is_private_output(path):
