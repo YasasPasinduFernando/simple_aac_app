@@ -1,42 +1,35 @@
-# Quality Assurance & Verification Report: Ruhuna ERC Documentation
+# Review of the 6 November 2026 draft
 
-**Date of Audit**: November 2026  
-**Auditor**: Senior Research Ethics & Document Specialist  
-**Package Status**: **REVIEWED DRAFT — READY FOR SUPERVISOR REVIEW**
+This is a check of the rebuilt files. It is not a statement that the Ethics Review Committee has accepted them.
 
----
+## Layout
 
-## 1. Compliance with Official University of Ruhuna ERC Requirements
+- Proposal pages are A4. Header: Version 01 at the left, 06 November 2026 at the right. Page number at the foot.
+- Title page, contents with dotted leaders, and numbered sections follow the shape of the Faculty example that was used only for layout.
+- The official application form remains US Letter, which is the size of the blank downloaded on 6 November 2026. Changing it to A4 would have reflowed the Faculty tables. The named PDF therefore contains both sizes.
+- The cover letter and the supervisor letter are one page each. Signature cells are empty.
+- No coloured panels were used in the proposal.
 
-| Rule / Requirement | Verification Outcome | Detail & Evidence |
-| :--- | :--- | :--- |
-| **Official Proposal Format Adherence** | **PASSED** | Structured strictly according to Ruhuna `Format_of_Research_Proposal.docx`: Title, Introduction & Justification (1000–3000w), Literature Review (1000–3000w), Objectives, Methodology (5.1–5.8), Referencing (<50 references), Gantt chart, Budget. Generated: `protocol/04_AAC_ERC_Research_Protocol_DRAFT.docx` (9 pages). |
-| **Official Application Form Authenticity** | **PASSED** | Built directly from a fresh blank copy of `Application for Human Research.docx` (Annexure UOR/03-001) retrieved from `medi.ruh.ac.lk/ethics`. Preserves all tables, declaration cages, checkboxes, and section sequencing. Generated: `forms/02_Human_Research_Application_DRAFT.docx` (26 pages). |
-| **No Blanks in Application** | **PASSED** | Every cage is completed. Inapplicable sections (e.g. animal research, ionizing radiation, clinical trial SCOCT approvals, biological sample storage) are explicitly filled with "Not applicable" rather than left blank. |
-| **Mandatory Headers and Footers** | **PASSED** | All documents specify the version number (`Version 1.0 (DRAFT)`) and date in the header, and page numbers in the footer, per Ruhuna ERC formatting rules. |
-| **Submission Structure (Hard & Soft Copies)** | **PASSED** | Hard copies accommodate Items 1 to 8 (including dedicated cover sheets/placeholders: `forms/13_Training_Certificates_PI_Supervisor_DRAFT.docx`, `forms/14_Animal_Handling_Statement_DRAFT.docx`, and `forms/15_Fee_Payment_Receipt_Placeholder_DRAFT.docx`). Soft copies accommodate exactly TWO files: `01_Complete_ERC_Application.pdf` (71 pages, 1.24 MB) and `02_Anonymous_Research_Proposal.pdf` (24 pages, 0.55 MB). |
-| **Strict Proposal Anonymization** | **PASSED (0 LEAKS)** | In Soft Copy 2, all investigator names, supervisor names, co-investigator names, personal emails, student numbers, foreign universities, and package ID identifiers are systematically excluded/redacted. Automated string scanning confirmed 0 leaks across 24 pages. |
-| **ERC Chairperson Neutralization** | **PASSED (GENERIC ADDRESSEE)** | All formal correspondence (`01_Cover_Letter_DRAFT.docx`, `03_Supervisor_Letter_DRAFT.docx`, and `14_Animal_Handling_Statement_DRAFT.docx`) is addressed neutrally to "The Chairperson, Ethics Review Committee, Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle, Sri Lanka" without hardcoding an individual's personal name, preventing obsolescence or discrepancies. |
-| **ERC Fee Category Reconciliation** | **PASSED (CONDITIONAL CLASSIFICATION)** | Aligned with official Ruhuna ERC fee schedule (`instructions.html`). Updated from assumed Category I (LKR 3,000) to "PENDING PI DESIGNATION AND ERC CONFIRMATION" (Category I: LKR 3,000 if academic staff PI; Category III: No fee if undergraduate medical student curriculum PI). Documented in cover letter, fee receipt placeholder, checklist, and budget. |
+## Length
 
----
+Approximate word counts in the anonymous proposal, excluding the contents page: introduction 385, justification 291, literature review 530, methodology about 2,000 including the annexes’ methods text that sits before the references. The Faculty format guide suggests 1,000 to 3,000 words for the introduction and for the literature review. This draft is shorter on purpose. The supervisor may ask for a longer review. It was not padded.
 
-## 2. Integrity and Fact-Checking Safeguards
+The named electronic file is 41 pages. The anonymous proposal is 14 pages. The previous package was about 71 and 24 pages. Certificates, a fee sheet, a separate data-management essay, and repeated annex covers are no longer inside the electronic files.
 
-| Risk Area | Verification Check | Safeguard Implemented |
-| :--- | :--- | :--- |
-| **Research Leadership & Ownership** | **PASSED (STUDENT LED)** | Corrected throughout all documents: the research is led by undergraduate medical students **Ms. Thamalka D. J. G.** and **D. V. W. Gunawardana** (Faculty of Medicine, University of Ruhuna), supervised by **Dr. Gayani Punchihewa**. E.K.Y.P. Fernando is properly designated as **Technical Research Collaborator & AAC Application Developer**. |
-| **Principal Investigator Designation** | **PASSED (NOT AUTO-ASSIGNED)** | E.K.Y.P. Fernando is NOT assigned as Principal Investigator. The PI slot is formally marked as `[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED: Lead Medical Student Researcher / Academic Supervisor]` pending formal team/departmental appointment. |
-| **Separation from Kingston MSc AI Dissertation** | **PASSED (CLEAN SEPARATION)** | Fully verified: this project is NOT an MSc AI dissertation for Kingston University or London Metropolitan University. Those institutions are cited strictly as academic qualifications of E.K.Y.P. Fernando. |
-| **Contamination from Colorectal Surgery Reference** | **PASSED (ZERO LEAKAGE)** | Rigorously scanned for any mention of colorectal surgery, anterior resection, intravenous albumin, adult cancer, or surgical ward data from `final.pdf`. All content is 100% specific to pediatric AAC and neurodevelopmental communication support. |
-| **Conflation with MSc FER Research** | **PASSED (CLEAN SEPARATION)** | Checked against CREMA-D dataset claims, few-shot personalization models, or claims of computer vision emotion detection in the current app. The protocol clearly specifies that Platform B is an offline-first AAC app using picture cards and speech synthesis, with no biometric facial tracking. |
-| **Participant Data and Privacy** | **PASSED (NO PRIVATE DATA IN GIT)** | No real child data, participant identities, personal contact phone numbers, or residential addresses are committed. Real personal contact info and wet-ink signatures are isolated in `.local_erc_private/`. Personal emails sanitized to placeholders in tracked files. |
-| **Non-Fabrication of Approvals & Signatures** | **PASSED** | No digital signature forgery or manufactured approval letters. All signature cages are designated for genuine physical wet-ink execution by the authorized parties. |
+## Identity
 
----
+- The anonymous PDF was searched for investigator names, the universities of the technical collaborator’s degrees, and the telephone and email. No match.
+- Those contact details appear in the private named PDF only.
+- The tracked Word drafts do not contain the telephone number or the email address.
+- A publishing partner named in an older project note does not appear in the proposal, the application, the letters, or the private PDFs.
 
-## 3. Summary of Document Status Levels
+## Science
 
-- **DRAFT**: All working documents are explicitly labeled `DRAFT — FOR SUPERVISOR REVIEW AND ERC SUBMISSION`.
-- **READY FOR SUPERVISOR REVIEW**: Document structure, academic literature, methodology, data protection plans, and consent protocols are mature, rigorous, and ready for internal sign-off by the academic and clinical team.
-- **READY FOR ERC SUBMISSION**: Pending wet-ink signatures, supervisor consent letter execution, institutional permission letters, ethics training certificates, and fee payment receipt.
+- No sample size is stated.
+- No result, consent, or completed sitting is claimed.
+- The developer’s role in the application is declared as an interest. It is not described as a commercial sponsor.
+- Five references are used. They were checked against published bibliographic records on 6 November 2026. No Sri Lankan prevalence figure is quoted.
+
+## Not ready to send
+
+Signatures, site permission, Sinhala and Tamil forms, a sample-size justification, training certificates, the applicant’s name, and the fee receipt are outstanding. See `applicability_and_missing_info.md`.

@@ -148,4 +148,14 @@ This log records every staged, committed, and pushed milestone for the Universit
 
 ---
 
+## Revision of 6 November 2026
+
+- Rewrote the proposal in shorter academic prose and the Faculty example’s layout: Version 01, 06 November 2026, page numbers, A4.
+- Left the applicant unconfirmed. Did not assign that role to the technical collaborator.
+- Removed the publishing partner named in an older project note from the generated drafts.
+- Stated no sample size.
+- Stopped tracking named Word drafts. Telephone and email remain in `.local_erc_private/` only.
+- Anonymous proposal kept trackable. Private PDFs are not committed.
+- The commit hash for this revision is added in the following log entry after the commit is created.
+
 *(Further milestones logged upon completion)*

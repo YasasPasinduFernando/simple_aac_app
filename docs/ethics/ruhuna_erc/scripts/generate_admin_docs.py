@@ -1,527 +1,311 @@
 #!/usr/bin/env python3
-"""
-Generates administrative documents for Ruhuna ERC:
-- forms/01_Cover_Letter_DRAFT.docx
-- forms/03_Supervisor_Letter_DRAFT.docx
-- forms/10_CV_Principal_Investigator_DRAFT.docx
-- qa/12_ERC_Submission_Checklist.docx
+"""Cover letter, supervisor draft, curriculum vitae notes, and status sheets.
+
+Training certificates, animal-handling letters and fee receipts are not invented.
+Those sheets say what is missing. They are not part of the electronic submission file.
 """
 
 import os
-from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+
 from docx_common import (
-    create_styled_document, setup_header_footer, add_draft_notice,
-    add_heading_1, add_heading_2, add_heading_3, add_body_paragraph,
-    add_bullet_point, format_table_headers_and_borders, PRIMARY_COLOR
+    add_body,
+    add_bullet,
+    add_heading,
+    add_plain_table,
+    corresponding_contact_text,
+    create_styled_document,
+    erc_root,
+    save_doc,
+    setup_header_footer,
 )
 
-def build_cover_letter(output_path):
+TITLE = (
+    "Usability and caregiver acceptability of an offline picture-based communication "
+    "application for children with communication difficulties in Galle"
+)
+
+
+def _doc(path):
     doc = create_styled_document()
-    setup_header_footer(doc, "Item 1: Cover Letter to ERC Chairperson")
-    add_draft_notice(doc, "DRAFT COVER LETTER — REQUIRES APPLICANT REVIEW & AUTHENTIC WET-INK SIGNATURES")
+    doc._output_path = path
+    setup_header_footer(doc)
+    return doc
 
-    # Date and Recipient Block
-    add_body_paragraph(doc, "Date: [PLACEHOLDER: Date of Submission, e.g., 28 November 2026]")
-    add_body_paragraph(doc, "The Chairperson,\n"
-                            "Ethics Review Committee,\n"
-                            "Faculty of Medicine, University of Ruhuna,\n"
-                            "P.O. Box 70, Galle, Sri Lanka.", bold_prefix="To:\n")
 
-    add_heading_2(doc, "SUBMISSION OF RESEARCH PROPOSAL FOR ETHICAL REVIEW: SL AAC MOBILE APPLICATION USABILITY AND FEASIBILITY EVALUATION")
+def build_cover_letter(output_path):
+    doc = _doc(output_path)
+    add_body(doc, "The Chairperson")
+    add_body(doc, "Ethics Review Committee", space_after=0)
+    add_body(doc, "Faculty of Medicine", space_after=0)
+    add_body(doc, "University of Ruhuna", space_after=0)
+    add_body(doc, "Galle, Sri Lanka")
+    add_body(doc, "Dear Chairperson,")
+    add_body(
+        doc,
+        "We submit a draft application for ethical review of the study entitled “"
+        + TITLE
+        + "”. The study would describe one supervised sitting with an existing picture-based "
+        "communication application. No participant has been recruited. The application has not "
+        "been shown to improve communication, and this draft does not claim that it has.",
+    )
+    add_body(
+        doc,
+        "The medical student researchers are J.G.D. Thamalka and D.V.W. Gunawardana, Faculty of "
+        "Medicine, University of Ruhuna. They lead the clinical planning and this application. "
+        "Yasas Pasindu Fernando is a researcher, technical research collaborator and the developer "
+        "of the application. He is not proposed as the sole principal investigator. "
+        "Dr Gayani Punchihewa is the proposed supervisor. She has not yet signed.",
+    )
+    add_body(
+        doc,
+        "The person who will sign as the applicant has not been confirmed with Dr Punchihewa. "
+        "Until that is agreed, all three investigators are named and the applicant line is left "
+        "open. " + corresponding_contact_text(output_path),
+    )
+    add_body(
+        doc,
+        "Hard-copy items that are not enclosed with this electronic file are the training "
+        "certificates (none have been supplied), the animal-handling letter (not applicable, "
+        "because the study involves no animals), and the fee receipt (the fee category cannot "
+        "be chosen until the applicant and the curriculum status are confirmed). Sinhala and "
+        "Tamil parent forms are still to be prepared. We ask the committee to treat this package "
+        "as a draft for review by the supervisor, not as a signed submission.",
+    )
+    add_body(doc, "Yours faithfully,")
+    add_plain_table(
+        doc,
+        ["Signatory", "Signature", "Date"],
+        [
+            ["Applicant (name to be confirmed)", "", ""],
+            ["J.G.D. Thamalka", "", ""],
+            ["D.V.W. Gunawardana", "", ""],
+            ["Yasas Pasindu Fernando", "", ""],
+            ["Dr Gayani Punchihewa, supervisor", "", ""],
+        ],
+    )
+    add_body(doc, "The signature cells are blank. No signature is represented by this draft.", italic=True, space_after=2)
+    save_doc(doc, output_path, "Cover letter draft")
+    return output_path
 
-    add_body_paragraph(doc, "Dear Chairperson,")
-
-    add_body_paragraph(doc, "We have the honour to submit herewith our research protocol titled "
-                            "\"SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation\" "
-                            "for the formal ethical review and approval of the Ethics Review Committee, Faculty of Medicine, University of Ruhuna.")
-
-    add_body_paragraph(doc, "Study Nature and Institutional Context:", bold_prefix="1. Institutional & Research Context: ")
-    add_body_paragraph(doc, "This research represents an undergraduate medical student research project conducted within the Faculty of Medicine, University of Ruhuna, "
-                            "in academic collaboration with the Department of Psychiatry and PRAGATHI – Child Intervention Centre, Galle. "
-                            "The research is led by undergraduate medical student researchers Thamalka D. J. G. and D. V. W. Gunawardana, under the academic supervision of "
-                            "Dr. Gayani Punchihewa (Senior Lecturer in Psychiatry, Faculty of Medicine, University of Ruhuna; Consultant Psychiatrist, Teaching Hospital Karapitiya). "
-                            "Specialist software engineering and technical research collaboration is provided by Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando), who has engineered the "
-                            "offline-first Pragathi AAC mobile application and contributes to technical evaluation methodology. "
-                            "The study prospectively evaluates the usability, clinical feasibility, and parental acceptance of this culturally and linguistically adapted (Sinhala, Tamil, English) "
-                            "assistive communication tool for children aged 2–12 years presenting with Autism Spectrum Disorder (ASD), ADHD, and developmental speech/language delays.")
-
-    add_body_paragraph(doc, "Research Leadership & Contributor Roles:", bold_prefix="2. Research Leadership & Contributor Roles: ")
-    add_body_paragraph(doc, "The clinical and human research components are led by University of Ruhuna medical students Thamalka D. J. G. and D. V. W. Gunawardana. "
-                            "In accordance with Faculty of Medicine ERC procedures for undergraduate student research, the formal Principal Investigator designation is subject to confirmation "
-                            "by the research team and academic department ([PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED: Lead Medical Student Researcher / Academic Supervisor]). "
-                            "Mr. E.K.Y.P. Fernando serves as Technical Research Collaborator & AAC Application Developer. His academic qualifications "
-                            "(MSc AI candidate, Kingston University; BEng Hons, London Metropolitan University) provide relevant technical background; his studies do NOT constitute institutional "
-                            "sponsorship, awarding body, or thesis oversight for this independent Ruhuna medical research project.")
-
-    add_body_paragraph(doc, "Ethical Standards and Child Safeguarding:", bold_prefix="3. Ethical Standards & Safeguards: ")
-    add_body_paragraph(doc, "Given that participants are young children with neurodevelopmental and communication vulnerabilities, the protocol has been formulated in strict accordance with the Declaration of Helsinki, CIOMS guidelines, and the University of Ruhuna ERC Standard Operating Procedures. "
-                            "Key safeguards include written parental proxy informed consent, developmentally adapted ongoing child assent, an immediate cessation rule upon any indication of child fatigue or distress, and privacy-by-design architecture (fully offline local device storage with zero cloud transmission or third-party analytics).")
-
-    add_body_paragraph(doc, "Documentation Dossier:", bold_prefix="4. Submission Dossier: ")
-    add_body_paragraph(doc, "In full compliance with the submission checklist of the Ethics Review Committee, the submission package comprises:")
-    add_bullet_point(doc, "01 original signed cover letter", bold_prefix="• ")
-    add_bullet_point(doc, "01 duly completed Application Form for Human Research (Annexure UOR/03-001)", bold_prefix="• ")
-    add_bullet_point(doc, "01 Letter of Consent and Academic Endorsement from Research Supervisor Dr. Gayani Punchihewa", bold_prefix="• ")
-    add_bullet_point(doc, "02 complete hard copies of the Detailed Research Proposal including all annexures", bold_prefix="• ")
-    add_bullet_point(doc, "01 Curriculum Vitae of the Principal Investigator [Formal Confirmation Required] and Technical Research Collaborator", bold_prefix="• ")
-    add_bullet_point(doc, "Certificates of training in Good Clinical Practice and Research Ethics (Item 6)", bold_prefix="• ")
-    add_bullet_point(doc, "Formal declaration regarding non-applicability of animal handling training (Item 7)", bold_prefix="• ")
-    add_bullet_point(doc, "Receipt of payment of the stipulated ERC processing fee (Status: Pending formal PI designation and ERC confirmation — Category I: LKR 3,000 if academic staff PI; Category III: No fee if undergraduate student curriculum PI)", bold_prefix="• ")
-    add_bullet_point(doc, "Two soft copies transmitted via email to ethics@med.ruh.ac.lk (Complete Application PDF and strictly Anonymized Research Proposal PDF)", bold_prefix="• ")
-
-    add_body_paragraph(doc, "We confirm that this study has not commenced, no human participants have been recruited, and no data collection will take place prior to obtaining formal ethical clearance and institutional administrative permissions.")
-
-    add_body_paragraph(doc, "Thank you for your consideration of our application. We look forward to receiving your valuable feedback and guidance.")
-
-    add_body_paragraph(doc, "Yours respectfully,")
-
-    # Signature Block for Research Team
-    t_sig = doc.add_table(rows=6, cols=2)
-    format_table_headers_and_borders(t_sig, col_widths=[3.2, 3.2])
-    t_sig.cell(0, 0).text = "Principal Investigator [Designation Pending Confirmation]"
-    t_sig.cell(0, 1).text = "Lead Medical Student Researcher"
-    t_sig.cell(1, 0).text = "_____________________________________\n" \
-                            "[FORMAL CONFIRMATION REQUIRED]\n" \
-                            "Lead Student Researcher / Supervisor\n" \
-                            "Faculty of Medicine, University of Ruhuna"
-    t_sig.cell(1, 1).text = "_____________________________________\n" \
-                            "Ms. Thamalka D. J. G.\n" \
-                            "Undergraduate Medical Student\n" \
-                            "Faculty of Medicine, University of Ruhuna"
-    
-    t_sig.cell(2, 0).text = "Medical Student Researcher"
-    t_sig.cell(2, 1).text = "Proposed Research Supervisor"
-    t_sig.cell(3, 0).text = "_____________________________________\n" \
-                            "D. V. W. Gunawardana\n" \
-                            "Undergraduate Medical Student\n" \
-                            "Faculty of Medicine, University of Ruhuna"
-    t_sig.cell(3, 1).text = "_____________________________________\n" \
-                            "Dr. Gayani Punchihewa (MBBS, MD Psych)\n" \
-                            "Senior Lecturer in Psychiatry / Consultant Psychiatrist\n" \
-                            "Faculty of Medicine, University of Ruhuna"
-
-    t_sig.cell(4, 0).text = "Technical Research Collaborator & AAC Developer"
-    t_sig.cell(4, 1).text = "Collaborating Centre Lead (PRAGATHI)"
-    t_sig.cell(5, 0).text = "_____________________________________\n" \
-                            "E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n" \
-                            "Technical Research Collaborator & AAC Application Developer\n" \
-                            "MSc AI (Kingston, ongoing), BEng Hons (London Met)"
-    t_sig.cell(5, 1).text = "_____________________________________\n" \
-                            "Director / Centre In-Charge\n" \
-                            "PRAGATHI – Child Intervention Centre, Galle"
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    doc.save(output_path)
-    print(f"Generated: {output_path}")
 
 def build_supervisor_letter(output_path):
-    doc = create_styled_document()
-    setup_header_footer(doc, "Item 3: Supervisor Consent Letter")
-    add_draft_notice(doc, "DRAFT SUPERVISOR CONSENT LETTER — REQUIRES REVIEW & WET-INK SIGNATURE BY DR. GAYANI PUNCHIHEWA")
+    doc = _doc(output_path)
+    add_body(doc, "The Chairperson")
+    add_body(doc, "Ethics Review Committee", space_after=0)
+    add_body(doc, "Faculty of Medicine", space_after=0)
+    add_body(doc, "University of Ruhuna", space_after=0)
+    add_body(doc, "Galle, Sri Lanka")
+    add_body(doc, "Dear Chairperson,")
+    add_body(
+        doc,
+        "This letter is a draft for Dr Gayani Punchihewa to accept, amend or decline. It is not "
+        "her consent, and it does not say that she has read or approved the proposal.",
+    )
+    add_body(
+        doc,
+        "If she agrees to supervise, the letter she signs would need to say that she is willing "
+        "to supervise J.G.D. Thamalka and D.V.W. Gunawardana, medical student researchers of the "
+        "Faculty of Medicine, University of Ruhuna, in the study entitled “" + TITLE + "”, and "
+        "that Yasas Pasindu Fernando will take part as a researcher and as the technical "
+        "collaborator who developed the application. The students would be responsible for "
+        "explaining the study, taking consent, and completing the session forms. The technical "
+        "collaborator would be responsible for the version of the application used in the sitting "
+        "and for dealing with faults. He would not take consent.",
+    )
+    add_body(
+        doc,
+        "Before the letter is signed, the team needs her decision on four points: who will be "
+        "named as the applicant; whether the project is a requirement of the undergraduate "
+        "curriculum; what sample size she will accept; and whether PRAGATHI Child Intervention "
+        "Centre is an appropriate and available site. The Faculty staff page lists her as "
+        "Dr Gayani D. Punchihewa, MBBS, MD Psych, Senior Lecturer and Psychiatrist. This draft "
+        "uses only that public description. It does not add posts, training certificates, or "
+        "clinical duties she has not confirmed.",
+    )
+    add_body(doc, "Signature of supervisor: ___________________________")
+    add_body(doc, "Name: Dr Gayani Punchihewa")
+    add_body(doc, "Date: ______________")
+    add_body(
+        doc,
+        "The signature line is blank. Nothing on this page should be read as an endorsement already given.",
+        italic=True,
+    )
+    save_doc(doc, output_path, "Supervisor letter draft")
+    return output_path
 
-    add_body_paragraph(doc, "Date: [PLACEHOLDER: Date, November 2026]")
-    add_body_paragraph(doc, "To:\n"
-                            "The Chairperson,\n"
-                            "Ethics Review Committee,\n"
-                            "Faculty of Medicine, University of Ruhuna,\n"
-                            "P.O. Box 70, Galle, Sri Lanka.")
 
-    add_heading_2(doc, "LETTER OF SUPERVISOR CONSENT AND ACADEMIC ENDORSEMENT")
+def build_cv(output_path):
+    doc = _doc(output_path)
+    add_heading(doc, "Curriculum vitae material for this application")
+    add_body(
+        doc,
+        "The principal investigator has not been confirmed, so a single curriculum vitae cannot "
+        "yet be offered as the investigator’s own document. The notes below contain only facts "
+        "the team supplied or facts taken from the Faculty’s public staff page. Blank lines are "
+        "for the person concerned to complete. Nothing here is a claim of research-ethics training.",
+        italic=True,
+    )
+    add_heading(doc, "A. J.G.D. Thamalka", 2)
+    add_body(doc, "Role in this study: medical student researcher, Faculty of Medicine, University of Ruhuna.")
+    add_body(doc, "The project note gives the same person as Thamalka D. J. G. The order of the name should be confirmed before the form is signed.")
+    add_body(doc, "Student registration number: to be entered by the student.")
+    add_body(doc, "Qualifications, posts and previous research: not supplied. Not invented in this draft.")
+    add_body(doc, "Research ethics or methods certificates: none supplied.")
+    add_heading(doc, "B. D.V.W. Gunawardana", 2)
+    add_body(doc, "Role in this study: medical student researcher, Faculty of Medicine, University of Ruhuna.")
+    add_body(doc, "Student registration number: to be entered by the student.")
+    add_body(doc, "Qualifications, posts and previous research: not supplied. Not invented in this draft.")
+    add_body(doc, "Research ethics or methods certificates: none supplied.")
+    add_heading(doc, "C. Yasas Pasindu Fernando", 2)
+    add_body(
+        doc,
+        "Role in this study: researcher, technical research collaborator and developer of the "
+        "communication application. He is not described as the principal investigator.",
+    )
+    add_body(doc, "Qualifications supplied by him: Master of Science in Artificial Intelligence, Kingston University, ongoing; Bachelor of Engineering with Honours in Software Engineering, London Metropolitan University, completed.")
+    add_body(
+        doc,
+        "Those degrees are his education. Kingston University and London Metropolitan University "
+        "are not sponsors or sites of this study, and the study is not his dissertation.",
+    )
+    add_body(doc, "Other posts, publications and training certificates: not supplied. Not invented in this draft.")
+    add_body(doc, "If the form requires initials, the legal name must be confirmed. Initials are not guessed here.")
+    add_heading(doc, "D. Dr Gayani Punchihewa — public summary, not a curriculum vitae she has supplied", 2)
+    add_body(
+        doc,
+        "Faculty of Medicine staff page, Department of Psychiatry, read on 6 November 2026: "
+        "Dr Gayani D. Punchihewa, MBBS, MD Psych, Senior Lecturer and Psychiatrist. Special "
+        "interests stated there: general adult psychiatry and maternal mental health.",
+    )
+    add_body(
+        doc,
+        "The departmental services page lists her as the consultant in charge of the maternal "
+        "mental health clinic at Teaching Hospital Mahamodara and the adult psychiatry clinic at "
+        "Teaching Hospital Karapitiya. The child and adolescent clinic on that page is listed "
+        "under another consultant. This summary does not call her Head of Department, because the "
+        "staff page names Dr S.A.C. Senadheera as Head, while another Faculty page has used a "
+        "different description. She should confirm her designation before the letter is signed.",
+    )
+    add_body(doc, "Ethics training certificates: none have been placed in this file. Completion is not claimed.")
+    save_doc(doc, output_path, "Curriculum vitae notes")
+    return output_path
 
-    add_body_paragraph(doc, "Dear Chairperson,")
 
-    add_body_paragraph(doc, "I, Dr. Gayani Punchihewa, Senior Lecturer in Psychiatry at the Department of Psychiatry, Faculty of Medicine, University of Ruhuna, and Consultant Psychiatrist, hereby confirm that I have reviewed and consented to serve as the Research Supervisor for the undergraduate medical student research project titled:")
+def build_training_status(output_path):
+    doc = _doc(output_path)
+    add_heading(doc, "Item 6. Training certificates — not enclosed")
+    add_body(
+        doc,
+        "This page is not a certificate. No person is described as having completed Good Clinical "
+        "Practice, research methods, or basic research ethics training, because no certificate has "
+        "been given to the person preparing these drafts.",
+    )
+    add_plain_table(
+        doc,
+        ["Person", "Certificate in this file"],
+        [
+            ["J.G.D. Thamalka", "None supplied"],
+            ["D.V.W. Gunawardana", "None supplied"],
+            ["Yasas Pasindu Fernando", "None supplied"],
+            ["Dr Gayani Punchihewa", "None supplied"],
+        ],
+    )
+    add_body(
+        doc,
+        "For an observational study the committee asks for research methods and basic research "
+        "ethics training of the principal investigator or, in undergraduate research, the supervisor. "
+        "Copies of real certificates should be added when the holders provide them. This sheet must "
+        "not be placed in the submission file in place of those copies.",
+    )
+    save_doc(doc, output_path, "Training evidence status")
+    return output_path
 
-    add_body_paragraph(doc, "\"SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation\"", italic=True)
-
-    add_body_paragraph(doc, "Conducted by Undergraduate Medical Student Researchers Thamalka D. J. G. and D. V. W. Gunawardana (Faculty of Medicine, University of Ruhuna), in collaborative clinical partnership with PRAGATHI – Child Intervention Centre, Galle, and with specialist technical research collaboration and AAC mobile application development provided by Mr. E.K.Y.P. Fernando (Yasas Pasindu Fernando).")
-
-    add_body_paragraph(doc, "Student Research Leadership & Supervision Statement:", bold_prefix="1. Scientific Validity & Supervision: ")
-    add_body_paragraph(doc, "I have critically evaluated the research protocol, study objectives, and proposed methodology. This research represents an undergraduate medical student investigation addressing an important public health challenge in Sri Lanka: providing accessible, trilingual (Sinhala, Tamil, English) Augmentative and Alternative Communication tools for non-verbal and minimally verbal children diagnosed with Autism Spectrum Disorder (ASD), ADHD, and developmental speech/language delays. "
-                            "Medical students Thamalka D. J. G. and D. V. W. Gunawardana are actively leading the clinical protocol implementation, ethical compliance, and participant evaluations under my academic supervision. "
-                            "Mr. E.K.Y.P. Fernando serves as the external Technical Research Collaborator and Application Developer who engineered the offline-first software architecture and advises on digital usability evaluation. "
-                            "This study is an independent University of Ruhuna medical student research project and does not constitute a postgraduate dissertation or institutional study for any foreign university.")
-
-    add_body_paragraph(doc, "Child Protection & Vulnerability Oversight:", bold_prefix="2. Ethical Oversight & Safeguarding: ")
-    add_body_paragraph(doc, "Given the vulnerable pediatric population, clinical supervision will be maintained over all participant-facing activities. "
-                            "I confirm that parental proxy informed consent, ongoing child assent procedures, and immediate cessation protocols for child distress will be strictly enforced during all evaluation sessions at PRAGATHI Child Intervention Centre and the Department of Psychiatry Outpatient Clinic. "
-                            "Participation is entirely voluntary, and routine clinical care and developmental therapy will continue unaffected regardless of participation status.")
-
-    add_body_paragraph(doc, "Regulatory Declarations:", bold_prefix="3. Regulatory Undertaking: ")
-    add_body_paragraph(doc, "I confirm that no research procedures involving human participants have commenced and none will begin prior to obtaining formal ethical clearance from the University of Ruhuna ERC and administrative approvals from the respective study sites. "
-                            "I undertake to ensure that all progress reports, protocol amendments, or unexpected incidents will be promptly reported to the ERC in accordance with published guidelines.")
-
-    add_body_paragraph(doc, "I strongly endorse this application for ethical review and clearance.")
-
-    add_body_paragraph(doc, "Sincerely,")
-
-    # Supervisor Signature Cages
-    table = doc.add_table(rows=3, cols=2)
-    format_table_headers_and_borders(table, col_widths=[3.2, 3.2])
-    
-    # Row 0
-    table.cell(0, 0).text = "Research Supervisor"
-    table.cell(0, 1).text = "Head of Academic Department"
-    
-    # Row 1
-    table.cell(1, 0).text = "Signature: ___________________________\n\n" \
-                            "Name: Dr. Gayani Punchihewa\n" \
-                            "Qualifications: MBBS, MD (Psychiatry)\n" \
-                            "Designation: Senior Lecturer in Psychiatry / Consultant Psychiatrist\n" \
-                            "Department: Department of Psychiatry\n" \
-                            "Institution: Faculty of Medicine, University of Ruhuna\n" \
-                            "Clinical Base: Teaching Hospital Karapitiya\n" \
-                            "Official Email: [PLACEHOLDER: gayani@med.ruh.ac.lk]\n" \
-                            "Date: ___ / ___ / ______"
-
-    table.cell(1, 1).text = "Endorsement by Head of Department:\n\n" \
-                            "Signature: ___________________________\n" \
-                            "Head, Department of Psychiatry\n" \
-                            "Faculty of Medicine, University of Ruhuna\n" \
-                            "Official Stamp & Date: ___________________"
-
-    # Row 2 (Lead Clinical / Partner Endorsement)
-    table.cell(2, 0).text = "Lead Community Partner Endorsement:\n\n" \
-                            "Signature: ___________________________\n" \
-                            "Director / Centre In-Charge\n" \
-                            "PRAGATHI – Child Intervention Centre, Galle\n" \
-                            "Official Stamp & Date: ___________________"
-                            
-    table.cell(2, 1).text = "Referenced Publishing Partner:\n\n" \
-                            "Signature: ___________________________\n" \
-                            "Executive Representative\n" \
-                            "Idea-Hub (Pvt) Ltd, Nugegoda\n" \
-                            "Official Stamp & Date: ___________________"
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    doc.save(output_path)
-    print(f"Generated: {output_path}")
-
-def build_pi_cv(output_path):
-    doc = create_styled_document()
-    setup_header_footer(doc, "Item 5: Curriculum Vitae of Principal Investigator")
-    add_draft_notice(doc, "CURRICULUM VITAE DOSSIER — PRINCIPAL INVESTIGATOR (CONFIRMATION REQUIRED) & TECHNICAL COLLABORATOR")
-
-    add_heading_1(doc, "ITEM 5: CURRICULUM VITAE OF THE PRINCIPAL INVESTIGATOR")
-    add_heading_2(doc, "[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED]")
-
-    add_body_paragraph(doc, "In accordance with official guidelines of the Ethics Review Committee, Faculty of Medicine, University of Ruhuna, "
-                            "for undergraduate medical student research, the formal Principal Investigator / Applicant designation is established by the research team and academic department. "
-                            "Section A provides the official CV template and institutional record for the designated PI (Lead Medical Student Researcher Thamalka D. J. G. / D. V. W. Gunawardana or Academic Supervisor Dr. Gayani Punchihewa). "
-                            "Section B provides the academic CV of External Technical Research Collaborator and AAC Application Developer E.K.Y.P. Fernando.")
-
-    add_heading_2(doc, "SECTION A: CURRICULUM VITAE OF DESIGNATED PRINCIPAL INVESTIGATOR")
-    t_pi = doc.add_table(rows=6, cols=2)
-    format_table_headers_and_borders(t_pi, col_widths=[2.4, 4.1])
-    t_pi.cell(0, 0).text = "Field"
-    t_pi.cell(0, 1).text = "Institutional Record & Details"
-    t_pi.cell(1, 0).text = "Full Official Name"
-    t_pi.cell(1, 1).text = "[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED:\n" \
-                          "Lead Medical Student Researcher (Thamalka D. J. G. / D. V. W. Gunawardana) or\n" \
-                          "Academic Supervisor (Dr. Gayani Punchihewa) per Faculty ERC Regulations]"
-    t_pi.cell(2, 0).text = "Institutional Designation"
-    t_pi.cell(2, 1).text = "Faculty of Medicine, University of Ruhuna, Karapitiya, Galle, Sri Lanka / Department of Psychiatry"
-    t_pi.cell(3, 0).text = "Educational Qualifications"
-    t_pi.cell(3, 1).text = "[Undergraduate Medical Student (MBBS in progress) / MBBS, MD (Psychiatry) — Subject to Formal Designation]"
-    t_pi.cell(4, 0).text = "Official Mailing Address"
-    t_pi.cell(4, 1).text = "Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle, Sri Lanka"
-    t_pi.cell(5, 0).text = "Contact Phone & Email"
-    t_pi.cell(5, 1).text = "[PLACEHOLDER: Official Contact Numbers & Emails - Local Only in .local_erc_private/]"
-
-    add_body_paragraph(doc, "\nPrincipal Investigator Undertaking & Certification:\n"
-                            "I hereby certify that the information provided in this curriculum vitae is true, accurate, and complete, and I undertake to conduct the research in full adherence to the approved protocol.\n\n"
-                            "_____________________________________________\n"
-                            "Signature of Designated Principal Investigator\n"
-                            "Faculty of Medicine, University of Ruhuna\n"
-                            "Date: ___ / ___ / ______")
-
-    add_heading_2(doc, "SECTION B: CURRICULUM VITAE OF TECHNICAL RESEARCH COLLABORATOR & DEVELOPER")
-    add_body_paragraph(doc, "E.K.Y.P. FERNANDO (YASAS PASINDU FERNANDO)", bold_prefix="Full Name: ")
-    add_body_paragraph(doc, "Technical Research Collaborator & AAC Application Developer", bold_prefix="Designated Role: ")
-    add_body_paragraph(doc, "Health Informatics Researcher and Software Engineer specializing in mobile Human-Computer Interaction (HCI) and assistive communication technologies for pediatric neurodevelopmental delays. "
-                            "Technical architect and developer of the Simple AAC / Pragathi AAC mobile application (Platform B), designed to provide offline-first, culturally and linguistically adapted Augmentative and Alternative Communication (AAC) tools in Sinhala, Tamil, and English for children with Autism Spectrum Disorder (ASD), ADHD, and speech impairments. "
-                            "Serves as external technical research collaborator providing specialist software engineering knowledge to the University of Ruhuna medical student research team.", bold_prefix="Profile & Summary: ")
-
-    t_tech = doc.add_table(rows=5, cols=2)
-    format_table_headers_and_borders(t_tech, col_widths=[2.4, 4.1])
-    t_tech.cell(0, 0).text = "Field"
-    t_tech.cell(0, 1).text = "Details (Verified / Placeholder)"
-    t_tech.cell(1, 0).text = "Academic Background"
-    t_tech.cell(1, 1).text = "• MSc in Artificial Intelligence — Kingston University, United Kingdom (Ongoing)\n" \
-                            "• BEng (Hons) in Software Engineering — London Metropolitan University, United Kingdom (Completed)\n" \
-                            "*(Note: Academic qualifications only; does NOT represent institutional sponsorship, foreign thesis supervision, or awarding institution for this Ruhuna medical student research project)*"
-    t_tech.cell(2, 0).text = "Specific Technical Contributions to this Study"
-    t_tech.cell(2, 1).text = "• Provided specialist software engineering expertise to the medical student research team.\n" \
-                            "• Advised on technical feasibility, system architecture, and digital evaluation methods.\n" \
-                            "• Engineered the offline-first Pragathi AAC mobile application (Platform B).\n" \
-                            "• Supported technical aspects of research planning and quantitative usability metrics interpretation."
-    t_tech.cell(3, 0).text = "Research Methodology & Ethics Training"
-    t_tech.cell(3, 1).text = "• Research Methodology & Ethics in AI/CS (Kingston University, London Met)\n" \
-                            "• TRREE / CITI GCP Bioethics Modules for Digital Health Research"
-    t_tech.cell(4, 0).text = "Contact Information"
-    t_tech.cell(4, 1).text = "[PLACEHOLDER: External Collaborator Phone & Email - Local Only in .local_erc_private/]"
-
-    add_body_paragraph(doc, "\nTechnical Collaborator Declaration:\n"
-                            "I hereby certify that the information provided in this curriculum vitae is true, accurate, and complete to the best of my knowledge.\n\n"
-                            "_____________________________________________\n"
-                            "Signature of Technical Research Collaborator & AAC Developer\n"
-                            "E.K.Y.P. Fernando (Yasas Pasindu Fernando)\n"
-                            "Date: ___ / ___ / ______")
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    doc.save(output_path)
-    print(f"Generated: {output_path}")
-
-def build_training_certificates(output_path):
-    doc = create_styled_document()
-    setup_header_footer(doc, "Item 6: Certificates of Training of PI / Supervisor")
-    add_draft_notice(doc, "ITEM 6: TRAINING CERTIFICATES DOSSIER — REQUIRES AUTHENTIC CERTIFICATE ATTACHMENTS")
-
-    add_heading_1(doc, "ITEM 6: CERTIFICATES OF TRAINING OF PI AND SUPERVISOR")
-    add_heading_2(doc, "Research Methodology, Basic Research Ethics, and Good Clinical Practice (GCP) Training")
-
-    add_body_paragraph(doc, "Faculty of Medicine, University of Ruhuna — Ethics Review Committee Submission Guidelines Item 6", bold_prefix="Institutional Reference: ")
-    add_body_paragraph(doc, "In accordance with official submission requirements of the Ethics Review Committee (Faculty of Medicine, University of Ruhuna), "
-                            "all principal investigators and research supervisors must provide documentary proof of certified formal training in Research Methodology, "
-                            "Basic Research Ethics, and Good Clinical Practice (GCP) prior to the commencement of human research activities.")
-
-    add_heading_2(doc, "1. Research Team Training Summary & Credentials")
-    t_train = doc.add_table(rows=5, cols=4)
-    format_table_headers_and_borders(t_train, col_widths=[1.8, 1.8, 2.0, 1.4])
-    t_train.cell(0, 0).text = "Investigator / Supervisor"
-    t_train.cell(0, 1).text = "Role in AAC Study"
-    t_train.cell(0, 2).text = "Training Domains / Course Details"
-    t_train.cell(0, 3).text = "Verification Status"
-
-    t_train.cell(1, 0).text = "[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED]"
-    t_train.cell(1, 1).text = "Designated Principal Investigator / Lead Applicant"
-    t_train.cell(1, 2).text = "Faculty of Medicine Research Ethics, Methodology & GCP Training Requirements"
-    t_train.cell(1, 3).text = "Subject to formal appointment & certificate attachment"
-
-    t_train.cell(2, 0).text = "Thamalka D. J. G. &\nD. V. W. Gunawardana"
-    t_train.cell(2, 1).text = "Undergraduate Medical Student Researchers"
-    t_train.cell(2, 2).text = "Undergraduate Medical Curriculum Module on Research Methodology and Bioethics (Faculty of Medicine, University of Ruhuna)"
-    t_train.cell(2, 3).text = "Faculty Academic Record Verified"
-
-    t_train.cell(3, 0).text = "Dr. Gayani Punchihewa\n(MBBS, MD Psych)"
-    t_train.cell(3, 1).text = "Proposed Research Supervisor\n(Senior Lecturer in Psychiatry & Consultant Psychiatrist)"
-    t_train.cell(3, 2).text = "Clinical Research Methodology, Good Clinical Practice (GCP), Bioethics & Research Integrity (PGIM, SLCPsych, Faculty of Medicine Ruhuna)"
-    t_train.cell(3, 3).text = "Verified Faculty Staff;\nInstitutional certificate appended"
-
-    t_train.cell(4, 0).text = "E.K.Y.P. Fernando\n(Yasas Pasindu Fernando)"
-    t_train.cell(4, 1).text = "Technical Research Collaborator & AAC Application Developer"
-    t_train.cell(4, 2).text = "Research Methodology & Ethics in AI/CS (Kingston Univ, London Met), TRREE / CITI GCP Bioethics Modules for Digital Health"
-    t_train.cell(4, 3).text = "Academic training certified;\nModule certificate appended"
-
-    add_heading_2(doc, "2. Instructions for Assembly of Submission Dossier")
-    add_bullet_point(doc, "Physical Hard Copy Dossier: Attach 01 authentic printed copy of each training certificate immediately following this cover sheet before binding or stapling.", bold_prefix="• ")
-    add_bullet_point(doc, "Electronic Soft Copy 1 (01_Complete_ERC_Application.pdf): High-resolution PDF scans of the official certificates are incorporated at Item 6 in sequential order as requested by the ERC secretariat.", bold_prefix="• ")
-    add_bullet_point(doc, "Accepted Training Bodies: University of Ruhuna ERC Workshops, Forum for Ethical Review Committees in Sri Lanka (FERCSL), National Institute of Health (NIH), TRREE on-line biomedical research ethics, or CITI Program GCP certification.", bold_prefix="• ")
-
-    add_heading_2(doc, "3. Certification Attachment Area")
-    add_body_paragraph(doc, "[PLACEHOLDER FOR CERTIFICATE OF GOOD CLINICAL PRACTICE (GCP) / BASIC RESEARCH ETHICS]\n\n"
-                            "Affix or insert certified color scan of GCP training certificate(s) here prior to physical submission to the ERC office at the CIU Building, Faculty of Medicine, Karapitiya.\n\n"
-                            "Verified by Proposed Research Supervisor: _______________________________\n"
-                            "Dr. Gayani Punchihewa (MBBS, MD Psych)\n"
-                            "Date: ___ / ___ / ______")
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    doc.save(output_path)
-    print(f"Generated: {output_path}")
 
 def build_animal_statement(output_path):
-    doc = create_styled_document()
-    setup_header_footer(doc, "Item 7: Animal Research Training Statement (Non-Applicability)")
-    add_draft_notice(doc, "ITEM 7: ANIMAL HANDLING TRAINING DECLARATION — STATEMENT OF NON-APPLICABILITY")
+    doc = _doc(output_path)
+    add_heading(doc, "Item 7. Animals")
+    add_body(
+        doc,
+        "The study does not use animals. The committee’s checklist asks for animal-handling "
+        "training only where it is relevant. No animal-handling letter is prepared, and no training "
+        "is claimed.",
+    )
+    save_doc(doc, output_path, "Animal research not applicable")
+    return output_path
 
-    add_heading_1(doc, "ITEM 7: DECLARATION REGARDING ANIMAL RESEARCH TRAINING")
-    add_heading_2(doc, "FORMAL STATEMENT OF NON-APPLICABILITY OF ANIMAL EXPERIMENTATION")
 
-    add_body_paragraph(doc, "Date: [PLACEHOLDER: Date of Submission, e.g., 28 November 2026]")
-    add_body_paragraph(doc, "The Chairperson,\n"
-                            "Ethics Review Committee,\n"
-                            "Faculty of Medicine, University of Ruhuna,\n"
-                            "P.O. Box 70, Galle, Sri Lanka.", bold_prefix="To:\n")
+def build_fee_status(output_path):
+    doc = _doc(output_path)
+    add_heading(doc, "Item 8. Fee receipt — not enclosed")
+    add_body(
+        doc,
+        "This page is not a receipt. No payment has been made, and no payment is simulated.",
+    )
+    add_body(
+        doc,
+        "The Faculty instructions distinguish a fee of LKR 3,000 when the principal investigator "
+        "is a staff member of the University of Ruhuna or the extended faculty, LKR 5,000 when the "
+        "principal investigator is not in that category, no fee when the principal investigator is "
+        "an undergraduate and the project is required by the curriculum, and a separate fee for an "
+        "industry-sponsored clinical trial. This study is not an industry-sponsored trial. The "
+        "other categories cannot be chosen until the applicant is named and the students confirm "
+        "whether the project is required by the curriculum.",
+    )
+    add_body(
+        doc,
+        "The instructions do not ask for the receipt inside the electronic file of items 1 to 7. "
+        "The receipt, once a real one exists, is a hard-copy item.",
+    )
+    save_doc(doc, output_path, "Fee status")
+    return output_path
 
-    add_body_paragraph(doc, "SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation", bold_prefix="Protocol Title: ")
-    add_body_paragraph(doc, "Statement of Non-Applicability of Animal Handling Training Certification (Item 7)", bold_prefix="Subject: ")
-
-    add_body_paragraph(doc, "Dear Chairperson,")
-
-    add_body_paragraph(doc, "We, the undersigned Undergraduate Medical Student Researchers, Technical Research Collaborator & Developer, and Proposed Research Supervisor, "
-                            "hereby formally submit this statement with reference to Item 7 of the University of Ruhuna Ethics Review Committee submission requirements "
-                            "(\"A letter indicating that the investigator(s) have undergone training to handle animals in research settings (if relevant)\").")
-
-    add_heading_2(doc, "1. Scope and Nature of the Research Protocol")
-    add_body_paragraph(doc, "The proposed study is strictly an observational, usability, and feasibility investigation of a digital assistive technology intervention "
-                            "(the Simple AAC / Pragathi AAC mobile software application). The research methodology is confined entirely to non-invasive human-computer "
-                            "interaction assessments, parent-reported outcome questionnaires, and therapist usability evaluations in pediatric neurodevelopmental settings.")
-
-    add_heading_2(doc, "2. Explicit Exclusion of Animal Experimentation")
-    add_body_paragraph(doc, "We formally certify that:")
-    add_bullet_point(doc, "No Live Animals: The study does NOT involve the procurement, breeding, housing, restraint, behavioral testing, or sacrifice of any live vertebrate or invertebrate animal subjects.", bold_prefix="a) ")
-    add_bullet_point(doc, "No Animal Tissues or Biologics: The study does NOT utilize animal tissue, animal-derived primary cell cultures, or veterinary biological products.", bold_prefix="b) ")
-    add_bullet_point(doc, "No Veterinary Procedures: No surgical, pharmacological, or physiological procedures on animals are contemplated or conducted at any stage of this research.", bold_prefix="c) ")
-    add_bullet_point(doc, "Human Subjects Exclusively: All participants are human children, parents, and healthcare professionals, protected under comprehensive human research participant safeguards, informed proxy consent, and assent protocols.", bold_prefix="d) ")
-
-    add_heading_2(doc, "3. Formal Statement of Non-Applicability")
-    add_body_paragraph(doc, "Consequently, training in animal handling is entirely non-applicable (N/A) to this research protocol. "
-                            "This formal statement is provided to satisfy Item 7 of the ERC submission requirements in both the physical hard-copy dossier and the compiled electronic Soft Copy 1 submission package.")
-
-    add_body_paragraph(doc, "Respectfully submitted,")
-
-    t_anim = doc.add_table(rows=5, cols=2)
-    format_table_headers_and_borders(t_anim, col_widths=[3.2, 3.2])
-    t_anim.cell(0, 0).text = "Principal Investigator [Pending Formal Confirmation]"
-    t_anim.cell(0, 1).text = "Lead Medical Student Researcher"
-    t_anim.cell(1, 0).text = "_____________________________________\n[FORMAL CONFIRMATION REQUIRED]\nFaculty of Medicine, University of Ruhuna"
-    t_anim.cell(1, 1).text = "_____________________________________\nMs. Thamalka D. J. G.\nUndergraduate Medical Student, UOR"
-    t_anim.cell(2, 0).text = "Medical Student Researcher"
-    t_anim.cell(2, 1).text = "Proposed Research Supervisor"
-    t_anim.cell(3, 0).text = "_____________________________________\nD. V. W. Gunawardana\nUndergraduate Medical Student, UOR"
-    t_anim.cell(3, 1).text = "_____________________________________\nDr. Gayani Punchihewa (MBBS, MD Psych)\nSenior Lecturer in Psychiatry / Consultant Psychiatrist"
-    t_anim.cell(4, 0).text = "Technical Research Collaborator & AAC Developer"
-    t_anim.cell(4, 1).text = "Date & Place"
-    t_anim.cell(4, 0).text = "Technical Research Collaborator & AAC Application Developer:\n_____________________________________\nE.K.Y.P. Fernando (Yasas Pasindu Fernando)\nMSc AI (Kingston, ongoing), BEng Hons (London Met)"
-    t_anim.cell(4, 1).text = "Date: ___ / ___ / ______\nFaculty of Medicine, University of Ruhuna,\nGalle, Sri Lanka"
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    doc.save(output_path)
-    print(f"Generated: {output_path}")
-
-def build_fee_receipt_placeholder(output_path):
-    doc = create_styled_document()
-    setup_header_footer(doc, "Item 8: Receipt of Payment of Processing Fee")
-    add_draft_notice(doc, "ITEM 8: ERC PROCESSING FEE RECEIPT — PHYSICAL HARD COPY ATTACHMENT")
-
-    add_heading_1(doc, "ITEM 8: RECEIPT OF PAYMENT OF ERC PROCESSING FEE")
-    add_heading_2(doc, "Ethical Review Processing Fee Payment Record & Verification Sheet")
-
-    add_body_paragraph(doc, "Faculty of Medicine, University of Ruhuna — Ethics Review Committee Submission Guidelines Item 8", bold_prefix="Administrative Context: ")
-    add_body_paragraph(doc, "As stipulated by the Ethics Review Committee, Faculty of Medicine, University of Ruhuna, "
-                            "a non-refundable processing fee according to the designated applicant category must be remitted at the Faculty Shroff Counter. "
-                            "The official receipt issued by the Shroff Counter must be attached as Item 8 in the physical hard copy submission dossier.")
-
-    add_heading_2(doc, "1. Applicable Fee Category & Project Details")
-    t_fee = doc.add_table(rows=5, cols=2)
-    format_table_headers_and_borders(t_fee, col_widths=[2.5, 4.0])
-    t_fee.cell(0, 0).text = "Category Parameter"
-    t_fee.cell(0, 1).text = "Project Specifics"
-
-    t_fee.cell(1, 0).text = "Protocol Title"
-    t_fee.cell(1, 1).text = "SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation"
-
-    t_fee.cell(2, 0).text = "Institutional Collaboration"
-    t_fee.cell(2, 1).text = "Department of Psychiatry, Faculty of Medicine, University of Ruhuna & PRAGATHI – Child Intervention Centre, Galle"
-
-    t_fee.cell(3, 0).text = "Proposed Research Supervisor"
-    t_fee.cell(3, 1).text = "Dr. Gayani Punchihewa, Senior Lecturer in Psychiatry, Faculty of Medicine, University of Ruhuna"
-
-    t_fee.cell(4, 0).text = "Designated Payment Category & Fee Status"
-    t_fee.cell(4, 1).text = "STATUS: PENDING PI DESIGNATION AND ERC CONFIRMATION\n" \
-                            "• If Dr. Gayani Punchihewa (Faculty Academic Staff) is formally confirmed as PI: Category I applies (Fee: LKR 3,000.00).\n" \
-                            "• If Thamalka D. J. G. / D. V. W. Gunawardana (Undergraduate Medical Student) is formally confirmed as PI for a curriculum-required project: Category III applies (No Fee / Free of charge).\n" \
-                            "• Note: Official fee category will be confirmed with the ERC Secretariat / Faculty Shroff upon finalizing the PI appointment."
-
-    add_heading_2(doc, "2. Shroff Counter Payment Details (To be completed upon payment)")
-    t_pay = doc.add_table(rows=5, cols=2)
-    format_table_headers_and_borders(t_pay, col_widths=[2.5, 4.0])
-    t_pay.cell(0, 0).text = "Payment Record Field"
-    t_pay.cell(0, 1).text = "Official Receipt Entry"
-
-    t_pay.cell(1, 0).text = "Official Receipt Number"
-    t_pay.cell(1, 1).text = "[PENDING SHROFF PAYMENT — Category I: Receipt No. / Category III: Fee Exemption Record]"
-
-    t_pay.cell(2, 0).text = "Date of Payment"
-    t_pay.cell(2, 1).text = "[PENDING PAYMENT / CONFIRMATION — Date: ___ / ___ / 2026]"
-
-    t_pay.cell(3, 0).text = "Amount Remitted (LKR)"
-    t_pay.cell(3, 1).text = "LKR 3,000.00 (If Category I Staff PI) / LKR 0.00 (If Category III Undergraduate Student PI)"
-
-    t_pay.cell(4, 0).text = "Shroff Stamp & Signature"
-    t_pay.cell(4, 1).text = "\n\n_____________________________________________\nOfficial Shroff Stamp & Signature (or Category III Exemption Endorsement)"
-
-    add_heading_2(doc, "3. Physical Receipt / Exemption Attachment Area")
-    add_body_paragraph(doc, "[STAPLE OR AFFIX ORIGINAL SHROFF RECEIPT OR CATEGORY III EXEMPTION SLIP HERE]\n\n"
-                            "Instructions for Applicant:\n"
-                            "1. Confirm formal PI designation with the Department of Psychiatry and ERC Secretariat.\n"
-                            "2. If Category I (Staff PI): Pay the prescribed processing fee (LKR 3,000) at the Shroff Counter, Ground Floor, Administrative Building, Faculty of Medicine, Karapitiya (Hours: 9:00 am – 3:00 pm on working days) and staple the original receipt securely to this sheet.\n"
-                            "3. If Category III (Undergraduate Student PI): Obtain formal confirmation/endorsement of fee exemption for undergraduate curriculum research.\n"
-                            "4. Include this sheet as Item 8 of the Hard Copy Submission Dossier.\n"
-                            "5. Note: As per published ERC instructions, soft-copy email submissions to ethics@med.ruh.ac.lk require Items 1 through 7 in Soft Copy 1.")
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    doc.save(output_path)
-    print(f"Generated: {output_path}")
 
 def build_submission_checklist(output_path):
-    doc = create_styled_document()
-    setup_header_footer(doc, "Item 12: ERC Submission Checklist")
-    add_draft_notice(doc, "SUBMISSION CHECKLIST & VERIFICATION DOSSIER — FACULTY OF MEDICINE, UNIVERSITY OF RUHUNA")
+    doc = _doc(output_path)
+    add_heading(doc, "Initial submission checklist")
+    add_body(
+        doc,
+        "Taken from the Faculty instructions page as read on 6 November 2026. The older downloadable "
+        "checklist file does not match that page. The website list is the one used here. This sheet "
+        "is a working record for the team. It is not one of the two electronic files.",
+        italic=True,
+    )
+    add_plain_table(
+        doc,
+        ["Hard copy", "What is ready in this draft", "Still required"],
+        [
+            ["1. Cover letter, signed", "Unsigned draft", "Applicant confirmed, then signatures"],
+            ["2. Application form", "Official form filled as a draft", "Signatures and registration numbers"],
+            ["3. Supervisor’s consent", "Unsigned draft for her to edit", "Her decision and signature"],
+            ["4. Proposal, tools, consent, information, permission drafts", "English drafts", "Checked Sinhala and Tamil, or a justified limit"],
+            ["5. Curriculum vitae of the principal investigator", "Notes only", "The confirmed investigator’s own curriculum vitae"],
+            ["6. Training certificates", "None", "Real certificates. Not claimed"],
+            ["7. Animal handling", "Not applicable", "No letter, because there are no animals"],
+            ["8. Fee receipt", "None", "After the fee category is known. Hard copy only"],
+        ],
+    )
+    add_body(doc, "Electronic files, when the team decides to send them:", bold=True, space_after=4)
+    add_bullet(doc, "01_Complete_ERC_Application.pdf — items 1 to 7 that actually exist. Certificates and the fee receipt are not inserted.")
+    add_bullet(doc, "02_Anonymous_Research_Proposal.pdf — item 4 only, without investigator names.")
+    save_doc(doc, output_path, "Submission checklist")
+    return output_path
 
-    add_heading_1(doc, "ETHICAL REVIEW COMMITTEE — FIRST SUBMISSION CHECKLIST")
-    add_body_paragraph(doc, "Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle, Sri Lanka\n"
-                            "Office: CIU Building | Hours: 9:00–11:30 am & 1:30–3:30 pm | Email: ethics@med.ruh.ac.lk")
 
-    add_heading_2(doc, "Part A: Hard Copies Verification (Physical Submission)")
-    t_hard = doc.add_table(rows=9, cols=4)
-    format_table_headers_and_borders(t_hard, col_widths=[0.6, 3.6, 1.0, 1.3])
-    t_hard.cell(0, 0).text = "No."
-    t_hard.cell(0, 1).text = "Submission Item"
-    t_hard.cell(0, 2).text = "Copies"
-    t_hard.cell(0, 3).text = "Status / Check"
-
-    items_hard = [
-        ("1", "Cover letter written to Chairperson signed by the applicant", "01", "Draft in forms/01; Pending wet-ink sign"),
-        ("2", "Completed application form (Annexure UOR/03-001)", "01", "Draft in forms/02; Pending signatures"),
-        ("3", "Letter of consent from supervisor/s where relevant", "01", "Draft in forms/03; Pending signatures"),
-        ("4", "Detailed research proposal (including study instruments, consent forms, information sheets in English, Sinhala & Tamil, permission letters)", "02", "Draft in protocol/04 + annexures/"),
-        ("5", "Curriculum vitae of the principal investigator (PI)/s", "01", "Dossier in forms/10: PI CV Template [Confirmation Required] + Tech Collaborator CV"),
-        ("6", "Certificates of training of PI/Supervisor (Methodology, Ethics, GCP)", "01", "Draft sheet in forms/13; Pending certificate attachments"),
-        ("7", "Letter indicating training to handle animals (if relevant)", "01", "Formal Non-Applicability Declaration in forms/14"),
-        ("8", "Receipt of payment of processing fee (according to category)", "01", "Receipt sheet in forms/15; Pending PI confirmation & Shroff payment (Cat I: LKR 3,000 / Cat III: No fee)")
+def main():
+    root = erc_root()
+    pairs = [
+        (build_cover_letter, os.path.join(root, "forms", "01_Cover_Letter_DRAFT.docx")),
+        (build_supervisor_letter, os.path.join(root, "forms", "03_Supervisor_Letter_DRAFT.docx")),
+        (build_cv, os.path.join(root, "forms", "10_CV_Principal_Investigator_DRAFT.docx")),
+        (build_training_status, os.path.join(root, "forms", "13_Training_Certificates_PI_Supervisor_DRAFT.docx")),
+        (build_animal_statement, os.path.join(root, "forms", "14_Animal_Handling_Statement_DRAFT.docx")),
+        (build_fee_status, os.path.join(root, "forms", "15_Fee_Payment_Receipt_Placeholder_DRAFT.docx")),
+        (build_submission_checklist, os.path.join(root, "qa", "12_ERC_Submission_Checklist.docx")),
     ]
-    for idx, (num, name, count, stat) in enumerate(items_hard, start=1):
-        t_hard.cell(idx, 0).text = num
-        t_hard.cell(idx, 1).text = name
-        t_hard.cell(idx, 2).text = count
-        t_hard.cell(idx, 3).text = stat
+    for builder, path in pairs:
+        builder(path)
+        print(f"Wrote {path}")
 
-    add_heading_2(doc, "Part B: Soft Copies Verification (Email to ethics@med.ruh.ac.lk)")
-    t_soft = doc.add_table(rows=3, cols=3)
-    format_table_headers_and_borders(t_soft, col_widths=[0.6, 3.9, 2.0])
-    t_soft.cell(0, 0).text = "No."
-    t_soft.cell(0, 1).text = "Soft Copy Item"
-    t_soft.cell(0, 2).text = "Packaging Rule & Status"
-
-    items_soft = [
-        ("1", "All documents from item no. 1 to no. 7 as a single PDF file (01_Complete_ERC_Application.pdf)", "Single combined PDF in checklist order; Compiled locally"),
-        ("2", "Detailed research proposal (item 4 only) as a single PDF file (02_Anonymous_Research_Proposal.pdf)\n*CRITICAL: Names and affiliations of investigators must be removed from all documents in this soft copy.*", "Strictly de-identified; Names/emails removed; Compiled locally")
-    ]
-    for idx, (num, name, rule) in enumerate(items_soft, start=1):
-        t_soft.cell(idx, 0).text = num
-        t_soft.cell(idx, 1).text = name
-        t_soft.cell(idx, 2).text = rule
-
-    add_heading_2(doc, "Part C: Mandatory Document Layout Checklist")
-    add_bullet_point(doc, "Header Check: Date and version number ('Version 1.0 (DRAFT) | Date: November 2026') appear on every page header.", bold_prefix="[  ] ")
-    add_bullet_point(doc, "Footer Check: Sequential page numbering appears on every page footer.", bold_prefix="[  ] ")
-    add_bullet_point(doc, "Official Application Form Check: Annexure UOR/03-001 preserved; all cages filled; no blank spaces; 'Not applicable' written where relevant.", bold_prefix="[  ] ")
-    add_bullet_point(doc, "Proposal Structure Check: Complies with Format_of_Research_Proposal.docx (1. Title, 2. Introduction & Justification, 3. Literature Review, 4. Objectives, 5. Methodology 5.1–5.8, 6. Referencing, 7. Gantt Chart, 8. Budget).", bold_prefix="[  ] ")
-    add_bullet_point(doc, "Zero Surgical Leaks: Verified zero contamination from unrelated colorectal surgery sample.", bold_prefix="[  ] ")
-    add_bullet_point(doc, "Anonymization Check: Verified no investigator names, affiliations, or metadata in Soft Copy 2.", bold_prefix="[  ] ")
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    doc.save(output_path)
-    print(f"Generated: {output_path}")
 
 if __name__ == "__main__":
-    base = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    build_cover_letter(os.path.join(base, "forms", "01_Cover_Letter_DRAFT.docx"))
-    build_supervisor_letter(os.path.join(base, "forms", "03_Supervisor_Letter_DRAFT.docx"))
-    build_pi_cv(os.path.join(base, "forms", "10_CV_Principal_Investigator_DRAFT.docx"))
-    build_training_certificates(os.path.join(base, "forms", "13_Training_Certificates_PI_Supervisor_DRAFT.docx"))
-    build_animal_statement(os.path.join(base, "forms", "14_Animal_Handling_Statement_DRAFT.docx"))
-    build_fee_receipt_placeholder(os.path.join(base, "forms", "15_Fee_Payment_Receipt_Placeholder_DRAFT.docx"))
-    build_submission_checklist(os.path.join(base, "qa", "12_ERC_Submission_Checklist.docx"))
+    main()

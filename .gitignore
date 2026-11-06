@@ -50,4 +50,10 @@ docs/ethics/ruhuna_erc/scripts/build/
 docs/ethics/ruhuna_erc/scripts/dist/
 *.private.docx
 *.private.pdf
+# Named drafts identify investigators. The anonymous proposal may be tracked.
+docs/ethics/ruhuna_erc/forms/*.docx
+docs/ethics/ruhuna_erc/annexures/*.docx
+docs/ethics/ruhuna_erc/data_management/*.docx
+docs/ethics/ruhuna_erc/protocol/04_AAC_ERC_Research_Protocol_DRAFT.docx
+docs/ethics/ruhuna_erc/qa/*.docx
 

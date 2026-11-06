@@ -1,37 +1,41 @@
-# Ruhuna ERC Submission Package: Production & Build Log
+# Production log
 
-**Date of Compilation**: November 2026  
-**Build Tooling**: Python 3.12, LibreOffice Headless, pypdf  
-**Build Status**: **SUCCESSFUL**  
+Draft date used in the headers: 06 November 2026. Version 01.
 
-## 1. Generated Soft Copy Deliverables
+- Complete named file: `/media/yasas/New Volume2/yasas/PersonalProjects/simple aac/simple_aac_app/.local_erc_private/exports_private/01_Complete_ERC_Application.pdf` — 41 pages.
+- Anonymous proposal: `/media/yasas/New Volume2/yasas/PersonalProjects/simple aac/simple_aac_app/.local_erc_private/exports_private/02_Anonymous_Research_Proposal.pdf` — 14 pages.
+- Anonymous identity leaks: none found.
+- Former publishing-partner name in the named file: no.
+- Training certificates, animal-handling letter and fee receipt were not inserted.
+- Telephone and email are read from the local contact file and are not written in the generator.
 
-| Deliverable Name | Local File Path | Pages | Size (MB) | Anonymization Status |
-| :--- | :--- | :---: | :---: | :--- |
-| **Soft Copy 1 (Complete ERC Application)** | `.local_erc_private/exports_private/01_Complete_ERC_Application.pdf` | 71 | 1.24 MB | Identifiable Submission Dossier |
-| **Soft Copy 2 (Anonymous Research Proposal)** | `.local_erc_private/exports_private/02_Anonymous_Research_Proposal.pdf` | 24 | 0.55 MB | **STRICTLY ANONYMIZED (0 leaks)** |
+## Contents page numbers, anonymous proposal
 
-## 2. Component Page Counts
-
-- `01_Cover_Letter_DRAFT.docx`: 3 pages (100448 bytes)
-- `02_Human_Research_Application_DRAFT.docx`: 30 pages (503823 bytes)
-- `03_Supervisor_Letter_DRAFT.docx`: 2 pages (86753 bytes)
-- `04_AAC_ERC_Research_Protocol_DRAFT.docx`: 14 pages (213061 bytes)
-- `05_Parent_or_Guardian_Information_Sheet_DRAFT.docx`: 2 pages (83705 bytes)
-- `06_Parent_or_Guardian_Consent_Form_DRAFT.docx`: 2 pages (84234 bytes)
-- `07_Child_Assent_Protocol_DRAFT.docx`: 1 pages (72921 bytes)
-- `08_Study_Instruments_DRAFT.docx`: 3 pages (112908 bytes)
-- `09_Site_Permission_Request_Letters_DRAFT.docx`: 2 pages (72959 bytes)
-- `10_CV_Principal_Investigator_DRAFT.docx`: 3 pages (92427 bytes)
-- `13_Training_Certificates_PI_Supervisor_DRAFT.docx`: 2 pages (94120 bytes)
-- `14_Animal_Handling_Statement_DRAFT.docx`: 2 pages (92099 bytes)
-- `15_Fee_Payment_Receipt_Placeholder_DRAFT.docx`: 2 pages (93731 bytes)
-- `11_Data_Management_Plan_DRAFT.docx`: 2 pages (77530 bytes)
-- `12_ERC_Submission_Checklist.docx`: 3 pages (107381 bytes)
-- `04_AAC_ERC_Research_Protocol_ANONYMOUS_DRAFT.docx`: 12 pages (207911 bytes)
-- `05_Parent_or_Guardian_Information_Sheet_ANONYMOUS_DRAFT.docx`: 2 pages (81818 bytes)
-- `06_Parent_or_Guardian_Consent_Form_ANONYMOUS_DRAFT.docx`: 2 pages (85323 bytes)
-- `07_Child_Assent_Protocol_ANONYMOUS_DRAFT.docx`: 1 pages (74320 bytes)
-- `08_Study_Instruments_ANONYMOUS_DRAFT.docx`: 3 pages (114137 bytes)
-- `09_Site_Permission_Request_Letters_ANONYMOUS_DRAFT.docx`: 2 pages (73291 bytes)
-- `11_Data_Management_Plan_ANONYMOUS_DRAFT.docx`: 2 pages (78527 bytes)
+- 1. Introduction: 3
+- 2. Justification: 3
+- 3. Literature review: 4
+- 4. Objectives: 5
+- 4.1 General objective: 5
+- 4.2 Specific objectives: 5
+- 5. Methodology: 5
+- 5.1 Study design: 5
+- 5.2 Study setting: 5
+- 5.3 Study population: 6
+- 5.4 Study sample with inclusion and exclusion criteria: 6
+- Inclusion criteria: 6
+- Exclusion criteria: 6
+- 5.5 Sampling method and sample size: 6
+- 5.6 Data collection tools: 7
+- 5.7 Data analysis plan: 7
+- 5.8 Data collection procedure: 7
+- 5.9 Administrative requirements: 8
+- 5.10 Ethical consideration: 8
+- 6. References: 9
+- 7. Management matter: 10
+- 8. Annexures: 11
+- Annex A. Information for parents and guardians: 11
+- Annex B. Consent of a parent or guardian: 11
+- Annex C. Assent of a child who can read this form: 12
+- Annex D. Session record and caregiver questions: 12
+- Annex E. Draft letters asking for permission: 13
+- Annex F. Sinhala and Tamil versions: 13

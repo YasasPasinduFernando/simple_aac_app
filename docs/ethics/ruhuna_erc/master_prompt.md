@@ -1,3 +1,7 @@
+# Older instruction
+
+The proposal rebuilt on 6 November 2026 is the current draft. Read `README.md` and `source_fact_matrix.md` before this file. Sample sizes, publishing partners and expanded personal names in the text below are not current if they differ from the fact matrix.
+
 # Master prompt v2: Ruhuna ERC documentation inside the existing Platform B Simple AAC Application Git repository
 
 ## User's explicit repository workflow

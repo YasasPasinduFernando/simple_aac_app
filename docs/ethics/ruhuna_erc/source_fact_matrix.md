@@ -1,31 +1,18 @@
-# Source-to-Draft Fact Matrix: Platform B AAC Ethics Submission
+# Facts used in the 6 November 2026 draft
 
-This matrix traces every major claim, requirement, and parameter incorporated into the University of Ruhuna ERC documentation suite back to its authoritative source document, indicating its verification status.
-
----
-
-| Domain / Claim | Claim Details in Draft Package | Source Document & Reference | Status |
+| Matter | What the draft says | Source | Standing |
 | :--- | :--- | :--- | :--- |
-| **Project Title** | *SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka* | `SL_AAC_Project_Proposal.docx`, Section 1 | **CONFIRMED** |
-| **Lead Clinical Institution** | PRAGATHI – Child Intervention Centre, Galle, Sri Lanka | `SL_AAC_Project_Proposal.docx`, Section 2 | **CONFIRMED** |
-| **Collaborating Academic Institution** | Department of Psychiatry, Faculty of Medicine, University of Ruhuna | `SL_AAC_Project_Proposal.docx`, Section 2 | **CONFIRMED** |
-| **Endorsing / Oversight Authority** | Ministry of Health, Sri Lanka (Secretary of Health, Director of Health Information, Director of Mental Health) | `SL_AAC_Project_Proposal.docx`, Section 3 & 8 | **CONFIRMED** |
-| **Target Population** | Children aged 2–12 years with Autism Spectrum Disorder (ASD), ADHD, and speech/language delays; and their parents/caregivers, therapists, and educators. | `SL_AAC_Project_Proposal.docx`, Section 6.2–6.3 | **CONFIRMED** |
-| **Supported Languages** | Trilingual: Sinhala, Tamil, and English. | `SL_AAC_Project_Proposal.docx`, Section 6.4; Verified in `lib/data/default_seed_cards.dart` | **CONFIRMED** |
-| **Application Features** | Picture-based visual grid, category navigation, text-to-speech audio, customizable cards, offline audio recording, backup/restore. | Verified in `lib/main.dart`, `lib/services/tts_service.dart`, `lib/pages/home_page.dart` | **CONFIRMED** |
-| **Offline Privacy Policy** | App operates locally without mandatory cloud sync, third-party analytics, user tracking, or backend account requirements. | `SL_AAC_Project_Proposal.docx`, Section 9; Verified in `lib/services/network_policy_service.dart` | **CONFIRMED** |
-| **Absence of FER in App** | Current Platform B app contains NO facial expression recognition ML models or camera emotion surveillance. Camera access is strictly for user card customisation. | Codebase inspection (`lib/`); Master prompt explicit warning | **CONFIRMED** |
-| **Primary Student Research Team** | Ms. Thamalka D. J. G. and D. V. W. Gunawardana (Undergraduate Medical Students, Faculty of Medicine, University of Ruhuna) — Primary student researchers leading the clinical/medical protocol, participant evaluations, and ethics application under academic supervision. | `SL_AAC_Project_Proposal.docx`, Section 14.2; User Directives | **CONFIRMED STUDENT RESEARCH LEADERSHIP** |
-| **Principal Investigator Designation** | `[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED: Lead Medical Student Researcher (Ms. Thamalka D. J. G. / D. V. W. Gunawardana) or Academic Supervisor (Dr. Gayani Punchihewa) per Faculty ERC Regulations]` | Faculty of Medicine ERC Regulations & User Directives | **PENDING TEAM/DEPARTMENTAL FORMAL APPOINTMENT** |
-| **Research Supervisor** | Dr. Gayani Punchihewa, MBBS, MD (Psychiatry) — Senior Lecturer in Psychiatry, Department of Psychiatry, Faculty of Medicine, University of Ruhuna; Consultant Psychiatrist | Department of Psychiatry, University of Ruhuna; User Follow-up Directive | **CONFIRMED SUPERVISOR (Consent Pending Signature)** |
-| **Technical Research Collaborator & Developer** | E.K.Y.P. Fernando (Yasas Pasindu Fernando) — Technical Research Collaborator & AAC Application Developer (Specialist software engineering advice, app development, technical architecture, telemetry interpretation). | `SL_AAC_Project_Proposal.docx`, Section 8 & 14.1; User Directives | **CONFIRMED TECHNICAL COLLABORATOR ROLE** |
-| **Institutional Context & Scope Separation** | Undergraduate medical student research project conducted within Faculty of Medicine, University of Ruhuna; NOT an MSc AI dissertation for Kingston University. Kingston & London Met represent academic qualifications only. | User Master Directives | **CONFIRMED INDEPENDENT RUHUNA PROJECT** |
-| **Application Features & Categories** | Pragathi AAC / Simple AAC: 6 categories (food & drink, emotions, activities, school items, family members, basic needs: eating, drinking, toilet, sleep), early learning modules, voice output. | `SL_AAC_Project_Proposal.docx`, Section 6.5; Codebase `lib/` | **CONFIRMED** |
-| **Governance & Publishing** | Joint agreement between PRAGATHI Centre and Dept of Psychiatry; Endorsed by Ministry of Health; Publishing partner Idea-Hub (Pvt) Ltd for Apple App Store. | `SL_AAC_Project_Proposal.docx`, Section 7 & 8 | **CONFIRMED** |
-| **Study Design** | Prospective observational usability and feasibility evaluation ($N = 30$ dyads over 6 months) | Ethics study protocol design | **DRAFT STUDY DESIGN** (Requires supervisor sign-off) |
-| **Proposal Format** | Title, Introduction & Justification, Literature Review, Objectives, Methodology (5.1–5.8), Referencing, Gantt chart, Budget. | Ruhuna ERC `Format_of_Research_Proposal.docx` (Effective 1 March 2021) | **CONFIRMED OFFICIAL FORMAT** |
-| **Application Form Layout** | Official Ruhuna Annexure (UOR/03-001) with Parts I, II, III, declaration blocks, and checkboxes. | Official `Application for Human Research.docx` directly downloaded from Ruhuna ERC | **CONFIRMED OFFICIAL TEMPLATE** |
-| **Submission Structure** | 8 Hard Copy items; 2 Soft Copy PDFs (01 Complete Application, 02 Anonymous Research Proposal). | Ruhuna ERC `instructions.html` and checklist photo | **CONFIRMED OFFICIAL RULE** |
-| **ERC Chairperson Addressee** | The Chairperson, Ethics Review Committee, Faculty of Medicine, University of Ruhuna, P.O. Box 70, Galle, Sri Lanka. Addressed neutrally without attaching a specific individual's personal name due to differing official faculty web notices. | Official Ruhuna ERC submission guidelines | **NEUTRAL OFFICIAL ADDRESSEE CONFIRMED** |
-| **ERC Processing Fee Category** | Status: Pending formal PI designation and ERC confirmation. Official fee schedule distinguishes: Category I (LKR 3,000) if PI is Ruhuna faculty academic staff; Category II (LKR 5,000) for other eligible PIs; Category III (No fee / Free) for curriculum-required projects where PI is a Ruhuna undergraduate medical student. | Official Ruhuna ERC `instructions.html` fee schedule | **PENDING PI DESIGNATION CONFIRMATION** |
-| **Colorectal Surgery Facts** | Adult colorectal cancer patients, anterior resection, prophylactic albumin, National Hospital Galle surgical unit. | `/home/yasas/Downloads/final.pdf` and sample application | **STRICTLY EXCLUDED** (Formatting reference only) |
+| Study question | One supervised sitting on an existing picture-based application. Not a test of treatment. | Agreed for this draft. No earlier protocol with results. | Draft design. Supervisor must accept it. |
+| Application already built | Picture labels can be stored in Sinhala, Tamil and English. The sitting will be offline. | Project note, and label fields in the application code. | The developer must still confirm the version used on the day. |
+| Proposed site | PRAGATHI Child Intervention Centre, Galle. | Project note. | Permission has not been received. |
+| Department | Department of Psychiatry, Faculty of Medicine, University of Ruhuna, is the supervisor’s department. It is not a recruitment site in this draft. | Faculty site and project note. | No hospital clinic is included. |
+| Ministry endorsement | Not stated as permission to recruit. | The project note claims endorsement. This draft does not rely on it. | Unverified for this study. |
+| Students | J.G.D. Thamalka and D.V.W. Gunawardana, medical student researchers. | Team instruction and project note (which writes Thamalka D. J. G.). | Name order to be confirmed. Registration numbers not supplied. |
+| Technical collaborator | Yasas Pasindu Fernando. MSc Artificial Intelligence, Kingston University, ongoing. BEng (Hons) Software Engineering, London Metropolitan University, completed. | Team instruction. | Those universities are not sponsors. Legal initials not confirmed. |
+| Supervisor | Dr Gayani D. Punchihewa, MBBS, MD Psych, Senior Lecturer and Psychiatrist. | Faculty psychiatry staff page, read 6 November 2026. | She has not signed. Head-of-department wording on another Faculty page conflicts with the staff page and is not used. |
+| Applicant | Not confirmed. Not Yasas Pasindu Fernando. | Team instruction. | Open. |
+| Sample size | None stated. | No agreed endpoint or eligible-population count. | Must be added before submission. |
+| Publishing partner named in an older project note | Omitted from every ERC draft. | Team instruction. | Removed. |
+| Fee | Not chosen. | Faculty instructions page, read 6 November 2026. | Depends on the applicant and on whether the project is a curriculum requirement. |
+| Training certificates | None held. | No certificates were supplied. | Not claimed. |
+| Animals | Not used. | The protocol. | Animal-handling letter not applicable. |

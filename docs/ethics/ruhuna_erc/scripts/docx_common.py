@@ -1,230 +1,379 @@
 #!/usr/bin/env python3
+"""Shared academic formatting for the University of Ruhuna ERC drafts.
+
+Visual target: the plain research-proposal layout used by the Faculty
+(Version at the top left, date at the top right, page number at the foot).
+A4. Times New Roman. No coloured panels.
 """
-Common formatting and styling utilities for University of Ruhuna ERC documents.
-Adheres strictly to the formatting rules:
-- Margin: 1 inch (72 pt) all around
-- Header: Version 1.0 (DRAFT) | Date: November 2026
-- Footer: Page numbers
-- Typography: Calibri / Arial, clean line spacing and paragraph margins
-- Table styling: professional shading, borders, and cell padding
-"""
+
+import os
 
 import docx
-from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.oxml import OxmlElement, parse_xml
-from docx.oxml.ns import nsdecls, qn
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Cm, Pt, RGBColor
 
-PRIMARY_HEX = "1A365D"  # Deep Navy
-SECONDARY_HEX = "2B6CB0" # Slate Blue
-NEUTRAL_BG = "F7FAFC"   # Light Gray-Blue
-BORDER_HEX = "CBD5E0"   # Subtle Border Gray
+FONT = "Times New Roman"
+BLACK = RGBColor(0, 0, 0)
+# Content width for A4 with 2.54 cm side margins: 210 mm - 50.8 mm.
+RIGHT_TAB = 9072
 
-PRIMARY_COLOR = RGBColor(26, 54, 93)
-SECONDARY_COLOR = RGBColor(43, 108, 176)
-TEXT_COLOR = RGBColor(45, 55, 72)
-MUTED_COLOR = RGBColor(113, 128, 150)
-ALERT_BG_HEX = "FFF5F5"
-ALERT_BORDER_HEX = "E53E3E"
+
+def repo_root():
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+
+
+def erc_root():
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+
+def load_private_contacts():
+    """Read telephone and email from a git-ignored local file, if present.
+
+    The numbers are never stored in this module.
+    """
+    path = os.path.join(repo_root(), ".local_erc_private", "investigator_contacts.json")
+    if not os.path.isfile(path):
+        return None
+    import json
+    with open(path, encoding="utf-8") as handle:
+        data = json.load(handle)
+    phone = str(data.get("phone", "")).strip()
+    email = str(data.get("email", "")).strip()
+    if not phone or not email:
+        return None
+    return {"phone": phone, "email": email}
+
+
+def is_private_output(path):
+    return ".local_erc_private" in os.path.abspath(path)
+
+
+def corresponding_contact_text(output_path):
+    """Contact line for named private copies only."""
+    if not is_private_output(output_path):
+        return (
+            "The corresponding telephone number and email address are printed only in the "
+            "private submission copy. They are omitted from this tracked draft."
+        )
+    contacts = load_private_contacts()
+    if not contacts:
+        return (
+            "The private contact file was not available when this copy was generated. "
+            "Enter the confirmed applicant telephone and email before submission."
+        )
+    return (
+        f"Telephone: {contacts['phone']}. Email: {contacts['email']}. "
+        "The research team supplied these as the corresponding applicant details and asked "
+        "that they be associated with J.G.D. Thamalka. They are not confirmation that this "
+        "person has been appointed principal investigator."
+    )
+
+
+def _set_run_font(run, size=12, bold=False, italic=False):
+    run.font.name = FONT
+    run.bold = bold
+    run.italic = italic
+    run.font.size = Pt(size)
+    run.font.color.rgb = BLACK
+    rpr = run._element.get_or_add_rPr()
+    rfonts = rpr.find(qn("w:rFonts"))
+    if rfonts is None:
+        rfonts = OxmlElement("w:rFonts")
+        rpr.append(rfonts)
+    rfonts.set(qn("w:ascii"), FONT)
+    rfonts.set(qn("w:hAnsi"), FONT)
+    rfonts.set(qn("w:cs"), FONT)
+    rfonts.set(qn("w:eastAsia"), FONT)
+
+
+def _set_style_font(style, size=12):
+    style.font.name = FONT
+    style.font.size = Pt(size)
+    style.font.color.rgb = BLACK
+    rpr = style.element.get_or_add_rPr()
+    rfonts = rpr.find(qn("w:rFonts"))
+    if rfonts is None:
+        rfonts = OxmlElement("w:rFonts")
+        rpr.append(rfonts)
+    rfonts.set(qn("w:ascii"), FONT)
+    rfonts.set(qn("w:hAnsi"), FONT)
+    rfonts.set(qn("w:cs"), FONT)
+    rfonts.set(qn("w:eastAsia"), FONT)
+
 
 def create_styled_document():
-    """Initializes a document with 1-inch margins and default styles."""
     doc = docx.Document()
     for section in doc.sections:
-        section.top_margin = Inches(1.0)
-        section.bottom_margin = Inches(1.0)
-        section.left_margin = Inches(1.0)
-        section.right_margin = Inches(1.0)
-        section.header_distance = Inches(0.5)
-        section.footer_distance = Inches(0.5)
+        section.page_width = Cm(21.0)
+        section.page_height = Cm(29.7)
+        section.top_margin = Cm(2.0)
+        section.bottom_margin = Cm(1.8)
+        section.left_margin = Cm(2.54)
+        section.right_margin = Cm(2.54)
+        section.header_distance = Cm(0.6)
+        section.footer_distance = Cm(0.5)
+        section.different_first_page_header_footer = False
+    _set_style_font(doc.styles["Normal"], 12)
+    normal = doc.styles["Normal"]
+    normal.paragraph_format.space_before = Pt(0)
+    normal.paragraph_format.space_after = Pt(8)
+    normal.paragraph_format.line_spacing = 1.15
+    props = doc.core_properties
+    props.author = ""
+    props.last_modified_by = ""
+    props.category = ""
+    props.comments = ""
+    props.subject = ""
     return doc
 
-def setup_header_footer(doc, doc_title, is_anonymous=False, version_str="Version 1.0 (DRAFT) | November 2026"):
-    """Configures official header and footer for Ruhuna ERC submissions."""
+
+def _add_page_field(paragraph):
+    run = paragraph.add_run()
+    begin = OxmlElement("w:fldChar")
+    begin.set(qn("w:fldCharType"), "begin")
+    instr = OxmlElement("w:instrText")
+    instr.set(qn("xml:space"), "preserve")
+    instr.text = " PAGE "
+    end = OxmlElement("w:fldChar")
+    end.set(qn("w:fldCharType"), "end")
+    run._r.append(begin)
+    run2 = paragraph.add_run()
+    run2._r.append(instr)
+    run3 = paragraph.add_run()
+    run3._r.append(end)
+    for item in (run, run2, run3):
+        _set_run_font(item, 12, False, False)
+
+
+def _right_tab(section):
+    width = section.page_width or Cm(21.0)
+    left = section.left_margin or Cm(2.54)
+    right = section.right_margin or Cm(2.54)
+    content = int(width) - int(left) - int(right)
+    # Tab positions are in twips; EMU / 635 = twips.
+    return str(max(content // 635, 7000))
+
+
+def _nil_borders(table):
+    tbl_pr = table._tbl.tblPr
+    borders = OxmlElement("w:tblBorders")
+    for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        element = OxmlElement(f"w:{edge}")
+        element.set(qn("w:val"), "nil")
+        element.set(qn("w:sz"), "0")
+        element.set(qn("w:space"), "0")
+        element.set(qn("w:color"), "auto")
+        borders.append(element)
+    tbl_pr.append(borders)
+
+
+def setup_header_footer(doc):
+    """Version 01 at the left, 06 November 2026 at the right, page number at the foot."""
     for section in doc.sections:
-        # Header
         header = section.header
-        p_hdr = header.paragraphs[0]
-        p_hdr.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        p_hdr.text = ""
-        r_hdr = p_hdr.add_run(f"Ethics Review Committee, Faculty of Medicine, University of Ruhuna\n{doc_title} — {version_str}")
-        r_hdr.font.name = "Calibri"
-        r_hdr.font.size = Pt(8.5)
-        r_hdr.font.italic = True
-        r_hdr.font.color.rgb = MUTED_COLOR
+        header.is_linked_to_previous = False
+        paragraph = header.paragraphs[0]
+        paragraph.clear()
+        paragraph.paragraph_format.space_before = Pt(0)
+        paragraph.paragraph_format.space_after = Pt(0)
+        usable = int(section.page_width - section.left_margin - section.right_margin)
+        table = doc.add_table(rows=1, cols=2)
+        table.autofit = False
+        _nil_borders(table)
+        table.columns[0].width = usable // 2
+        table.columns[1].width = usable // 2
+        left_cell = table.cell(0, 0)
+        right_cell = table.cell(0, 1)
+        left_cell.width = usable // 2
+        right_cell.width = usable // 2
+        left_para = left_cell.paragraphs[0]
+        left_para.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        left_para.paragraph_format.space_before = Pt(0)
+        left_para.paragraph_format.space_after = Pt(0)
+        add_text(left_para, "Version 01", 11, False, False)
+        right_para = right_cell.paragraphs[0]
+        right_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        right_para.paragraph_format.space_before = Pt(0)
+        right_para.paragraph_format.space_after = Pt(0)
+        add_text(right_para, "06 November 2026", 11, False, False)
+        # add_table places the table in the body. Move it into this header.
+        header._element.append(table._tbl)
+        if not paragraph.text and paragraph._p.getparent() is not None:
+            paragraph._p.getparent().remove(paragraph._p)
 
-        # Footer
         footer = section.footer
-        p_ftr = footer.paragraphs[0]
-        p_ftr.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p_ftr.text = ""
-        if is_anonymous:
-            r_ftr = p_ftr.add_run("[ANONYMIZED SUBMISSION COPY FOR PEER REVIEW]   |   Page ")
-        else:
-            r_ftr = p_ftr.add_run("Simple AAC Application Research Protocol   |   Page ")
-        r_ftr.font.name = "Calibri"
-        r_ftr.font.size = Pt(9.0)
-        r_ftr.font.color.rgb = MUTED_COLOR
+        footer.is_linked_to_previous = False
+        foot = footer.paragraphs[0]
+        foot.clear()
+        foot.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        foot.paragraph_format.space_before = Pt(0)
+        foot.paragraph_format.space_after = Pt(0)
+        _add_page_field(foot)
+    return doc
 
-        # Add page number XML field
-        fldSimple = OxmlElement('w:fldSimple')
-        fldSimple.set(qn('w:instr'), 'PAGE')
-        p_ftr._p.append(fldSimple)
 
-def add_draft_notice(doc, note="DRAFT — PENDING SUPERVISOR REVIEW AND AUTHENTIC APPLICANT SIGNATURES"):
-    """Adds a standardized callout notice indicating draft status."""
-    table = doc.add_table(rows=1, cols=1)
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    table.autofit = False
-    cell = table.cell(0, 0)
-    cell.width = Inches(6.5)
-    
-    set_cell_background(cell, "FEFCBF") # Light yellow/amber
-    set_cell_padding(cell, top=120, bottom=120, left=180, right=180)
-    
-    p = cell.paragraphs[0]
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_tag = p.add_run("ETHICS SUBMISSION WORKING DRAFT\n")
-    r_tag.bold = True
-    r_tag.font.name = "Calibri"
-    r_tag.font.size = Pt(10)
-    r_tag.font.color.rgb = RGBColor(146, 64, 14)
-    
-    r_txt = p.add_run(note)
-    r_txt.font.name = "Calibri"
-    r_txt.font.size = Pt(9.5)
-    r_txt.font.color.rgb = RGBColor(116, 42, 6)
-    
-    doc.add_paragraph() # Spacer
+def add_text(paragraph, text, size=12, bold=False, italic=False):
+    run = paragraph.add_run(text)
+    _set_run_font(run, size, bold, italic)
+    return run
 
-def add_heading_1(doc, text):
-    """Adds a standardized primary heading."""
-    p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(14)
-    p.paragraph_format.space_after = Pt(4)
-    p.paragraph_format.keep_with_next = True
-    run = p.add_run(text)
-    run.font.name = "Calibri"
-    run.font.size = Pt(14)
-    run.font.bold = True
-    run.font.color.rgb = PRIMARY_COLOR
-    return p
 
-def add_heading_2(doc, text):
-    """Adds a standardized secondary heading."""
-    p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(10)
-    p.paragraph_format.space_after = Pt(3)
-    p.paragraph_format.keep_with_next = True
-    run = p.add_run(text)
-    run.font.name = "Calibri"
-    run.font.size = Pt(12)
-    run.font.bold = True
-    run.font.color.rgb = SECONDARY_COLOR
-    return p
+def add_heading(doc, text, level=1):
+    paragraph = doc.add_paragraph()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    paragraph.paragraph_format.space_before = Pt(12 if level == 1 else 10)
+    paragraph.paragraph_format.space_after = Pt(6)
+    paragraph.paragraph_format.line_spacing = 1.15
+    paragraph.paragraph_format.keep_with_next = True
+    add_text(paragraph, text, 14 if level == 1 else 12, bold=True)
+    return paragraph
 
-def add_heading_3(doc, text):
-    """Adds a tertiary heading."""
-    p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(8)
-    p.paragraph_format.space_after = Pt(2)
-    p.paragraph_format.keep_with_next = True
-    run = p.add_run(text)
-    run.font.name = "Calibri"
-    run.font.size = Pt(11)
-    run.font.bold = True
-    run.font.italic = True
-    run.font.color.rgb = PRIMARY_COLOR
-    return p
 
-def add_body_paragraph(doc, text, bold_prefix=None, space_after=6, italic=False):
-    """Adds a clean body paragraph with 1.15 line spacing."""
-    p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(0)
-    p.paragraph_format.space_after = Pt(space_after)
-    p.paragraph_format.line_spacing = 1.15
-    if bold_prefix:
-        r_prefix = p.add_run(bold_prefix)
-        r_prefix.font.name = "Calibri"
-        r_prefix.font.size = Pt(11)
-        r_prefix.font.bold = True
-        r_prefix.font.color.rgb = PRIMARY_COLOR
-    run = p.add_run(text)
-    run.font.name = "Calibri"
-    run.font.size = Pt(11)
-    run.font.italic = italic
-    run.font.color.rgb = TEXT_COLOR
-    return p
+def add_body(doc, text, *, bold=False, italic=False, center=False, space_after=8, first_indent=None):
+    paragraph = doc.add_paragraph()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER if center else WD_ALIGN_PARAGRAPH.JUSTIFY
+    paragraph.paragraph_format.space_before = Pt(0)
+    paragraph.paragraph_format.space_after = Pt(space_after)
+    paragraph.paragraph_format.line_spacing = 1.15
+    if first_indent:
+        paragraph.paragraph_format.first_line_indent = first_indent
+    add_text(paragraph, text, 12, bold, italic)
+    return paragraph
 
-def add_bullet_point(doc, text, bold_prefix=None):
-    """Adds a styled bullet list item."""
-    p = doc.add_paragraph(style='List Bullet')
-    p.paragraph_format.space_before = Pt(0)
-    p.paragraph_format.space_after = Pt(3)
-    p.paragraph_format.line_spacing = 1.15
-    if bold_prefix:
-        r_pre = p.add_run(bold_prefix)
-        r_pre.font.name = "Calibri"
-        r_pre.font.size = Pt(11)
-        r_pre.font.bold = True
-        r_pre.font.color.rgb = PRIMARY_COLOR
-    run = p.add_run(text)
-    run.font.name = "Calibri"
-    run.font.size = Pt(11)
-    run.font.color.rgb = TEXT_COLOR
-    return p
 
-def set_cell_background(cell, fill_hex):
-    """Sets background shading of a table cell via XML."""
-    tcPr = cell._tc.get_or_add_tcPr()
-    shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{fill_hex}"/>')
-    tcPr.append(shd)
+def add_mixed_body(doc, parts, *, center=False, space_after=8):
+    """parts: list of (text, bold)."""
+    paragraph = doc.add_paragraph()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER if center else WD_ALIGN_PARAGRAPH.JUSTIFY
+    paragraph.paragraph_format.space_before = Pt(0)
+    paragraph.paragraph_format.space_after = Pt(space_after)
+    paragraph.paragraph_format.line_spacing = 1.15
+    for text, bold in parts:
+        add_text(paragraph, text, 12, bold, False)
+    return paragraph
 
-def set_cell_padding(cell, top=100, bottom=100, left=140, right=140):
-    """Sets cell padding in dxa (1 pt = 20 dxa)."""
-    tcPr = cell._tc.get_or_add_tcPr()
-    tcMar = OxmlElement('w:tcMar')
-    for m, val in [('top', top), ('bottom', bottom), ('left', left), ('right', right)]:
-        node = OxmlElement(f'w:{m}')
-        node.set(qn('w:w'), str(val))
-        node.set(qn('w:type'), 'dxa')
-        tcMar.append(node)
-    tcPr.append(tcMar)
 
-def format_table_headers_and_borders(table, col_widths=None, header_bg=PRIMARY_HEX):
-    """Applies standardized styling to tables."""
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    table.autofit = False
+def add_bullet(doc, text, *, level=0):
+    paragraph = doc.add_paragraph()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    paragraph.paragraph_format.left_indent = Cm(1.0 + 0.5 * level)
+    paragraph.paragraph_format.first_line_indent = Cm(-0.4)
+    paragraph.paragraph_format.space_before = Pt(0)
+    paragraph.paragraph_format.space_after = Pt(2)
+    paragraph.paragraph_format.line_spacing = 1.15
+    add_text(paragraph, "•  " + text, 12, False, False)
+    return paragraph
 
-    # Format header row
-    if len(table.rows) > 0:
-        for idx, cell in enumerate(table.rows[0].cells):
-            set_cell_background(cell, header_bg)
-            set_cell_padding(cell, top=140, bottom=140, left=140, right=140)
-            for p in cell.paragraphs:
-                p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                for run in p.runs:
-                    run.font.name = "Calibri"
-                    run.font.size = Pt(9.5)
-                    run.font.bold = True
-                    run.font.color.rgb = RGBColor(255, 255, 255)
 
-    # Format data rows
-    for r_idx, row in enumerate(table.rows[1:], start=1):
-        bg = NEUTRAL_BG if r_idx % 2 == 1 else "FFFFFF"
-        for c_idx, cell in enumerate(row.cells):
-            set_cell_background(cell, bg)
-            set_cell_padding(cell, top=100, bottom=100, left=120, right=120)
-            for p in cell.paragraphs:
-                for run in p.runs:
-                    run.font.name = "Calibri"
-                    run.font.size = Pt(9.5)
-                    run.font.color.rgb = TEXT_COLOR
+def add_numbered_item(doc, number, text):
+    paragraph = doc.add_paragraph()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    paragraph.paragraph_format.left_indent = Cm(1.0)
+    paragraph.paragraph_format.first_line_indent = Cm(-0.5)
+    paragraph.paragraph_format.space_before = Pt(0)
+    paragraph.paragraph_format.space_after = Pt(4)
+    paragraph.paragraph_format.line_spacing = 1.15
+    add_text(paragraph, f"{number}.  {text}", 12, False, False)
+    return paragraph
 
-    # Set column widths if provided
+
+def add_toc_line(doc, title, page, level=0):
+    paragraph = doc.add_paragraph()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    paragraph.paragraph_format.left_indent = Cm(0.75 * level)
+    paragraph.paragraph_format.space_before = Pt(0)
+    paragraph.paragraph_format.space_after = Pt(1)
+    paragraph.paragraph_format.line_spacing = 1.0
+    ppr = paragraph._p.get_or_add_pPr()
+    tabs = OxmlElement("w:tabs")
+    tab = OxmlElement("w:tab")
+    tab.set(qn("w:val"), "right")
+    tab.set(qn("w:leader"), "dot")
+    tab.set(qn("w:pos"), str(RIGHT_TAB - int(0.75 * level * 567)))
+    tabs.append(tab)
+    ppr.append(tabs)
+    page_text = "" if page in (None, "") else str(page)
+    add_text(paragraph, f"{title}\t{page_text}", 12, bold=(level == 0))
+    return paragraph
+
+
+def add_page_break(doc):
+    paragraph = doc.add_paragraph()
+    paragraph.paragraph_format.space_before = Pt(0)
+    paragraph.paragraph_format.space_after = Pt(0)
+    run = paragraph.add_run()
+    _set_run_font(run, 12)
+    break_el = OxmlElement("w:br")
+    break_el.set(qn("w:type"), "page")
+    run._r.append(break_el)
+
+
+def set_cell_text(cell, text, size=11, bold=False):
+    cell.text = ""
+    paragraph = cell.paragraphs[0]
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    paragraph.paragraph_format.space_after = Pt(2)
+    paragraph.paragraph_format.space_before = Pt(0)
+    add_text(paragraph, text, size, bold, False)
+
+
+def shade_cell(cell, fill):
+    tc = cell._tc
+    tcpr = tc.get_or_add_tcPr()
+    shd = OxmlElement("w:shd")
+    shd.set(qn("w:fill"), fill)
+    shd.set(qn("w:val"), "clear")
+    tcpr.append(shd)
+
+
+def set_table_borders(table):
+    tbl = table._tbl
+    tblpr = tbl.tblPr if tbl.tblPr is not None else OxmlElement("w:tblPr")
+    borders = OxmlElement("w:tblBorders")
+    for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        element = OxmlElement(f"w:{edge}")
+        element.set(qn("w:val"), "single")
+        element.set(qn("w:sz"), "4")
+        element.set(qn("w:space"), "0")
+        element.set(qn("w:color"), "000000")
+        borders.append(element)
+    existing = tblpr.find(qn("w:tblBorders"))
+    if existing is not None:
+        tblpr.remove(existing)
+    tblpr.append(borders)
+
+
+def add_plain_table(doc, headers, rows, col_widths=None):
+    table = doc.add_table(rows=1 + len(rows), cols=len(headers))
+    table.autofit = True
+    set_table_borders(table)
+    for index, header in enumerate(headers):
+        set_cell_text(table.rows[0].cells[index], header, 11, True)
+    for r_index, row in enumerate(rows):
+        for c_index, value in enumerate(row):
+            set_cell_text(table.rows[r_index + 1].cells[c_index], value, 11, False)
     if col_widths:
         for row in table.rows:
-            for idx, width in enumerate(col_widths):
-                if idx < len(row.cells):
-                    row.cells[idx].width = Inches(width)
+            for index, width in enumerate(col_widths):
+                row.cells[index].width = Cm(width)
+    doc.add_paragraph().paragraph_format.space_after = Pt(4)
+    return table
+
+
+def clear_metadata(doc, title):
+    props = doc.core_properties
+    props.author = ""
+    props.last_modified_by = ""
+    props.title = title
+    props.subject = ""
+    props.comments = ""
+    props.category = ""
+    props.keywords = ""
+
+
+def save_doc(doc, path, title):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    clear_metadata(doc, title)
+    doc.save(path)

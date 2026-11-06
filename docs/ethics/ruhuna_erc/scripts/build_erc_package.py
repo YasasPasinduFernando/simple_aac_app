@@ -1,194 +1,279 @@
 #!/usr/bin/env python3
-"""
-Automated compilation pipeline for University of Ruhuna ERC submission packages.
-Converts authored DOCX files to PDF using headless LibreOffice, merges them
-in accordance with published submission instructions, creates strictly de-identified
-peer-review copies, and exports to the local-only private folder (.local_erc_private/).
+"""Build the two electronic files required for an initial human-research application.
+
+Item 6 certificates, the animal letter and the fee receipt are not inserted.
+The anonymous file is item 4 only.
 """
 
 import os
-import sys
-import subprocess
 import shutil
+import subprocess
+import sys
+
 from pypdf import PdfReader, PdfWriter
 
+from docx_common import (
+    add_body,
+    create_styled_document,
+    erc_root,
+    load_private_contacts,
+    repo_root,
+    save_doc,
+    setup_header_footer,
+)
+from generate_admin_docs import (
+    build_animal_statement,
+    build_cover_letter,
+    build_cv,
+    build_fee_status,
+    build_submission_checklist,
+    build_supervisor_letter,
+    build_training_status,
+)
+from generate_application_form import populate_application_form
+from generate_protocol_and_annexures import TOC_ENTRIES, build_research_protocol
+
+HEADINGS = [title for title, _level in TOC_ENTRIES]
+
+
 def convert_docx_to_pdf(docx_path, out_dir):
-    """Converts a DOCX file to PDF using headless LibreOffice."""
-    cmd = [
+    os.makedirs(out_dir, exist_ok=True)
+    env = os.environ.copy()
+    env.setdefault("HOME", os.path.join(out_dir, "lo_home"))
+    os.makedirs(env["HOME"], exist_ok=True)
+    env["SAL_USE_VCLPLUGIN"] = "svp"
+    command = [
         "libreoffice",
         "--headless",
-        "--convert-to", "pdf",
+        "--norestore",
+        "--convert-to",
+        "pdf",
+        "--outdir",
+        out_dir,
         docx_path,
-        "--outdir", out_dir
     ]
-    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    if res.returncode != 0:
-        raise RuntimeError(f"Conversion failed for {docx_path}: {res.stderr}")
-    pdf_name = os.path.splitext(os.path.basename(docx_path))[0] + ".pdf"
-    pdf_path = os.path.join(out_dir, pdf_name)
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr or result.stdout)
+    pdf_path = os.path.join(out_dir, os.path.splitext(os.path.basename(docx_path))[0] + ".pdf")
     if not os.path.exists(pdf_path):
-        raise FileNotFoundError(f"Expected converted PDF not found: {pdf_path}")
+        raise FileNotFoundError(pdf_path)
     return pdf_path
 
-def merge_pdfs(pdf_list, output_path):
-    """Merges a list of PDF files sequentially into a single target PDF."""
+
+def extract_toc(pdf_path):
+    text = subprocess.check_output(["pdftotext", "-layout", pdf_path, "-"], text=True, errors="replace")
+    found = {}
+    for number, page in enumerate(text.split("\f"), start=1):
+        if "Contents" in page and "1. Introduction" in page and "6. References" in page:
+            continue
+        lines = [" ".join(line.split()) for line in page.splitlines()]
+        for index, line in enumerate(lines):
+            if not line or "...." in line:
+                continue
+            window = line
+            if index + 1 < len(lines):
+                window = f"{line} {lines[index + 1]}"
+            for heading in HEADINGS:
+                if heading in found:
+                    continue
+                if line == heading or line.startswith(heading) or window.startswith(heading):
+                    found[heading] = number
+    return found
+
+
+def strip_and_write(pdf_paths, output_path, title):
     writer = PdfWriter()
-    for p in pdf_list:
-        reader = PdfReader(p)
+    for path in pdf_paths:
+        reader = PdfReader(path)
         for page in reader.pages:
             writer.add_page(page)
+    writer.add_metadata({"/Title": title, "/Author": "", "/Creator": "", "/Producer": "", "/Subject": ""})
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "wb") as f_out:
-        writer.write(f_out)
-    return len(writer.pages), os.path.getsize(output_path)
+    with open(output_path, "wb") as handle:
+        writer.write(handle)
+    return len(writer.pages)
 
-def verify_anonymization(pdf_path, forbidden_terms):
-    """Verifies that an anonymized PDF contains no researcher names or private terms."""
-    reader = PdfReader(pdf_path)
-    leaks = []
-    for idx, page in enumerate(reader.pages, start=1):
-        txt = page.extract_text() or ""
-        for term in forbidden_terms:
-            if term.lower() in txt.lower():
-                leaks.append((idx, term))
-    return leaks
+
+def text_of_pdf(path):
+    reader = PdfReader(path)
+    parts = []
+    for page in reader.pages:
+        parts.append(page.extract_text() or "")
+    meta = reader.metadata or {}
+    meta_text = " ".join(str(value) for value in meta.values() if value)
+    return "\n".join(parts), meta_text
+
+
+def write_pointer(path, message):
+    doc = create_styled_document()
+    setup_header_footer(doc)
+    add_body(doc, message)
+    save_doc(doc, path, "Pointer")
+
 
 def main():
-    print("=== UNIVERSITY OF RUHUNA ERC: AUTOMATED PACKAGE COMPILATION ===")
-    scripts_dir = os.path.abspath(os.path.dirname(__file__))
-    erc_root = os.path.abspath(os.path.join(scripts_dir, ".."))
-    repo_root = os.path.abspath(os.path.join(erc_root, "..", "..", ".."))
-    
-    # Ignored build directories
-    build_dir = os.path.join(scripts_dir, "build")
-    exports_dir = os.path.join(repo_root, ".local_erc_private", "exports_private")
+    root = erc_root()
+    repository = repo_root()
+    private = os.path.join(repository, ".local_erc_private")
+    named_dir = os.path.join(private, "named_drafts")
+    build_dir = os.path.join(root, "scripts", "build")
+    exports = os.path.join(private, "exports_private")
+    os.makedirs(named_dir, exist_ok=True)
+    if os.path.isdir(build_dir):
+        shutil.rmtree(build_dir)
     os.makedirs(build_dir, exist_ok=True)
-    os.makedirs(exports_dir, exist_ok=True)
+    os.makedirs(exports, exist_ok=True)
 
-    print(f"Repository Root : {repo_root}")
-    print(f"ERC Docs Base   : {erc_root}")
-    print(f"Local Build Dir : {build_dir}")
-    print(f"Private Export  : {exports_dir}")
+    template = os.path.join(root, "scripts", "templates", "Application_for_Human_Research_OFFICIAL_BLANK.docx")
 
-    # Step 1: Ensure all DOCX files are generated
-    print("\n--- Step 1: Verifying & Generating DOCX Sources ---")
-    admin_script = os.path.join(scripts_dir, "generate_admin_docs.py")
-    app_script = os.path.join(scripts_dir, "generate_application_form.py")
-    proto_script = os.path.join(scripts_dir, "generate_protocol_and_annexures.py")
+    print("Generating tracked drafts without telephone or email")
+    build_cover_letter(os.path.join(root, "forms", "01_Cover_Letter_DRAFT.docx"))
+    populate_application_form(template, os.path.join(root, "forms", "02_Human_Research_Application_DRAFT.docx"))
+    build_supervisor_letter(os.path.join(root, "forms", "03_Supervisor_Letter_DRAFT.docx"))
+    build_cv(os.path.join(root, "forms", "10_CV_Principal_Investigator_DRAFT.docx"))
+    build_training_status(os.path.join(root, "forms", "13_Training_Certificates_PI_Supervisor_DRAFT.docx"))
+    build_animal_statement(os.path.join(root, "forms", "14_Animal_Handling_Statement_DRAFT.docx"))
+    build_fee_status(os.path.join(root, "forms", "15_Fee_Payment_Receipt_Placeholder_DRAFT.docx"))
+    build_submission_checklist(os.path.join(root, "qa", "12_ERC_Submission_Checklist.docx"))
 
-    subprocess.run([sys.executable, admin_script], check=True)
-    subprocess.run([sys.executable, app_script], check=True)
-    subprocess.run([sys.executable, proto_script], check=True)
-    print("All DOCX sources confirmed up to date.")
+    pointer = (
+        "This separate file is not part of the submission. The current English text is an annex "
+        "of the research proposal, Version 01, 06 November 2026. Do not submit an older annex in its place. "
+        "Sinhala and Tamil translations have not been prepared."
+    )
+    for name in (
+        "05_Parent_or_Guardian_Information_Sheet_DRAFT.docx",
+        "05_Parent_or_Guardian_Information_Sheet_ANONYMOUS_DRAFT.docx",
+        "06_Parent_or_Guardian_Consent_Form_DRAFT.docx",
+        "06_Parent_or_Guardian_Consent_Form_ANONYMOUS_DRAFT.docx",
+        "07_Child_Assent_Protocol_DRAFT.docx",
+        "07_Child_Assent_Protocol_ANONYMOUS_DRAFT.docx",
+        "08_Study_Instruments_DRAFT.docx",
+        "08_Study_Instruments_ANONYMOUS_DRAFT.docx",
+        "09_Site_Permission_Request_Letters_DRAFT.docx",
+        "09_Site_Permission_Request_Letters_ANONYMOUS_DRAFT.docx",
+    ):
+        write_pointer(os.path.join(root, "annexures", name), pointer)
+    data_note = (
+        "Data handling is described in section 5.10 of the research proposal. "
+        "A second data-management document is not part of this draft."
+    )
+    write_pointer(os.path.join(root, "data_management", "11_Data_Management_Plan_DRAFT.docx"), data_note)
+    write_pointer(os.path.join(root, "data_management", "11_Data_Management_Plan_ANONYMOUS_DRAFT.docx"), data_note)
 
-    # Step 2: Convert all DOCX to PDF
-    print("\n--- Step 2: Converting DOCX to PDF via Headless LibreOffice ---")
-    docx_files = [
-        os.path.join(erc_root, "forms", "01_Cover_Letter_DRAFT.docx"),
-        os.path.join(erc_root, "forms", "02_Human_Research_Application_DRAFT.docx"),
-        os.path.join(erc_root, "forms", "03_Supervisor_Letter_DRAFT.docx"),
-        os.path.join(erc_root, "protocol", "04_AAC_ERC_Research_Protocol_DRAFT.docx"),
-        os.path.join(erc_root, "annexures", "05_Parent_or_Guardian_Information_Sheet_DRAFT.docx"),
-        os.path.join(erc_root, "annexures", "06_Parent_or_Guardian_Consent_Form_DRAFT.docx"),
-        os.path.join(erc_root, "annexures", "07_Child_Assent_Protocol_DRAFT.docx"),
-        os.path.join(erc_root, "annexures", "08_Study_Instruments_DRAFT.docx"),
-        os.path.join(erc_root, "annexures", "09_Site_Permission_Request_Letters_DRAFT.docx"),
-        os.path.join(erc_root, "forms", "10_CV_Principal_Investigator_DRAFT.docx"),
-        os.path.join(erc_root, "forms", "13_Training_Certificates_PI_Supervisor_DRAFT.docx"),
-        os.path.join(erc_root, "forms", "14_Animal_Handling_Statement_DRAFT.docx"),
-        os.path.join(erc_root, "forms", "15_Fee_Payment_Receipt_Placeholder_DRAFT.docx"),
-        os.path.join(erc_root, "data_management", "11_Data_Management_Plan_DRAFT.docx"),
-        os.path.join(erc_root, "qa", "12_ERC_Submission_Checklist.docx"),
-        # Anonymized variants
-        os.path.join(erc_root, "protocol", "04_AAC_ERC_Research_Protocol_ANONYMOUS_DRAFT.docx"),
-        os.path.join(erc_root, "annexures", "05_Parent_or_Guardian_Information_Sheet_ANONYMOUS_DRAFT.docx"),
-        os.path.join(erc_root, "annexures", "06_Parent_or_Guardian_Consent_Form_ANONYMOUS_DRAFT.docx"),
-        os.path.join(erc_root, "annexures", "07_Child_Assent_Protocol_ANONYMOUS_DRAFT.docx"),
-        os.path.join(erc_root, "annexures", "08_Study_Instruments_ANONYMOUS_DRAFT.docx"),
-        os.path.join(erc_root, "annexures", "09_Site_Permission_Request_Letters_ANONYMOUS_DRAFT.docx"),
-        os.path.join(erc_root, "data_management", "11_Data_Management_Plan_ANONYMOUS_DRAFT.docx"),
+    anon_docx = os.path.join(root, "protocol", "04_AAC_ERC_Research_Protocol_ANONYMOUS_DRAFT.docx")
+    named_docx = os.path.join(named_dir, "04_Research_Proposal_NAMED.docx")
+    tracked_named = os.path.join(root, "protocol", "04_AAC_ERC_Research_Protocol_DRAFT.docx")
+
+    print("First protocol pass")
+    build_research_protocol(anon_docx, anonymous=True)
+    build_research_protocol(named_docx, anonymous=False)
+    anon_pdf = convert_docx_to_pdf(anon_docx, build_dir)
+    named_pdf = convert_docx_to_pdf(named_docx, build_dir)
+    anon_toc = extract_toc(anon_pdf)
+    named_toc = extract_toc(named_pdf)
+    print("Anonymous contents pages:", anon_toc)
+    print("Named contents pages:", named_toc)
+
+    print("Second protocol pass with contents page numbers")
+    build_research_protocol(anon_docx, anonymous=True, toc=anon_toc)
+    build_research_protocol(named_docx, anonymous=False, toc=named_toc)
+    build_research_protocol(tracked_named, anonymous=False, toc=named_toc)
+
+    print("Private named copies")
+    build_cover_letter(os.path.join(named_dir, "01_Cover_Letter.docx"))
+    populate_application_form(template, os.path.join(named_dir, "02_Application.docx"))
+    build_supervisor_letter(os.path.join(named_dir, "03_Supervisor_Letter.docx"))
+    build_cv(os.path.join(named_dir, "05_CV_notes.docx"))
+    # Rebuild named proposal after the private path is known so the contact line can appear.
+    build_research_protocol(named_docx, anonymous=False, toc=named_toc)
+
+    print("Converting submission documents")
+    cover_pdf = convert_docx_to_pdf(os.path.join(named_dir, "01_Cover_Letter.docx"), build_dir)
+    application_pdf = convert_docx_to_pdf(os.path.join(named_dir, "02_Application.docx"), build_dir)
+    supervisor_pdf = convert_docx_to_pdf(os.path.join(named_dir, "03_Supervisor_Letter.docx"), build_dir)
+    proposal_pdf = convert_docx_to_pdf(named_docx, build_dir)
+    # Contents numbers were taken from the previous pass. Rebuild once more if the contact line moved them.
+    named_toc_final = extract_toc(proposal_pdf)
+    if named_toc_final != named_toc:
+        print("Contents shifted after the contact line. Rebuilding the named proposal.")
+        build_research_protocol(named_docx, anonymous=False, toc=named_toc_final)
+        proposal_pdf = convert_docx_to_pdf(named_docx, build_dir)
+    cv_pdf = convert_docx_to_pdf(os.path.join(named_dir, "05_CV_notes.docx"), build_dir)
+    anon_final = convert_docx_to_pdf(anon_docx, build_dir)
+
+    complete = os.path.join(exports, "01_Complete_ERC_Application.pdf")
+    anonymous = os.path.join(exports, "02_Anonymous_Research_Proposal.pdf")
+    complete_pages = strip_and_write(
+        [cover_pdf, application_pdf, supervisor_pdf, proposal_pdf, cv_pdf],
+        complete,
+        "Draft ERC application",
+    )
+    anonymous_pages = strip_and_write([anon_final], anonymous, "Research proposal")
+
+    contacts = load_private_contacts() or {}
+    forbidden = [
+        "Yasas",
+        "Fernando",
+        "Punchihewa",
+        "Gayani",
+        "Thamalka",
+        "Gunawardana",
+        "Kingston",
+        "London Metropolitan",
+        "Pasindu",
+        "Idea-Hub",
+        "Idea Hub",
+        "Ideahub",
+        "E.K.Y.P",
     ]
+    if contacts.get("phone"):
+        forbidden.append(contacts["phone"])
+    if contacts.get("email"):
+        forbidden.append(contacts["email"])
+    body, meta = text_of_pdf(anonymous)
+    leaks = []
+    haystack = (body + "\n" + meta).lower()
+    for term in forbidden:
+        if term.lower() in haystack:
+            leaks.append(term)
+    named_body, _named_meta = text_of_pdf(complete)
+    idea = "idea-hub" in named_body.lower() or "idea hub" in named_body.lower()
 
-    converted_pdfs = {}
-    for d in docx_files:
-        base_name = os.path.basename(d)
-        print(f"Converting: {base_name} ...", end=" ", flush=True)
-        pdf_path = convert_docx_to_pdf(d, build_dir)
-        converted_pdfs[base_name] = pdf_path
-        print(f"OK ({os.path.getsize(pdf_path)} bytes)")
+    preview_dir = os.path.join(private, "qa_pages")
+    os.makedirs(preview_dir, exist_ok=True)
+    for label, pdf, pages in (
+        ("anon", anonymous, "1-3"),
+        ("named_proposal", proposal_pdf, "1-3"),
+        ("cover", cover_pdf, "1"),
+        ("form", application_pdf, "1"),
+    ):
+        subprocess.run(
+            ["pdftoppm", "-f", pages.split("-")[0], "-l", pages.split("-")[-1], "-r", "110", "-png", pdf, os.path.join(preview_dir, label)],
+            check=True,
+        )
 
-    # Step 3: Compile Soft Copy 1 (01_Complete_ERC_Application.pdf)
-    # Published Ruhuna ERC Order: Items 1 to 7 as a single PDF file
-    print("\n--- Step 3: Compiling Soft Copy 1 (01_Complete_ERC_Application.pdf) ---")
-    soft_copy_1_files = [
-        converted_pdfs["01_Cover_Letter_DRAFT.docx"],
-        converted_pdfs["02_Human_Research_Application_DRAFT.docx"],
-        converted_pdfs["03_Supervisor_Letter_DRAFT.docx"],
-        converted_pdfs["04_AAC_ERC_Research_Protocol_DRAFT.docx"],
-        converted_pdfs["05_Parent_or_Guardian_Information_Sheet_DRAFT.docx"],
-        converted_pdfs["06_Parent_or_Guardian_Consent_Form_DRAFT.docx"],
-        converted_pdfs["07_Child_Assent_Protocol_DRAFT.docx"],
-        converted_pdfs["08_Study_Instruments_DRAFT.docx"],
-        converted_pdfs["09_Site_Permission_Request_Letters_DRAFT.docx"],
-        converted_pdfs["11_Data_Management_Plan_DRAFT.docx"],
-        converted_pdfs["10_CV_Principal_Investigator_DRAFT.docx"],
-        converted_pdfs["13_Training_Certificates_PI_Supervisor_DRAFT.docx"],
-        converted_pdfs["14_Animal_Handling_Statement_DRAFT.docx"],
-        converted_pdfs["12_ERC_Submission_Checklist.docx"]
-    ]
-    out_sc1 = os.path.join(exports_dir, "01_Complete_ERC_Application.pdf")
-    pages_sc1, bytes_sc1 = merge_pdfs(soft_copy_1_files, out_sc1)
-    print(f"Soft Copy 1 Built: {out_sc1}")
-    print(f"Total Pages : {pages_sc1} | File Size: {bytes_sc1 / (1024*1024):.2f} MB")
+    log_path = os.path.join(root, "qa", "production_log.md")
+    with open(log_path, "w", encoding="utf-8") as log:
+        log.write("# Production log\n\n")
+        log.write("Draft date used in the headers: 06 November 2026. Version 01.\n\n")
+        log.write(f"- Complete named file: `{complete}` — {complete_pages} pages.\n")
+        log.write(f"- Anonymous proposal: `{anonymous}` — {anonymous_pages} pages.\n")
+        log.write(f"- Anonymous identity leaks: {leaks if leaks else 'none found'}.\n")
+        log.write(f"- Former publishing-partner name in the named file: {'yes' if idea else 'no'}.\n")
+        log.write("- Training certificates, animal-handling letter and fee receipt were not inserted.\n")
+        log.write("- Telephone and email are read from the local contact file and are not written in the generator.\n")
+        log.write("\n## Contents page numbers, anonymous proposal\n\n")
+        for heading in HEADINGS:
+            log.write(f"- {heading}: {anon_toc.get(heading, 'not found')}\n")
+    print(f"Complete pages: {complete_pages}")
+    print(f"Anonymous pages: {anonymous_pages}")
+    print(f"Leaks: {leaks if leaks else 'none'}")
+    print(f"Former partner name in named file: {idea}")
+    if leaks or idea:
+        sys.exit(1)
 
-    # Step 4: Compile Soft Copy 2 (02_Anonymous_Research_Proposal.pdf)
-    # Published Ruhuna ERC Order: Item 4 ONLY (Proposal + Instruments + Consent + Info Sheet + Permission drafts)
-    # CRITICAL: Names and affiliations of investigators must be removed!
-    print("\n--- Step 4: Compiling Soft Copy 2 (02_Anonymous_Research_Proposal.pdf) ---")
-    soft_copy_2_files = [
-        converted_pdfs["04_AAC_ERC_Research_Protocol_ANONYMOUS_DRAFT.docx"],
-        converted_pdfs["05_Parent_or_Guardian_Information_Sheet_ANONYMOUS_DRAFT.docx"],
-        converted_pdfs["06_Parent_or_Guardian_Consent_Form_ANONYMOUS_DRAFT.docx"],
-        converted_pdfs["07_Child_Assent_Protocol_ANONYMOUS_DRAFT.docx"],
-        converted_pdfs["08_Study_Instruments_ANONYMOUS_DRAFT.docx"],
-        converted_pdfs["09_Site_Permission_Request_Letters_ANONYMOUS_DRAFT.docx"],
-        converted_pdfs["11_Data_Management_Plan_ANONYMOUS_DRAFT.docx"]
-    ]
-    out_sc2 = os.path.join(exports_dir, "02_Anonymous_Research_Proposal.pdf")
-    pages_sc2, bytes_sc2 = merge_pdfs(soft_copy_2_files, out_sc2)
-    print(f"Soft Copy 2 Built: {out_sc2}")
-    print(f"Total Pages : {pages_sc2} | File Size: {bytes_sc2 / (1024*1024):.2f} MB")
-
-    # Step 5: Verification of Anonymization in Soft Copy 2
-    print("\n--- Step 5: Verifying Zero Anonymity Leakage in Soft Copy 2 ---")
-    forbidden = ["Yasas", "Fernando", "Punchihewa", "Gayani", "Thamalka", "Gunawardana", "Dulithvisura7", "E.K.Y.P.", "Kingston", "London Metropolitan"]
-    leaks = verify_anonymization(out_sc2, forbidden)
-    if leaks:
-        print(f"WARNING: Potential de-identification leak detected in Soft Copy 2: {leaks}")
-    else:
-        print("PASSED: Zero investigator names, emails, or student identity leaks found in Soft Copy 2.")
-
-    # Step 6: Write production log
-    log_path = os.path.join(erc_root, "qa", "production_log.md")
-    with open(log_path, "w", encoding="utf-8") as f_log:
-        f_log.write("# Ruhuna ERC Submission Package: Production & Build Log\n\n")
-        f_log.write(f"**Date of Compilation**: November 2026  \n")
-        f_log.write(f"**Build Tooling**: Python 3.12, LibreOffice Headless, pypdf  \n")
-        f_log.write(f"**Build Status**: **SUCCESSFUL**  \n\n")
-        f_log.write("## 1. Generated Soft Copy Deliverables\n\n")
-        f_log.write("| Deliverable Name | Local File Path | Pages | Size (MB) | Anonymization Status |\n")
-        f_log.write("| :--- | :--- | :---: | :---: | :--- |\n")
-        f_log.write(f"| **Soft Copy 1 (Complete ERC Application)** | `.local_erc_private/exports_private/01_Complete_ERC_Application.pdf` | {pages_sc1} | {bytes_sc1 / (1024*1024):.2f} MB | Identifiable Submission Dossier |\n")
-        f_log.write(f"| **Soft Copy 2 (Anonymous Research Proposal)** | `.local_erc_private/exports_private/02_Anonymous_Research_Proposal.pdf` | {pages_sc2} | {bytes_sc2 / (1024*1024):.2f} MB | **STRICTLY ANONYMIZED (0 leaks)** |\n\n")
-        f_log.write("## 2. Component Page Counts\n\n")
-        for d in docx_files:
-            bname = os.path.basename(d)
-            if bname in converted_pdfs:
-                r = PdfReader(converted_pdfs[bname])
-                f_log.write(f"- `{bname}`: {len(r.pages)} pages ({os.path.getsize(converted_pdfs[bname])} bytes)\n")
-
-    print(f"\nProduction log saved to: {log_path}")
-    print("\n=== BUILD PROCESS COMPLETED SUCCESSFULLY ===")
 
 if __name__ == "__main__":
     main()

@@ -1,98 +1,33 @@
-# University of Ruhuna Faculty of Medicine Ethics Review Committee (ERC) Documentation Package
-## Platform B: Simple AAC Application Research Study
+# University of Ruhuna ERC drafts — picture-based communication study
 
-This directory contains the formal research ethics submission documentation and reproducible build pipeline for the **Simple AAC Application (SL AAC / Pragathi AAC)** research protocol, submitted for ethical review to the **Ethics Review Committee (ERC), Faculty of Medicine, University of Ruhuna, Sri Lanka**.
+These files are a **draft for the research team and Dr Gayani Punchihewa**. They are not an ethics application that has been signed, and they are not an approval.
 
----
+The study would ask whether children with communication difficulties and their caregivers can use an existing offline picture-based application during one supervised sitting in Galle, and whether caregivers find the screen and the language acceptable. No child has been recruited. The application has not been shown to improve communication.
 
-### 1. Repository Structure & Layout
+## Investigators
 
-```text
-simple_aac_app/
-├── lib/                             # Core Flutter AAC application source code
-├── pubspec.yaml                     # Application package metadata (lk.yasas.simpleaac)
-├── docs/
-│   └── ethics/
-│       └── ruhuna_erc/
-│           ├── README.md                    # This document
-│           ├── master_prompt.md             # Master specification & prompt v2
-│           ├── source_register.md           # Audit of source files and references
-│           ├── applicability_and_missing_info.md # Ethics applicability & gap analysis
-│           ├── source_fact_matrix.md        # Fact verification matrix
-│           ├── protocol/
-│           │   └── 04_AAC_ERC_Research_Protocol_DRAFT.docx # Ruhuna ERC structured proposal
-│           ├── forms/
-│           │   ├── 01_Cover_Letter_DRAFT.docx             # Cover letter to ERC Chairperson (Item 1)
-│           │   ├── 02_Human_Research_Application_DRAFT.docx # Official Ruhuna ERC application form (Item 2)
-│           │   ├── 03_Supervisor_Letter_DRAFT.docx        # Supervisor endorsement & consent letter (Item 3)
-│           │   ├── 10_CV_Principal_Investigator_DRAFT.docx# PI academic CV template (Item 5)
-│           │   ├── 13_Training_Certificates_PI_Supervisor_DRAFT.docx # GCP & Ethics training certificates dossier (Item 6)
-│           │   ├── 14_Animal_Handling_Statement_DRAFT.docx# Animal handling non-applicability declaration (Item 7)
-│           │   └── 15_Fee_Payment_Receipt_Placeholder_DRAFT.docx # Faculty Shroff fee payment receipt record (Item 8)
-│           ├── annexures/
-│           │   ├── 05_Parent_or_Guardian_Information_Sheet_DRAFT.docx # Participant information
-│           │   ├── 06_Parent_or_Guardian_Consent_Form_DRAFT.docx     # Parental proxy consent
-│           │   ├── 07_Child_Assent_Protocol_DRAFT.docx              # Child assent procedure
-│           │   ├── 08_Study_Instruments_DRAFT.docx                 # Usability & feedback scales
-│           │   └── 09_Site_Permission_Request_Letters_DRAFT.docx    # Institutional permission drafts
-│           ├── data_management/
-│           │   └── 11_Data_Management_Plan_DRAFT.docx     # Data security and child privacy plan
-│           ├── scripts/
-│           │   ├── build_erc_package.py            # Automated DOCX-to-PDF & compilation engine
-│           │   └── requirements.txt                # Python build dependencies
-│           └── qa/
-│               ├── document_inventory.md           # Complete file tracking inventory
-│               ├── qa_report.md                    # Quality assurance & verification report
-│               ├── submission_checklist.md         # Official Ruhuna ERC submission checklist
-│               ├── 12_ERC_Submission_Checklist.docx# Editable checklist document
-│               └── git_delivery_log.md             # Verified Git commit & push audit trail
-└── .local_erc_private/              # [GIT-IGNORED] Sensitive, identity-bearing & signed items
-    ├── verified_identity_details/   # Unredacted contact details & personal data
-    ├── unsigned_or_signed_private_sources/ # Authentic wet-ink signatures & certificates
-    └── exports_private/             # Generated submission PDF packages
-        ├── 01_Complete_ERC_Application.pdf    # Soft copy 1 (Items 1–7 combined)
-        └── 02_Anonymous_Research_Proposal.pdf # Soft copy 2 (Item 4 strictly de-identified)
-```
+- **J.G.D. Thamalka** and **D.V.W. Gunawardana** — medical student researchers, Faculty of Medicine, University of Ruhuna. They lead the clinical planning and the ethics application.
+- **Yasas Pasindu Fernando** — researcher, technical research collaborator and developer of the application. He is not entered as the applicant.
+- **Dr Gayani Punchihewa** — proposed supervisor. She has not signed. The Faculty staff page lists her as Senior Lecturer and Psychiatrist (MBBS, MD Psych). She is not described here as Head of Department.
 
----
+The person who will sign as the applicant has **not** been confirmed. Telephone and email are kept in `.local_erc_private/investigator_contacts.json` and are printed only in the private named file.
 
-### 2. Research Overview
+## What was rebuilt on 6 November 2026
 
-- **Title of Research**: *SL AAC: A Mobile Application for Early Childhood Communication and Learning Support for Children with Learning and Communication Disabilities in Sri Lanka: A Prospective Usability and Feasibility Evaluation*
-- **Primary Student Research Team**: Ms. Thamalka D. J. G. & D. V. W. Gunawardana (Undergraduate Medical Students, Faculty of Medicine, University of Ruhuna) — Leading medical research planning, clinical protocol execution, and ethics application under faculty supervision.
-- **Proposed Research Supervisor**: Dr. Gayani Punchihewa, MBBS, MD (Psychiatry), Senior Lecturer in Psychiatry, Department of Psychiatry, Faculty of Medicine, University of Ruhuna; Consultant Psychiatrist, Teaching Hospital Karapitiya.
-- **Principal Investigator Designation**: `[PRINCIPAL INVESTIGATOR — FORMAL CONFIRMATION REQUIRED: Lead Medical Student Researcher / Academic Supervisor per Faculty ERC Regulations]`.
-- **Technical Research Collaborator & AAC Developer**: E.K.Y.P. Fernando (Yasas Pasindu Fernando), MSc AI candidate (Kingston University, UK), BEng (Hons) Software Engineering (London Metropolitan University, UK). Specialist software engineering collaborator; engineered the offline-first Pragathi AAC mobile app; advises on technical feasibility and digital usability evaluation. (Academic background only; not an institutional sponsor or foreign thesis project).
-- **Lead Clinical / Community Institution**: PRAGATHI – Child Intervention Centre, Galle, Sri Lanka (Proposed clinical usability site).
-- **Collaborating Academic Institution**: Department of Psychiatry, Faculty of Medicine, University of Ruhuna, Sri Lanka.
-- **Target Population**: Children aged 2–12 years with Autism Spectrum Disorder (ASD), Attention Deficit Hyperactivity Disorder (ADHD), and related speech/language communication difficulties; accompanied by parents/caregivers, speech-language therapists, and special educators.
-- **Study Nature**: **Prospective** observational usability and feasibility evaluation. No experimental medication, no invasive procedures, no clinical diagnostic claims, and no prior unapproved human data collection.
-- **Application Architecture**: Fully offline-first Flutter application (`lk.yasas.simpleaac`). All child card configurations and audio recordings remain strictly on the local device. No biometric or facial recognition data is stored or processed by the core app.
+The proposal was rewritten in shorter academic prose and set in the plain layout of a previous Faculty proposal: A4, Times New Roman, **Version 01** at the top left, **06 November 2026** at the top right, and a page number at the foot. The official application form was filled from the blank downloaded that day. Its own page size is US Letter and was left unchanged so the tables would not be reflowed.
 
----
+No participant number is stated. A sample size has not been calculated. Sinhala and Tamil parent forms have not been translated. No certificate, signature, permission or fee receipt is invented.
 
-### 3. Ethical Principles & Data Privacy Boundary
-
-1. **Zero Fabrication**: All facts derive from verified repository code and the project proposal (`SL_AAC_Project_Proposal.docx`). Any unconfirmed personal details, supervisor names, or dates are clearly tagged as `DRAFT - NEEDS CONFIRMATION`.
-2. **Strict Separation of Technical Work**: The codebase represents Platform B (Flutter AAC app). Research activities involving human participants are prospective and conditional upon Ruhuna ERC approval and institutional administrative clearances.
-3. **Privacy by Design**: Sensitive submission artifacts (containing wet-ink signatures, real contact numbers, training certificates, and identity-bearing soft copies) reside exclusively in `.local_erc_private/` and are strictly excluded from version control via `.gitignore`.
-4. **De-identification of Soft Copy 2**: In compliance with Ruhuna ERC submission instructions, Soft Copy 2 (`02_Anonymous_Research_Proposal.pdf`) is compiled from a strictly anonymized stream where all investigator names, institutional titles, and email addresses are systematically omitted.
-
----
-
-### 4. Reproducible Build Pipeline
-
-The document generation suite converts all authored `.docx` files into publication-grade PDFs using headless LibreOffice and merges them using `pypdf`:
+## Build
 
 ```bash
-# Navigate to scripts directory
 cd docs/ethics/ruhuna_erc/scripts
-
-# Install dependencies (python-docx, pypdf)
-pip install -r requirements.txt
-
-# Compile both submission packages
 python3 build_erc_package.py
 ```
 
-Generated outputs are placed in `.local_erc_private/exports_private/`.
+Private outputs:
+
+- `.local_erc_private/exports_private/01_Complete_ERC_Application.pdf` — cover letter, application, unsigned supervisor draft, proposal with annexes, and curriculum-vitae notes. Certificates and the fee receipt are not included.
+- `.local_erc_private/exports_private/02_Anonymous_Research_Proposal.pdf` — the proposal and its annexes only, without investigator names.
+
+The anonymous proposal in `protocol/` may be committed. Named Word files and the private PDFs stay out of git.
