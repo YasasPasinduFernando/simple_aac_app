@@ -14,7 +14,7 @@ The person who will sign as the applicant has **not** been confirmed. Telephone 
 
 ## What was rebuilt on 6 November 2026
 
-The proposal is written in plain British academic English and set in the plain layout of a previous Faculty proposal: A4, 2.54 cm margins, Times New Roman, 12 pt body text, 1.5 line spacing, 14 pt bold main headings, **Version 01** at the top left, **06 November 2026** at the top right, and a page number at the foot. The official application form was filled from the blank downloaded that day. Its own page size is US Letter and was left unchanged so the tables would not be reflowed.
+The 8 November 2026 draft is a prospective feasibility and usability pilot. The title is provisional until the supervisor agrees it. Layout: A4, 2.54 cm margins, Times New Roman, 12 pt body text, 1.5 line spacing, 14 pt bold main headings, **Version 01** at the top left, **08 November 2026** at the top right, and a page number at the foot. The official application form keeps its own US Letter layout. A Ministry advice letter is generated only for the private review folder and is not inside the ethics PDF.
 
 No participant number is stated. A sample size has not been calculated. Sinhala and Tamil parent forms have not been translated. No certificate, signature, permission or fee receipt is invented.
 

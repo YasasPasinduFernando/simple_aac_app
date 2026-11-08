@@ -16,12 +16,10 @@ from docx_common import (
     is_private_output,
     load_private_contacts,
     setup_header_footer,
+    STUDY_TITLE,
 )
 
-TITLE = (
-    "Usability and caregiver acceptability of an offline picture-based "
-    "communication application for children with communication difficulties in Galle"
-)
+TITLE = STUDY_TITLE
 
 
 def _font(paragraph, size=11, bold=False):
@@ -104,7 +102,7 @@ def populate_application_form(template_path, output_path):
     _replace_starting(
         doc,
         "Version:",
-        "Version: 01     Date: 06 November 2026     Unsigned. For supervisor review.",
+        "Version: 01     Date: 08 November 2026     Unsigned. Title provisional. For supervisor review.",
     )
     _replace_starting(
         doc,
@@ -355,7 +353,7 @@ def populate_application_form(template_path, output_path):
         doc.tables[23],
         4,
         False,
-        "The number of children is not yet set. A between-group power calculation does not apply. The supervisor must enter the number before submission. Section 5.5.",
+        "No target has been selected. Two options are in section 5.5 and neither is in force. A power calculation for a treatment effect does not apply.",
     )
 
     _mark(doc.tables[24], 2, True, "Observer record and five caregiver questions. No biological samples. Section 5.6 and Annex D.")

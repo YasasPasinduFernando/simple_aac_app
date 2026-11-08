@@ -4,14 +4,14 @@ This is a check of the rebuilt files. It is not a statement that the Ethics Revi
 
 ## Blocker: sample size
 
-The number of children is not in the protocol. No figure was available for how many eligible children attend PRAGATHI Child Intervention Centre, and no expected proportion was agreed for the main observations. A power calculation for a difference between groups does not fit this study: there is one sitting, no comparison group, and no claim that communication improves. Dr Gayani Punchihewa needs to set the number with the student researchers before the proposal can be treated as complete. Until that number is written into section 5.5, no family will be recruited.
+No target number has been selected. Section 5.5 sets out two options and states that neither is in force. Option A follows eligible pairs through an agreed period. Option B, 12 pairs, is only a procedural suggestion and is not the sample size unless the supervisor accepts it in writing. A power calculation for a treatment effect does not fit this one-sitting pilot.
 
 The same decision is listed in `.local_erc_private/review_word/MANIFEST.md`, beside the editable Word files.
 
 ## Layout
 
 - Proposal pages are A4, with 2.54 cm margins. Body text is Times New Roman, 12 pt, justified, with 1.5 line spacing. Main headings are 14 pt bold. Subheadings are 12 pt bold.
-- Header: Version 01 at the left, 06 November 2026 at the right. Page number at the foot.
+- Header: Version 01 at the left, 08 November 2026 at the right. Page number at the foot. The title is provisional.
 - The cover letter is single-spaced so the signature table stays on one page. The proposal itself is not.
 - Title page, contents with dotted leaders, and numbered sections follow the shape of the Faculty example that was used only for layout.
 - The official application form remains US Letter, which is the size of the blank downloaded on 6 November 2026. Changing it to A4 would have reflowed the Faculty tables. The named PDF therefore contains both sizes.

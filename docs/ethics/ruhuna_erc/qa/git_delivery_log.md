@@ -179,4 +179,12 @@ This log records every staged, committed, and pushed milestone for the Universit
 - Named package 44 pages. Anonymous proposal 17 pages. No identity leak in the anonymous file.
 - **Commit**: `cfa0a6e` on `feature/modern-ui-offline-smart-images`. Private Word files and PDFs were not committed.
 
+## Feasibility revision, 8 November 2026
+
+- Reframed the unsubmitted draft as a prospective feasibility and usability pilot. Title provisional. Header date 08 November 2026.
+- Sample size left unselected. Option B (12 pairs) is not in force.
+- Language, camera, microphone, internet and local storage limits recorded from the source in `qa/pilot_build_technical_note.md`.
+- Ministry advice letter generated only in the private review folder. It is not inside either ERC PDF.
+- Anonymous proposal 17 pages. Named package 44 pages. No identity leak in the anonymous file.
+
 *(Further milestones logged upon completion)*

@@ -31,6 +31,7 @@ from generate_admin_docs import (
     build_training_status,
 )
 from generate_application_form import populate_application_form
+from generate_ministry_brief import build_ministry_brief
 from generate_protocol_and_annexures import TOC_ENTRIES, build_research_protocol
 
 HEADINGS = [title for title, _level in TOC_ENTRIES]
@@ -139,7 +140,7 @@ def main():
 
     pointer = (
         "This separate file is not part of the submission. The current English text is an annex "
-        "of the research proposal, Version 01, 06 November 2026. Do not submit an older annex in its place. "
+        "of the research proposal, Version 01, 08 November 2026. Do not submit an older annex in its place. "
         "Sinhala and Tamil translations have not been prepared."
     )
     for name in (
@@ -186,6 +187,7 @@ def main():
     populate_application_form(template, os.path.join(named_dir, "02_Application.docx"))
     build_supervisor_letter(os.path.join(named_dir, "03_Supervisor_Letter.docx"))
     build_cv(os.path.join(named_dir, "05_CV_notes.docx"))
+    build_ministry_brief(os.path.join(named_dir, "06_Ministry_Advice.docx"))
     # Rebuild named proposal after the private path is known so the contact line can appear.
     build_research_protocol(named_docx, anonymous=False, toc=named_toc)
 
@@ -256,7 +258,7 @@ def main():
     log_path = os.path.join(root, "qa", "production_log.md")
     with open(log_path, "w", encoding="utf-8") as log:
         log.write("# Production log\n\n")
-        log.write("Draft date used in the headers: 06 November 2026. Version 01.\n\n")
+        log.write("Draft date used in the headers: 08 November 2026. Version 01. Title provisional.\n\n")
         log.write(f"- Complete named file: `{complete}` — {complete_pages} pages.\n")
         log.write(f"- Anonymous proposal: `{anonymous}` — {anonymous_pages} pages.\n")
         log.write(f"- Anonymous identity leaks: {leaks if leaks else 'none found'}.\n")
@@ -275,11 +277,12 @@ def main():
         ("04_Research_Proposal.docx", os.path.join(named_dir, "04_Research_Proposal_NAMED.docx")),
         ("04_Research_Proposal_ANONYMOUS.docx", anon_docx),
         ("05_CV_notes.docx", os.path.join(named_dir, "05_CV_notes.docx")),
+        ("06_Ministry_Advice_DRAFT.docx", os.path.join(named_dir, "06_Ministry_Advice.docx")),
     ]
     manifest_lines = [
         "# Editable Word files for supervisor review",
         "",
-        "Version 01. 06 November 2026. Unsigned.",
+        "Version 01. 08 November 2026. Unsigned. Title provisional.",
         "",
         "Open these in Word. The PDF files in `exports_private` are previews only.",
         "",
@@ -297,6 +300,8 @@ def main():
             "2. The person who will sign as the applicant. This has not been confirmed. E.K.Y.P. Fernando is not the applicant.",
             "3. The supervisor’s signature. The Faculty staff page lists her as Senior Lecturer and Psychiatrist. The cover letter uses Senior Lecturer in Psychiatry, which she should confirm.",
             "4. Whether the study is required by the undergraduate curriculum, and which fee applies.",
+            "4a. Which sample option, if either, the supervisor accepts. Twelve pairs is not the sample size unless she accepts it in writing.",
+            "4b. Whether Ministry, provincial, or site clearance is required. The advice letter is not part of the ethics PDF and has not been sent.",
             "5. Written permission from PRAGATHI Child Intervention Centre.",
             "6. Sinhala and Tamil parent forms, checked by competent speakers.",
             "7. Training certificates, student registration numbers, and the place where consent forms will be locked.",

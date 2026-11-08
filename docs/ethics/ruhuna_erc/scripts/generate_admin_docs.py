@@ -17,12 +17,10 @@ from docx_common import (
     erc_root,
     save_doc,
     setup_header_footer,
+    STUDY_TITLE,
 )
 
-TITLE = (
-    "Usability and caregiver acceptability of an offline picture-based communication "
-    "application for children with communication difficulties in Galle"
-)
+TITLE = STUDY_TITLE
 
 
 def _doc(path):

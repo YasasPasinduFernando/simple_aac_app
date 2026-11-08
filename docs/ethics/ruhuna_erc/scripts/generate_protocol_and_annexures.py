@@ -22,13 +22,10 @@ from docx_common import (
     save_doc,
     setup_header_footer,
     corresponding_contact_text,
+    STUDY_TITLE,
 )
 
-TITLE = (
-    "USABILITY AND CAREGIVER ACCEPTABILITY OF AN OFFLINE "
-    "PICTURE-BASED COMMUNICATION APPLICATION FOR CHILDREN "
-    "WITH COMMUNICATION DIFFICULTIES IN GALLE"
-)
+TITLE = STUDY_TITLE
 
 TOC_ENTRIES = [
     ("1. Introduction", 0),
@@ -108,6 +105,7 @@ def add_title_page(doc, anonymous):
     add_body(
         doc,
         "Draft for review by the research team and the supervisor. "
+        "The title is provisional until the supervisor agrees it. "
         "This document has not been signed. It is not an ethics approval.",
         center=True,
         italic=True,
@@ -146,12 +144,15 @@ def add_introduction(doc):
     )
     add_body(
         doc,
-        "The application itself has already been built. It presents pictures in categories, can "
-        "store labels in Sinhala, Tamil and English, and is intended to speak a selected picture "
-        "aloud. The project note says that the main communication functions can be used without "
-        "an internet connection. The study session described below will be done with the device "
-        "offline. Whether every part of the installed version behaves in that way must be checked "
-        "by the developer before any child is invited.",
+        "The application has already been built. Cards can store an English label and, where one "
+        "has been entered, a Sinhala label and a Tamil label. The screen can be set to one of "
+        "those three languages. Inspection of the source on 8 November 2026, version 1.0.2+3, "
+        "found only a small seed set of Sinhala and Tamil words. If a local label is empty, the "
+        "English label is shown. Speech can be requested in Sinhala, Tamil or English from the "
+        "device, but that speech has not been heard on the device that would be used, and a "
+        "competent speaker has not checked the wording. Those checks are required before any "
+        "child is invited. The sitting will use one recorded build, with online features switched "
+        "off. A technical note of that inspection is kept with the project file.",
     )
     add_body(
         doc,
@@ -163,11 +164,11 @@ def add_introduction(doc):
     )
     add_body(
         doc,
-        "The question is therefore a narrow one. If a parent and a child who already attends a "
-        "child intervention centre in Galle are shown this application for one short supervised "
-        "sitting, can the child select a picture, can the caregiver find the categories, and does "
-        "the caregiver find the language and the screen acceptable? The study will not measure "
-        "whether communication ability improves over time.",
+        "The question is whether one short supervised sitting can be carried out safely and "
+        "reliably at a child intervention centre in Galle, and what should be changed before any "
+        "wider study. The sitting asks whether a willing child selects a picture, whether the "
+        "caregiver can open the categories, and whether the caregiver finds the language and the "
+        "screen acceptable. It does not measure whether communication improves.",
     )
 
 
@@ -271,21 +272,20 @@ def add_objectives(doc):
     add_heading(doc, "4.1 General objective", 2)
     add_body(
         doc,
-        "To describe, in one supervised sitting at a child intervention centre in Galle, whether "
-        "children with communication difficulties and their caregivers can use an existing offline "
-        "picture-based communication application, and whether caregivers find the screen and the "
-        "language acceptable.",
+        "To assess whether one supervised offline sitting with a customised trilingual picture-based "
+        "application can be carried out safely and reliably with child–caregiver pairs at a child "
+        "intervention centre in Galle, and to record what should be changed before a later study.",
     )
     add_heading(doc, "4.2 Specific objectives", 2)
     add_numbered_item(
         doc,
         "1",
-        "To record whether the child selects at least one picture during the sitting.",
+        "To record whether the child selects a picture, and to keep “not attempted” separate from “attempted but unsuccessful”.",
     )
     add_numbered_item(
         doc,
         "2",
-        "To record whether the caregiver can open the communication categories that are present in the version of the application used that day.",
+        "To record whether the caregiver can open the categories present in the build used that day.",
     )
     add_numbered_item(
         doc,
@@ -295,7 +295,7 @@ def add_objectives(doc):
     add_numbered_item(
         doc,
         "4",
-        "To record any sitting that is stopped because the child is distressed, tired or unwilling to continue.",
+        "To record technical faults, the language set for the sitting, and any sitting stopped because the child is distressed, tired or unwilling to continue.",
     )
 
 
@@ -304,10 +304,11 @@ def add_methods(doc, anonymous):
     add_heading(doc, "5.1 Study design", 2)
     add_body(
         doc,
-        "This is a prospective descriptive study of one supervised sitting for each child–caregiver "
-        "pair. There is no control group, no random allocation, and no change to medicine or to "
-        "the child’s usual therapy. It is not a clinical trial. The application is shown; it is not "
-        "prescribed. The sitting is the whole of the data collection for that pair.",
+        "This is a prospective descriptive feasibility and usability pilot. Each child–caregiver "
+        "pair is invited to one supervised sitting. There is no control group, no random allocation, "
+        "and no change to medicine or to the child’s usual therapy. It is not a clinical trial and "
+        "it does not estimate whether communication improves. The application is shown for the "
+        "sitting. It is not prescribed.",
     )
     add_heading(doc, "5.2 Study setting", 2)
     add_body(
@@ -385,14 +386,28 @@ def add_methods(doc, anonymous):
     )
     add_body(
         doc,
-        "The number of children is not yet entered. This is a descriptive study of one sitting. It "
-        "does not compare groups, and it does not test whether communication improves, so a power "
-        "calculation for a difference between groups is not the calculation required. The number "
-        "still has to be set by the supervisor. It depends on how many eligible children attend the "
-        "centre, and on what proportion she is prepared to use for the main observations: a picture "
-        "selected, the categories opened, and the caregiver’s answers. Those figures have not been "
-        "supplied. Until she writes the number into this section, this proposal is not ready for "
-        "submission, and no family will be recruited.",
+        "No target number has been selected. This is a feasibility pilot of one sitting. It does "
+        "not compare groups and it does not test whether communication improves, so a power "
+        "calculation for a treatment effect is not the right calculation. How many eligible "
+        "children attend the centre has not been counted. Two options are written here for the "
+        "supervisor. They are not the study design, and neither is in force.",
+    )
+    add_body(
+        doc,
+        "Option A is to invite every eligible pair who attends during a period agreed with the "
+        "centre. The number would be whatever that period yields. Because attendance is unknown, "
+        "Option A does not state a target.",
+    )
+    add_body(
+        doc,
+        "Option B is a fixed group of 12 pairs, proposed only as a way to see whether the sitting, "
+        "the forms and the offline setup can be completed. Twelve is not a power calculation, it "
+        "is not based on a count of eligible families, and it is not the sample size of this study "
+        "unless the supervisor accepts it in writing and states the reason.",
+    )
+    add_body(
+        doc,
+        "Until one option is accepted and written into this section, no family will be recruited.",
     )
     add_heading(doc, "5.6 Data collection tools", 2)
     add_body(
@@ -409,7 +424,7 @@ def add_methods(doc, anonymous):
     add_numbered_item(
         doc,
         "2",
-        "A session record completed by the observer: whether a picture was selected, whether each category present that day could be opened by the caregiver, and whether the sitting was stopped early, with the reason.",
+        "A session record completed by the observer. Picture selection is marked as not attempted, attempted and selected, or attempted but not selected. The record also notes whether the caregiver opened the categories, which language was set, and whether the sitting stopped early.",
     )
     add_numbered_item(
         doc,
@@ -425,12 +440,12 @@ def add_methods(doc, anonymous):
     add_heading(doc, "5.7 Data analysis plan", 2)
     add_body(
         doc,
-        "The analysis will be descriptive. For each item on the session record and the caregiver "
-        "questions, the number of yes, no, and not-sure answers will be counted and presented with "
-        "the number of sittings. Sittings that stop early will be counted separately and the reason "
-        "will be listed. Comments will be read for repeated practical problems, such as a word that "
-        "caregivers could not understand. No hypothesis test is planned. No test will be added "
-        "after the data are seen in order to produce a significant result.",
+        "The analysis will be descriptive. Each count will be shown with its denominator. A child "
+        "who is not invited to select a picture, or who declines before trying, is counted as "
+        "“not attempted”, not as a failure to select. Early stops and technical faults will be "
+        "listed with the reason. Comments will be grouped by the practical problem they describe, "
+        "such as a word that was unclear. No hypothesis test is planned, and none will be added "
+        "after the forms are seen in order to claim a significant result.",
     )
     add_body(
         doc,
@@ -492,6 +507,7 @@ def add_methods(doc, anonymous):
     add_bullet(doc, "Confirmation from the supervisor of the applicant, the sample-size justification, and whether this project is a requirement of the undergraduate curriculum.")
     add_bullet(doc, "Sinhala and Tamil versions of the information sheet and consent form, checked by competent speakers, or a written justification for using English only with a stated group of caregivers.")
     add_bullet(doc, "Student registration numbers, entered by the students themselves on the application form.")
+    add_bullet(doc, "A written decision, with the supervisor, on whether any Ministry or provincial clearance is required. No such clearance is assumed, and none has been granted.")
     if anonymous:
         add_body(
             doc,
@@ -532,10 +548,20 @@ def add_methods(doc, anonymous):
         doc,
         "How long the forms will be kept has not been agreed. They will be kept for the period the "
         "Faculty requires and then destroyed. They will not be placed on a public repository, and "
-        "they will not be sent out of Sri Lanka. The application does not need an account for the "
-        "sitting described here. The device used for the sitting will not be backed up to a cloud "
-        "service during the sitting. If a later version of the software uploads data, that version "
-        "will not be used unless the proposal is amended.",
+        "they will not be sent out of Sri Lanka. The sitting does not need an account. Cards are "
+        "stored in the application’s local documents folder, with a local copy of that file. That "
+        "local copy is not encryption, and it is not a statement that the phone’s own cloud backup "
+        "is off. Cloud backup of the device will be switched off for the sitting.",
+    )
+    add_body(
+        doc,
+        "The Android package for the inspected source requests internet, microphone and camera. "
+        "The application can photograph a card and can record a voice for a card. Those functions "
+        "will not be used in the pilot sitting. Online features are off unless a person switches "
+        "them on, and the network helper used by the application blocks web requests while they "
+        "are off. That does not remove the permissions from the installed package, and it has not "
+        "been proved on the handset that will be used. One build will be named in writing before "
+        "recruitment. A later build will not be substituted unless this proposal is amended.",
     )
     add_body(
         doc,
@@ -631,9 +657,9 @@ def add_annex_info(doc, anonymous):
     add_body(doc, "What is this about?", bold=True, space_after=4)
     add_body(
         doc,
-        "We want to see whether a picture application on a mobile device can be used in one short "
-        "sitting by your child and by you. The application has already been made. We are not testing "
-        "a medicine. We are not claiming that the application will teach your child to speak.",
+        "We want to see whether one short sitting with a picture application is practical for your "
+        "child and for you. The application has already been made. We are not testing a medicine, "
+        "and we are not claiming that the application will teach your child to speak.",
     )
     add_body(doc, "Why are we asking you?", bold=True, space_after=4)
     add_body(
@@ -754,7 +780,8 @@ def add_annex_tools(doc):
             ["Language used at home", ""],
             ["Person with the child", "Parent / guardian / other"],
             ["Application version and device", ""],
-            ["Device offline at the start", "Yes / No"],
+            ["Language set for the sitting", "Sinhala / Tamil / English"],
+            ["Online features off at the start", "Yes / No"],
             ["Date of sitting", ""],
         ],
     )
@@ -763,11 +790,12 @@ def add_annex_tools(doc):
         doc,
         ["Item", "Entry"],
         [
-            ["Child selected at least one picture", "Yes / No / Sitting stopped"],
+            ["Picture selection", "Not attempted / Attempted and selected / Attempted but not selected"],
             ["Caregiver opened the categories present that day", "Yes / No / Not all of them"],
             ["Sitting stopped early", "Yes / No"],
-            ["If stopped, reason", "Distress / tired / refused / parent stopped / other"],
-            ["Anything that failed in the application", "No name of the child in this note"],
+            ["If stopped, reason", "Distress / tired / refused / parent stopped / technical fault / other"],
+            ["New photograph or voice recording made", "No / Yes (sitting stopped)"],
+            ["Technical fault, with no name", "None / Describe"],
         ],
     )
     add_body(doc, "Questions for the caregiver", bold=True, space_after=4)

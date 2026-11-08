@@ -15,6 +15,12 @@ from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
 FONT = "Times New Roman"
+DRAFT_DATE = "08 November 2026"
+STUDY_TITLE = (
+    "Feasibility, usability and caregiver acceptability of a customised trilingual "
+    "picture-based AAC mobile application for children with communication difficulties "
+    "in Galle, Sri Lanka"
+)
 BLACK = RGBColor(0, 0, 0)
 # Content width for A4 with 2.54 cm side margins: 210 mm - 50.8 mm.
 RIGHT_TAB = 9072
@@ -176,7 +182,7 @@ def _nil_borders(table):
 
 
 def setup_header_footer(doc):
-    """Version 01 at the left, 06 November 2026 at the right, page number at the foot."""
+    """Version 01 at the left, draft date at the right, page number at the foot."""
     for section in doc.sections:
         header = section.header
         header.is_linked_to_previous = False
@@ -203,7 +209,7 @@ def setup_header_footer(doc):
         right_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         right_para.paragraph_format.space_before = Pt(0)
         right_para.paragraph_format.space_after = Pt(0)
-        add_text(right_para, "06 November 2026", 11, False, False)
+        add_text(right_para, DRAFT_DATE, 11, False, False)
         # add_table places the table in the body. Move it into this header.
         header._element.append(table._tbl)
         if not paragraph.text and paragraph._p.getparent() is not None:
