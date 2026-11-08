@@ -2,8 +2,8 @@
 
 Draft date used in the headers: 08 November 2026. Version 01. Title provisional.
 
-- Complete named file: `/media/yasas/New Volume2/yasas/PersonalProjects/simple aac/simple_aac_app/.local_erc_private/exports_private/01_Complete_ERC_Application.pdf` — 44 pages.
-- Anonymous proposal: `/media/yasas/New Volume2/yasas/PersonalProjects/simple aac/simple_aac_app/.local_erc_private/exports_private/02_Anonymous_Research_Proposal.pdf` — 17 pages.
+- Complete named file: `/media/yasas/New Volume2/yasas/PersonalProjects/simple aac/simple_aac_app/.local_erc_private/exports_private/01_Complete_ERC_Application.pdf` — 46 pages.
+- Anonymous proposal: `/media/yasas/New Volume2/yasas/PersonalProjects/simple aac/simple_aac_app/.local_erc_private/exports_private/02_Anonymous_Research_Proposal.pdf` — 19 pages.
 - Anonymous identity leaks: none found.
 - Former publishing-partner name in the named file: no.
 - Training certificates, animal-handling letter and fee receipt were not inserted.
@@ -32,10 +32,10 @@ Draft date used in the headers: 08 November 2026. Version 01. Title provisional.
 - 5.10 Ethical consideration: 11
 - 6. References: 12
 - 7. Management matter: 13
-- 8. Annexures: 14
-- Annex A. Information for parents and guardians: 14
-- Annex B. Consent of a parent or guardian: 15
-- Annex C. Assent of a child who can read this form: 15
-- Annex D. Session record and caregiver questions: 15
-- Annex E. Draft letters asking for permission: 16
-- Annex F. Sinhala and Tamil versions: 17
+- 8. Annexures: 15
+- Annex A. Information for parents and guardians: 15
+- Annex B. Consent of a parent or guardian: 16
+- Annex C. Assent of a child who can read this form: 16
+- Annex D. Session record and caregiver questions: 17
+- Annex E. Draft letters asking for permission: 18
+- Annex F. Sinhala and Tamil versions: 19

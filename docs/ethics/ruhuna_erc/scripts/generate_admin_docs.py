@@ -33,24 +33,24 @@ def _doc(path):
 def build_cover_letter(output_path):
     doc = _doc(output_path)
     # Single spacing keeps the through-block and the signature table together.
-    letter = {"space_after": 4, "line_spacing": 1.0}
+    letter = {"space_after": 2, "line_spacing": 1.0}
     add_body(doc, "From", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "J.G.D. Thamalka and D.V.W. Gunawardana", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "Medical student researchers", justify=False, space_after=0, line_spacing=1.0)
-    add_body(doc, "Faculty of Medicine, University of Ruhuna", justify=False, space_after=8, line_spacing=1.0)
+    add_body(doc, "Faculty of Medicine, University of Ruhuna", justify=False, space_after=4, line_spacing=1.0)
     add_body(doc, "Through", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "Dr Gayani Punchihewa", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "Senior Lecturer in Psychiatry", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "Department of Psychiatry", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "Faculty of Medicine", justify=False, space_after=0, line_spacing=1.0)
-    add_body(doc, "University of Ruhuna", justify=False, space_after=8, line_spacing=1.0)
+    add_body(doc, "University of Ruhuna", justify=False, space_after=4, line_spacing=1.0)
     add_body(doc, "To", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "The Chairperson", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "Ethics Review Committee", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "Faculty of Medicine", justify=False, space_after=0, line_spacing=1.0)
     add_body(doc, "University of Ruhuna", justify=False, space_after=0, line_spacing=1.0)
-    add_body(doc, "Galle, Sri Lanka", justify=False, space_after=8, line_spacing=1.0)
-    add_body(doc, "Dear Chairperson,", justify=False, space_after=6, line_spacing=1.0)
+    add_body(doc, "Galle, Sri Lanka", justify=False, space_after=4, line_spacing=1.0)
+    add_body(doc, "Dear Chairperson,", justify=False, space_after=4, line_spacing=1.0)
     add_body(
         doc,
         "We submit an unsigned application for ethical review of the study entitled “"
@@ -85,7 +85,7 @@ def build_cover_letter(output_path):
         "Please treat this package as unsigned and for review by the supervisor.",
         **letter,
     )
-    add_body(doc, "Yours faithfully,", justify=False, space_after=4, line_spacing=1.0)
+    add_body(doc, "Yours faithfully,", justify=False, space_after=2, line_spacing=1.0)
     add_plain_table(
         doc,
         ["Signatory", "Signature", "Date"],

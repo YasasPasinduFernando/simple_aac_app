@@ -187,4 +187,13 @@ This log records every staged, committed, and pushed milestone for the Universit
 - Ministry advice letter generated only in the private review folder. It is not inside either ERC PDF.
 - Anonymous proposal 17 pages. Named package 44 pages. No identity leak in the anonymous file.
 
+## University formatting pass, 8 November 2026
+
+- Generated proposal, letters and annexures set to US Letter, 8.5 by 11 inches, with 1 inch margins. The official application form was not resized or restyled.
+- Title 16 pt, body 12 pt, main headings 14 pt, header and page number 10 pt, all Times New Roman. Header remains Version 01 and 08 November 2026.
+- Parent information sheet states, in plain language, that the study form uses a code and that the family may ask for the child’s information to be removed.
+- Caregiver questions and the budget table each start on a fresh page so the tables are not split.
+- Named package 46 pages. Anonymous proposal 19 pages, about 5,210 words from the introduction through the annexes. No identity leak in the anonymous file.
+- Private PDFs and contact details were not committed.
+
 *(Further milestones logged upon completion)*

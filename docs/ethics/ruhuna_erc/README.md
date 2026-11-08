@@ -14,7 +14,7 @@ The person who will sign as the applicant has **not** been confirmed. Telephone 
 
 ## What was rebuilt on 6 November 2026
 
-The 8 November 2026 draft is a prospective feasibility and usability pilot. The title is provisional until the supervisor agrees it. Layout: A4, 2.54 cm margins, Times New Roman, 12 pt body text, 1.5 line spacing, 14 pt bold main headings, **Version 01** at the top left, **08 November 2026** at the top right, and a page number at the foot. The official application form keeps its own US Letter layout. A Ministry advice letter is generated only for the private review folder and is not inside the ethics PDF.
+The 8 November 2026 draft is a prospective feasibility and usability pilot. The title is provisional until the supervisor agrees it. Generated proposal documents use US Letter, 1 inch margins, Times New Roman, 12 pt body text, a 16 pt centred title, 14 pt main headings, 1.5 line spacing, **Version 01** at the top left, **08 November 2026** at the top right, and a page number at the foot. The official application form is not resized. It already uses the page size of the Faculty template, which is US Letter. A Ministry advice letter is generated only for the private review folder and is not inside the ethics PDF.
 
 No participant number is stated. A sample size has not been calculated. Sinhala and Tamil parent forms have not been translated. No certificate, signature, permission or fee receipt is invented.
 

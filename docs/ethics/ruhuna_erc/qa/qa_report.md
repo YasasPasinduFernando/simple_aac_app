@@ -10,11 +10,11 @@ The same decision is listed in `.local_erc_private/review_word/MANIFEST.md`, bes
 
 ## Layout
 
-- Proposal pages are A4, with 2.54 cm margins. Body text is Times New Roman, 12 pt, justified, with 1.5 line spacing. Main headings are 14 pt bold. Subheadings are 12 pt bold.
+- Generated proposal pages are US Letter, with 1 inch margins. Body text is Times New Roman, 12 pt, justified, with 1.5 line spacing. The document title is 16 pt bold. Main headings are 14 pt bold. Subheadings are 12 pt bold. Headers and the page number are 10 pt. The official form is not resized.
 - Header: Version 01 at the left, 08 November 2026 at the right. Page number at the foot. The title is provisional.
 - The cover letter is single-spaced so the signature table stays on one page. The proposal itself is not.
 - Title page, contents with dotted leaders, and numbered sections follow the shape of the Faculty example that was used only for layout.
-- The official application form remains US Letter, which is the size of the blank downloaded on 6 November 2026. Changing it to A4 would have reflowed the Faculty tables. The named PDF therefore contains both sizes.
+- The official application form remains the Faculty template. That template is already US Letter. It was filled in place and was not restyled. Generated letters and the proposal now use the same page size, with 1 inch margins.
 - The cover letter and the supervisor letter are one page each. Signature cells are empty.
 - No coloured panels were used in the proposal.
 
@@ -22,7 +22,7 @@ The same decision is listed in `.local_erc_private/review_word/MANIFEST.md`, bes
 
 Approximate word counts in the anonymous proposal, excluding the contents page: introduction 385, justification 291, literature review 530, methodology about 2,000 including the annexes’ methods text that sits before the references. The Faculty format guide suggests 1,000 to 3,000 words for the introduction and for the literature review. This draft is shorter on purpose. The supervisor may ask for a longer review. It was not padded.
 
-The named electronic file is 44 pages. The anonymous proposal is 17 pages. Certificates, a fee sheet, a separate data-management essay, and repeated annex covers are not inside the electronic files. The cover letter places Dr Gayani Punchihewa in a “Through” block above the Chairperson. She is not addressed as the Chairperson.
+The named electronic file is 46 pages. The anonymous proposal is 19 pages. The previous A4 drafts were 44 and 17 pages. From the introduction through the annexes, the anonymous proposal is about 5,210 words after the running header and page numbers are removed. Certificates, a fee sheet, a separate data-management essay, and repeated annex covers are not inside the electronic files. The cover letter places Dr Gayani Punchihewa in a “Through” block above the Chairperson. She is not addressed as the Chairperson.
 
 ## Identity
 

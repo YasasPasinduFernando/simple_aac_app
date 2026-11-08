@@ -100,8 +100,8 @@ def _team_block(doc, anonymous):
 
 
 def add_title_page(doc, anonymous):
-    add_body(doc, TITLE, bold=True, center=True, space_after=12)
-    add_body(doc, "RESEARCH PROPOSAL", bold=True, center=True, space_after=10)
+    add_body(doc, TITLE, bold=True, center=True, space_after=10, size=16, line_spacing=1.15)
+    add_body(doc, "RESEARCH PROPOSAL", bold=True, center=True, space_after=8, size=14, line_spacing=1.15)
     add_body(
         doc,
         "Draft for review by the research team and the supervisor. "
@@ -605,7 +605,7 @@ def add_references(doc):
         "World Health Organization. Autism [Internet]. Geneva: World Health Organization; [cited 2026 Nov 6]. Available from: https://www.who.int/news-room/fact-sheets/detail/autism-spectrum-disorders",
     ]
     for index, ref in enumerate(refs, start=1):
-        add_numbered_item(doc, str(index), ref, justify=False)
+        add_numbered_item(doc, str(index), ref, justify=False, size=12)
 
 
 def add_management(doc):
@@ -627,6 +627,7 @@ def add_management(doc):
             ["Report to the committee as required", "", "", "", "After analysis"],
         ],
     )
+    add_page_break(doc)
     add_body(
         doc,
         "No research grant has been identified. No sponsor is named. Amounts have not been costed, "
@@ -681,6 +682,13 @@ def add_annex_info(doc, anonymous):
         "not be connected to the internet. We will ask you to open the picture categories, and we "
         "will invite your child to choose a picture. We will then ask you five short questions. We "
         "will write a code on the form, not your child’s name.",
+    )
+    add_body(doc, "What happens to the information?", bold=True, space_after=4)
+    add_body(
+        doc,
+        "The study form uses a code. Your child’s name stays on the consent form, which is kept "
+        "apart. We will not put the forms on the internet. If you later ask us to take your child’s "
+        "information out of the study, we will do that.",
     )
     add_body(doc, "What are the risks and the benefits?", bold=True, space_after=4)
     add_body(
@@ -798,6 +806,7 @@ def add_annex_tools(doc):
             ["Technical fault, with no name", "None / Describe"],
         ],
     )
+    add_page_break(doc)
     add_body(doc, "Questions for the caregiver", bold=True, space_after=4)
     add_plain_table(
         doc,

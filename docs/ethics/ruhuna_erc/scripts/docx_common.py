@@ -12,7 +12,7 @@ import docx
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Cm, Pt, RGBColor
+from docx.shared import Cm, Inches, Pt, RGBColor
 
 FONT = "Times New Roman"
 DRAFT_DATE = "08 November 2026"
@@ -116,12 +116,14 @@ def _set_style_font(style, size=12):
 def create_styled_document():
     doc = docx.Document()
     for section in doc.sections:
-        section.page_width = Cm(21.0)
-        section.page_height = Cm(29.7)
-        section.top_margin = Cm(2.54)
-        section.bottom_margin = Cm(2.54)
-        section.left_margin = Cm(2.54)
-        section.right_margin = Cm(2.54)
+        # US Letter for generated proposal documents. The official ERC form is not
+        # created here and keeps the page size of the downloaded template.
+        section.page_width = Inches(8.5)
+        section.page_height = Inches(11)
+        section.top_margin = Inches(1)
+        section.bottom_margin = Inches(1)
+        section.left_margin = Inches(1)
+        section.right_margin = Inches(1)
         section.header_distance = Cm(1.0)
         section.footer_distance = Cm(1.0)
         section.different_first_page_header_footer = False
@@ -130,6 +132,7 @@ def create_styled_document():
     normal.paragraph_format.space_before = Pt(0)
     normal.paragraph_format.space_after = Pt(6)
     normal.paragraph_format.line_spacing = 1.5
+    normal.paragraph_format.widow_control = True
     _configure_heading_style(doc, "Heading 1", 14, 12, 6)
     _configure_heading_style(doc, "Heading 2", 12, 10, 4)
     props = doc.core_properties
@@ -156,7 +159,7 @@ def _add_page_field(paragraph):
     run3 = paragraph.add_run()
     run3._r.append(end)
     for item in (run, run2, run3):
-        _set_run_font(item, 12, False, False)
+        _set_run_font(item, 10, False, False)
 
 
 def _right_tab(section):
@@ -204,12 +207,12 @@ def setup_header_footer(doc):
         left_para.alignment = WD_ALIGN_PARAGRAPH.LEFT
         left_para.paragraph_format.space_before = Pt(0)
         left_para.paragraph_format.space_after = Pt(0)
-        add_text(left_para, "Version 01", 11, False, False)
+        add_text(left_para, "Version 01", 10, False, False)
         right_para = right_cell.paragraphs[0]
         right_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         right_para.paragraph_format.space_before = Pt(0)
         right_para.paragraph_format.space_after = Pt(0)
-        add_text(right_para, DRAFT_DATE, 11, False, False)
+        add_text(right_para, DRAFT_DATE, 10, False, False)
         # add_table places the table in the body. Move it into this header.
         header._element.append(table._tbl)
         if not paragraph.text and paragraph._p.getparent() is not None:
@@ -263,7 +266,7 @@ def add_heading(doc, text, level=1):
     return paragraph
 
 
-def add_body(doc, text, *, bold=False, italic=False, center=False, justify=True, space_after=6, line_spacing=1.5, first_indent=None):
+def add_body(doc, text, *, bold=False, italic=False, center=False, justify=True, space_after=6, line_spacing=1.5, size=12, first_indent=None):
     paragraph = doc.add_paragraph()
     if center:
         paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -276,7 +279,7 @@ def add_body(doc, text, *, bold=False, italic=False, center=False, justify=True,
     paragraph.paragraph_format.line_spacing = line_spacing
     if first_indent:
         paragraph.paragraph_format.first_line_indent = first_indent
-    add_text(paragraph, text, 12, bold, italic)
+    add_text(paragraph, text, size, bold, italic)
     return paragraph
 
 
@@ -304,7 +307,7 @@ def add_bullet(doc, text, *, level=0):
     return paragraph
 
 
-def add_numbered_item(doc, number, text, *, justify=True):
+def add_numbered_item(doc, number, text, *, justify=True, size=12):
     paragraph = doc.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY if justify else WD_ALIGN_PARAGRAPH.LEFT
     paragraph.paragraph_format.left_indent = Cm(1.0)
@@ -312,7 +315,7 @@ def add_numbered_item(doc, number, text, *, justify=True):
     paragraph.paragraph_format.space_before = Pt(0)
     paragraph.paragraph_format.space_after = Pt(3)
     paragraph.paragraph_format.line_spacing = 1.5
-    add_text(paragraph, f"{number}.  {text}", 12, False, False)
+    add_text(paragraph, f"{number}.  {text}", size, False, False)
     return paragraph
 
 
@@ -390,12 +393,19 @@ def _keep_row_together(row):
     trpr.append(cant)
 
 
+def _repeat_header_row(row):
+    tr = row._tr
+    trpr = tr.get_or_add_trPr()
+    trpr.append(OxmlElement("w:tblHeader"))
+
+
 def add_plain_table(doc, headers, rows, col_widths=None):
     table = doc.add_table(rows=1 + len(rows), cols=len(headers))
     table.autofit = True
     set_table_borders(table)
     for row in table.rows:
         _keep_row_together(row)
+    _repeat_header_row(table.rows[0])
     for index, header in enumerate(headers):
         set_cell_text(table.rows[0].cells[index], header, 11, True)
     for r_index, row in enumerate(rows):
