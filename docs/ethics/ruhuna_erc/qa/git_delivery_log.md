@@ -195,5 +195,6 @@ This log records every staged, committed, and pushed milestone for the Universit
 - Caregiver questions and the budget table each start on a fresh page so the tables are not split.
 - Named package 46 pages. Anonymous proposal 19 pages, about 5,210 words from the introduction through the annexes. No identity leak in the anonymous file.
 - Private PDFs and contact details were not committed.
+- **Commit**: `a6b3b6f` on `feature/modern-ui-offline-smart-images`.
 
 *(Further milestones logged upon completion)*
