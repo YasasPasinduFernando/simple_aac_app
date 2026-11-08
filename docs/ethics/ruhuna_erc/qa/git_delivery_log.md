@@ -197,4 +197,11 @@ This log records every staged, committed, and pushed milestone for the Universit
 - Private PDFs and contact details were not committed.
 - **Commit**: `a6b3b6f` on `feature/modern-ui-offline-smart-images`.
 
+## Scope comparison, 8 November 2026
+
+- The one-sitting ethics draft was left unchanged. It was not rewritten as a broader study.
+- A de-identified gap matrix was added at `qa/feasibility_guidance_gap_matrix.md`.
+- Discussion drafts were generated only under `.local_erc_private/scope_discussion/`. They were not committed.
+- No submission was made to the Ethics Review Committee or the Ministry.
+
 *(Further milestones logged upon completion)*
