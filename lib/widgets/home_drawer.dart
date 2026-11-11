@@ -43,6 +43,8 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onRestore;
   final VoidCallback onResetSettings;
   final VoidCallback? onManagePermissions;
+  final String voiceProfileLabel;
+  final VoidCallback? onShowVoiceProfile;
   final VoidCallback onShowAbout;
 
   const HomeDrawer({
@@ -89,6 +91,8 @@ class HomeDrawer extends StatelessWidget {
     required this.onRestore,
     required this.onResetSettings,
     this.onManagePermissions,
+    this.voiceProfileLabel = 'Woman',
+    this.onShowVoiceProfile,
     required this.onShowAbout,
   }) : super(key: key);
 
@@ -126,6 +130,13 @@ class HomeDrawer extends StatelessWidget {
                   value: showTtsInput,
                   onChanged: (_) => onToggleTtsInput(),
                 ),
+                if (onShowVoiceProfile != null)
+                  _buildDrawerItem(
+                    icon: Icons.record_voice_over_rounded,
+                    title: 'Voice Profile',
+                    subtitle: voiceProfileLabel,
+                    onTap: onShowVoiceProfile!,
+                  ),
                 _buildSwitchItem(
                   icon: Icons.text_fields_rounded,
                   title: 'Hide TTS Bar',

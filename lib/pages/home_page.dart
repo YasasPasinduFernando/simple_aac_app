@@ -29,6 +29,7 @@ import '../widgets/visible_cards_dialog.dart';
 import '../utils/app_permissions_helper.dart';
 import '../utils/card_image.dart';
 import '../utils/theme_accessibility.dart';
+import '../utils/tts_voice_helper.dart';
 import '../utils/ui_mode_helper.dart';
 
 class HomePage extends StatefulWidget {
@@ -81,7 +82,9 @@ class _HomePageState extends State<HomePage> {
   bool _applyTextColorToCards = false;
   bool _isDarkMode = ThemeAccessibility.darkModeNotifier.value;
   bool _isColorBlindMode = false;
-  String? _lastTtsLocale;
+  TtsVoiceProfile _ttsVoiceProfile = TtsVoiceProfile.woman;
+  List<dynamic>? _cachedTtsVoices;
+  String? _lastTtsConfigKey;
 
   @override
   void initState() {
@@ -93,13 +96,22 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _initTts() async {
     try {
-      await _tts.setLanguage("en-US");
-      _lastTtsLocale = "en-US";
-      await _tts.setSpeechRate(0.5);
+      await TtsVoiceHelper.preferBestEngine(_tts);
       await _tts.awaitSpeakCompletion(true);
+      await _applyCurrentTtsConfig();
     } catch (e) {
       debugPrint('[HomePage] TTS init failed: $e');
     }
+  }
+
+  Future<void> _applyCurrentTtsConfig() async {
+    _cachedTtsVoices = await TtsVoiceHelper.applyProfile(
+      _tts,
+      languageCode: currentLanguage,
+      profile: _ttsVoiceProfile,
+      cachedVoices: _cachedTtsVoices,
+    );
+    _lastTtsConfigKey = '$currentLanguage:${_ttsVoiceProfile.name}';
   }
 
   Future<void> _loadCards() async {
@@ -130,6 +142,8 @@ class _HomePageState extends State<HomePage> {
         prefs.getBool(ThemeAccessibility.darkModePrefKey) ?? _isDarkMode;
     final nextColorBlind =
         prefs.getBool(ThemeAccessibility.colorBlindPrefKey) ?? false;
+    final nextVoiceProfile =
+        TtsVoiceHelper.fromStorage(prefs.getString(TtsVoiceHelper.prefKey));
 
     setState(() {
       cards = loadedCards;
@@ -149,6 +163,8 @@ class _HomePageState extends State<HomePage> {
       _applyTextColorToCards = nextApplyText;
       _isDarkMode = nextDark;
       _isColorBlindMode = nextColorBlind;
+      _ttsVoiceProfile = nextVoiceProfile;
+      _lastTtsConfigKey = null;
       _updateCategories();
       _migrateVisibleCountIfNeeded(prefs);
     });
@@ -233,6 +249,7 @@ class _HomePageState extends State<HomePage> {
           prefs.setBool(ThemeAccessibility.darkModePrefKey, _isDarkMode),
           prefs.setBool(
               ThemeAccessibility.colorBlindPrefKey, _isColorBlindMode),
+          prefs.setString(TtsVoiceHelper.prefKey, _ttsVoiceProfile.name),
         ]);
       }),
     ]);
@@ -246,15 +263,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _speak(String text) async {
-    final targetLocale = switch (currentLanguage) {
-      'si' => 'si-LK',
-      'ta' => 'ta-IN',
-      _ => 'en-US',
-    };
+    final configKey = '$currentLanguage:${_ttsVoiceProfile.name}';
     try {
-      if (_lastTtsLocale != targetLocale) {
-        await _tts.setLanguage(targetLocale);
-        _lastTtsLocale = targetLocale;
+      if (_lastTtsConfigKey != configKey) {
+        await _applyCurrentTtsConfig();
       }
       await _tts.speak(text);
     } catch (e) {
@@ -628,7 +640,10 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         void selectLang(String code) {
-          setState(() => currentLanguage = code);
+          setState(() {
+            currentLanguage = code;
+            _lastTtsConfigKey = null;
+          });
           _saveCards();
           Navigator.pop(context);
           Navigator.pop(context);
@@ -678,6 +693,79 @@ class _HomePageState extends State<HomePage> {
               child: const Text('Cancel'),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void _showVoiceProfileDialog() {
+    Navigator.pop(context);
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        Future<void> selectAndPreview(
+          TtsVoiceProfile profile,
+          VoidCallback refreshDialog,
+        ) async {
+          setState(() {
+            _ttsVoiceProfile = profile;
+            _lastTtsConfigKey = null;
+          });
+          refreshDialog();
+          _saveCards();
+          await _tts.stop();
+          await _speak(
+            TtsVoiceHelper.sampleGreeting(currentLanguage, profile),
+          );
+        }
+
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return AlertDialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 20,
+              ),
+              title: const StyledDialogHeader(
+                icon: Icons.record_voice_over_rounded,
+                title: 'Select Voice',
+                subtitle: 'Choose natural speech voice profile',
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final profile in TtsVoiceProfile.values)
+                      DialogOptionTile(
+                        icon: TtsVoiceHelper.iconFor(profile),
+                        title: TtsVoiceHelper.labelFor(profile),
+                        subtitle: TtsVoiceHelper.subtitleFor(profile),
+                        selected: _ttsVoiceProfile == profile,
+                        onTap: () => unawaited(
+                          selectAndPreview(profile, () => setDialogState(() {})),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              actions: [
+                OutlinedButton.icon(
+                  onPressed: () => unawaited(
+                    selectAndPreview(
+                      _ttsVoiceProfile,
+                      () => setDialogState(() {}),
+                    ),
+                  ),
+                  icon: const Icon(Icons.volume_up_rounded, size: 18),
+                  label: const Text('Test'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Done'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -959,6 +1047,8 @@ class _HomePageState extends State<HomePage> {
                 _applyTextColorToCards = false;
                 _isDarkMode = false;
                 _isColorBlindMode = false;
+                _ttsVoiceProfile = TtsVoiceProfile.woman;
+                _lastTtsConfigKey = null;
                 ThemeAccessibility.darkModeNotifier.value = false;
                 selectedCategory = 'All';
                 visibleCardIdsByParent.clear();
@@ -1120,6 +1210,7 @@ class _HomePageState extends State<HomePage> {
       'applyTextColorToCards': _applyTextColorToCards,
       'darkMode': _isDarkMode,
       'colorBlindMode': _isColorBlindMode,
+      TtsVoiceHelper.prefKey: _ttsVoiceProfile.name,
       'selectedCategory': selectedCategory,
     };
   }
@@ -1689,6 +1780,12 @@ class _HomePageState extends State<HomePage> {
       _isDarkMode = settings['darkMode'] as bool? ?? _isDarkMode;
       _isColorBlindMode =
           settings['colorBlindMode'] as bool? ?? _isColorBlindMode;
+      if (settings.containsKey(TtsVoiceHelper.prefKey)) {
+        _ttsVoiceProfile = TtsVoiceHelper.fromStorage(
+          settings[TtsVoiceHelper.prefKey]?.toString(),
+        );
+      }
+      _lastTtsConfigKey = null;
       ThemeAccessibility.darkModeNotifier.value = _isDarkMode;
 
       _resetTtsInput();
@@ -1905,6 +2002,7 @@ class _HomePageState extends State<HomePage> {
             : HomeDrawer(
                 selectedCategory: selectedCategory,
                 currentLanguageLabel: _getLanguageName(currentLanguage),
+                voiceProfileLabel: TtsVoiceHelper.labelFor(_ttsVoiceProfile),
                 gridColumns: gridColumns,
                 visibleCardsLabel: _getVisibleCardsLabel(),
                 isEditMode: isEditMode,
@@ -2021,6 +2119,7 @@ class _HomePageState extends State<HomePage> {
                   UiModeHelper.applySystemUi(fullScreen);
                 },
                 onShowLanguage: _showLanguageDialog,
+                onShowVoiceProfile: _showVoiceProfileDialog,
                 onShowGrid: _showGridOptions,
                 onShowVisibleCount: _showVisibleCountDialog,
                 onBackup: _backupWithPicker,
