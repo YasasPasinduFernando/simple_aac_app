@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker_android/image_picker_android.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:simple_aac_app/main.dart';
+import 'package:simple_aac_app/utils/card_image.dart';
 import 'package:simple_aac_app/widgets/home_app_bar.dart';
 
 void main() {
@@ -48,5 +49,17 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     }
+  });
+
+  test('buildCardImage decodes assets and files with bounded cacheWidth and gaplessPlayback', () {
+    final assetWidget = buildCardImage('assets/cards/hello.png', cacheWidth: 320);
+    expect(assetWidget, isA<Image>());
+    final img = assetWidget as Image;
+    expect(img.gaplessPlayback, isTrue);
+    expect(img.image, isA<ResizeImage>());
+
+    final fileWidget = buildCardImage('/tmp/nonexistent.jpg');
+    expect(fileWidget, isA<Image>());
+    expect((fileWidget as Image).image, isA<ResizeImage>());
   });
 }

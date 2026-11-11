@@ -168,14 +168,17 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     if (!_isRecording) return;
     _recordTimer?.cancel();
     _recordTimer = null;
-    final path = await _recorder.stop();
+    try {
+      final path = await _recorder.stop();
+      if (path != null) {
+        widget.card.voicePath = path;
+      }
+    } catch (_) {}
+    if (!mounted) return;
     setState(() {
       _isRecording = false;
       _recordProgress = 0.0;
     });
-    if (path != null) {
-      widget.card.voicePath = path;
-    }
   }
 
   Future<void> _startRecording() async {
@@ -571,11 +574,25 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
 
   Widget _buildImageView(String path) {
     if (path.startsWith('assets/')) {
-      return Image.asset(path, fit: BoxFit.contain);
+      return Image.asset(
+        path,
+        fit: BoxFit.contain,
+        cacheWidth: 640,
+        gaplessPlayback: true,
+        errorBuilder: (_, __, ___) =>
+            const Icon(Icons.broken_image_outlined, size: 40, color: Colors.grey),
+      );
     }
     final file = File(path);
     if (file.existsSync()) {
-      return Image.file(file, fit: BoxFit.contain);
+      return Image.file(
+        file,
+        fit: BoxFit.contain,
+        cacheWidth: 640,
+        gaplessPlayback: true,
+        errorBuilder: (_, __, ___) =>
+            const Icon(Icons.broken_image_outlined, size: 40, color: Colors.grey),
+      );
     }
     if (!NetworkPolicyService.instance.isOnlineEnabled) {
       return const Center(

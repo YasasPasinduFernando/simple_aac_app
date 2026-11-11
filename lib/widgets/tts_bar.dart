@@ -99,6 +99,7 @@ class TtsBar extends StatelessWidget {
                                         ? buildCardImage(
                                             token.imagePath!,
                                             fit: BoxFit.cover,
+                                            cacheWidth: 120,
                                             errorBuilder:
                                                 (context, error, stackTrace) {
                                               return Icon(Icons.image,

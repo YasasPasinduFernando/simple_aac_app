@@ -19,6 +19,9 @@ void main() async {
     ThemeAccessibility.initDarkMode(),
   ]);
 
+  // Cap decoded image memory at 64 MiB for smooth scrolling without OOM on high-res photos.
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 64 * 1024 * 1024;
+
   // Android Photo Picker enablement
   final imagePickerImplementation = ImagePickerPlatform.instance;
   if (imagePickerImplementation is ImagePickerAndroid) {

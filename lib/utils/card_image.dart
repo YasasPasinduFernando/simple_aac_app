@@ -11,6 +11,7 @@ Widget buildCardImage(
   BoxFit fit = BoxFit.cover,
   double? width,
   double? height,
+  int? cacheWidth = 480,
   ImageErrorWidgetBuilder? errorBuilder,
 }) {
   if (isAssetImagePath(imagePath)) {
@@ -19,6 +20,9 @@ Widget buildCardImage(
       fit: fit,
       width: width,
       height: height,
+      cacheWidth: cacheWidth,
+      filterQuality: FilterQuality.medium,
+      gaplessPlayback: true,
       errorBuilder: errorBuilder,
     );
   }
@@ -28,6 +32,9 @@ Widget buildCardImage(
     fit: fit,
     width: width,
     height: height,
+    cacheWidth: cacheWidth,
+    filterQuality: FilterQuality.medium,
+    gaplessPlayback: true,
     errorBuilder: errorBuilder,
   );
 }

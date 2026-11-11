@@ -81,6 +81,7 @@ class _HomePageState extends State<HomePage> {
   bool _applyTextColorToCards = false;
   bool _isDarkMode = ThemeAccessibility.darkModeNotifier.value;
   bool _isColorBlindMode = false;
+  String? _lastTtsLocale;
 
   @override
   void initState() {
@@ -91,9 +92,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _initTts() async {
-    await _tts.setLanguage("en-US");
-    await _tts.setSpeechRate(0.5);
-    await _tts.awaitSpeakCompletion(true);
+    try {
+      await _tts.setLanguage("en-US");
+      _lastTtsLocale = "en-US";
+      await _tts.setSpeechRate(0.5);
+      await _tts.awaitSpeakCompletion(true);
+    } catch (e) {
+      debugPrint('[HomePage] TTS init failed: $e');
+    }
   }
 
   Future<void> _loadCards() async {
@@ -232,18 +238,28 @@ class _HomePageState extends State<HomePage> {
     ]);
   }
 
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
   Future<void> _speak(String text) async {
-    switch (currentLanguage) {
-      case 'si':
-        await _tts.setLanguage("si-LK");
-        break;
-      case 'ta':
-        await _tts.setLanguage("ta-IN");
-        break;
-      default:
-        await _tts.setLanguage("en-US");
+    final targetLocale = switch (currentLanguage) {
+      'si' => 'si-LK',
+      'ta' => 'ta-IN',
+      _ => 'en-US',
+    };
+    try {
+      if (_lastTtsLocale != targetLocale) {
+        await _tts.setLanguage(targetLocale);
+        _lastTtsLocale = targetLocale;
+      }
+      await _tts.speak(text);
+    } catch (e) {
+      debugPrint('[HomePage] TTS speak error: $e');
     }
-    await _tts.speak(text);
   }
 
   void _appendToTtsInput(
@@ -292,17 +308,40 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<void> _playVoice(String path) async {
-    await _audioPlayer.play(DeviceFileSource(path));
+  Future<bool> _playVoice(String path) async {
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(DeviceFileSource(path));
+      return true;
+    } catch (e) {
+      debugPrint('[HomePage] Voice playback failed: $e');
+      return false;
+    }
+  }
+
+  Future<void> _speakOrPlayCard(AACCard card, String label) async {
+    final voicePath = card.voicePath;
+    if (voicePath != null && await File(voicePath).exists()) {
+      final played = await _playVoice(voicePath);
+      if (played) return;
+    }
+    await _speak(label);
   }
 
   Future<void> _playTtsTokens() async {
-    for (final token in _ttsTokens) {
+    final snapshot = List<TtsToken>.of(_ttsTokens);
+    for (final token in snapshot) {
       final voicePath = token.voicePath;
       if (voicePath != null && await File(voicePath).exists()) {
-        await _audioPlayer.play(DeviceFileSource(voicePath));
-        await _audioPlayer.onPlayerComplete.first;
-        continue;
+        final played = await _playVoice(voicePath);
+        if (played) {
+          try {
+            await _audioPlayer.onPlayerComplete.first.timeout(
+              const Duration(seconds: 20),
+            );
+            continue;
+          } catch (_) {}
+        }
       }
       await _speak(token.label);
     }
@@ -714,15 +753,13 @@ class _HomePageState extends State<HomePage> {
                 });
                 _saveCards();
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Category "$clean" added!')),
-                );
+                _showMessage('Category "$clean" added!');
               }
             },
           ),
         ],
       ),
-    );
+    ).whenComplete(controller.dispose);
   }
 
   void _showGridOptions() {
@@ -999,7 +1036,7 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       },
-    );
+    ).whenComplete(controller.dispose);
   }
 
   Map<String, dynamic> _buildBackupSettings() {
@@ -1503,48 +1540,44 @@ class _HomePageState extends State<HomePage> {
       if (savedPath == null) {
         throw Exception('Downloads save failed');
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Backup saved to $savedPath')),
-      );
+      _showMessage('Backup saved to $savedPath');
     } catch (_) {
       final fallback = await BackupService.saveZipToAppDocs(zipBytes);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Cannot save to Downloads. Backup saved to $fallback',
-          ),
-        ),
-      );
+      _showMessage('Cannot save to Downloads. Backup saved to $fallback');
     }
   }
 
   Future<void> _restoreFromPickedFile() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Restore started...')),
-    );
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['zip'],
-      withData: true,
-    );
-    if (result == null) return;
+    _showMessage('Restore started...');
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['zip'],
+        withData: true,
+      );
+      if (result == null || !mounted) return;
 
-    final picked = result.files.single;
-    final zipBytes = picked.bytes;
-    if (zipBytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot read selected backup')),
-      );
-      return;
+      final picked = result.files.single;
+      var zipBytes = picked.bytes;
+      if (zipBytes == null && picked.path != null) {
+        zipBytes = await File(picked.path!).readAsBytes();
+      }
+      if (zipBytes == null) {
+        _showMessage('Cannot read selected backup');
+        return;
+      }
+      final payload = await BackupService.restoreFromZipBytes(zipBytes);
+      if (!mounted) return;
+      if (payload.cards.isEmpty) {
+        _showMessage('Backup not found in selected file');
+        return;
+      }
+      _applyRestoredBackup(payload);
+      _showMessage('Backup restored successfully!');
+    } catch (e) {
+      debugPrint('[HomePage] Backup restore failed: $e');
+      _showMessage('Invalid or unreadable backup ZIP file');
     }
-    final payload = await BackupService.restoreFromZipBytes(zipBytes);
-    if (payload.cards.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Backup not found in selected file')),
-      );
-      return;
-    }
-    _applyRestoredBackup(payload);
   }
 
   void _applyRestoredBackup(BackupPayload payload) {
@@ -1562,12 +1595,12 @@ class _HomePageState extends State<HomePage> {
 
       final visibleRaw = settings['visibleCardIdsByParent'];
       if (visibleRaw is Map) {
-        visibleCardIdsByParent = visibleRaw.map(
-          (key, value) => MapEntry(
-            key.toString(),
-            (value as List).map((v) => v.toString()).toSet(),
-          ),
-        );
+        visibleCardIdsByParent = {
+          for (final entry in visibleRaw.entries)
+            if (entry.value is List)
+              entry.key.toString():
+                  (entry.value as List).map((v) => v.toString()).toSet(),
+        };
       } else {
         visibleCardIdsByParent.clear();
       }
@@ -1611,41 +1644,46 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _backupToAppDocsZip() async {
-    final zipBytes = await BackupService.buildBackupZip(
-      cards,
-      settings: _buildBackupSettings(),
-    );
-    if (zipBytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Backup failed to create zip')),
+    try {
+      final zipBytes = await BackupService.buildBackupZip(
+        cards,
+        settings: _buildBackupSettings(),
       );
-      return;
+      if (!mounted) return;
+      if (zipBytes == null) {
+        _showMessage('Backup failed to create zip');
+        return;
+      }
+      final path = await BackupService.saveZipToAppDocs(zipBytes);
+      _showMessage('Backup saved to $path');
+    } catch (e) {
+      debugPrint('[HomePage] AppDocs backup failed: $e');
+      _showMessage('Backup could not be saved');
     }
-    final path = await BackupService.saveZipToAppDocs(zipBytes);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Backup saved to $path')),
-    );
   }
 
   Future<void> _restoreFromAppDocsZip() async {
-    final docsDir = await getApplicationDocumentsDirectory();
-    final zipFile = File('${docsDir.path}/aac_backup.zip');
-    if (!await zipFile.exists()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No backup found in app folder')),
+    try {
+      final docsDir = await getApplicationDocumentsDirectory();
+      final zipFile = File('${docsDir.path}/aac_backup.zip');
+      if (!await zipFile.exists()) {
+        _showMessage('No backup found in app folder');
+        return;
+      }
+      final payload = await BackupService.restoreFromZipBytes(
+        await zipFile.readAsBytes(),
       );
-      return;
+      if (!mounted) return;
+      if (payload.cards.isEmpty) {
+        _showMessage('Backup not found in app folder file');
+        return;
+      }
+      _applyRestoredBackup(payload);
+      _showMessage('Backup restored successfully!');
+    } catch (e) {
+      debugPrint('[HomePage] AppDocs restore failed: $e');
+      _showMessage('Backup file could not be restored');
     }
-    final payload = await BackupService.restoreFromZipBytes(
-      await zipFile.readAsBytes(),
-    );
-    if (payload.cards.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Backup not found in app folder file')),
-      );
-      return;
-    }
-    _applyRestoredBackup(payload);
   }
 
   void _showAbout() {
@@ -2047,31 +2085,41 @@ class _HomePageState extends State<HomePage> {
             showText: !_hideTtsText,
           ),
         Expanded(
-          child: _getDisplayedCards().isEmpty
-              ? Center(
+          child: Builder(
+            builder: (context) {
+              final displayedCards = _getDisplayedCards();
+              if (displayedCards.isEmpty) {
+                return Center(
                   child: Text(
                     'No cards in this category. Tap + to add a card!',
                     style: TextStyle(
                         fontSize: isTablet ? 18 : 16, color: Colors.grey),
                   ),
-                )
-              : GridView.builder(
-                  controller: _gridController,
-                  padding: EdgeInsets.all(isTablet ? 20 : 12),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: isTablet
-                        ? (gridColumns == 1 ? 2 : gridColumns + 1)
-                        : gridColumns,
-                    crossAxisSpacing: isTablet ? 16 : 12,
-                    mainAxisSpacing: isTablet ? 16 : 12,
-                    childAspectRatio: isTablet ? 1.1 : 1.0,
-                  ),
-                  itemCount: _getDisplayedCards().length,
-                  itemBuilder: (context, i) {
-                    final card = _getDisplayedCards()[i];
-                    return _buildCardWidget(card, isTablet);
-                  },
+                );
+              }
+              return GridView.builder(
+                controller: _gridController,
+                cacheExtent: 360,
+                padding: EdgeInsets.all(isTablet ? 20 : 12),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: isTablet
+                      ? (gridColumns == 1 ? 2 : gridColumns + 1)
+                      : gridColumns,
+                  crossAxisSpacing: isTablet ? 16 : 12,
+                  mainAxisSpacing: isTablet ? 16 : 12,
+                  childAspectRatio: isTablet ? 1.1 : 1.0,
                 ),
+                itemCount: displayedCards.length,
+                itemBuilder: (context, i) {
+                  final card = displayedCards[i];
+                  return RepaintBoundary(
+                    key: ValueKey(card.id),
+                    child: _buildCardWidget(card, isTablet),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ],
     );
@@ -2113,18 +2161,14 @@ class _HomePageState extends State<HomePage> {
                 : null;
 
     return GestureDetector(
-      onTap: () async {
+      onTap: () {
         if (isEditMode) {
           _editCard(card);
           return;
         }
         if (card.type == 'folder') {
-          if (card.voicePath != null && await File(card.voicePath!).exists()) {
-            await _playVoice(card.voicePath!);
-          } else {
-            await _speak(displayLabel);
-          }
           _showSubCards(card);
+          unawaited(_speakOrPlayCard(card, displayLabel));
           return;
         }
 
@@ -2134,11 +2178,7 @@ class _HomePageState extends State<HomePage> {
           imagePath: card.imagePath,
           voicePath: card.voicePath,
         );
-        if (card.voicePath != null && await File(card.voicePath!).exists()) {
-          await _playVoice(card.voicePath!);
-        } else {
-          await _speak(displayLabel);
-        }
+        unawaited(_speakOrPlayCard(card, displayLabel));
       },
       child: AnimatedScale(
         scale: isTapAnimated ? 1.04 : 1.0,
