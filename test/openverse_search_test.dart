@@ -252,5 +252,73 @@ void main() {
       await done.future;
       await sub.cancel();
     });
+
+    test('Multi-source extracts clean gallery photos from Wikipedia media-list', () async {
+      OpenverseSearchProvider.resetCooldown();
+      final client = MockClient((request) async {
+        final host = request.url.host;
+        if (host == 'en.wikipedia.org' && request.url.path.startsWith('/w/api.php')) {
+          return http.Response(
+            json.encode({
+              'query': {
+                'pages': {
+                  '1': {
+                    'pageid': 1,
+                    'index': 1,
+                    'title': 'Apple',
+                    'description': 'edible fruit',
+                    'thumbnail': {'source': 'https://thumb.wikimedia.org/Red_Apple.jpg'},
+                    'original': {'source': 'https://upload.wikimedia.org/Red_Apple.jpg'},
+                  },
+                },
+              },
+            }),
+            200,
+          );
+        }
+        if (host == 'en.wikipedia.org' &&
+            request.url.path == '/api/rest_v1/page/media-list/Apple') {
+          return http.Response(
+            json.encode({
+              'items': [
+                {
+                  'type': 'image',
+                  'title': 'File:Honeycrisp-Apple.jpg',
+                  'showInGallery': true,
+                  'caption': {'text': 'Fresh Honeycrisp apple'},
+                  'srcset': [
+                    {'src': '//thumb.wikimedia.org/Honeycrisp_250px.jpg', 'scale': '1x'},
+                    {'src': '//thumb.wikimedia.org/Honeycrisp_800px.jpg', 'scale': '2x'},
+                  ],
+                },
+                {
+                  'type': 'image',
+                  'title': 'File:Hidden_flag.svg',
+                  'showInGallery': false,
+                  'srcset': [
+                    {'src': '//thumb.wikimedia.org/Hidden_flag.svg.png', 'scale': '1x'},
+                  ],
+                },
+              ],
+            }),
+            200,
+          );
+        }
+        return http.Response('{"query": {"pages": {}}}', 200);
+      });
+
+      final provider = OpenverseSearchProvider(client, true);
+      final results = await provider.searchImages('apple');
+
+      expect(
+        results.any((r) => r.thumbnail == 'https://thumb.wikimedia.org/Honeycrisp_250px.jpg'),
+        isTrue,
+      );
+      expect(
+        results.any((r) => r.imageUrl == 'https://thumb.wikimedia.org/Honeycrisp_800px.jpg'),
+        isTrue,
+      );
+      expect(results.any((r) => r.title.contains('Hidden')), isFalse);
+    });
   });
 }

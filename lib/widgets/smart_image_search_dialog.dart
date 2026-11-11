@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/image_search_result.dart';
 import '../services/network_policy_service.dart';
@@ -314,6 +315,26 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
     ]);
   }
 
+  static const MethodChannel _platformChannel = MethodChannel('aac_backup');
+
+  Future<void> _openGoogleImagesInBrowser() async {
+    if (!NetworkPolicyService.instance.isOnlineEnabled) return;
+    final clean = _searchController.text.trim();
+    final url = 'https://www.google.com/search?tbm=isch&safe=active'
+        '${clean.isNotEmpty ? '&q=${Uri.encodeComponent(clean)}' : ''}';
+    try {
+      await _platformChannel.invokeMethod('openExternalUrl', {'url': url});
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not open browser. Try searching above or use Gallery.'),
+          ),
+        );
+      }
+    }
+  }
+
   Widget _buildErrorState() {
     return _buildCenteredStatus([
       Icon(Icons.search_off_rounded, size: 48, color: Colors.amber.shade700),
@@ -324,10 +345,23 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
       ),
       const SizedBox(height: 16),
-      FilledButton.tonalIcon(
-        icon: const Icon(Icons.refresh_rounded, size: 18),
-        label: const Text('Retry Search'),
-        onPressed: () => _executeSearch(_searchController.text),
+      Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          FilledButton.tonalIcon(
+            icon: const Icon(Icons.refresh_rounded, size: 18),
+            label: const Text('Retry Search'),
+            onPressed: () => _executeSearch(_searchController.text),
+          ),
+          if (NetworkPolicyService.instance.isOnlineEnabled)
+            OutlinedButton.icon(
+              icon: const Icon(Icons.travel_explore_rounded, size: 18),
+              label: const Text('Google Images'),
+              onPressed: _openGoogleImagesInBrowser,
+            ),
+        ],
       ),
     ]);
   }
@@ -373,6 +407,24 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
                 filter: _ResultFilter.symbols,
                 label: 'AAC (${_results.where((r) => r.isSymbol).length})',
                 icon: Icons.accessibility_new_rounded,
+              ),
+              const SizedBox(width: 6),
+              ActionChip(
+                visualDensity: VisualDensity.compact,
+                avatar: Icon(
+                  Icons.travel_explore_rounded,
+                  size: 15,
+                  color: colorScheme.primary,
+                ),
+                label: Text(
+                  'Google',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.primary,
+                  ),
+                ),
+                onPressed: _openGoogleImagesInBrowser,
               ),
             ],
           ),

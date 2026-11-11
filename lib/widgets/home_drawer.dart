@@ -106,13 +106,13 @@ class HomeDrawer extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               children: [
-                _buildSectionHeader(context, 'Connectivity & Privacy', Icons.wifi_protected_setup),
+                _buildSectionHeader(context, 'Connectivity & Privacy', Icons.wifi_protected_setup_rounded),
                 _buildOnlineSwitch(context),
                 const SizedBox(height: 12),
 
-                _buildSectionHeader(context, 'Communication & Speech', Icons.record_voice_over),
+                _buildSectionHeader(context, 'Communication & Speech', Icons.record_voice_over_rounded),
                 _buildDrawerItem(
-                  icon: Icons.edit,
+                  icon: Icons.edit_rounded,
                   title: isEditMode ? 'Exit Edit Mode' : 'Enable Edit Mode',
                   subtitle: isEditMode ? 'Currently editing cards' : 'Tap to customize board',
                   active: isEditMode,
@@ -120,28 +120,28 @@ class HomeDrawer extends StatelessWidget {
                   onTap: onToggleEdit,
                 ),
                 _buildSwitchItem(
-                  icon: Icons.volume_up,
+                  icon: Icons.volume_up_rounded,
                   title: 'Tap to Speak',
                   subtitle: 'Speak card label immediately on tap',
                   value: showTtsInput,
                   onChanged: (_) => onToggleTtsInput(),
                 ),
                 _buildSwitchItem(
-                  icon: Icons.text_fields,
+                  icon: Icons.text_fields_rounded,
                   title: 'Hide TTS Bar',
                   subtitle: 'Hide the speech composer bar',
                   value: hideTtsText,
                   onChanged: (_) => onToggleTtsText(),
                 ),
                 _buildSwitchItem(
-                  icon: Icons.layers,
+                  icon: Icons.layers_rounded,
                   title: 'Text on Card Image',
                   subtitle: 'Show label overlaid on image',
                   value: useImageOverlayLabel,
                   onChanged: (_) => onToggleCardImageLabel(),
                 ),
                 _buildSwitchItem(
-                  icon: Icons.format_color_text,
+                  icon: Icons.format_color_text_rounded,
                   title: 'Custom Card Text Color',
                   subtitle: 'Apply theme text color to all cards',
                   value: applyTextColorToCards,
@@ -149,47 +149,47 @@ class HomeDrawer extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
 
-                _buildSectionHeader(context, 'Layout & Display', Icons.dashboard_customize),
+                _buildSectionHeader(context, 'Layout & Display', Icons.dashboard_customize_rounded),
                 _buildDrawerItem(
-                  icon: Icons.translate,
+                  icon: Icons.translate_rounded,
                   title: 'Language',
                   subtitle: currentLanguageLabel,
                   onTap: onShowLanguage,
                 ),
                 _buildDrawerItem(
-                  icon: Icons.grid_view,
+                  icon: Icons.grid_view_rounded,
                   title: 'Grid Columns',
                   subtitle: '$gridColumns columns',
                   onTap: onShowGrid,
                 ),
                 _buildDrawerItem(
-                  icon: Icons.visibility,
+                  icon: Icons.visibility_rounded,
                   title: 'Visible Cards Count',
                   subtitle: visibleCardsLabel,
                   onTap: onShowVisibleCount,
                 ),
                 _buildDrawerItem(
-                  icon: Icons.screen_rotation,
+                  icon: Icons.screen_rotation_rounded,
                   title: 'Screen Orientation',
                   subtitle: orientationLabel,
                   onTap: onChangeOrientation,
                 ),
                 _buildSwitchItem(
-                  icon: Icons.fullscreen,
+                  icon: Icons.fullscreen_rounded,
                   title: 'Full Screen Mode',
                   subtitle: 'Hide Android system bars',
                   value: fullScreen,
                   onChanged: (_) => onToggleFullScreen(),
                 ),
                 _buildDrawerItem(
-                  icon: Icons.text_increase,
+                  icon: Icons.text_increase_rounded,
                   title: 'TTS Bar Sizing',
                   subtitle: 'Adjust composer bar height',
                   onTap: onShowTtsBarSize,
                 ),
                 const SizedBox(height: 12),
 
-                _buildSectionHeader(context, 'Appearance & Theme', Icons.palette),
+                _buildSectionHeader(context, 'Appearance & Theme', Icons.palette_rounded),
                 _buildSwitchItem(
                   icon: isDarkMode ? Icons.dark_mode_rounded : Icons.dark_mode_outlined,
                   title: 'Dark Mode',
@@ -201,7 +201,7 @@ class HomeDrawer extends StatelessWidget {
                 ),
                 _buildColorPickerItem(
                   context,
-                  icon: Icons.color_lens,
+                  icon: Icons.color_lens_rounded,
                   title: 'Primary App Color',
                   swatchColor: primaryColorSwatch,
                   subtitle: isDarkMode ? 'Saved for Normal Mode' : null,
@@ -209,7 +209,7 @@ class HomeDrawer extends StatelessWidget {
                 ),
                 _buildColorPickerItem(
                   context,
-                  icon: Icons.format_paint,
+                  icon: Icons.format_paint_rounded,
                   title: 'Global Text Color',
                   swatchColor: textColorSwatch,
                   subtitle: isDarkMode ? 'Saved for Normal Mode' : null,
@@ -217,7 +217,7 @@ class HomeDrawer extends StatelessWidget {
                 ),
                 _buildColorPickerItem(
                   context,
-                  icon: Icons.format_color_fill,
+                  icon: Icons.format_color_fill_rounded,
                   title: 'Board Background Color',
                   swatchColor: backgroundColorSwatch,
                   subtitle: isDarkMode ? 'Saved for Normal Mode' : null,
@@ -227,32 +227,32 @@ class HomeDrawer extends StatelessWidget {
                 _buildColorAccessibilityCard(context),
                 const SizedBox(height: 12),
 
-                _buildSectionHeader(context, 'Cards & Storage', Icons.folder),
+                _buildSectionHeader(context, 'Cards & Storage', Icons.folder_rounded),
                 _buildDrawerItem(
-                  icon: Icons.category,
+                  icon: Icons.category_rounded,
                   title: 'Category',
                   subtitle: selectedCategory,
                   onTap: onSelectCategory,
                 ),
                 _buildDrawerItem(
-                  icon: Icons.add_circle_outline,
+                  icon: Icons.create_new_folder_rounded,
                   title: 'Add New Category',
                   onTap: onAddCategory,
                 ),
                 _buildDrawerItem(
-                  icon: Icons.upload_file,
+                  icon: Icons.backup_rounded,
                   title: 'Export Backup',
                   subtitle: 'Save cards and audio to Downloads',
                   onTap: onBackup,
                 ),
                 _buildDrawerItem(
-                  icon: Icons.download_for_offline,
+                  icon: Icons.restore_page_rounded,
                   title: 'Import Restore',
                   subtitle: 'Restore board from zip backup',
                   onTap: onRestore,
                 ),
                 _buildDrawerItem(
-                  icon: Icons.restart_alt,
+                  icon: Icons.restart_alt_rounded,
                   title: 'Reset Settings',
                   onTap: onResetSettings,
                 ),
@@ -265,9 +265,9 @@ class HomeDrawer extends StatelessWidget {
                   ),
                 const SizedBox(height: 12),
 
-                _buildSectionHeader(context, 'About', Icons.info),
+                _buildSectionHeader(context, 'About', Icons.info_outline_rounded),
                 _buildDrawerItem(
-                  icon: Icons.info_outline,
+                  icon: Icons.info_outline_rounded,
                   title: 'About Simple AAC',
                   subtitle: 'Version 1.1.0',
                   onTap: onShowAbout,
@@ -497,7 +497,7 @@ class HomeDrawer extends StatelessWidget {
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         dense: true,
-        leading: Icon(icon, size: 22),
+        leading: _DrawerIconBadge(icon: icon),
         title: Text(
           title,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
@@ -622,7 +622,7 @@ class HomeDrawer extends StatelessWidget {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             dense: true,
-            leading: Icon(icon, size: 22),
+            leading: _DrawerIconBadge(icon: icon, active: active),
             title: Text(title,
                 style:
                     const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
@@ -648,7 +648,7 @@ class HomeDrawer extends StatelessWidget {
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         dense: true,
-        leading: Icon(icon, size: 22),
+        leading: _DrawerIconBadge(icon: icon, active: value),
         title: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
         subtitle: subtitle != null
             ? Text(subtitle, style: const TextStyle(fontSize: 12))
@@ -659,6 +659,31 @@ class HomeDrawer extends StatelessWidget {
         ),
         onTap: () => onChanged(!value),
       ),
+    );
+  }
+}
+
+class _DrawerIconBadge extends StatelessWidget {
+  final IconData icon;
+  final bool active;
+
+  const _DrawerIconBadge({
+    required this.icon,
+    this.active = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final tint = active ? colorScheme.onPrimaryContainer : colorScheme.primary;
+    return Container(
+      width: 34,
+      height: 34,
+      decoration: BoxDecoration(
+        color: colorScheme.primary.withValues(alpha: active ? 0.2 : 0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Icon(icon, size: 19, color: tint),
     );
   }
 }

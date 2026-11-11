@@ -65,6 +65,11 @@ class OpenverseSearchProvider implements ImageSearchProvider {
     caseSensitive: false,
   );
 
+  static DateTime? _openverseCooldownUntil;
+
+  @visibleForTesting
+  static void resetCooldown() => _openverseCooldownUntil = null;
+
   final http.Client? _customClient;
   final bool _enableMultiSource;
 
@@ -414,6 +419,7 @@ class OpenverseSearchProvider implements ImageSearchProvider {
     final lowerQuery = query.toLowerCase();
     final pages = _sortedWikiPages(data);
     final out = <_RankedResult>[];
+    String? topArticleTitle;
 
     for (final page in pages) {
       final thumb = (page['thumbnail'] as Map<String, dynamic>?)?['source'] as String?;
@@ -435,6 +441,7 @@ class OpenverseSearchProvider implements ImageSearchProvider {
       } else if (tokens.any((t) => lowerTitle.contains(t))) {
         score += 12;
       }
+      topArticleTitle ??= score >= 36 ? title : null;
 
       out.add(_RankedResult(
         score,
@@ -449,12 +456,91 @@ class OpenverseSearchProvider implements ImageSearchProvider {
       ));
     }
 
+    if (host == 'en.wikipedia.org' && topArticleTitle != null) {
+      final galleryItems = await _searchWikipediaMediaList(
+        host,
+        topArticleTitle,
+        query,
+        startRank: out.length,
+      );
+      out.addAll(galleryItems);
+    }
+
     return out;
   }
 
+  Future<List<_RankedResult>> _searchWikipediaMediaList(
+    String host,
+    String articleTitle,
+    String rawQuery, {
+    int startRank = 0,
+  }) async {
+    final encodedTitle = Uri.encodeComponent(articleTitle.replaceAll(' ', '_'));
+    final uri = Uri.parse('https://$host/api/rest_v1/page/media-list/$encodedTitle');
+    try {
+      final resp = await _client
+          .get(uri, headers: mediaHeaders)
+          .timeout(const Duration(seconds: 3));
+      if (resp.statusCode != 200) return const [];
+
+      final data = json.decode(utf8.decode(resp.bodyBytes));
+      if (data is! Map<String, dynamic>) return const [];
+      final items = data['items'] as List<dynamic>? ?? const [];
+      final out = <_RankedResult>[];
+
+      for (final raw in items) {
+        if (raw is! Map<String, dynamic>) continue;
+        if (raw['type'] != 'image') continue;
+        if (raw['showInGallery'] == false) continue;
+
+        final fileTitle = raw['title']?.toString() ?? '';
+        final cleanTitle = fileTitle
+            .replaceFirst(RegExp(r'^File:\s*', caseSensitive: false), '')
+            .replaceAll('_', ' ');
+        if (!_isSupportedRasterUrl(fileTitle) ||
+            _isNoisyTitle(cleanTitle, rawQuery) ||
+            _isNoisyTopic(cleanTitle, '', rawQuery)) {
+          continue;
+        }
+
+        final srcset = raw['srcset'] as List<dynamic>? ?? const [];
+        if (srcset.isEmpty) continue;
+        String normalizeUrl(String src) => src.startsWith('//') ? 'https:$src' : src;
+        final thumbRaw = (srcset.first as Map<String, dynamic>)['src']?.toString() ?? '';
+        final fullRaw = (srcset.last as Map<String, dynamic>)['src']?.toString() ?? thumbRaw;
+        final thumbUrl = normalizeUrl(thumbRaw);
+        final fullUrl = normalizeUrl(fullRaw);
+        if (thumbUrl.isEmpty) continue;
+
+        final caption = (raw['caption'] as Map<String, dynamic>?)?['text']?.toString().trim() ?? '';
+        out.add(_RankedResult(
+          42 - out.length * 2,
+          ImageSearchResult(
+            id: 'wikilist_${startRank}_${out.length}',
+            title: caption.isNotEmpty
+                ? caption
+                : (cleanTitle.isNotEmpty ? cleanTitle : articleTitle),
+            imageUrl: fullUrl,
+            thumbnail: thumbUrl,
+            creator: 'Wikipedia',
+            license: 'cc0',
+          ),
+        ));
+        if (out.length >= 6) break;
+      }
+      return out;
+    } on OfflineModeException {
+      rethrow;
+    } catch (_) {
+      return const [];
+    }
+  }
+
   Future<List<_RankedResult>> _searchWikimediaCommons(String query) async {
+    final tokens = _extractTokens(query);
+    final scoped = tokens.length == 1 ? 'intitle:${tokens.first}' : query;
     final searchQuery =
-        '$query filetype:bitmap -intitle:flag -intitle:logo -intitle:coat -intitle:map';
+        '$scoped filetype:bitmap -intitle:flag -intitle:logo -intitle:coat -intitle:map';
     final uri = Uri.parse(
       'https://commons.wikimedia.org/w/api.php?action=query&generator=search'
       '&gsrnamespace=6&gsrsearch=${Uri.encodeComponent(searchQuery)}&gsrlimit=12'
@@ -473,7 +559,6 @@ class OpenverseSearchProvider implements ImageSearchProvider {
     if (data is! Map<String, dynamic>) return const [];
 
     const allowedMimes = {'image/jpeg', 'image/png', 'image/webp'};
-    final tokens = _extractTokens(query);
     final pages = _sortedWikiPages(data);
     final out = <_RankedResult>[];
 
@@ -518,30 +603,53 @@ class OpenverseSearchProvider implements ImageSearchProvider {
   }
 
   Future<List<_RankedResult>> _searchOpenverseRanked(String query, int pageSize) async {
+    // ponytail: temporary 3-minute cooldown avoids repeating dead Openverse stalls on every search; replace with health probe if needed.
+    if (_customClient == null &&
+        _openverseCooldownUntil != null &&
+        DateTime.now().isBefore(_openverseCooldownUntil!)) {
+      return const [];
+    }
+
     final uri = Uri.parse(_openverseBaseUrl).replace(queryParameters: {
       'q': query,
       'license': 'cc0,pdm,by',
       'mature': 'false',
       'page_size': pageSize.clamp(1, 20).toString(),
     });
-    // Short timeout so live Openverse stalls never slow down Wikipedia/ARASAAC/Commons.
-    final resp = await _client
-        .get(uri, headers: mediaHeaders)
-        .timeout(const Duration(milliseconds: 2500));
+    try {
+      final resp = await _client
+          .get(uri, headers: mediaHeaders)
+          .timeout(const Duration(milliseconds: 1800));
 
-    if (resp.statusCode == 429) throw const SearchRateLimitException();
-    if (resp.statusCode != 200) return const [];
+      if (resp.statusCode == 429) throw const SearchRateLimitException();
+      if (resp.statusCode != 200) {
+        if (_customClient == null) {
+          _openverseCooldownUntil = DateTime.now().add(const Duration(minutes: 3));
+        }
+        return const [];
+      }
 
-    final items = _parseOpenverseJson(utf8.decode(resp.bodyBytes));
-    final out = <_RankedResult>[];
-    for (var i = 0; i < items.length; i++) {
-      final item = items[i];
-      out.add(_RankedResult(
-        38 - i * 2 + (item.isPublicDomainOrCc0 ? 6 : 0),
-        item,
-      ));
+      _openverseCooldownUntil = null;
+      final items = _parseOpenverseJson(utf8.decode(resp.bodyBytes));
+      final out = <_RankedResult>[];
+      for (var i = 0; i < items.length; i++) {
+        final item = items[i];
+        out.add(_RankedResult(
+          38 - i * 2 + (item.isPublicDomainOrCc0 ? 6 : 0),
+          item,
+        ));
+      }
+      return out;
+    } on OfflineModeException {
+      rethrow;
+    } on SearchRateLimitException {
+      rethrow;
+    } catch (_) {
+      if (_customClient == null) {
+        _openverseCooldownUntil = DateTime.now().add(const Duration(minutes: 3));
+      }
+      rethrow;
     }
-    return out;
   }
 
   List<ImageSearchResult> _parseOpenverseJson(String body) {

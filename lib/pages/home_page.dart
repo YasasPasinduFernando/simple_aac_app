@@ -548,11 +548,34 @@ class _HomePageState extends State<HomePage> {
           title: 'Delete Card',
           accentColor: Colors.red,
         ),
-        content: Text(
-          'Remove "${card.getLabel(currentLanguage)}" from your communication board?',
-          style: TextStyle(
-            fontSize: 14,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+        content: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.35),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.delete_sweep_rounded,
+                color: Theme.of(context).colorScheme.error,
+                size: 22,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Remove "${card.getLabel(currentLanguage)}" from your communication board?',
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    height: 1.35,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         actions: [
@@ -858,13 +881,51 @@ class _HomePageState extends State<HomePage> {
           subtitle: 'Restore default look & layout',
           accentColor: Colors.orange.shade700,
         ),
-        content: Text(
-          'Reset theme, layout, and display preferences to defaults?\n\nYour AAC cards, images, and voice recordings will stay safe.',
-          style: TextStyle(
-            fontSize: 13.5,
-            height: 1.4,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.28)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.tune_rounded, color: Colors.orange.shade700, size: 20),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'Resets grid size, colors, language & layout to defaults.',
+                      style: TextStyle(fontSize: 12.5, height: 1.35),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.green.withValues(alpha: 0.28)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.verified_user_rounded, color: Colors.green.shade700, size: 20),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'Your AAC cards, photos & voice recordings stay safe.',
+                      style: TextStyle(fontSize: 12.5, height: 1.35),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(

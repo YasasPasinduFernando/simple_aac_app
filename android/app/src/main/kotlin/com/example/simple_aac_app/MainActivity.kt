@@ -1,6 +1,8 @@
 package com.example.simple_aac_app
 
 import android.content.ContentValues
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
@@ -32,6 +34,19 @@ class MainActivity : FlutterActivity() {
                     }
                 } else if (call.method == "getSdkVersion") {
                     result.success(Build.VERSION.SDK_INT)
+                } else if (call.method == "openExternalUrl") {
+                    val rawUrl = call.argument<String>("url")
+                    if (rawUrl == null || (!rawUrl.startsWith("https://") && !rawUrl.startsWith("http://"))) {
+                        result.error("INVALID_URL", "Invalid HTTP/HTTPS URL", null)
+                        return@setMethodCallHandler
+                    }
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(rawUrl))
+                        startActivity(intent)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("LAUNCH_FAILED", e.message, null)
+                    }
                 } else {
                     result.notImplemented()
                 }
