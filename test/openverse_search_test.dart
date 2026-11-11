@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -206,6 +207,50 @@ void main() {
       expect(results.length, 1);
       expect(results.first.title, 'Kiribath');
       expect(results.first.imageUrl, 'https://upload.wikimedia.org/Kiribath.jpg');
+    });
+
+    test('searchImagesStream emits fast providers immediately without waiting for slow providers', () async {
+      final slowOpenverse = Completer<http.Response>();
+      final client = MockClient((request) async {
+        final host = request.url.host;
+        if (host == 'api.openverse.org') {
+          return slowOpenverse.future;
+        }
+        if (host == 'api.arasaac.org') {
+          return http.Response(
+            json.encode([
+              {
+                '_id': 2462,
+                'aac': true,
+                'keywords': [
+                  {'keyword': 'apple'},
+                ],
+              },
+            ]),
+            200,
+          );
+        }
+        return http.Response('{"query": {"pages": {}}}', 200);
+      });
+
+      final provider = OpenverseSearchProvider(client, true);
+      final emissions = <int>[];
+      final done = Completer<void>();
+
+      final sub = provider.searchImagesStream('apple').listen(
+        (items) => emissions.add(items.length),
+        onDone: done.complete,
+      );
+
+      // Must emit ARASAAC result before Openverse completes.
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(emissions, isNotEmpty);
+      expect(emissions.first, 1);
+      expect(done.isCompleted, isFalse);
+
+      slowOpenverse.complete(http.Response('{}', 504));
+      await done.future;
+      await sub.cancel();
     });
   });
 }

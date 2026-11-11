@@ -85,8 +85,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _initTts();
     _loadCards();
+    // Defer TTS engine setup slightly so initial storage read and first frame paint complete first.
+    Future.microtask(_initTts);
   }
 
   Future<void> _initTts() async {
@@ -96,54 +97,59 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadCards() async {
-    debugPrint('[HomePage] app startup storage initialization started');
-    final prefs = await SharedPreferences.getInstance();
-    final loadedCards = await CardStorageService.loadCards(
-      defaultCards: _createSeedImageCards(),
-    );
+    final results = await Future.wait<dynamic>([
+      SharedPreferences.getInstance(),
+      CardStorageService.loadCards(defaultCards: _createSeedImageCards()),
+    ]);
     if (!mounted) return;
-    final String saved = _encodeCardsForLoad(loadedCards);
 
-    final List decoded = jsonDecode(saved);
+    final prefs = results[0] as SharedPreferences;
+    final loadedCards = results[1] as List<AACCard>;
+
+    final nextGridColumns = prefs.getInt('gridColumns') ?? 2;
+    final nextShowTtsInput = prefs.getBool('showTtsInput') ?? true;
+    final nextOrientation = prefs.getString('orientationMode') ?? 'portrait';
+    final nextFullScreen = prefs.getBool('fullScreen') ?? true;
+    final nextLanguage = prefs.getString('language') ?? 'en';
+    final nextPrimary =
+        prefs.getInt('themePrimaryColor') ?? _defaultPrimaryColorValue;
+    final nextText = prefs.getInt('themeTextColor') ?? Colors.white.value;
+    final nextBg = prefs.getInt('themeBackgroundColor') ?? Colors.white.value;
+    final nextTtsSize = prefs.getDouble('ttsBarSize') ?? 1.0;
+    final nextShowActions = prefs.getBool('showTtsActions') ?? true;
+    final nextHideTts = prefs.getBool('hideTtsText') ?? false;
+    final nextOverlay = prefs.getBool('useImageOverlayLabel') ?? false;
+    final nextApplyText = prefs.getBool('applyTextColorToCards') ?? false;
+    final nextDark =
+        prefs.getBool(ThemeAccessibility.darkModePrefKey) ?? _isDarkMode;
+    final nextColorBlind =
+        prefs.getBool(ThemeAccessibility.colorBlindPrefKey) ?? false;
+
     setState(() {
-      cards = decoded.map((c) => AACCard.fromJson(c)).toList();
+      cards = loadedCards;
+      gridColumns = nextGridColumns;
+      _loadVisibleSelections(prefs);
+      showTtsInput = nextShowTtsInput;
+      orientationMode = nextOrientation;
+      fullScreen = nextFullScreen;
+      currentLanguage = nextLanguage;
+      _themePrimaryColor = nextPrimary;
+      _themeTextColor = nextText;
+      _themeBackgroundColor = nextBg;
+      _ttsBarSize = nextTtsSize;
+      _showTtsActions = nextShowActions;
+      _hideTtsText = nextHideTts;
+      _useImageOverlayLabel = nextOverlay;
+      _applyTextColorToCards = nextApplyText;
+      _isDarkMode = nextDark;
+      _isColorBlindMode = nextColorBlind;
+      _updateCategories();
+      _migrateVisibleCountIfNeeded(prefs);
     });
 
-    gridColumns = prefs.getInt('gridColumns') ?? 2;
-    _loadVisibleSelections(prefs);
-    showTtsInput = prefs.getBool('showTtsInput') ?? true;
-    orientationMode = prefs.getString('orientationMode') ?? 'portrait';
-    fullScreen = prefs.getBool('fullScreen') ?? true;
-    currentLanguage = prefs.getString('language') ?? 'en';
-    _themePrimaryColor =
-        prefs.getInt('themePrimaryColor') ?? _defaultPrimaryColorValue;
-    _themeTextColor = prefs.getInt('themeTextColor') ?? Colors.white.value;
-    _themeBackgroundColor =
-        prefs.getInt('themeBackgroundColor') ?? Colors.white.value;
-    _ttsBarSize = prefs.getDouble('ttsBarSize') ?? 1.0;
-    _showTtsActions = prefs.getBool('showTtsActions') ?? true;
-    _hideTtsText = prefs.getBool('hideTtsText') ?? false;
-    _useImageOverlayLabel = prefs.getBool('useImageOverlayLabel') ?? false;
-    _applyTextColorToCards = prefs.getBool('applyTextColorToCards') ?? false;
-    _isDarkMode =
-        prefs.getBool(ThemeAccessibility.darkModePrefKey) ?? _isDarkMode;
-    _isColorBlindMode =
-        prefs.getBool(ThemeAccessibility.colorBlindPrefKey) ?? false;
-    ThemeAccessibility.darkModeNotifier.value = _isDarkMode;
-
-    _updateCategories();
-    _migrateVisibleCountIfNeeded(prefs);
-    _logCardMediaPaths('load', cards);
-    debugPrint(
-      '[HomePage] card load complete: ${cards.length} top-level cards, '
-      '${CardStorageService.countCards(cards)} total cards',
-    );
-    UiModeHelper.applyOrientation(orientationMode);
-    UiModeHelper.applySystemUi(fullScreen);
-  }
-
-  String _encodeCardsForLoad(List<AACCard> loadedCards) {
-    return jsonEncode(loadedCards.map((c) => c.toJson()).toList());
+    ThemeAccessibility.darkModeNotifier.value = nextDark;
+    UiModeHelper.applyOrientation(nextOrientation);
+    UiModeHelper.applySystemUi(nextFullScreen);
   }
 
   List<AACCard> _createSeedImageCards() {
@@ -195,68 +201,35 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _saveCards() async {
-    debugPrint(
-      '[HomePage] card saving requested: ${cards.length} top-level cards, '
-      '${CardStorageService.countCards(cards)} total cards',
-    );
-    _logCardMediaPaths('save', cards);
-    await CardStorageService.saveCards(cards);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-        'cards', jsonEncode(cards.map((c) => c.toJson()).toList()));
-    await prefs.setInt('gridColumns', gridColumns);
-    final encoded = jsonEncode(
-      visibleCardIdsByParent.map(
-        (key, value) => MapEntry(key, value.toList()),
-      ),
-    );
-    await prefs.setString('visibleCardIdsByParent', encoded);
-    await prefs.setBool('showTtsInput', showTtsInput);
-    await prefs.setString('orientationMode', orientationMode);
-    await prefs.setBool('fullScreen', fullScreen);
-    await prefs.setString('language', currentLanguage);
-    await prefs.setInt('themePrimaryColor', _themePrimaryColor);
-    await prefs.setInt('themeTextColor', _themeTextColor);
-    await prefs.setInt('themeBackgroundColor', _themeBackgroundColor);
-    await prefs.setDouble('ttsBarSize', _ttsBarSize);
-    await prefs.setBool('showTtsActions', _showTtsActions);
-    await prefs.setBool('hideTtsText', _hideTtsText);
-    await prefs.setBool('useImageOverlayLabel', _useImageOverlayLabel);
-    await prefs.setBool('applyTextColorToCards', _applyTextColorToCards);
-    await prefs.setBool(ThemeAccessibility.darkModePrefKey, _isDarkMode);
-    await prefs.setBool(
-        ThemeAccessibility.colorBlindPrefKey, _isColorBlindMode);
-    debugPrint('[HomePage] settings and cards saved');
-  }
-
-  void _logCardMediaPaths(String phase, List<AACCard> cardsList) {
-    void visit(AACCard card) {
-      final imagePath = card.imagePath;
-      if (imagePath != null && imagePath.isNotEmpty) {
-        final exists =
-            isAssetImagePath(imagePath) || File(imagePath).existsSync();
-        debugPrint(
-          '[HomePage] card media $phase: id=${card.id}, '
-          'imagePath=$imagePath, exists=$exists',
+    await Future.wait([
+      CardStorageService.saveCards(cards),
+      SharedPreferences.getInstance().then((prefs) async {
+        final encodedVisible = jsonEncode(
+          visibleCardIdsByParent.map(
+            (key, value) => MapEntry(key, value.toList()),
+          ),
         );
-      }
-
-      final voicePath = card.voicePath;
-      if (voicePath != null && voicePath.isNotEmpty) {
-        debugPrint(
-          '[HomePage] card media $phase: id=${card.id}, '
-          'voicePath=$voicePath, exists=${File(voicePath).existsSync()}',
-        );
-      }
-
-      for (final subCard in card.subCards) {
-        visit(subCard);
-      }
-    }
-
-    for (final card in cardsList) {
-      visit(card);
-    }
+        await Future.wait([
+          prefs.setInt('gridColumns', gridColumns),
+          prefs.setString('visibleCardIdsByParent', encodedVisible),
+          prefs.setBool('showTtsInput', showTtsInput),
+          prefs.setString('orientationMode', orientationMode),
+          prefs.setBool('fullScreen', fullScreen),
+          prefs.setString('language', currentLanguage),
+          prefs.setInt('themePrimaryColor', _themePrimaryColor),
+          prefs.setInt('themeTextColor', _themeTextColor),
+          prefs.setInt('themeBackgroundColor', _themeBackgroundColor),
+          prefs.setDouble('ttsBarSize', _ttsBarSize),
+          prefs.setBool('showTtsActions', _showTtsActions),
+          prefs.setBool('hideTtsText', _hideTtsText),
+          prefs.setBool('useImageOverlayLabel', _useImageOverlayLabel),
+          prefs.setBool('applyTextColorToCards', _applyTextColorToCards),
+          prefs.setBool(ThemeAccessibility.darkModePrefKey, _isDarkMode),
+          prefs.setBool(
+              ThemeAccessibility.colorBlindPrefKey, _isColorBlindMode),
+        ]);
+      }),
+    ]);
   }
 
   Future<void> _speak(String text) async {

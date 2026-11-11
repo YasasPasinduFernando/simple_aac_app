@@ -13,9 +13,11 @@ void main() async {
   // Strict offline requirement: Prevent GoogleFonts from ever making runtime network requests
   GoogleFonts.config.allowRuntimeFetching = false;
 
-  // Initialize application offline gate (default: false/offline) and theme state
-  await NetworkPolicyService.instance.init();
-  await ThemeAccessibility.initDarkMode();
+  // Initialize application offline gate (default: false/offline) and theme state in parallel
+  await Future.wait([
+    NetworkPolicyService.instance.init(),
+    ThemeAccessibility.initDarkMode(),
+  ]);
 
   // Android Photo Picker enablement
   final imagePickerImplementation = ImagePickerPlatform.instance;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../models/image_search_result.dart';
@@ -25,7 +27,9 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
   late final TextEditingController _searchController;
   final OpenverseSearchProvider _searchProvider = OpenverseSearchProvider();
 
+  StreamSubscription<List<ImageSearchResult>>? _searchSub;
   bool _isLoading = false;
+  bool _isRefining = false;
   bool _isDownloading = false;
   String? _errorMessage;
   List<ImageSearchResult> _results = [];
@@ -43,6 +47,7 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
 
   @override
   void dispose() {
+    _searchSub?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -50,6 +55,8 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
   Future<void> _executeSearch(String query) async {
     final cleanQuery = query.trim();
     if (cleanQuery.isEmpty) return;
+
+    await _searchSub?.cancel();
 
     if (!NetworkPolicyService.instance.isOnlineEnabled) {
       setState(() {
@@ -60,30 +67,46 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
 
     setState(() {
       _isLoading = true;
+      _isRefining = true;
       _errorMessage = null;
       _results = [];
       _selectedImage = null;
       _filter = _ResultFilter.all;
     });
 
-    try {
-      final items = await _searchProvider.searchImages(cleanQuery);
-      if (!mounted) return;
-      setState(() {
-        _results = items;
-        _isLoading = false;
-        if (items.isEmpty) {
-          _errorMessage =
-              'No matching photos or AAC symbols found for "$cleanQuery". Try a simpler keyword.';
-        }
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _errorMessage = e.toString().replaceFirst('Exception: ', '');
-      });
-    }
+    _searchSub = _searchProvider.searchImagesStream(cleanQuery).listen(
+      (items) {
+        if (!mounted) return;
+        setState(() {
+          _results = items;
+          // Drop blocking spinner as soon as first batch arrives (~0.5s).
+          if (items.isNotEmpty) {
+            _isLoading = false;
+          }
+        });
+      },
+      onError: (Object e) {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+          _isRefining = false;
+          if (_results.isEmpty) {
+            _errorMessage = e.toString().replaceFirst('Exception: ', '');
+          }
+        });
+      },
+      onDone: () {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+          _isRefining = false;
+          if (_results.isEmpty && _errorMessage == null) {
+            _errorMessage =
+                'No matching photos or AAC symbols found for "$cleanQuery". Try a simpler keyword.';
+          }
+        });
+      },
+    );
   }
 
   Future<void> _confirmAndDownloadImage(ImageSearchResult result) async {
@@ -354,6 +377,13 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
             ],
           ),
         ),
+        if (_isRefining) ...[
+          const SizedBox(height: 6),
+          const ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(2)),
+            child: LinearProgressIndicator(minHeight: 2),
+          ),
+        ],
         const SizedBox(height: 8),
         Expanded(
           child: Builder(

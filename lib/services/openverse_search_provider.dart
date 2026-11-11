@@ -86,7 +86,45 @@ class OpenverseSearchProvider implements ImageSearchProvider {
       return _searchOpenverseSingle(cleanQuery, pageSize);
     }
 
-    return _searchMultiSource(cleanQuery, pageSize);
+    var latest = <ImageSearchResult>[];
+    await for (final batch in searchImagesStream(cleanQuery, pageSize: pageSize)) {
+      latest = batch;
+    }
+    return latest;
+  }
+
+  /// Progressive async search stream: emits ranked batches as fast providers
+  /// finish (~0.4-0.7s) without blocking the UI behind slower timeouts.
+  Stream<List<ImageSearchResult>> searchImagesStream(
+    String query, {
+    int pageSize = 20,
+  }) {
+    final cleanQuery = query.trim();
+    final controller = StreamController<List<ImageSearchResult>>();
+
+    if (cleanQuery.isEmpty) {
+      controller.add(const []);
+      controller.close();
+      return controller.stream;
+    }
+
+    if (!_enableMultiSource) {
+      _searchOpenverseSingle(cleanQuery, pageSize).then((items) {
+        if (!controller.isClosed) {
+          controller.add(items);
+          controller.close();
+        }
+      }, onError: (Object error, StackTrace stack) {
+        if (!controller.isClosed) {
+          controller.addError(error, stack);
+          controller.close();
+        }
+      });
+      return controller.stream;
+    }
+
+    _runStreamingMultiSource(cleanQuery, pageSize, controller);
+    return controller.stream;
   }
 
   Future<List<ImageSearchResult>> _searchOpenverseSingle(
@@ -141,63 +179,87 @@ class OpenverseSearchProvider implements ImageSearchProvider {
     }
   }
 
-  Future<List<ImageSearchResult>> _searchMultiSource(
+  Future<void> _runStreamingMultiSource(
     String rawQuery,
     int pageSize,
+    StreamController<List<ImageSearchResult>> controller,
   ) async {
     var searchTerm = MultilingualConceptService.toSearchCore(rawQuery);
-    final nativeBridgeResults = <_RankedResult>[];
+    final accumulated = <_RankedResult>[];
 
     // If Sinhala/Tamil input was outside our offline glossary, bridge via Wikipedia langlinks.
     if (!MultilingualConceptService.isLatinScript(searchTerm)) {
-      final bridge = await _resolveNonLatinWikiConcept(searchTerm);
-      nativeBridgeResults.addAll(bridge.results);
-      if (bridge.englishTitle != null && bridge.englishTitle!.isNotEmpty) {
-        searchTerm = MultilingualConceptService.toSearchCore(bridge.englishTitle!);
-      }
-    }
-
-    var rateLimited = false;
-    var failedCount = 0;
-
-    Future<List<_RankedResult>> guard(Future<List<_RankedResult>> future) async {
       try {
-        return await future;
-      } on OfflineModeException {
-        rethrow;
-      } on SearchRateLimitException {
-        rateLimited = true;
-        return const [];
-      } catch (_) {
-        failedCount++;
-        return const [];
-      }
+        final bridge = await _resolveNonLatinWikiConcept(searchTerm);
+        if (controller.isClosed) return;
+        if (bridge.results.isNotEmpty) {
+          accumulated.addAll(bridge.results);
+          controller.add(_rankAndInterleave(accumulated, pageSize));
+        }
+        if (bridge.englishTitle != null && bridge.englishTitle!.isNotEmpty) {
+          searchTerm = MultilingualConceptService.toSearchCore(bridge.englishTitle!);
+        }
+      } on OfflineModeException catch (e, stack) {
+        if (!controller.isClosed) {
+          controller.addError(e, stack);
+          await controller.close();
+        }
+        return;
+      } catch (_) {}
     }
 
-    final batches = await Future.wait([
-      guard(_searchArasaac(searchTerm)),
-      guard(_searchWikipediaTopic('simple.wikipedia.org', searchTerm, baseScore: 38)),
-      guard(_searchWikipediaTopic('en.wikipedia.org', searchTerm, baseScore: 30)),
-      guard(_searchWikimediaCommons(searchTerm)),
-      guard(_searchOpenverseRanked(searchTerm, pageSize)),
-    ]);
+    if (controller.isClosed) return;
 
-    final combined = <_RankedResult>[
-      ...nativeBridgeResults,
-      for (final batch in batches) ...batch,
+    final providers = <Future<List<_RankedResult>>>[
+      _searchArasaac(searchTerm),
+      _searchWikipediaTopic('simple.wikipedia.org', searchTerm, baseScore: 38),
+      _searchWikipediaTopic('en.wikipedia.org', searchTerm, baseScore: 30),
+      _searchWikimediaCommons(searchTerm),
+      _searchOpenverseRanked(searchTerm, pageSize),
     ];
 
-    if (combined.isEmpty) {
-      if (rateLimited) throw const SearchRateLimitException();
-      if (failedCount >= 4) {
-        throw const SearchServiceException(
-          'Could not connect to image search service. Check your internet connection.',
-        );
+    var remaining = providers.length;
+    var rateLimited = false;
+    var failedCount = 0;
+    OfflineModeException? offlineError;
+
+    void finalizeProvider() {
+      remaining--;
+      if (remaining > 0 || controller.isClosed) return;
+      if (accumulated.isEmpty) {
+        if (offlineError != null) {
+          controller.addError(offlineError!);
+        } else if (rateLimited) {
+          controller.addError(const SearchRateLimitException());
+        } else if (failedCount >= 4) {
+          controller.addError(
+            const SearchServiceException(
+              'Could not connect to image search service. Check your internet connection.',
+            ),
+          );
+        } else {
+          controller.add(const []);
+        }
       }
-      return const [];
+      controller.close();
     }
 
-    return _rankAndInterleave(combined, pageSize);
+    for (final future in providers) {
+      future.then((batch) {
+        if (!controller.isClosed && batch.isNotEmpty) {
+          accumulated.addAll(batch);
+          controller.add(_rankAndInterleave(accumulated, pageSize));
+        }
+      }).catchError((Object e) {
+        if (e is OfflineModeException) {
+          offlineError ??= e;
+        } else if (e is SearchRateLimitException) {
+          rateLimited = true;
+        } else {
+          failedCount++;
+        }
+      }).whenComplete(finalizeProvider);
+    }
   }
 
   Future<({String? englishTitle, List<_RankedResult> results})>

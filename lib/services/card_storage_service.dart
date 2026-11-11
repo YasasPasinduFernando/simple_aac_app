@@ -44,22 +44,28 @@ class CardStorageService {
   static Future<List<AACCard>> loadCards({
     required List<AACCard> defaultCards,
   }) async {
-    final prefs = await SharedPreferences.getInstance();
-    final docsDir = await getApplicationDocumentsDirectory();
+    final initResults = await Future.wait<dynamic>([
+      SharedPreferences.getInstance(),
+      getApplicationDocumentsDirectory(),
+    ]);
+    final prefs = initResults[0] as SharedPreferences;
+    final docsDir = initResults[1] as Directory;
     final file = await _cardsFile(docsDir);
     final backupFile = await _cardsBackupFile(docsDir);
     final hasSeeded = prefs.getBool(_hasSeededDefaultsKey) ?? false;
     final seededVersion = prefs.getInt(_seededDefaultVersionKey);
 
-    debugPrint(
-      '[CardStorage] startup init: docs=${docsDir.path}, '
-      'cardsFile=${file.path}, exists=${await file.exists()}, '
-      'backupExists=${await backupFile.exists()}, '
-      'hasSeeded=$hasSeeded, seededVersion=$seededVersion',
-    );
-
     final primaryCards = await _readCardsFile(file, source: 'primary');
     if (primaryCards != null) {
+      final needsMigration =
+          !hasSeeded || (seededVersion ?? 0) < defaultCatalogVersion;
+      if (!needsMigration) {
+        debugPrint(
+          '[CardStorage] fast-loaded ${primaryCards.length} top-level cards from ${file.path}',
+        );
+        return primaryCards;
+      }
+
       final cards = await _applyDefaultCatalogMigration(
         primaryCards,
         defaultCards,
@@ -71,7 +77,10 @@ class CardStorageService {
         cards,
         defaultCards,
       );
-      final mediaChanged = await _migrateMediaFilesToDocuments(cards);
+      final mediaChanged = await _migrateMediaFilesToDocuments(
+        cards,
+        docsPath: docsDir.path,
+      );
       if (seedCatalogChanged || mediaChanged) {
         await _writeCardsFile(file, backupFile, cards);
       }
@@ -148,7 +157,7 @@ class CardStorageService {
       '(${countCards(cards)} total) to ${file.path}',
     );
 
-    await _migrateMediaFilesToDocuments(cards);
+    await _migrateMediaFilesToDocuments(cards, docsPath: docsDir.path);
     await _writeCardsFile(file, backupFile, cards);
     await _markSeeded(prefs);
     await _syncLegacyCards(prefs, cards);
@@ -201,11 +210,15 @@ class CardStorageService {
   }
 
   static Future<bool> _migrateMediaFilesToDocuments(
-    List<AACCard> cards,
-  ) async {
+    List<AACCard> cards, {
+    String? docsPath,
+  }) async {
+    final resolvedDocsPath =
+        docsPath ?? (await getApplicationDocumentsDirectory()).path;
     var changed = false;
     for (final card in cards) {
-      changed = await _migrateCardMediaFiles(card) || changed;
+      changed =
+          await _migrateCardMediaFiles(card, resolvedDocsPath) || changed;
     }
     if (changed) {
       debugPrint('[CardStorage] migrated media paths into app documents');
@@ -455,13 +468,17 @@ class CardStorageService {
         );
   }
 
-  static Future<bool> _migrateCardMediaFiles(AACCard card) async {
+  static Future<bool> _migrateCardMediaFiles(
+    AACCard card,
+    String docsPath,
+  ) async {
     var changed = false;
 
     final imagePath = await _migrateOneMediaPath(
       card.imagePath,
       cardId: card.id,
       mediaType: 'images',
+      docsPath: docsPath,
     );
     if (imagePath != card.imagePath) {
       card.imagePath = imagePath;
@@ -472,6 +489,7 @@ class CardStorageService {
       card.voicePath,
       cardId: card.id,
       mediaType: 'voices',
+      docsPath: docsPath,
     );
     if (voicePath != card.voicePath) {
       card.voicePath = voicePath;
@@ -479,7 +497,7 @@ class CardStorageService {
     }
 
     for (final subCard in card.subCards) {
-      changed = await _migrateCardMediaFiles(subCard) || changed;
+      changed = await _migrateCardMediaFiles(subCard, docsPath) || changed;
     }
     return changed;
   }
@@ -488,22 +506,11 @@ class CardStorageService {
     String? sourcePath, {
     required String cardId,
     required String mediaType,
+    required String docsPath,
   }) async {
     if (sourcePath == null || sourcePath.isEmpty) return sourcePath;
-    if (isAssetImagePath(sourcePath)) {
-      debugPrint(
-        '[CardStorage] media path is bundled asset: '
-        'cardId=$cardId, type=$mediaType, path=$sourcePath',
-      );
-      return sourcePath;
-    }
-
-    final docsDir = await getApplicationDocumentsDirectory();
-    if (_isInsideDirectory(sourcePath, docsDir.path)) {
-      debugPrint(
-        '[CardStorage] media path already permanent: '
-        'cardId=$cardId, type=$mediaType, path=$sourcePath',
-      );
+    if (isAssetImagePath(sourcePath) ||
+        _isInsideDirectory(sourcePath, docsPath)) {
       return sourcePath;
     }
 
