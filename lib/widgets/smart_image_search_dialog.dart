@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/image_search_result.dart';
 import '../services/network_policy_service.dart';
 import '../services/openverse_search_provider.dart';
+import 'styled_dialog_header.dart';
 
 class SmartImageSearchDialog extends StatefulWidget {
   final String initialQuery;
@@ -126,50 +127,15 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // Header
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(9),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.auto_awesome_rounded,
-                      color: colorScheme.primary,
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Smart Image Search',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-                        ),
-                        Text(
-                          'Free child-safe images & photos',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Close',
-                    icon: const Icon(Icons.close_rounded),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
+              StyledDialogHeader(
+                icon: Icons.image_search_rounded,
+                title: 'Smart Image Search',
+                subtitle: 'Free child-safe images & photos',
+                trailing: IconButton(
+                  tooltip: 'Close',
+                  icon: const Icon(Icons.close_rounded),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ),
               const Divider(height: 18),
 

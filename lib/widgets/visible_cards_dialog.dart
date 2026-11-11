@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/aac_card_model.dart';
 import '../utils/card_image.dart';
+import 'styled_dialog_header.dart';
 
 class VisibleCardsDialog extends StatefulWidget {
   final List<AACCard> cards;
@@ -37,32 +38,27 @@ class _VisibleCardsDialogState extends State<VisibleCardsDialog> {
     return AlertDialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      title: Row(
-        children: [
-          const Expanded(
-            child: Text(
-              'Visible Cards',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-          IconButton(
-            icon: Icon(hasSelection ? Icons.clear_all_rounded : Icons.select_all_rounded),
-            tooltip: hasSelection ? 'Clear All' : 'Select All',
-            onPressed: () {
-              setState(() {
-                if (hasSelection) {
-                  selectedIds.clear();
-                } else {
-                  selectedIds
-                    ..clear()
-                    ..addAll(widget.cards.map((c) => c.id));
-                }
-              });
-            },
-          ),
-        ],
+      title: StyledDialogHeader(
+        icon: Icons.visibility_rounded,
+        title: 'Visible Cards',
+        subtitle: '${selectedIds.length} selected',
+        trailing: IconButton(
+          icon: Icon(hasSelection
+              ? Icons.clear_all_rounded
+              : Icons.select_all_rounded),
+          tooltip: hasSelection ? 'Clear All' : 'Select All',
+          onPressed: () {
+            setState(() {
+              if (hasSelection) {
+                selectedIds.clear();
+              } else {
+                selectedIds
+                  ..clear()
+                  ..addAll(widget.cards.map((c) => c.id));
+              }
+            });
+          },
+        ),
       ),
       content: ConstrainedBox(
         constraints: BoxConstraints(

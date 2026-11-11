@@ -24,6 +24,7 @@ import '../widgets/edit_mode_bar.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/home_drawer.dart';
 import '../widgets/landscape_menu.dart';
+import '../widgets/styled_dialog_header.dart';
 import '../widgets/tts_bar.dart';
 import '../widgets/visible_cards_dialog.dart';
 import '../utils/card_image.dart';
@@ -338,21 +339,30 @@ class _HomePageState extends State<HomePage> {
     final source = await showDialog<ImageSource>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Choose source'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
-              onTap: () => Navigator.pop(context, ImageSource.camera),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Gallery'),
-              onTap: () => Navigator.pop(context, ImageSource.gallery),
-            ),
-          ],
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        title: const StyledDialogHeader(
+          icon: Icons.add_a_photo_rounded,
+          title: 'Choose Image Source',
+          subtitle: 'Add a picture to this card',
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DialogOptionTile(
+                icon: Icons.camera_alt_rounded,
+                title: 'Camera',
+                subtitle: 'Take a new photo now',
+                onTap: () => Navigator.pop(context, ImageSource.camera),
+              ),
+              DialogOptionTile(
+                icon: Icons.photo_library_rounded,
+                title: 'Gallery',
+                subtitle: 'Choose a photo from your device',
+                onTap: () => Navigator.pop(context, ImageSource.gallery),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -513,14 +523,31 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Card'),
-        content: Text('Delete "${card.label}"?'),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        title: const StyledDialogHeader(
+          icon: Icons.delete_forever_rounded,
+          title: 'Delete Card',
+          accentColor: Colors.red,
+        ),
+        content: Text(
+          'Remove "${card.getLabel(currentLanguage)}" from your communication board?',
+          style: TextStyle(
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('No'),
+            child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red.shade600,
+              foregroundColor: Colors.white,
+            ),
+            icon: const Icon(Icons.delete_outline_rounded, size: 18),
+            label: const Text('Delete'),
             onPressed: () {
               debugPrint(
                 '[HomePage] deleting card: id=${card.id}, '
@@ -537,7 +564,6 @@ class _HomePageState extends State<HomePage> {
               _saveCards();
               Navigator.pop(context);
             },
-            child: const Text('Yes'),
           ),
         ],
       ),
@@ -558,49 +584,60 @@ class _HomePageState extends State<HomePage> {
   void _showLanguageDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Language'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RadioListTile<String>(
-                title: const Text('English'),
-                value: 'en',
-                groupValue: currentLanguage,
-                onChanged: (value) {
-                  setState(() => currentLanguage = value!);
-                  _saveCards();
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
-              ),
-              RadioListTile<String>(
-                title: const Text('\u0dc3\u0dd2\u0d82\u0dc4\u0dbd (Sinhala)'),
-                value: 'si',
-                groupValue: currentLanguage,
-                onChanged: (value) {
-                  setState(() => currentLanguage = value!);
-                  _saveCards();
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
-              ),
-              RadioListTile<String>(
-                title: const Text('\u0ba4\u0bae\u0bbf\u0bb4\u0bcd (Tamil)'),
-                value: 'ta',
-                groupValue: currentLanguage,
-                onChanged: (value) {
-                  setState(() => currentLanguage = value!);
-                  _saveCards();
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
-              ),
-            ],
+      builder: (context) {
+        void selectLang(String code) {
+          setState(() => currentLanguage = code);
+          _saveCards();
+          Navigator.pop(context);
+          Navigator.pop(context);
+        }
+
+        return AlertDialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          title: const StyledDialogHeader(
+            icon: Icons.translate_rounded,
+            title: 'Select Language',
+            subtitle: 'Board & voice output language',
           ),
-        ),
-      ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DialogOptionTile(
+                  icon: Icons.language_rounded,
+                  badgeText: 'EN',
+                  title: 'English',
+                  subtitle: 'English labels & speech',
+                  selected: currentLanguage == 'en',
+                  onTap: () => selectLang('en'),
+                ),
+                DialogOptionTile(
+                  icon: Icons.translate_rounded,
+                  badgeText: 'සි',
+                  title: '\u0dc3\u0dd2\u0d82\u0dc4\u0dbd (Sinhala)',
+                  subtitle: 'සිංහල පුවරු සහ කථනය',
+                  selected: currentLanguage == 'si',
+                  onTap: () => selectLang('si'),
+                ),
+                DialogOptionTile(
+                  icon: Icons.g_translate_rounded,
+                  badgeText: 'த',
+                  title: '\u0ba4\u0bae\u0bbf\u0bb4\u0bcd (Tamil)',
+                  subtitle: 'தமிழ் பலகை மற்றும் பேச்சு',
+                  selected: currentLanguage == 'ta',
+                  onTap: () => selectLang('ta'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -609,27 +646,47 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Select Category'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ...allCategories.map((cat) => RadioListTile<String>(
-                    title: Text(cat),
-                    value: cat,
-                    groupValue: selectedCategory,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedCategory = value!;
-                        activeParentCard = null;
-                        _resetTtsInput();
-                      });
-                      Navigator.pop(context);
-                    },
-                  )),
-            ],
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        title: const StyledDialogHeader(
+          icon: Icons.category_rounded,
+          title: 'Select Category',
+          subtitle: 'Filter cards shown on board',
+        ),
+        content: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: (MediaQuery.of(context).size.height * 0.55).clamp(180.0, 460.0),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: allCategories
+                  .map(
+                    (cat) => DialogOptionTile(
+                      icon: cat == 'All'
+                          ? Icons.apps_rounded
+                          : Icons.folder_outlined,
+                      title: cat,
+                      selected: selectedCategory == cat,
+                      onTap: () {
+                        setState(() {
+                          selectedCategory = cat;
+                          activeParentCard = null;
+                          _resetTtsInput();
+                        });
+                        Navigator.pop(context);
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
       ),
     );
   }
@@ -641,36 +698,47 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add New Category'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Category Name',
-            border: OutlineInputBorder(),
-            hintText: 'Enter category name',
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        title: const StyledDialogHeader(
+          icon: Icons.create_new_folder_rounded,
+          title: 'Add New Category',
+          subtitle: 'Group related AAC cards together',
+        ),
+        content: SingleChildScrollView(
+          child: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: 'Category Name',
+              hintText: 'e.g., Food, School, Emotions',
+              prefixIcon: const Icon(Icons.label_outline_rounded),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            autofocus: true,
           ),
-          autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          FilledButton.icon(
+            icon: const Icon(Icons.add_rounded, size: 18),
+            label: const Text('Add'),
             onPressed: () {
-              if (controller.text.isNotEmpty) {
+              final clean = controller.text.trim();
+              if (clean.isNotEmpty) {
                 setState(() {
-                  allCategories.add(controller.text);
+                  allCategories.add(clean);
                 });
                 _saveCards();
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text('Category "${controller.text}" added!')),
+                  SnackBar(content: Text('Category "$clean" added!')),
                 );
               }
             },
-            child: const Text('Add'),
           ),
         ],
       ),
@@ -680,57 +748,83 @@ class _HomePageState extends State<HomePage> {
   void _showGridOptions() {
     Navigator.pop(context);
     final labels = ['Extra Large', 'Large', 'Medium', 'Small', 'Extra Small'];
-    int tempColumns = gridColumns;
+    int tempColumns = gridColumns.clamp(1, 5);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Grid Size'),
-        content: StatefulBuilder(
-          builder: (context, setLocalState) => SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Slider(
-                  value: (6 - tempColumns).toDouble(),
-                  min: 1,
-                  max: 5,
-                  divisions: 4,
-                  label: labels[tempColumns - 1],
-                  onChanged: (value) {
-                    setLocalState(() => tempColumns = 6 - value.round());
-                  },
-                ),
-                Text(labels[tempColumns - 1]),
-                const SizedBox(height: 8),
-                ...List.generate(
-                  labels.length,
-                  (index) => RadioListTile<int>(
-                    title: Text(labels[index]),
-                    value: index + 1,
-                    groupValue: tempColumns,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setLocalState) {
+          final colorScheme = Theme.of(context).colorScheme;
+          return AlertDialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            title: const StyledDialogHeader(
+              icon: Icons.grid_view_rounded,
+              title: 'Select Grid Size',
+              subtitle: 'Choose card size & column density',
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withValues(alpha: 0.45),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '$tempColumns ${tempColumns == 1 ? 'Column' : 'Columns'} • ${labels[tempColumns - 1]}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Slider(
+                    value: (6 - tempColumns).toDouble(),
+                    min: 1,
+                    max: 5,
+                    divisions: 4,
+                    label: labels[tempColumns - 1],
                     onChanged: (value) {
-                      setLocalState(() => tempColumns = value ?? tempColumns);
+                      setLocalState(() => tempColumns = 6 - value.round());
                     },
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  ...List.generate(
+                    labels.length,
+                    (index) {
+                      final cols = index + 1;
+                      return DialogOptionTile(
+                        icon: Icons.view_module_rounded,
+                        badgeText: '${cols}x',
+                        title: labels[index],
+                        subtitle: '$cols ${cols == 1 ? 'card' : 'cards'} per row',
+                        selected: tempColumns == cols,
+                        onTap: () => setLocalState(() => tempColumns = cols),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() => gridColumns = tempColumns);
-              _saveCards();
-              Navigator.pop(context);
-            },
-            child: const Text('Apply'),
-          ),
-        ],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  setState(() => gridColumns = tempColumns);
+                  _saveCards();
+                  Navigator.pop(context);
+                },
+                child: const Text('Apply'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -740,14 +834,33 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reset Settings'),
-        content: const Text('Reset all settings to defaults?'),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        title: StyledDialogHeader(
+          icon: Icons.restart_alt_rounded,
+          title: 'Reset Settings',
+          subtitle: 'Restore default look & layout',
+          accentColor: Colors.orange.shade700,
+        ),
+        content: Text(
+          'Reset theme, layout, and display preferences to defaults?\n\nYour AAC cards, images, and voice recordings will stay safe.',
+          style: TextStyle(
+            fontSize: 13.5,
+            height: 1.4,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.orange.shade700,
+              foregroundColor: Colors.white,
+            ),
+            icon: const Icon(Icons.restart_alt_rounded, size: 18),
+            label: const Text('Reset'),
             onPressed: () {
               debugPrint(
                 '[HomePage] resetting settings only; card data is preserved',
@@ -778,7 +891,6 @@ class _HomePageState extends State<HomePage> {
               _saveCards();
               Navigator.pop(context);
             },
-            child: const Text('Reset'),
           ),
         ],
       ),
@@ -815,40 +927,46 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.transparent,
       builder: (context) {
         final viewInsets = MediaQuery.of(context).viewInsets;
+        final colorScheme = Theme.of(context).colorScheme;
         return AnimatedPadding(
           padding: EdgeInsets.only(
             left: 16,
             right: 16,
-            bottom: viewInsets.bottom + 32,
+            bottom: viewInsets.bottom + 24,
             top: 16,
           ),
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeOut,
           child: Material(
-            borderRadius: BorderRadius.circular(16),
-            color: Theme.of(context).dialogBackgroundColor,
+            borderRadius: BorderRadius.circular(24),
+            color: colorScheme.surface,
+            elevation: 6,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(18),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
-                      'Search',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    const StyledDialogHeader(
+                      icon: Icons.search_rounded,
+                      title: 'Search Cards',
+                      subtitle: 'Find a word across the current board',
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
                     TextField(
                       controller: controller,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Search cards',
-                        border: OutlineInputBorder(),
+                        hintText: 'Type keyword...',
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       autofocus: true,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 14),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -856,7 +974,7 @@ class _HomePageState extends State<HomePage> {
                           onPressed: () => Navigator.pop(context),
                           child: const Text('Cancel'),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         TextButton(
                           onPressed: () {
                             setState(() {
@@ -867,7 +985,7 @@ class _HomePageState extends State<HomePage> {
                           child: const Text('Clear'),
                         ),
                         const SizedBox(width: 8),
-                        ElevatedButton(
+                        FilledButton(
                           onPressed: () {
                             final pattern = controller.text.trim();
                             if (pattern.isEmpty) {
@@ -1063,38 +1181,50 @@ class _HomePageState extends State<HomePage> {
     Navigator.pop(context);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Orientation'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RadioListTile<String>(
-                title: const Text('Portrait'),
-                value: 'portrait',
-                groupValue: orientationMode,
-                onChanged: (value) {
-                  setState(() => orientationMode = value ?? 'portrait');
-                  _saveCards();
-                  UiModeHelper.applyOrientation(orientationMode);
-                  Navigator.pop(context);
-                },
-              ),
-              RadioListTile<String>(
-                title: const Text('Landscape'),
-                value: 'landscape',
-                groupValue: orientationMode,
-                onChanged: (value) {
-                  setState(() => orientationMode = value ?? 'landscape');
-                  _saveCards();
-                  UiModeHelper.applyOrientation(orientationMode);
-                  Navigator.pop(context);
-                },
-              ),
-            ],
+      builder: (context) {
+        void selectOrientation(String mode) {
+          setState(() => orientationMode = mode);
+          _saveCards();
+          UiModeHelper.applyOrientation(orientationMode);
+          Navigator.pop(context);
+        }
+
+        return AlertDialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          title: const StyledDialogHeader(
+            icon: Icons.screen_rotation_rounded,
+            title: 'Screen Orientation',
+            subtitle: 'Choose preferred layout direction',
           ),
-        ),
-      ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DialogOptionTile(
+                  icon: Icons.stay_current_portrait_rounded,
+                  title: 'Portrait',
+                  subtitle: 'Tall card grid with top toolbar',
+                  selected: orientationMode != 'landscape',
+                  onTap: () => selectOrientation('portrait'),
+                ),
+                DialogOptionTile(
+                  icon: Icons.stay_current_landscape_rounded,
+                  title: 'Landscape',
+                  subtitle: 'Wide card grid with side rail',
+                  selected: orientationMode == 'landscape',
+                  onTap: () => selectOrientation('landscape'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -1107,7 +1237,12 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        title: StyledDialogHeader(
+          icon: Icons.palette_rounded,
+          title: title,
+          subtitle: 'Pick a color for Normal Mode',
+        ),
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: tempColor,
@@ -1123,7 +1258,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () {
               onSelected(tempColor);
               Navigator.pop(context);
@@ -1141,63 +1276,101 @@ class _HomePageState extends State<HomePage> {
     bool tempShowActions = _showTtsActions;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('TTS Bar Size'),
-        content: StatefulBuilder(
-          builder: (context, setLocalState) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Slider(
-                value: tempSize,
-                min: 0.5,
-                max: 2.5,
-                divisions: 20,
-                label: '${(tempSize * 100).round()}%',
-                onChanged: (value) {
-                  setLocalState(() => tempSize = value);
-                },
+      builder: (context) => StatefulBuilder(
+        builder: (context, setLocalState) {
+          final colorScheme = Theme.of(context).colorScheme;
+          return AlertDialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            title: const StyledDialogHeader(
+              icon: Icons.format_size_rounded,
+              title: 'TTS Bar Sizing',
+              subtitle: 'Adjust speech composer bar height',
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withValues(alpha: 0.45),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'Size: ${(tempSize * 100).round()}%',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Slider(
+                    value: tempSize,
+                    min: 0.5,
+                    max: 2.5,
+                    divisions: 20,
+                    label: '${(tempSize * 100).round()}%',
+                    onChanged: (value) {
+                      setLocalState(() => tempSize = value);
+                    },
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: colorScheme.outlineVariant),
+                    ),
+                    child: SwitchListTile(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      secondary: const Icon(Icons.backspace_outlined, size: 20),
+                      title: const Text(
+                        'Show Delete / Clear',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                      value: tempShowActions,
+                      onChanged: (value) {
+                        setLocalState(() => tempShowActions = value);
+                      },
+                    ),
+                  ),
+                ],
               ),
-              Text('Size: ${(tempSize * 100).round()}%'),
-              const SizedBox(height: 8),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Show Delete/Clear'),
-                value: tempShowActions,
-                onChanged: (value) {
-                  setLocalState(() => tempShowActions = value);
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _ttsBarSize = 1.0;
+                    _showTtsActions = true;
+                  });
+                  _saveCards();
+                  Navigator.pop(context);
                 },
+                child: const Text('Reset'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  setState(() {
+                    _ttsBarSize = tempSize;
+                    _showTtsActions = tempShowActions;
+                  });
+                  _saveCards();
+                  Navigator.pop(context);
+                },
+                child: const Text('Apply'),
               ),
             ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _ttsBarSize = 1.0;
-                _showTtsActions = true;
-              });
-              _saveCards();
-              Navigator.pop(context);
-            },
-            child: const Text('Reset'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _ttsBarSize = tempSize;
-                _showTtsActions = tempShowActions;
-              });
-              _saveCards();
-              Navigator.pop(context);
-            },
-            child: const Text('Apply'),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -1207,42 +1380,38 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Export Backup'),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        title: const StyledDialogHeader(
+          icon: Icons.backup_rounded,
+          title: 'Export Backup',
+          subtitle: 'Save cards, photos & voices cleanly',
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                leading: const Icon(Icons.folder_outlined),
-                title: const Text('App Folder'),
-                subtitle: const Text('Save locally inside app storage'),
+              DialogOptionTile(
+                icon: Icons.folder_rounded,
+                title: 'App Folder',
+                subtitle: 'Save locally inside app storage',
                 onTap: () async {
                   Navigator.pop(context);
                   await _backupToAppDocsZip();
                 },
               ),
-              ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                leading: const Icon(Icons.download_outlined),
-                title: const Text('Downloads'),
-                subtitle: const Text('Save aac_backup.zip to Downloads'),
+              DialogOptionTile(
+                icon: Icons.download_rounded,
+                title: 'Downloads',
+                subtitle: 'Save aac_backup.zip to Downloads',
                 onTap: () async {
                   Navigator.pop(context);
                   await _backupToDownloads();
                 },
               ),
-              ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                leading: const Icon(Icons.share_outlined),
-                title: const Text('Share Backup'),
-                subtitle: const Text('Send zip via messaging or Drive'),
+              DialogOptionTile(
+                icon: Icons.share_rounded,
+                title: 'Share Backup',
+                subtitle: 'Send zip via messaging or Drive',
                 onTap: () async {
                   Navigator.pop(context);
                   await _backupAndShare();
@@ -1266,30 +1435,29 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Import Restore'),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        title: const StyledDialogHeader(
+          icon: Icons.restore_page_rounded,
+          title: 'Import Restore',
+          subtitle: 'Restore board & media from zip',
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                leading: const Icon(Icons.folder_outlined),
-                title: const Text('App Folder'),
-                subtitle: const Text('Restore from saved local zip'),
+              DialogOptionTile(
+                icon: Icons.folder_rounded,
+                title: 'App Folder',
+                subtitle: 'Restore from saved local zip',
                 onTap: () async {
                   Navigator.pop(context);
                   await _restoreFromAppDocsZip();
                 },
               ),
-              ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                leading: const Icon(Icons.file_open_outlined),
-                title: const Text('Pick Backup File'),
-                subtitle: const Text('Browse zip file from device'),
+              DialogOptionTile(
+                icon: Icons.file_open_rounded,
+                title: 'Pick Backup File',
+                subtitle: 'Browse zip file from device',
                 onTap: () async {
                   Navigator.pop(context);
                   await _restoreFromPickedFile();
@@ -1516,25 +1684,66 @@ class _HomePageState extends State<HomePage> {
     Navigator.pop(context);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('About Simple AAC'),
-        content: const SingleChildScrollView(
-          child: Text(
-            'Simple AAC Sri Lanka (v1.1.0)\n\n'
-            'Created by Yasas Pasindu Fernando\n'
-            'Email: yasaspasindufernando@gmail.com\n'
-            'Tel: +94776905654\n\n'
-            'Created to help Sri Lankan autism children by giving them '
-            'an accessible, offline-ready communication board.',
+      builder: (context) {
+        final colorScheme = Theme.of(context).colorScheme;
+        return AlertDialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          title: const StyledDialogHeader(
+            icon: Icons.forum_rounded,
+            title: 'About Simple AAC',
+            subtitle: 'Simple AAC Sri Lanka • v1.1.0',
           ),
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer.withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    'Created to support Sri Lankan children with speech and communication difficulties using an accessible, offline-ready communication board.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.4,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.person_rounded, color: colorScheme.primary),
+                  title: const Text('Yasas Pasindu Fernando'),
+                  subtitle: const Text('Creator & Developer'),
+                ),
+                ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.email_rounded, color: colorScheme.primary),
+                  title: const Text('yasaspasindufernando@gmail.com'),
+                ),
+                ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.phone_rounded, color: colorScheme.primary),
+                  title: const Text('+94 77 690 5654'),
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
     );
   }
 

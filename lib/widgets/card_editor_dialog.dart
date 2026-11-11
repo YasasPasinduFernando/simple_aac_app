@@ -11,6 +11,7 @@ import '../services/card_storage_service.dart';
 import '../services/multilingual_concept_service.dart';
 import '../services/network_policy_service.dart';
 import 'smart_image_search_dialog.dart';
+import 'styled_dialog_header.dart';
 
 enum CardEditorAction { saved, addSubCard }
 
@@ -95,33 +96,35 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     return raw.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
   }
 
-  Future<void> _pickFromGallery() async {
-    final image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
-    if (image != null) {
+  Future<void> _pickImageFromSource(ImageSource source) async {
+    try {
+      final picked = await _picker.pickImage(source: source, imageQuality: 85);
+      if (picked == null) return;
       final permanentPath = await CardStorageService.persistMediaFile(
-        image.path,
+        picked.path,
         cardId: widget.card.id,
         mediaType: 'images',
       );
+      if (!mounted) return;
       setState(() {
         widget.card.imagePath = permanentPath;
       });
+    } catch (e) {
+      if (!mounted) return;
+      final label = source == ImageSource.camera ? 'Camera' : 'Gallery';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '$label unavailable or permission denied. Check App Permissions if needed.',
+          ),
+        ),
+      );
     }
   }
 
-  Future<void> _pickFromCamera() async {
-    final photo = await _picker.pickImage(source: ImageSource.camera, imageQuality: 85);
-    if (photo != null) {
-      final permanentPath = await CardStorageService.persistMediaFile(
-        photo.path,
-        cardId: widget.card.id,
-        mediaType: 'images',
-      );
-      setState(() {
-        widget.card.imagePath = permanentPath;
-      });
-    }
-  }
+  Future<void> _pickFromGallery() => _pickImageFromSource(ImageSource.gallery);
+
+  Future<void> _pickFromCamera() => _pickImageFromSource(ImageSource.camera);
 
   Future<void> _openSmartSearch() async {
     final query = _detectedConcept.isNotEmpty
@@ -272,7 +275,6 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context).size;
     final viewInsetsBottom = MediaQuery.of(context).viewInsets.bottom;
-    final colorScheme = Theme.of(context).colorScheme;
     final isLandscape = media.width > media.height;
     final maxWidth =
         (isLandscape ? media.width * 0.72 : media.width - 32).clamp(280.0, 520.0);
@@ -295,30 +297,11 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         actionsPadding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                widget.isNew ? Icons.add_photo_alternate_rounded : Icons.edit_rounded,
-                color: colorScheme.primary,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                widget.isNew ? 'Create New Card' : 'Edit Card',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
-              ),
-            ),
-          ],
+        title: StyledDialogHeader(
+          icon: widget.isNew
+              ? Icons.add_photo_alternate_rounded
+              : Icons.edit_rounded,
+          title: widget.isNew ? 'Create New Card' : 'Edit Card',
         ),
         content: SizedBox(
           width: maxWidth,
@@ -533,7 +516,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
               children: [
                 Expanded(
                   child: _MediaSourceTile(
-                    icon: Icons.auto_awesome_rounded,
+                    icon: Icons.image_search_rounded,
                     label: isOnline ? 'Smart Search' : 'Web (Offline)',
                     accentColor: isOnline ? colorScheme.primary : colorScheme.outline,
                     isMuted: !isOnline,
