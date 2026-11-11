@@ -23,6 +23,8 @@ class ImageSearchResult {
     this.foreignLandingUrl,
   });
 
+  bool get isSymbol => id.startsWith('arasaac_') || creator == 'ARASAAC';
+
   bool get isPublicDomainOrCc0 {
     final l = license.toLowerCase();
     return l == 'cc0' || l == 'pdm' || l.contains('zero') || l.contains('publicdomain');

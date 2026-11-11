@@ -257,6 +257,8 @@ class MultilingualConceptService {
     'bathroom': 'clean toilet bathroom',
     'වැසිකිලිය': 'clean toilet bathroom',
     'කழிப்பறை': 'clean toilet bathroom',
+    'கழிப்பறை': 'clean toilet bathroom',
+    'கழிவறை': 'clean toilet bathroom',
     'bus': 'passenger bus',
     'බස් එක': 'passenger bus',
     'பேருந்து': 'passenger bus',
@@ -267,6 +269,132 @@ class MultilingualConceptService {
     'කෝච්චිය': 'railway train',
     'දුම්රිය': 'railway train',
     'புகையிரதம்': 'railway train',
+    'bicycle': 'bicycle',
+    'බයිසිකලය': 'bicycle',
+    'மிதிவண்டி': 'bicycle',
+    'tuk tuk': 'auto rickshaw',
+    'three wheeler': 'auto rickshaw',
+    'ත්‍රීවීල්': 'auto rickshaw',
+    'ஆட்டோ': 'auto rickshaw',
+
+    // === Sri Lankan Everyday Items, Fruits, Clothing & Nature ===
+    'mango': 'mango',
+    'අඹ': 'mango',
+    'மாம்பழம்': 'mango',
+    'orange': 'orange fruit',
+    'දොඩම්': 'orange fruit',
+    'ஆரஞ்சு': 'orange fruit',
+    'pineapple': 'pineapple',
+    'අන්නාසි': 'pineapple',
+    'அன்னாசி': 'pineapple',
+    'coconut': 'coconut',
+    'පොල්': 'coconut',
+    'කුරුම්බා': 'coconut',
+    'தேங்காய்': 'coconut',
+    'hopper': 'hoppers sri lanka food',
+    'ආප්ප': 'hoppers sri lanka food',
+    'ஆப்பம்': 'hoppers sri lanka food',
+    'kottu': 'kottu roti',
+    'කොත්තු': 'kottu roti',
+    'கொத்து': 'kottu roti',
+    'shoe': 'shoe',
+    'shoes': 'shoes',
+    'සපත්තු': 'shoe',
+    'காலணி': 'shoe',
+    'cup': 'cup',
+    'කෝප්පය': 'cup',
+    'கோப்பை': 'cup',
+    'plate': 'dinner plate',
+    'පිඟාන': 'dinner plate',
+    'தட்டு': 'dinner plate',
+    'spoon': 'spoon',
+    'හැන්ද': 'spoon',
+    'கரண்டி': 'spoon',
+    'toothbrush': 'toothbrush',
+    'දත් බුරුසුව': 'toothbrush',
+    'பல் துலக்கி': 'toothbrush',
+    'soap': 'soap bar',
+    'සබන්': 'soap bar',
+    'சோப்பு': 'soap bar',
+    'towel': 'bath towel',
+    'තුවාය': 'bath towel',
+    'துண்டு': 'bath towel',
+    'shirt': 't-shirt clothes',
+    'කමිසය': 't-shirt clothes',
+    'சட்டை': 't-shirt clothes',
+    'flower': 'flower',
+    'මල': 'flower',
+    'මල්': 'flower',
+    'பூ': 'flower',
+    'sun': 'sun',
+    'ඉර': 'sun',
+    'සූර්යයා': 'sun',
+    'சூரியன்': 'sun',
+    'rain': 'rain',
+    'වැස්ස': 'rain',
+    'மழை': 'rain',
+    'tree': 'tree',
+    'ගස': 'tree',
+    'மரம்': 'tree',
+    'music': 'music notes',
+    'සංගීතය': 'music notes',
+    'இசை': 'music notes',
+  };
+
+  /// Distills verbose AAC visual-descriptor prompts into crisp search keywords
+  /// that match encyclopedic photos and ARASAAC symbols reliably.
+  static const Map<String, String> _verboseCoreMap = {
+    'happy smiling child': 'happy',
+    'happy waving child': 'hello',
+    'thumbs up good': 'thumbs up',
+    'more blocks toys': 'more',
+    'happy yes nodding': 'yes',
+    'no stop hand': 'stop',
+    'reaching hand want': 'want',
+    'thank you smiling': 'thank you',
+    'taking bath wash': 'bathtub',
+    'hungry child wanting food': 'hungry',
+    'thirsty wanting water': 'thirsty',
+    'tired sleepy child': 'tired',
+    'hurt bandaid pain': 'pain',
+    'heart love hug': 'love',
+    'walking go': 'walk',
+    'child studying book': 'study',
+    'child playing toys': 'play',
+    'clean toilet bathroom': 'toilet',
+    'glass of water': 'drinking water',
+    'glass of milk': 'milk',
+    'cup of tea': 'tea',
+    'bread loaf': 'bread',
+    'boiled egg': 'egg',
+    'apple fruit': 'apple',
+    'cooked rice plate': 'rice',
+    'school building': 'school',
+    'hospital clinic building': 'hospital',
+    'cozy house home': 'house',
+    'playground park': 'playground',
+    'passenger bus': 'bus',
+    'passenger car': 'car',
+    'railway train': 'train',
+    'colorful ball': 'ball',
+    'reading book': 'book',
+    'wooden chair': 'chair',
+    'comfortable bed': 'bed',
+    'toy car blocks': 'toy',
+    'friendly dog': 'dog',
+    'cute cat': 'cat',
+    'food meal': 'food',
+    'eating food': 'eat',
+    'drinking water': 'drink water',
+    'sleeping in bed': 'sleep',
+    'ice cream cone': 'ice cream',
+    'biscuit cookie': 'biscuit',
+    'chicken meat food': 'chicken food',
+    'orange fruit': 'orange',
+    'soap bar': 'soap',
+    't-shirt clothes': 't-shirt',
+    'dinner plate': 'plate',
+    'music notes': 'music',
   };
 
   static final List<MapEntry<String, String>> _sortedEntries = (() {
@@ -286,20 +414,35 @@ class MultilingualConceptService {
       return _conceptMap[cleaned]!;
     }
 
-    // Whole-word matching for Latin phrases, longest-first substring matching for non-Latin.
+    // Whole-word/token matching longest-first prevents partial substring collisions
+    // (e.g. 'good' hitting 'go', or Sinhala 'කිරිබත්' hitting 'කිරි'/'බත්').
     for (final entry in _sortedEntries) {
-      if (isLatinScript(entry.key)) {
-        final pattern = RegExp(r'(?:^|\b)' + RegExp.escape(entry.key) + r'(?:\b|$)');
-        if (pattern.hasMatch(cleaned)) {
-          return entry.value;
-        }
-      } else if (cleaned.contains(entry.key)) {
+      final escaped = RegExp.escape(entry.key);
+      final pattern = isLatinScript(entry.key)
+          ? RegExp('(?:^|\\b)$escaped(?:\\b|\$)')
+          : RegExp('(?:^|[\\s.,!?])$escaped(?:[\\s.,!?]|\$)');
+      if (pattern.hasMatch(cleaned)) {
         return entry.value;
       }
     }
 
     // Fallback: Return cleaned input so user can refine manually if needed.
     return cleaned;
+  }
+
+  /// Simplifies verbose concept prompts into core search keywords while leaving
+  /// free-form multi-word English queries (like "red apple" or "school bus") intact.
+  static String toSearchCore(String query) {
+    final cleaned = query.trim().toLowerCase();
+    if (cleaned.isEmpty) return '';
+    if (_verboseCoreMap.containsKey(cleaned)) {
+      return _verboseCoreMap[cleaned]!;
+    }
+    if (isLatinScript(cleaned) && !_conceptMap.containsKey(cleaned)) {
+      return cleaned;
+    }
+    final normalized = normalizeConcept(cleaned);
+    return _verboseCoreMap[normalized] ?? normalized;
   }
 
   /// Returns true if the query is in English/Latin script.

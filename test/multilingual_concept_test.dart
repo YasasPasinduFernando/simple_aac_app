@@ -46,5 +46,13 @@ void main() {
       expect(MultilingualConceptService.isLatinScript('ඇපල්'), isFalse);
       expect(MultilingualConceptService.isLatinScript('ஆப்பிள்'), isFalse);
     });
+
+    test('Distills verbose concept strings to core search keywords without breaking custom phrases', () {
+      expect(MultilingualConceptService.toSearchCore('සතුටුයි'), 'happy');
+      expect(MultilingualConceptService.toSearchCore('නානවා'), 'bathtub');
+      expect(MultilingualConceptService.toSearchCore('අඹ'), 'mango');
+      expect(MultilingualConceptService.toSearchCore('සපත්තු'), 'shoe');
+      expect(MultilingualConceptService.toSearchCore('red apple'), 'red apple');
+    });
   });
 }

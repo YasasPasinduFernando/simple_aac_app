@@ -19,6 +19,8 @@ class SmartImageSearchDialog extends StatefulWidget {
   State<SmartImageSearchDialog> createState() => _SmartImageSearchDialogState();
 }
 
+enum _ResultFilter { all, photos, symbols }
+
 class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
   late final TextEditingController _searchController;
   final OpenverseSearchProvider _searchProvider = OpenverseSearchProvider();
@@ -28,6 +30,7 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
   String? _errorMessage;
   List<ImageSearchResult> _results = [];
   ImageSearchResult? _selectedImage;
+  _ResultFilter _filter = _ResultFilter.all;
 
   @override
   void initState() {
@@ -60,6 +63,7 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
       _errorMessage = null;
       _results = [];
       _selectedImage = null;
+      _filter = _ResultFilter.all;
     });
 
     try {
@@ -70,7 +74,7 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
         _isLoading = false;
         if (items.isEmpty) {
           _errorMessage =
-              'No child-safe CC0/public-domain images found for "$cleanQuery". Try another keyword.';
+              'No matching photos or AAC symbols found for "$cleanQuery". Try a simpler keyword.';
         }
       });
     } catch (e) {
@@ -133,7 +137,7 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
                   color: colorScheme.primary,
                 ),
                 title: 'Smart Image Search',
-                subtitle: 'Free child-safe images & photos',
+                subtitle: 'Free photos & AAC symbols',
                 trailing: IconButton(
                   tooltip: 'Close',
                   icon: const Icon(Icons.close_rounded),
@@ -326,117 +330,186 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Text(
-            'Tap an image to preview and confirm:',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurfaceVariant,
-            ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _buildFilterChip(
+                filter: _ResultFilter.all,
+                label: 'All (${_results.length})',
+                icon: Icons.apps_rounded,
+              ),
+              const SizedBox(width: 6),
+              _buildFilterChip(
+                filter: _ResultFilter.photos,
+                label: 'Photos (${_results.where((r) => !r.isSymbol).length})',
+                icon: Icons.photo_outlined,
+              ),
+              const SizedBox(width: 6),
+              _buildFilterChip(
+                filter: _ResultFilter.symbols,
+                label: 'AAC (${_results.where((r) => r.isSymbol).length})',
+                icon: Icons.accessibility_new_rounded,
+              ),
+            ],
           ),
         ),
+        const SizedBox(height: 8),
         Expanded(
-          child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: columns,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              childAspectRatio: 1.0,
-            ),
-            itemCount: _results.length,
-            itemBuilder: (context, index) {
-              final item = _results[index];
-              final isFreeDomain = item.isPublicDomainOrCc0;
-              return InkWell(
-                borderRadius: BorderRadius.circular(14),
-                onTap: () {
-                  setState(() {
-                    _selectedImage = item;
-                  });
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: colorScheme.outlineVariant),
+          child: Builder(
+            builder: (context) {
+              final filtered = switch (_filter) {
+                _ResultFilter.all => _results,
+                _ResultFilter.photos => _results.where((r) => !r.isSymbol).toList(),
+                _ResultFilter.symbols => _results.where((r) => r.isSymbol).toList(),
+              };
+              if (filtered.isEmpty) {
+                return Center(
+                  child: Text(
+                    'No results in this tab. Switch back to All.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: colorScheme.onSurfaceVariant),
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.network(
-                        item.thumbnail,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.grey.shade400,
+                );
+              }
+              return GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: columns,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 1.0,
+                ),
+                itemCount: filtered.length,
+                itemBuilder: (context, index) {
+                  final item = filtered[index];
+                  final isFreeDomain = item.isPublicDomainOrCc0;
+                  final badgeLabel = item.isSymbol
+                      ? 'AAC'
+                      : (item.creator == 'Wikipedia' ? 'PHOTO' : item.license.toUpperCase());
+                  return InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () {
+                      setState(() {
+                        _selectedImage = item;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        // White canvas keeps black-line transparent ARASAAC PNGs crisp in Dark Mode.
+                        color: item.isSymbol ? Colors.white : colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: colorScheme.outlineVariant),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(item.isSymbol ? 6 : 0),
+                            child: Image.network(
+                              item.thumbnail,
+                              headers: OpenverseSearchProvider.mediaHeaders,
+                              fit: item.isSymbol ? BoxFit.contain : BoxFit.cover,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Center(
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (_, __, ___) => const Icon(
+                                Icons.broken_image_outlined,
+                                size: 28,
+                                color: Colors.grey,
                               ),
                             ),
-                          );
-                        },
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.broken_image_outlined,
-                          size: 28,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          color: Colors.black.withValues(alpha: 0.65),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 3,
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 6,
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: isFreeDomain
-                                      ? Colors.greenAccent
-                                      : Colors.amberAccent,
-                                  shape: BoxShape.circle,
-                                ),
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: Container(
+                              color: Colors.black.withValues(alpha: 0.65),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 3,
                               ),
-                              const SizedBox(width: 4),
-                              Flexible(
-                                child: Text(
-                                  item.license.toUpperCase(),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      color: item.isSymbol
+                                          ? Colors.lightBlueAccent
+                                          : (isFreeDomain
+                                              ? Colors.greenAccent
+                                              : Colors.amberAccent),
+                                      shape: BoxShape.circle,
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      badgeLabel,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               );
             },
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildFilterChip({
+    required _ResultFilter filter,
+    required String label,
+    required IconData icon,
+  }) {
+    final selected = _filter == filter;
+    final colorScheme = Theme.of(context).colorScheme;
+    return ChoiceChip(
+      selected: selected,
+      showCheckmark: false,
+      visualDensity: VisualDensity.compact,
+      avatar: Icon(
+        icon,
+        size: 15,
+        color: selected ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
+      ),
+      label: Text(
+        label,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+        ),
+      ),
+      onSelected: (_) => setState(() => _filter = filter),
     );
   }
 
@@ -483,8 +556,9 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
           const SizedBox(height: 8),
           Container(
             height: 200,
+            padding: EdgeInsets.all(item.isSymbol ? 12 : 0),
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLow,
+              color: item.isSymbol ? Colors.white : colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: colorScheme.outlineVariant),
             ),
@@ -492,6 +566,7 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
             child: NetworkPolicyService.instance.isOnlineEnabled
                 ? Image.network(
                     item.imageUrl,
+                    headers: OpenverseSearchProvider.mediaHeaders,
                     fit: BoxFit.contain,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
@@ -499,6 +574,7 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
                     },
                     errorBuilder: (_, __, ___) => Image.network(
                       item.thumbnail,
+                      headers: OpenverseSearchProvider.mediaHeaders,
                       fit: BoxFit.contain,
                     ),
                   )

@@ -70,10 +70,20 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   }
 
   void _updateConcept() {
-    final text = _controllerSi.text.isNotEmpty
-        ? _controllerSi.text
-        : (_controllerTa.text.isNotEmpty ? _controllerTa.text : _controllerEn.text);
-    final concept = MultilingualConceptService.normalizeConcept(text);
+    final primary = _controllerSi.text.trim().isNotEmpty
+        ? _controllerSi.text.trim()
+        : (_controllerTa.text.trim().isNotEmpty
+            ? _controllerTa.text.trim()
+            : _controllerEn.text.trim());
+    var concept = MultilingualConceptService.normalizeConcept(primary);
+
+    // If Sinhala/Tamil input was outside our offline glossary while English is filled,
+    // use the normalized English label for fast accurate search.
+    if (!MultilingualConceptService.isLatinScript(concept) &&
+        _controllerEn.text.trim().isNotEmpty) {
+      concept = MultilingualConceptService.normalizeConcept(_controllerEn.text);
+    }
+
     if (concept != _detectedConcept) {
       setState(() {
         _detectedConcept = concept;
