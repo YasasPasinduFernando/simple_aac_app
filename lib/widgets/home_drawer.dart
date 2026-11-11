@@ -42,6 +42,7 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onBackup;
   final VoidCallback onRestore;
   final VoidCallback onResetSettings;
+  final VoidCallback? onManagePermissions;
   final VoidCallback onShowAbout;
 
   const HomeDrawer({
@@ -87,6 +88,7 @@ class HomeDrawer extends StatelessWidget {
     required this.onBackup,
     required this.onRestore,
     required this.onResetSettings,
+    this.onManagePermissions,
     required this.onShowAbout,
   }) : super(key: key);
 
@@ -254,6 +256,13 @@ class HomeDrawer extends StatelessWidget {
                   title: 'Reset Settings',
                   onTap: onResetSettings,
                 ),
+                if (onManagePermissions != null)
+                  _buildDrawerItem(
+                    icon: Icons.admin_panel_settings_rounded,
+                    title: 'App Permissions',
+                    subtitle: 'Check or grant Camera & Mic access',
+                    onTap: onManagePermissions!,
+                  ),
                 const SizedBox(height: 12),
 
                 _buildSectionHeader(context, 'About', Icons.info),

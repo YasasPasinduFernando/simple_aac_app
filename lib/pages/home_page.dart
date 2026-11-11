@@ -7,7 +7,6 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -27,6 +26,7 @@ import '../widgets/landscape_menu.dart';
 import '../widgets/styled_dialog_header.dart';
 import '../widgets/tts_bar.dart';
 import '../widgets/visible_cards_dialog.dart';
+import '../utils/app_permissions_helper.dart';
 import '../utils/card_image.dart';
 import '../utils/theme_accessibility.dart';
 import '../utils/ui_mode_helper.dart';
@@ -368,9 +368,14 @@ class _HomePageState extends State<HomePage> {
     );
 
     if (source != null) {
-      final image = await _picker.pickImage(source: source, imageQuality: 80);
-      if (image != null) {
-        try {
+      final allowed = source == ImageSource.camera
+          ? await AppPermissionsHelper.ensureCameraPermission(context)
+          : await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
+      if (!allowed || !mounted) return;
+
+      try {
+        final image = await _picker.pickImage(source: source, imageQuality: 80);
+        if (image != null) {
           final permanentPath = await CardStorageService.persistMediaFile(
             image.path,
             cardId: card.id,
@@ -384,14 +389,16 @@ class _HomePageState extends State<HomePage> {
             card.imagePath = permanentPath;
           });
           _saveCards();
-        } catch (error, stackTrace) {
-          debugPrint('[HomePage] image save failed: $error');
-          debugPrint(stackTrace.toString());
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Image could not be saved')),
-            );
-          }
+        }
+      } catch (error, stackTrace) {
+        debugPrint('[HomePage] image save failed: $error');
+        debugPrint(stackTrace.toString());
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Image could not be selected. Check permissions if needed.'),
+            ),
+          );
         }
       }
     }
@@ -1514,20 +1521,8 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    if (Platform.isAndroid) {
-      final sdk = await BackupService.getSdkVersion();
-      // On Android 10+ (API 29+), MediaStore.Downloads requires zero storage permissions.
-      // Only legacy devices (Android 9 / API 28 and older) require WRITE_EXTERNAL_STORAGE.
-      if (sdk > 0 && sdk <= 28) {
-        try {
-          final status = await Permission.storage.status;
-          if (!status.isGranted) {
-            await Permission.storage.request();
-          }
-        } catch (e) {
-          debugPrint('[HomePage] Storage permission request skipped: $e');
-        }
-      }
+    if (Platform.isAndroid && mounted) {
+      await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
     }
 
     try {
@@ -1959,6 +1954,10 @@ class _HomePageState extends State<HomePage> {
                 onBackup: _backupWithPicker,
                 onRestore: _restoreWithPicker,
                 onResetSettings: _confirmResetSettings,
+                onManagePermissions: () async {
+                  Navigator.pop(context);
+                  await AppPermissionsHelper.requestAllAndShowStatus(context);
+                },
                 onShowAbout: _showAbout,
               ),
         body: SafeArea(

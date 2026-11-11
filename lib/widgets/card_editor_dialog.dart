@@ -10,6 +10,7 @@ import '../models/aac_card_model.dart';
 import '../services/card_storage_service.dart';
 import '../services/multilingual_concept_service.dart';
 import '../services/network_policy_service.dart';
+import '../utils/app_permissions_helper.dart';
 import 'smart_image_search_dialog.dart';
 import 'styled_dialog_header.dart';
 
@@ -107,6 +108,11 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   }
 
   Future<void> _pickImageFromSource(ImageSource source) async {
+    final allowed = source == ImageSource.camera
+        ? await AppPermissionsHelper.ensureCameraPermission(context)
+        : await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
+    if (!allowed || !mounted) return;
+
     try {
       final picked = await _picker.pickImage(source: source, imageQuality: 85);
       if (picked == null) return;
@@ -174,6 +180,8 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
 
   Future<void> _startRecording() async {
     if (_isRecording) return;
+    final allowed = await AppPermissionsHelper.ensureMicrophonePermission(context);
+    if (!allowed) return;
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) {
       if (mounted) {

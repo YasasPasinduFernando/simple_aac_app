@@ -114,6 +114,7 @@ void main() {
             onBackup: () {},
             onRestore: () {},
             onResetSettings: () {},
+            onManagePermissions: () {},
             onShowAbout: () {},
           ),
         ),
@@ -130,6 +131,9 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Normal (Custom Colors)'), findsOneWidget);
     expect(find.text('Color-Blind Safe Mode'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('App Permissions'), 200);
+    expect(find.text('App Permissions'), findsOneWidget);
   });
 
   testWidgets('StyledDialogHeader and DialogOptionTile render cleanly in narrow dialog',
