@@ -473,9 +473,8 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.auto_awesome_rounded,
-                      size: 15,
+                    SmartSearchIcon(
+                      size: 16,
                       color: isOnline ? colorScheme.primary : colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: 8),
@@ -516,7 +515,10 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
               children: [
                 Expanded(
                   child: _MediaSourceTile(
-                    icon: Icons.image_search_rounded,
+                    iconWidget: SmartSearchIcon(
+                      size: 22,
+                      color: isOnline ? colorScheme.primary : colorScheme.outline,
+                    ),
                     label: isOnline ? 'Smart Search' : 'Web (Offline)',
                     accentColor: isOnline ? colorScheme.primary : colorScheme.outline,
                     isMuted: !isOnline,
@@ -792,19 +794,21 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
 }
 
 class _MediaSourceTile extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final Widget? iconWidget;
   final String label;
   final Color accentColor;
   final bool isMuted;
   final VoidCallback onTap;
 
   const _MediaSourceTile({
-    required this.icon,
+    this.icon,
+    this.iconWidget,
     required this.label,
     required this.accentColor,
     this.isMuted = false,
     required this.onTap,
-  });
+  }) : assert(icon != null || iconWidget != null);
 
   @override
   Widget build(BuildContext context) {
@@ -830,7 +834,7 @@ class _MediaSourceTile extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 20, color: accentColor),
+              iconWidget ?? Icon(icon!, size: 20, color: accentColor),
               const SizedBox(height: 4),
               FittedBox(
                 fit: BoxFit.scaleDown,

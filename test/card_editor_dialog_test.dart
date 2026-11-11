@@ -6,6 +6,7 @@ import 'package:simple_aac_app/models/aac_card_model.dart';
 import 'package:simple_aac_app/services/network_policy_service.dart';
 import 'package:simple_aac_app/widgets/card_editor_dialog.dart';
 import 'package:simple_aac_app/widgets/smart_image_search_dialog.dart';
+import 'package:simple_aac_app/widgets/styled_dialog_header.dart';
 
 class _FakeAudioPlayer extends Fake implements AudioPlayer {}
 
@@ -54,6 +55,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
+    expect(find.byType(SmartSearchIcon), findsNWidgets(2));
     expect(find.textContaining('happy smiling child'), findsOneWidget);
     expect(find.text('Voice Recording (Optional)'), findsOneWidget);
   });
@@ -107,6 +109,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
+    expect(find.byType(SmartSearchIcon), findsOneWidget);
     expect(find.text('Offline Mode Is Active'), findsOneWidget);
   });
 }

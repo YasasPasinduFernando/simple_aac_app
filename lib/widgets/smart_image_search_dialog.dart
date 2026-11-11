@@ -128,7 +128,10 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
           child: Column(
             children: [
               StyledDialogHeader(
-                icon: Icons.image_search_rounded,
+                iconWidget: SmartSearchIcon(
+                  size: 22,
+                  color: colorScheme.primary,
+                ),
                 title: 'Smart Image Search',
                 subtitle: 'Free child-safe images & photos',
                 trailing: IconButton(

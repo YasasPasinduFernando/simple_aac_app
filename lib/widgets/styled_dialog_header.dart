@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 /// Shared Material 3 dialog title header with a tinted icon badge.
 class StyledDialogHeader extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final Widget? iconWidget;
   final String title;
   final String? subtitle;
   final Color? accentColor;
@@ -10,12 +11,14 @@ class StyledDialogHeader extends StatelessWidget {
 
   const StyledDialogHeader({
     Key? key,
-    required this.icon,
+    this.icon,
+    this.iconWidget,
     required this.title,
     this.subtitle,
     this.accentColor,
     this.trailing,
-  }) : super(key: key);
+  }) : assert(icon != null || iconWidget != null),
+       super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +33,7 @@ class StyledDialogHeader extends StatelessWidget {
             color: tint.withValues(alpha: 0.14),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: tint, size: 20),
+          child: iconWidget ?? Icon(icon!, color: tint, size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -188,4 +191,97 @@ class DialogOptionTile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Crisp magnifying-glass lens icon with a subtle glass reflection highlight
+/// for Smart Image Search controls.
+class SmartSearchIcon extends StatelessWidget {
+  final double size;
+  final Color color;
+
+  const SmartSearchIcon({
+    Key? key,
+    this.size = 20,
+    required this.color,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Semantics(
+      excludeSemantics: true,
+      child: SizedBox.square(
+        dimension: size,
+        child: CustomPaint(
+          painter: _MagnifierLensPainter(
+            color: color,
+            glossOpacity: isDark ? 0.55 : 0.85,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MagnifierLensPainter extends CustomPainter {
+  final Color color;
+  final double glossOpacity;
+
+  const _MagnifierLensPainter({
+    required this.color,
+    required this.glossOpacity,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final s = size.shortestSide;
+    final center = Offset(s * 0.42, s * 0.42);
+    final radius = s * 0.275;
+
+    final lensRect = Rect.fromCircle(center: center, radius: radius);
+    final glassPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          color.withValues(alpha: 0.28),
+          color.withValues(alpha: 0.08),
+        ],
+      ).createShader(lensRect);
+    canvas.drawCircle(center, radius, glassPaint);
+
+    // Curved specular highlight inside the upper-left glass surface.
+    final glarePaint = Paint()
+      ..color = Colors.white.withValues(alpha: glossOpacity)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = s * 0.065
+      ..strokeCap = StrokeCap.round;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius * 0.58),
+      -2.55,
+      1.15,
+      false,
+      glarePaint,
+    );
+
+    final rimPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = s * 0.115;
+    canvas.drawCircle(center, radius, rimPaint);
+
+    final rimAttach = Offset(
+      center.dx + radius * 0.7071,
+      center.dy + radius * 0.7071,
+    );
+    final handlePaint = Paint()
+      ..color = color
+      ..strokeWidth = s * 0.145
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(rimAttach, Offset(s * 0.87, s * 0.87), handlePaint);
+  }
+
+  @override
+  bool shouldRepaint(_MagnifierLensPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.glossOpacity != glossOpacity;
 }
