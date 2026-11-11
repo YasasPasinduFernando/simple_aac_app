@@ -55,9 +55,12 @@ class OpenverseSearchProvider implements ImageSearchProvider {
 
     try {
       final headers = {
-        'User-Agent': 'SimpleAACApp/1.0 (https://github.com/YasasPasinduFernando/simple_aac_app; contact@simpleaac.org)',
+        'User-Agent': 'SimpleAACApp/1.1.0 (https://github.com/YasasPasinduFernando/simple_aac_app; contact@simpleaac.org)',
       };
-      final response = await _client.get(uri, headers: headers).timeout(const Duration(seconds: 15));
+      final timeoutDuration = _customClient == null
+          ? const Duration(seconds: 5)
+          : const Duration(seconds: 15);
+      final response = await _client.get(uri, headers: headers).timeout(timeoutDuration);
 
       if (response.statusCode == 429) {
         throw const SearchRateLimitException();
@@ -78,7 +81,10 @@ class OpenverseSearchProvider implements ImageSearchProvider {
       final resultsList = data['results'] as List<dynamic>? ?? [];
       final results = resultsList
           .map((item) => ImageSearchResult.fromJson(item as Map<String, dynamic>))
-          .where((item) => item.imageUrl.isNotEmpty && item.thumbnail.isNotEmpty)
+          .where((item) =>
+              item.imageUrl.isNotEmpty &&
+              item.thumbnail.isNotEmpty &&
+              _isSupportedRasterUrl(item.imageUrl))
           .toList();
 
       // Rank results: Prioritize CC0 / Public Domain first for child AAC cards
@@ -126,20 +132,32 @@ class OpenverseSearchProvider implements ImageSearchProvider {
     }
   }
 
+  bool _isSupportedRasterUrl(String url) {
+    final lower = url.toLowerCase().split('?').first;
+    return !lower.endsWith('.svg') &&
+        !lower.endsWith('.tif') &&
+        !lower.endsWith('.tiff') &&
+        !lower.endsWith('.djvu') &&
+        !lower.endsWith('.pdf') &&
+        !lower.endsWith('.ogg') &&
+        !lower.endsWith('.mp3') &&
+        !lower.endsWith('.webm');
+  }
+
   /// High-reliability public domain / CC0 educational image search fallback
   /// via Wikimedia Commons API.
   Future<List<ImageSearchResult>> _searchWikimediaCommonsFallback(String query, int pageSize) async {
     final wikiUri = Uri.parse(
       'https://commons.wikimedia.org/w/api.php?action=query&generator=search'
-      '&gsrnamespace=6&gsrsearch=${Uri.encodeComponent(query)}&gsrlimit=${pageSize.clamp(1, 20)}'
+      '&gsrnamespace=6&gsrsearch=${Uri.encodeComponent(query)}&gsrlimit=${(pageSize * 2).clamp(1, 30)}'
       '&prop=imageinfo&iiprop=url|mime|thumburl&iiurlwidth=400&format=json',
     );
 
     final headers = {
-      'User-Agent': 'SimpleAACApp/1.0 (https://github.com/YasasPasinduFernando/simple_aac_app; contact@simpleaac.org)',
+      'User-Agent': 'SimpleAACApp/1.1.0 (https://github.com/YasasPasinduFernando/simple_aac_app; contact@simpleaac.org)',
     };
 
-    final resp = await _client.get(wikiUri, headers: headers).timeout(const Duration(seconds: 12));
+    final resp = await _client.get(wikiUri, headers: headers).timeout(const Duration(seconds: 10));
     if (resp.statusCode != 200) {
       throw SearchServiceException('Image search provider returned HTTP ${resp.statusCode}');
     }
@@ -153,6 +171,8 @@ class OpenverseSearchProvider implements ImageSearchProvider {
     final pagesMap = queryMap['pages'] as Map<String, dynamic>? ?? {};
     final results = <ImageSearchResult>[];
 
+    const allowedMimes = {'image/jpeg', 'image/png', 'image/webp'};
+
     for (final entry in pagesMap.entries) {
       final page = entry.value as Map<String, dynamic>? ?? {};
       final rawTitle = page['title'] as String? ?? '';
@@ -160,12 +180,12 @@ class OpenverseSearchProvider implements ImageSearchProvider {
       if (infoList == null || infoList.isEmpty) continue;
 
       final info = infoList.first as Map<String, dynamic>? ?? {};
+      final mime = (info['mime'] as String? ?? '').toLowerCase();
       final fullUrl = info['url'] as String? ?? '';
       final thumbUrl = info['thumburl'] as String? ?? fullUrl;
 
-      // Filter out non-raster audio/video/pdf files
-      final lower = fullUrl.toLowerCase();
-      if (lower.endsWith('.ogg') || lower.endsWith('.mp3') || lower.endsWith('.webm') || lower.endsWith('.pdf')) {
+      // Reject document scans (.djvu, .pdf, .tiff), vector SVGs, and audio/video.
+      if (!allowedMimes.contains(mime) || !_isSupportedRasterUrl(fullUrl)) {
         continue;
       }
 
@@ -181,6 +201,7 @@ class OpenverseSearchProvider implements ImageSearchProvider {
           license: 'cc0',
         ));
       }
+      if (results.length >= pageSize) break;
     }
 
     return results;

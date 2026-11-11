@@ -33,6 +33,14 @@ void main() {
       expect(MultilingualConceptService.normalizeConcept('  පාසල  '), 'school building');
     });
 
+    test('Does not trigger partial English substring collisions', () {
+      expect(MultilingualConceptService.normalizeConcept('good'), 'thumbs up good');
+      expect(MultilingualConceptService.normalizeConcept('mango'), 'mango');
+      expect(MultilingualConceptService.normalizeConcept('teacher'), 'teacher');
+      expect(MultilingualConceptService.normalizeConcept('carrot'), 'carrot');
+      expect(MultilingualConceptService.normalizeConcept('hello'), 'happy waving child');
+    });
+
     test('Identifies Latin vs non-Latin scripts correctly', () {
       expect(MultilingualConceptService.isLatinScript('apple'), isTrue);
       expect(MultilingualConceptService.isLatinScript('ඇපල්'), isFalse);

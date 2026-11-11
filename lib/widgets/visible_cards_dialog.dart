@@ -33,12 +33,22 @@ class _VisibleCardsDialogState extends State<VisibleCardsDialog> {
   @override
   Widget build(BuildContext context) {
     final hasSelection = selectedIds.isNotEmpty;
+    final media = MediaQuery.of(context).size;
     return AlertDialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       title: Row(
         children: [
-          const Expanded(child: Text('Visible Cards')),
+          const Expanded(
+            child: Text(
+              'Visible Cards',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
           IconButton(
-            icon: Icon(hasSelection ? Icons.clear_all : Icons.select_all),
+            icon: Icon(hasSelection ? Icons.clear_all_rounded : Icons.select_all_rounded),
             tooltip: hasSelection ? 'Clear All' : 'Select All',
             onPressed: () {
               setState(() {
@@ -54,52 +64,67 @@ class _VisibleCardsDialogState extends State<VisibleCardsDialog> {
           ),
         ],
       ),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: ListView(
-          shrinkWrap: true,
-          children: widget.cards.map((card) {
-            final label = card.getLabel(widget.currentLanguage);
-            final checked = selectedIds.contains(card.id);
-            final isFolder = card.type == 'folder';
-            return CheckboxListTile(
-              value: checked,
-              title: Row(
-                children: [
-                  Text(label),
-                  if (isFolder) ...[
-                    const SizedBox(width: 6),
-                    const Icon(Icons.folder, size: 16),
-                  ],
-                ],
-              ),
-              secondary: ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: SizedBox(
-                  width: 32,
-                  height: 32,
-                  child: card.imagePath != null
-                      ? buildCardImage(
-                          card.imagePath!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.image, size: 18);
-                          },
-                        )
-                      : const Icon(Icons.image, size: 18),
+      content: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: (media.width - 32).clamp(280.0, 480.0),
+          maxHeight: (media.height * 0.6).clamp(200.0, 480.0),
+        ),
+        child: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: widget.cards.map((card) {
+              final label = card.getLabel(widget.currentLanguage);
+              final checked = selectedIds.contains(card.id);
+              final isFolder = card.type == 'folder';
+              return CheckboxListTile(
+                value: checked,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  if (value == true) {
-                    selectedIds.add(card.id);
-                  } else {
-                    selectedIds.remove(card.id);
-                  }
-                });
-              },
-            );
-          }).toList(),
+                title: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (isFolder) ...[
+                      const SizedBox(width: 6),
+                      const Icon(Icons.folder_outlined, size: 16),
+                    ],
+                  ],
+                ),
+                secondary: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    width: 36,
+                    height: 36,
+                    child: card.imagePath != null
+                        ? buildCardImage(
+                            card.imagePath!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(Icons.image, size: 18);
+                            },
+                          )
+                        : const Icon(Icons.image, size: 18),
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    if (value == true) {
+                      selectedIds.add(card.id);
+                    } else {
+                      selectedIds.remove(card.id);
+                    }
+                  });
+                },
+              );
+            }).toList(),
+          ),
         ),
       ),
       actions: [
@@ -107,7 +132,7 @@ class _VisibleCardsDialogState extends State<VisibleCardsDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
-        ElevatedButton(
+        FilledButton(
           onPressed: () {
             widget.onSubmit(selectedIds);
             Navigator.pop(context);

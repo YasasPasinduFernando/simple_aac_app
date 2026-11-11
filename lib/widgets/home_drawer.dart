@@ -14,8 +14,15 @@ class HomeDrawer extends StatelessWidget {
   final bool hideTtsText;
   final bool useImageOverlayLabel;
   final bool applyTextColorToCards;
+  final bool isDarkMode;
+  final bool isColorBlindMode;
+  final Color primaryColorSwatch;
+  final Color textColorSwatch;
+  final Color backgroundColorSwatch;
   final bool isOnlineEnabled;
   final ValueChanged<bool> onToggleOnline;
+  final ValueChanged<bool> onToggleDarkMode;
+  final ValueChanged<bool> onChangeColorBlindMode;
   final VoidCallback onSelectCategory;
   final VoidCallback onAddCategory;
   final VoidCallback onToggleEdit;
@@ -52,8 +59,15 @@ class HomeDrawer extends StatelessWidget {
     required this.hideTtsText,
     required this.useImageOverlayLabel,
     required this.applyTextColorToCards,
+    required this.isDarkMode,
+    required this.isColorBlindMode,
+    required this.primaryColorSwatch,
+    required this.textColorSwatch,
+    required this.backgroundColorSwatch,
     required this.isOnlineEnabled,
     required this.onToggleOnline,
+    required this.onToggleDarkMode,
+    required this.onChangeColorBlindMode,
     required this.onSelectCategory,
     required this.onAddCategory,
     required this.onToggleEdit,
@@ -174,21 +188,41 @@ class HomeDrawer extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 _buildSectionHeader(context, 'Appearance & Theme', Icons.palette),
-                _buildDrawerItem(
+                _buildSwitchItem(
+                  icon: isDarkMode ? Icons.dark_mode_rounded : Icons.dark_mode_outlined,
+                  title: 'Dark Mode',
+                  subtitle: isDarkMode
+                      ? 'Full dark look active'
+                      : 'Switch on for full dark theme',
+                  value: isDarkMode,
+                  onChanged: onToggleDarkMode,
+                ),
+                _buildColorPickerItem(
+                  context,
                   icon: Icons.color_lens,
                   title: 'Primary App Color',
+                  swatchColor: primaryColorSwatch,
+                  subtitle: isDarkMode ? 'Saved for Normal Mode' : null,
                   onTap: onPickPrimaryColor,
                 ),
-                _buildDrawerItem(
+                _buildColorPickerItem(
+                  context,
                   icon: Icons.format_paint,
                   title: 'Global Text Color',
+                  swatchColor: textColorSwatch,
+                  subtitle: isDarkMode ? 'Saved for Normal Mode' : null,
                   onTap: onPickTextColor,
                 ),
-                _buildDrawerItem(
+                _buildColorPickerItem(
+                  context,
                   icon: Icons.format_color_fill,
                   title: 'Board Background Color',
+                  swatchColor: backgroundColorSwatch,
+                  subtitle: isDarkMode ? 'Saved for Normal Mode' : null,
                   onTap: onPickBackgroundColor,
                 ),
+                const SizedBox(height: 8),
+                _buildColorAccessibilityCard(context),
                 const SizedBox(height: 12),
 
                 _buildSectionHeader(context, 'Cards & Storage', Icons.folder),
@@ -226,7 +260,7 @@ class HomeDrawer extends StatelessWidget {
                 _buildDrawerItem(
                   icon: Icons.info_outline,
                   title: 'About Simple AAC',
-                  subtitle: 'Version 1.0.2',
+                  subtitle: 'Version 1.1.0',
                   onTap: onShowAbout,
                 ),
                 const SizedBox(height: 24),
@@ -239,6 +273,8 @@ class HomeDrawer extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final lighter = Color.lerp(headerColor, Colors.white, 0.08)!;
+    final darker = Color.lerp(headerColor, Colors.black, 0.14)!;
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(
@@ -248,11 +284,15 @@ class HomeDrawer extends StatelessWidget {
         right: 20,
       ),
       decoration: BoxDecoration(
-        color: headerColor,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [lighter, darker],
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 6,
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 8,
             offset: const Offset(0, 3),
           ),
         ],
@@ -265,10 +305,10 @@ class HomeDrawer extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: headerTextColor.withOpacity(0.15),
+                  color: headerTextColor.withValues(alpha: 0.16),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.forum, color: headerTextColor, size: 28),
+                child: Icon(Icons.forum_rounded, color: headerTextColor, size: 26),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -277,6 +317,8 @@ class HomeDrawer extends StatelessWidget {
                   children: [
                     Text(
                       'Simple AAC',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: headerTextColor,
                         fontSize: 20,
@@ -286,8 +328,10 @@ class HomeDrawer extends StatelessWidget {
                     ),
                     Text(
                       'Sri Lanka',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: headerTextColor.withOpacity(0.85),
+                        color: headerTextColor.withValues(alpha: 0.85),
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
@@ -298,11 +342,11 @@ class HomeDrawer extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: headerTextColor.withOpacity(0.2),
+                  color: headerTextColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'v1.0.2',
+                  'v1.1.0',
                   style: TextStyle(
                     color: headerTextColor,
                     fontSize: 11,
@@ -325,13 +369,17 @@ class HomeDrawer extends StatelessWidget {
         children: [
           Icon(icon, size: 16, color: theme.colorScheme.primary),
           const SizedBox(width: 8),
-          Text(
-            title.toUpperCase(),
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.0,
-              color: theme.colorScheme.primary,
+          Flexible(
+            child: Text(
+              title.toUpperCase(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.0,
+                color: theme.colorScheme.primary,
+              ),
             ),
           ),
         ],
@@ -340,15 +388,29 @@ class HomeDrawer extends StatelessWidget {
   }
 
   Widget _buildOnlineSwitch(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final onlineColor = isColorBlindMode ? const Color(0xFF0072B2) : Colors.green;
+    final cardBg = isOnlineEnabled
+        ? (isDark
+            ? onlineColor.withValues(alpha: 0.18)
+            : (isColorBlindMode ? Colors.blue.shade50 : Colors.green.shade50))
+        : theme.colorScheme.surfaceContainerHigh;
+    final borderColor = isOnlineEnabled
+        ? onlineColor.withValues(alpha: 0.5)
+        : theme.colorScheme.outlineVariant;
+    final accentText = isOnlineEnabled
+        ? (isDark
+            ? (isColorBlindMode ? Colors.lightBlue.shade200 : Colors.green.shade300)
+            : (isColorBlindMode ? const Color(0xFF005A8D) : Colors.green.shade800))
+        : theme.colorScheme.onSurfaceVariant;
+
     return Card(
       elevation: 0,
-      color: isOnlineEnabled ? Colors.green.shade50 : Colors.grey.shade100,
+      color: cardBg,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: isOnlineEnabled ? Colors.green.shade300 : Colors.grey.shade300,
-          width: 1,
-        ),
+        side: BorderSide(color: borderColor, width: 1),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -358,8 +420,8 @@ class HomeDrawer extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  isOnlineEnabled ? Icons.wifi : Icons.wifi_off,
-                  color: isOnlineEnabled ? Colors.green.shade700 : Colors.grey.shade700,
+                  isOnlineEnabled ? Icons.wifi_rounded : Icons.wifi_off_rounded,
+                  color: accentText,
                   size: 24,
                 ),
                 const SizedBox(width: 10),
@@ -372,15 +434,17 @@ class HomeDrawer extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: isOnlineEnabled ? Colors.green.shade900 : Colors.grey.shade900,
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                       Text(
-                        isOnlineEnabled ? 'Active (Smart Image Search Enabled)' : 'OFF (100% Strict Offline Privacy)',
+                        isOnlineEnabled
+                            ? 'Active (Smart Image Search Enabled)'
+                            : 'OFF (100% Strict Offline Privacy)',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: isOnlineEnabled ? Colors.green.shade700 : Colors.grey.shade600,
+                          color: accentText,
                         ),
                       ),
                     ],
@@ -388,19 +452,137 @@ class HomeDrawer extends StatelessWidget {
                 ),
                 Switch(
                   value: isOnlineEnabled,
-                  activeColor: Colors.green.shade600,
+                  activeThumbColor: isColorBlindMode
+                      ? const Color(0xFF0072B2)
+                      : Colors.green.shade600,
                   onChanged: onToggleOnline,
                 ),
               ],
             ),
             const SizedBox(height: 4),
             Text(
-              'Enables free CC0/Public Domain image search for cards. When disabled, the app is 100% offline and makes zero network calls.',
+              'Enables free child-safe image search for cards. When disabled, the app is 100% offline and makes zero network calls.',
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.grey.shade700,
+                color: theme.colorScheme.onSurfaceVariant,
                 height: 1.3,
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildColorPickerItem(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required Color swatchColor,
+    String? subtitle,
+    required VoidCallback onTap,
+  }) {
+    final theme = Theme.of(context);
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        dense: true,
+        leading: Icon(icon, size: 22),
+        title: Text(
+          title,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+        ),
+        subtitle: subtitle != null
+            ? Text(subtitle, style: const TextStyle(fontSize: 11))
+            : null,
+        trailing: Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: swatchColor,
+            shape: BoxShape.circle,
+            border: Border.all(color: theme.colorScheme.outline, width: 1.5),
+          ),
+        ),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _buildColorAccessibilityCard(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return Card(
+      elevation: 0,
+      color: colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 8, 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.visibility_rounded,
+                  size: 16,
+                  color: colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Color Vision Support',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            RadioListTile<bool>(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              visualDensity: VisualDensity.compact,
+              title: const Text(
+                'Normal (Custom Colors)',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+              subtitle: const Text(
+                'Keep default & customized colors',
+                style: TextStyle(fontSize: 11),
+              ),
+              value: false,
+              groupValue: isColorBlindMode,
+              onChanged: (v) {
+                if (v != null) onChangeColorBlindMode(v);
+              },
+            ),
+            RadioListTile<bool>(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              visualDensity: VisualDensity.compact,
+              title: const Text(
+                'Color-Blind Safe Mode',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+              subtitle: const Text(
+                'High-contrast color-safe palette',
+                style: TextStyle(fontSize: 11),
+              ),
+              value: true,
+              groupValue: isColorBlindMode,
+              onChanged: (v) {
+                if (v != null) onChangeColorBlindMode(v);
+              },
             ),
           ],
         ),
@@ -416,22 +598,32 @@ class HomeDrawer extends StatelessWidget {
     Color? activeColor,
     required VoidCallback onTap,
   }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 2),
-      decoration: BoxDecoration(
-        color: active ? (activeColor ?? Colors.blue.shade50) : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        dense: true,
-        leading: Icon(icon, size: 22),
-        title: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-        subtitle: subtitle != null
-            ? Text(subtitle, style: const TextStyle(fontSize: 12))
-            : null,
-        onTap: onTap,
-      ),
+    return Builder(
+      builder: (context) {
+        final colorScheme = Theme.of(context).colorScheme;
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 2),
+          decoration: BoxDecoration(
+            color: active
+                ? (activeColor ?? colorScheme.primaryContainer)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ListTile(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            dense: true,
+            leading: Icon(icon, size: 22),
+            title: Text(title,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+            subtitle: subtitle != null
+                ? Text(subtitle, style: const TextStyle(fontSize: 12))
+                : null,
+            onTap: onTap,
+          ),
+        );
+      },
     );
   }
 

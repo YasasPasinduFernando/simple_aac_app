@@ -70,7 +70,7 @@ class OfflineGatedHttpClient extends http.BaseClient {
 
     // Set appropriate User-Agent for free Openverse API compliance
     if (!request.headers.containsKey('User-Agent')) {
-      request.headers['User-Agent'] = 'SimpleAAC-SriLanka/1.0.2 (OpenAccess; Communication Support)';
+      request.headers['User-Agent'] = 'SimpleAAC-SriLanka/1.1.0 (OpenAccess; Communication Support)';
     }
 
     return inner.send(request);

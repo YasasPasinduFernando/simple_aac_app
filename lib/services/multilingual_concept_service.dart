@@ -4,6 +4,32 @@
 /// Operates 100% OFFLINE with zero paid translation APIs.
 class MultilingualConceptService {
   static const Map<String, String> _conceptMap = {
+    // === Greetings & Core Social ===
+    'hello': 'happy waving child',
+    'hi': 'happy waving child',
+    'ආයුබෝවන්': 'happy waving child',
+    'හෙලෝ': 'happy waving child',
+    'வணக்கம்': 'happy waving child',
+    'good': 'thumbs up good',
+    'හොඳයි': 'thumbs up good',
+    'நல்லது': 'thumbs up good',
+    'more': 'more blocks toys',
+    'තව': 'more blocks toys',
+    'மேலும்': 'more blocks toys',
+    'yes': 'happy yes nodding',
+    'ඔව්': 'happy yes nodding',
+    'ஆம்': 'happy yes nodding',
+    'no': 'no stop hand',
+    'නෑ': 'no stop hand',
+    'නැහැ': 'no stop hand',
+    'இல்லை': 'no stop hand',
+    'want': 'reaching hand want',
+    'ඕනේ': 'reaching hand want',
+    'வேண்டும்': 'reaching hand want',
+    'thank you': 'thank you smiling',
+    'ස්තූතියි': 'thank you smiling',
+    'நன்றி': 'thank you smiling',
+
     // === People & Family ===
     'mother': 'mother',
     'mom': 'mother',
@@ -243,6 +269,12 @@ class MultilingualConceptService {
     'புகையிரதம்': 'railway train',
   };
 
+  static final List<MapEntry<String, String>> _sortedEntries = (() {
+    final entries = _conceptMap.entries.toList();
+    entries.sort((a, b) => b.key.length.compareTo(a.key.length));
+    return entries;
+  })();
+
   /// Normalizes any input text across Sinhala, Tamil, or English into a child-friendly
   /// English image search query.
   static String normalizeConcept(String rawInput) {
@@ -254,15 +286,19 @@ class MultilingualConceptService {
       return _conceptMap[cleaned]!;
     }
 
-    // Try token / word boundary matching if compound or multi-word
-    for (final entry in _conceptMap.entries) {
-      if (cleaned == entry.key || cleaned.contains(entry.key)) {
+    // Whole-word matching for Latin phrases, longest-first substring matching for non-Latin.
+    for (final entry in _sortedEntries) {
+      if (isLatinScript(entry.key)) {
+        final pattern = RegExp(r'(?:^|\b)' + RegExp.escape(entry.key) + r'(?:\b|$)');
+        if (pattern.hasMatch(cleaned)) {
+          return entry.value;
+        }
+      } else if (cleaned.contains(entry.key)) {
         return entry.value;
       }
     }
 
-    // Fallback: If input is Latin/English characters, use the cleaned word directly.
-    // If it is non-Latin and unknown, return original input so user can edit search query.
+    // Fallback: Return cleaned input so user can refine manually if needed.
     return cleaned;
   }
 

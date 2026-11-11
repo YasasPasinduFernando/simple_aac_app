@@ -30,12 +30,13 @@ class LandscapeMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedBaseColor = baseColor ?? Colors.brown.shade600;
-    final disabledColor = Colors.brown.shade300;
+    final resolvedBaseColor = baseColor ?? const Color(0xFF0277BD);
+    final disabledColor = resolvedBaseColor.withValues(alpha: 0.42);
     final resolvedTextColor = textColor ?? Colors.white;
+    final disabledTextColor = resolvedTextColor.withValues(alpha: 0.55);
     return Container(
       width: 96,
-      color: (baseColor ?? Colors.brown.shade600).withOpacity(0.9),
+      color: resolvedBaseColor.withValues(alpha: 0.94),
       child: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -50,47 +51,49 @@ class LandscapeMenu extends StatelessWidget {
                   textColor: resolvedTextColor,
                 ),
                 _MenuButton(
-                  icon: Icons.menu,
+                  icon: Icons.menu_rounded,
                   label: 'Menu',
                   onTap: isPinned ? null : onOpenMenu,
                   color: isPinned ? disabledColor : resolvedBaseColor,
-                  textColor: resolvedTextColor,
+                  textColor: isPinned ? disabledTextColor : resolvedTextColor,
                 ),
                 _MenuButton(
-                  icon: Icons.arrow_back,
+                  icon: Icons.arrow_back_rounded,
                   label: 'Go back',
                   onTap: !isPinned && canGoBack ? onGoBack : null,
                   color:
                       !isPinned && canGoBack ? resolvedBaseColor : disabledColor,
-                  textColor: resolvedTextColor,
+                  textColor: !isPinned && canGoBack
+                      ? resolvedTextColor
+                      : disabledTextColor,
                 ),
                 _MenuButton(
-                  icon: Icons.home,
+                  icon: Icons.home_rounded,
                   label: 'Home',
                   onTap: isPinned ? null : onHome,
                   color: isPinned ? disabledColor : resolvedBaseColor,
-                  textColor: resolvedTextColor,
+                  textColor: isPinned ? disabledTextColor : resolvedTextColor,
                 ),
                 _MenuButton(
-                  icon: Icons.arrow_upward,
+                  icon: Icons.arrow_upward_rounded,
                   label: 'Up',
                   onTap: isPinned ? null : onUp,
                   color: isPinned ? disabledColor : resolvedBaseColor,
-                  textColor: resolvedTextColor,
+                  textColor: isPinned ? disabledTextColor : resolvedTextColor,
                 ),
                 _MenuButton(
-                  icon: Icons.arrow_downward,
+                  icon: Icons.arrow_downward_rounded,
                   label: 'Down',
                   onTap: isPinned ? null : onDown,
                   color: isPinned ? disabledColor : resolvedBaseColor,
-                  textColor: resolvedTextColor,
+                  textColor: isPinned ? disabledTextColor : resolvedTextColor,
                 ),
                 _MenuButton(
-                  icon: Icons.search,
+                  icon: Icons.search_rounded,
                   label: 'Search',
                   onTap: isPinned ? null : onSearch,
                   color: isPinned ? disabledColor : resolvedBaseColor,
-                  textColor: resolvedTextColor,
+                  textColor: isPinned ? disabledTextColor : resolvedTextColor,
                 ),
               ],
             ),
@@ -119,25 +122,35 @@ class _MenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: SizedBox(
         width: 84,
         child: ElevatedButton(
           onPressed: onTap,
           style: ElevatedButton.styleFrom(
             backgroundColor: color,
+            elevation: onTap == null ? 0 : 1,
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
           child: Column(
             children: [
               Icon(icon, color: textColor, size: 22),
-              const SizedBox(height: 6),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: textColor, fontSize: 12),
+              const SizedBox(height: 4),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),

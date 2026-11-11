@@ -63,14 +63,17 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
 
     try {
       final items = await _searchProvider.searchImages(cleanQuery);
+      if (!mounted) return;
       setState(() {
         _results = items;
         _isLoading = false;
         if (items.isEmpty) {
-          _errorMessage = 'No child-safe CC0/public-domain images found for "$cleanQuery". Try another keyword.';
+          _errorMessage =
+              'No child-safe CC0/public-domain images found for "$cleanQuery". Try another keyword.';
         }
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
         _errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -105,219 +108,251 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context).size;
+    final viewInsetsBottom = MediaQuery.of(context).viewInsets.bottom;
+    final colorScheme = Theme.of(context).colorScheme;
     final isOnline = NetworkPolicyService.instance.isOnlineEnabled;
-    final dialogWidth = (MediaQuery.of(context).size.width * 0.9).clamp(320.0, 600.0);
-    final dialogHeight = (MediaQuery.of(context).size.height * 0.8).clamp(400.0, 700.0);
+    final dialogWidth = (media.width - 32).clamp(280.0, 580.0);
+    final availableHeight = (media.height - viewInsetsBottom).clamp(180.0, media.height);
+    final dialogHeight = (availableHeight * 0.86).clamp(180.0, 680.0);
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      child: SizedBox(
         width: dialogWidth,
         height: dialogHeight,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Header
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.auto_awesome, color: Color(0xFF0288D1), size: 24),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Smart Image Search',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'Free CC0/Public Domain via Openverse',
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-            const Divider(height: 20),
-
-            if (!isOnline) ...[
-              _buildOfflineWarning(context),
-            ] else ...[
-              // Search Input Box
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Header
               Row(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search image (e.g., cat, ball, water)...',
-                        prefixIcon: const Icon(Icons.search, size: 20),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear, size: 18),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  setState(() {});
-                                },
-                              )
-                            : null,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        filled: true,
-                        fillColor: Colors.grey.shade50,
-                      ),
-                      onSubmitted: _executeSearch,
+                  Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.auto_awesome_rounded,
+                      color: colorScheme.primary,
+                      size: 22,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Smart Image Search',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                        ),
+                        Text(
+                          'Free child-safe images & photos',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
-                    onPressed: _isLoading ? null : () => _executeSearch(_searchController.text),
-                    child: const Text('Search'),
+                  ),
+                  IconButton(
+                    tooltip: 'Close',
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const Divider(height: 18),
 
-              // Content Area
-              Expanded(
-                child: _isDownloading
-                    ? _buildDownloadingState()
-                    : _isLoading
-                        ? _buildLoadingState()
-                        : _errorMessage != null
-                            ? _buildErrorState()
-                            : _selectedImage != null
-                                ? _buildConfirmationView(_selectedImage!)
-                                : _buildResultsGrid(),
-              ),
+              if (!isOnline) ...[
+                _buildOfflineWarning(context),
+              ] else ...[
+                // Search Input Box
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (_) => setState(() {}),
+                        decoration: InputDecoration(
+                          hintText: 'Search (e.g., cat, ball, water)...',
+                          prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                          suffixIcon: _searchController.text.isNotEmpty
+                              ? IconButton(
+                                  tooltip: 'Clear',
+                                  icon: const Icon(Icons.clear_rounded, size: 18),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() {});
+                                  },
+                                )
+                              : null,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          filled: true,
+                          fillColor: colorScheme.surfaceContainerLowest,
+                        ),
+                        onSubmitted: _executeSearch,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(76, 48),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onPressed: _isLoading
+                          ? null
+                          : () => _executeSearch(_searchController.text),
+                      child: const Text('Search'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Content Area
+                Expanded(
+                  child: _isDownloading
+                      ? _buildDownloadingState()
+                      : _isLoading
+                          ? _buildLoadingState()
+                          : _errorMessage != null
+                              ? _buildErrorState()
+                              : _selectedImage != null
+                                  ? _buildConfirmationView(_selectedImage!)
+                                  : _buildResultsGrid(dialogWidth),
+                ),
+              ],
             ],
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCenteredStatus(List<Widget> children) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: children,
         ),
       ),
     );
   }
 
   Widget _buildOfflineWarning(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Expanded(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.wifi_off_rounded, size: 64, color: Colors.grey.shade400),
-              const SizedBox(height: 16),
-              const Text(
-                'Offline Mode Is Active',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Simple AAC is in 100% strict offline mode. Web image searches and network calls are blocked.\n\nTo use Smart Image Search, enable Online Features in the drawer menu.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade700, height: 1.4),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.check),
-                label: const Text('Close'),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
+      child: _buildCenteredStatus([
+        Icon(Icons.wifi_off_rounded, size: 52, color: colorScheme.outline),
+        const SizedBox(height: 12),
+        const Text(
+          'Offline Mode Is Active',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
         ),
-      ),
+        const SizedBox(height: 8),
+        Text(
+          'Simple AAC is in 100% strict offline mode. Web image searches and network calls are blocked.\n\nTo use Smart Image Search, enable Online Features in the drawer menu.',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant, height: 1.4),
+        ),
+        const SizedBox(height: 18),
+        FilledButton.icon(
+          icon: const Icon(Icons.check_rounded),
+          label: const Text('Close'),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ]),
     );
   }
 
   Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: 16),
-          Text(
-            'Searching safe public-domain images...',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-          ),
-        ],
+    final colorScheme = Theme.of(context).colorScheme;
+    return _buildCenteredStatus([
+      const CircularProgressIndicator(),
+      const SizedBox(height: 16),
+      Text(
+        'Searching safe public-domain images...',
+        textAlign: TextAlign.center,
+        style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13),
       ),
-    );
+    ]);
   }
 
   Widget _buildDownloadingState() {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const CircularProgressIndicator(color: Colors.green),
-          const SizedBox(height: 16),
-          const Text(
-            'Downloading and saving locally to your device...',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'This image will work 100% offline forever.',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-          ),
-        ],
+    final colorScheme = Theme.of(context).colorScheme;
+    return _buildCenteredStatus([
+      const CircularProgressIndicator(color: Colors.green),
+      const SizedBox(height: 16),
+      const Text(
+        'Downloading and saving locally to your device...',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
       ),
-    );
+      const SizedBox(height: 4),
+      Text(
+        'This image will work 100% offline forever.',
+        textAlign: TextAlign.center,
+        style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12),
+      ),
+    ]);
   }
 
   Widget _buildErrorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.search_off, size: 48, color: Colors.amber.shade700),
-            const SizedBox(height: 12),
-            Text(
-              _errorMessage ?? 'Search error',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Retry Search'),
-              onPressed: () => _executeSearch(_searchController.text),
-            ),
-          ],
-        ),
+    return _buildCenteredStatus([
+      Icon(Icons.search_off_rounded, size: 48, color: Colors.amber.shade700),
+      const SizedBox(height: 12),
+      Text(
+        _errorMessage ?? 'Search error',
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
       ),
-    );
+      const SizedBox(height: 16),
+      FilledButton.tonalIcon(
+        icon: const Icon(Icons.refresh_rounded, size: 18),
+        label: const Text('Retry Search'),
+        onPressed: () => _executeSearch(_searchController.text),
+      ),
+    ]);
   }
 
-  Widget _buildResultsGrid() {
+  Widget _buildResultsGrid(double dialogWidth) {
+    final colorScheme = Theme.of(context).colorScheme;
     if (_results.isEmpty) {
       return Center(
         child: Text(
           'Type a word and tap Search to find images.',
-          style: TextStyle(color: Colors.grey.shade500),
+          textAlign: TextAlign.center,
+          style: TextStyle(color: colorScheme.onSurfaceVariant),
         ),
       );
     }
+
+    if (!NetworkPolicyService.instance.isOnlineEnabled) {
+      return const SizedBox.shrink();
+    }
+
+    final columns = dialogWidth > 460 ? 4 : 3;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,13 +361,17 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
           padding: const EdgeInsets.only(bottom: 8.0),
           child: Text(
             'Tap an image to preview and confirm:',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
         Expanded(
           child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: columns,
               crossAxisSpacing: 8,
               mainAxisSpacing: 8,
               childAspectRatio: 1.0,
@@ -340,8 +379,9 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
             itemCount: _results.length,
             itemBuilder: (context, index) {
               final item = _results[index];
+              final isFreeDomain = item.isPublicDomainOrCc0;
               return InkWell(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 onTap: () {
                   setState(() {
                     _selectedImage = item;
@@ -349,8 +389,9 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade300),
+                    color: colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: colorScheme.outlineVariant),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: Stack(
@@ -359,23 +400,63 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
                       Image.network(
                         item.thumbnail,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const Icon(Icons.broken_image, size: 28, color: Colors.grey),
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.broken_image_outlined,
+                          size: 28,
+                          color: Colors.grey,
+                        ),
                       ),
                       Positioned(
                         bottom: 0,
                         left: 0,
                         right: 0,
                         child: Container(
-                          color: Colors.black.withOpacity(0.65),
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                          child: Text(
-                            item.license.toUpperCase(),
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          color: Colors.black.withValues(alpha: 0.65),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 3,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: isFreeDomain
+                                      ? Colors.greenAccent
+                                      : Colors.amberAccent,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  item.license.toUpperCase(),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -391,6 +472,9 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
   }
 
   Widget _buildConfirmationView(ImageSearchResult item) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isFreeDomain = item.isPublicDomainOrCc0;
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -398,64 +482,173 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back),
+                tooltip: 'Back to results',
+                icon: const Icon(Icons.arrow_back_rounded),
                 onPressed: () {
                   setState(() {
                     _selectedImage = null;
                   });
                 },
               ),
-              const Text('Caregiver Confirmation', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Caregiver Confirmation',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                    ),
+                    Text(
+                      'Preview before saving offline',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),
           Container(
             height: 200,
             decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: colorScheme.outlineVariant),
             ),
             clipBehavior: Clip.antiAlias,
-            child: Image.network(
-              item.imageUrl,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => Image.network(item.thumbnail, fit: BoxFit.contain),
-            ),
+            child: NetworkPolicyService.instance.isOnlineEnabled
+                ? Image.network(
+                    item.imageUrl,
+                    fit: BoxFit.contain,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const Center(child: CircularProgressIndicator());
+                    },
+                    errorBuilder: (_, __, ___) => Image.network(
+                      item.thumbnail,
+                      fit: BoxFit.contain,
+                    ),
+                  )
+                : Center(
+                    child: Icon(Icons.wifi_off_rounded, size: 40, color: colorScheme.outline),
+                  ),
           ),
           const SizedBox(height: 12),
-          Text(
-            item.title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: colorScheme.outlineVariant),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title,
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: isFreeDomain
+                            ? Colors.green.withValues(alpha: 0.14)
+                            : Colors.amber.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isFreeDomain
+                              ? Colors.green.withValues(alpha: 0.5)
+                              : Colors.amber.withValues(alpha: 0.6),
+                        ),
+                      ),
+                      child: Text(
+                        item.license.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: isFreeDomain
+                              ? (Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.green.shade300
+                                  : Colors.green.shade800)
+                              : (Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.amber.shade300
+                                  : Colors.amber.shade900),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'By ${item.creator}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Creator: ${item.creator} • License: ${item.license.toUpperCase()}',
-            style: TextStyle(fontSize: 11, color: Colors.grey.shade700),
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Row(
             children: [
               Expanded(
+                flex: 2,
                 child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                   onPressed: () {
                     setState(() {
                       _selectedImage = null;
                     });
                   },
-                  child: const Text('Pick Another'),
+                  child: const FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'Pick Another',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
-                flex: 2,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.check, size: 20),
-                  label: const Text('Save to Card (Offline)'),
-                  style: ElevatedButton.styleFrom(
+                flex: 3,
+                child: FilledButton.icon(
+                  icon: const Icon(Icons.download_done_rounded, size: 18),
+                  label: const FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'Save Offline',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(0, 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     backgroundColor: Colors.green.shade600,
                     foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onPressed: () => _confirmAndDownloadImage(item),
                 ),

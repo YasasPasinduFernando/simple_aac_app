@@ -19,7 +19,6 @@ import '../services/card_storage_service.dart';
 import '../services/network_policy_service.dart';
 import '../widgets/card_editor_dialog.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../widgets/edit_mode_bar.dart';
 import '../widgets/home_app_bar.dart';
@@ -28,6 +27,7 @@ import '../widgets/landscape_menu.dart';
 import '../widgets/tts_bar.dart';
 import '../widgets/visible_cards_dialog.dart';
 import '../utils/card_image.dart';
+import '../utils/theme_accessibility.dart';
 import '../utils/ui_mode_helper.dart';
 
 class HomePage extends StatefulWidget {
@@ -69,7 +69,8 @@ class _HomePageState extends State<HomePage> {
   Set<String>? _editSnapshotCategories;
   String? _editSnapshotSelectedCategory;
   String? _editSnapshotActiveParentId;
-  int _themePrimaryColor = Colors.brown.value;
+  static const int _defaultPrimaryColorValue = 0xFF0277BD;
+  int _themePrimaryColor = _defaultPrimaryColorValue;
   int _themeTextColor = Colors.white.value;
   int _themeBackgroundColor = Colors.white.value;
   double _ttsBarSize = 1.0;
@@ -77,6 +78,8 @@ class _HomePageState extends State<HomePage> {
   bool _hideTtsText = false;
   bool _useImageOverlayLabel = false;
   bool _applyTextColorToCards = false;
+  bool _isDarkMode = ThemeAccessibility.darkModeNotifier.value;
+  bool _isColorBlindMode = false;
 
   @override
   void initState() {
@@ -112,7 +115,7 @@ class _HomePageState extends State<HomePage> {
     fullScreen = prefs.getBool('fullScreen') ?? true;
     currentLanguage = prefs.getString('language') ?? 'en';
     _themePrimaryColor =
-        prefs.getInt('themePrimaryColor') ?? Colors.brown.value;
+        prefs.getInt('themePrimaryColor') ?? _defaultPrimaryColorValue;
     _themeTextColor = prefs.getInt('themeTextColor') ?? Colors.white.value;
     _themeBackgroundColor =
         prefs.getInt('themeBackgroundColor') ?? Colors.white.value;
@@ -121,6 +124,11 @@ class _HomePageState extends State<HomePage> {
     _hideTtsText = prefs.getBool('hideTtsText') ?? false;
     _useImageOverlayLabel = prefs.getBool('useImageOverlayLabel') ?? false;
     _applyTextColorToCards = prefs.getBool('applyTextColorToCards') ?? false;
+    _isDarkMode =
+        prefs.getBool(ThemeAccessibility.darkModePrefKey) ?? _isDarkMode;
+    _isColorBlindMode =
+        prefs.getBool(ThemeAccessibility.colorBlindPrefKey) ?? false;
+    ThemeAccessibility.darkModeNotifier.value = _isDarkMode;
 
     _updateCategories();
     _migrateVisibleCountIfNeeded(prefs);
@@ -214,6 +222,9 @@ class _HomePageState extends State<HomePage> {
     await prefs.setBool('hideTtsText', _hideTtsText);
     await prefs.setBool('useImageOverlayLabel', _useImageOverlayLabel);
     await prefs.setBool('applyTextColorToCards', _applyTextColorToCards);
+    await prefs.setBool(ThemeAccessibility.darkModePrefKey, _isDarkMode);
+    await prefs.setBool(
+        ThemeAccessibility.colorBlindPrefKey, _isColorBlindMode);
     debugPrint('[HomePage] settings and cards saved');
   }
 
@@ -438,8 +449,8 @@ class _HomePageState extends State<HomePage> {
       id: DateTime.now().toString(),
       label: 'New',
       colorValue: parent != null
-          ? Color(parent.colorValue).withOpacity(0.7).value
-          : Colors.primaries[cards.length % Colors.primaries.length].value,
+          ? Color.lerp(Color(parent.colorValue), Colors.white, 0.25)!.toARGB32()
+          : Colors.primaries[cards.length % Colors.primaries.length].toARGB32(),
       category: parent != null
           ? parent.category
           : (selectedCategory == 'All' ? 'General' : selectedCategory),
@@ -549,43 +560,45 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Select Language'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<String>(
-              title: const Text('English'),
-              value: 'en',
-              groupValue: currentLanguage,
-              onChanged: (value) {
-                setState(() => currentLanguage = value!);
-                _saveCards();
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-            ),
-            RadioListTile<String>(
-              title: const Text('\u0dc3\u0dd2\u0d82\u0dc4\u0dbd (Sinhala)'),
-              value: 'si',
-              groupValue: currentLanguage,
-              onChanged: (value) {
-                setState(() => currentLanguage = value!);
-                _saveCards();
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-            ),
-            RadioListTile<String>(
-              title: const Text('\u0ba4\u0bae\u0bbf\u0bb4\u0bcd (Tamil)'),
-              value: 'ta',
-              groupValue: currentLanguage,
-              onChanged: (value) {
-                setState(() => currentLanguage = value!);
-                _saveCards();
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-            ),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<String>(
+                title: const Text('English'),
+                value: 'en',
+                groupValue: currentLanguage,
+                onChanged: (value) {
+                  setState(() => currentLanguage = value!);
+                  _saveCards();
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+              ),
+              RadioListTile<String>(
+                title: const Text('\u0dc3\u0dd2\u0d82\u0dc4\u0dbd (Sinhala)'),
+                value: 'si',
+                groupValue: currentLanguage,
+                onChanged: (value) {
+                  setState(() => currentLanguage = value!);
+                  _saveCards();
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+              ),
+              RadioListTile<String>(
+                title: const Text('\u0ba4\u0bae\u0bbf\u0bb4\u0bcd (Tamil)'),
+                value: 'ta',
+                groupValue: currentLanguage,
+                onChanged: (value) {
+                  setState(() => currentLanguage = value!);
+                  _saveCards();
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -597,23 +610,25 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Select Category'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ...allCategories.map((cat) => RadioListTile<String>(
-                  title: Text(cat),
-                  value: cat,
-                  groupValue: selectedCategory,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedCategory = value!;
-                      activeParentCard = null;
-                      _resetTtsInput();
-                    });
-                    Navigator.pop(context);
-                  },
-                )),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ...allCategories.map((cat) => RadioListTile<String>(
+                    title: Text(cat),
+                    value: cat,
+                    groupValue: selectedCategory,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCategory = value!;
+                        activeParentCard = null;
+                        _resetTtsInput();
+                      });
+                      Navigator.pop(context);
+                    },
+                  )),
+            ],
+          ),
         ),
       ),
     );
@@ -743,7 +758,7 @@ class _HomePageState extends State<HomePage> {
                 orientationMode = 'portrait';
                 fullScreen = true;
                 currentLanguage = 'en';
-                _themePrimaryColor = Colors.brown.value;
+                _themePrimaryColor = _defaultPrimaryColorValue;
                 _themeTextColor = Colors.white.value;
                 _themeBackgroundColor = Colors.white.value;
                 _ttsBarSize = 1.0;
@@ -751,6 +766,9 @@ class _HomePageState extends State<HomePage> {
                 _hideTtsText = false;
                 _useImageOverlayLabel = false;
                 _applyTextColorToCards = false;
+                _isDarkMode = false;
+                _isColorBlindMode = false;
+                ThemeAccessibility.darkModeNotifier.value = false;
                 selectedCategory = 'All';
                 visibleCardIdsByParent.clear();
                 _resetTtsInput();
@@ -904,6 +922,8 @@ class _HomePageState extends State<HomePage> {
       'hideTtsText': _hideTtsText,
       'useImageOverlayLabel': _useImageOverlayLabel,
       'applyTextColorToCards': _applyTextColorToCards,
+      'darkMode': _isDarkMode,
+      'colorBlindMode': _isColorBlindMode,
       'selectedCategory': selectedCategory,
     };
   }
@@ -1045,32 +1065,34 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Orientation'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<String>(
-              title: const Text('Portrait'),
-              value: 'portrait',
-              groupValue: orientationMode,
-              onChanged: (value) {
-                setState(() => orientationMode = value ?? 'portrait');
-                _saveCards();
-                UiModeHelper.applyOrientation(orientationMode);
-                Navigator.pop(context);
-              },
-            ),
-            RadioListTile<String>(
-              title: const Text('Landscape'),
-              value: 'landscape',
-              groupValue: orientationMode,
-              onChanged: (value) {
-                setState(() => orientationMode = value ?? 'landscape');
-                _saveCards();
-                UiModeHelper.applyOrientation(orientationMode);
-                Navigator.pop(context);
-              },
-            ),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<String>(
+                title: const Text('Portrait'),
+                value: 'portrait',
+                groupValue: orientationMode,
+                onChanged: (value) {
+                  setState(() => orientationMode = value ?? 'portrait');
+                  _saveCards();
+                  UiModeHelper.applyOrientation(orientationMode);
+                  Navigator.pop(context);
+                },
+              ),
+              RadioListTile<String>(
+                title: const Text('Landscape'),
+                value: 'landscape',
+                groupValue: orientationMode,
+                onChanged: (value) {
+                  setState(() => orientationMode = value ?? 'landscape');
+                  _saveCards();
+                  UiModeHelper.applyOrientation(orientationMode);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1185,33 +1207,54 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Backup'),
-        content: const Text('Choose how to save the backup file.'),
+        title: const Text('Export Backup'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                leading: const Icon(Icons.folder_outlined),
+                title: const Text('App Folder'),
+                subtitle: const Text('Save locally inside app storage'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _backupToAppDocsZip();
+                },
+              ),
+              ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                leading: const Icon(Icons.download_outlined),
+                title: const Text('Downloads'),
+                subtitle: const Text('Save aac_backup.zip to Downloads'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _backupToDownloads();
+                },
+              ),
+              ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                leading: const Icon(Icons.share_outlined),
+                title: const Text('Share Backup'),
+                subtitle: const Text('Send zip via messaging or Drive'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _backupAndShare();
+                },
+              ),
+            ],
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _backupToAppDocsZip();
-            },
-            child: const Text('App Folder'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _backupToDownloads();
-            },
-            child: const Text('Download'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _backupAndShare();
-            },
-            child: const Text('Share'),
           ),
         ],
       ),
@@ -1223,26 +1266,42 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Restore'),
-        content: const Text('Choose a backup file to restore.'),
+        title: const Text('Import Restore'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                leading: const Icon(Icons.folder_outlined),
+                title: const Text('App Folder'),
+                subtitle: const Text('Restore from saved local zip'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _restoreFromAppDocsZip();
+                },
+              ),
+              ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                leading: const Icon(Icons.file_open_outlined),
+                title: const Text('Pick Backup File'),
+                subtitle: const Text('Browse zip file from device'),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await _restoreFromPickedFile();
+                },
+              ),
+            ],
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _restoreFromAppDocsZip();
-            },
-            child: const Text('App Folder'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _restoreFromPickedFile();
-            },
-            child: const Text('Pick File'),
           ),
         ],
       ),
@@ -1397,6 +1456,10 @@ class _HomePageState extends State<HomePage> {
           settings['useImageOverlayLabel'] as bool? ?? _useImageOverlayLabel;
       _applyTextColorToCards =
           settings['applyTextColorToCards'] as bool? ?? _applyTextColorToCards;
+      _isDarkMode = settings['darkMode'] as bool? ?? _isDarkMode;
+      _isColorBlindMode =
+          settings['colorBlindMode'] as bool? ?? _isColorBlindMode;
+      ThemeAccessibility.darkModeNotifier.value = _isDarkMode;
 
       _resetTtsInput();
     });
@@ -1454,16 +1517,19 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('About'),
-        content: const Text(
-          'Created by Yasas Pasindu Fernando\n'
-          'Email: yasaspasindufernando@gmail.com\n'
-          'Tel: +94776905654\n\n'
-          'Created to help Sri Lankan autism children by giving them '
-          'a good application for their development.',
+        title: const Text('About Simple AAC'),
+        content: const SingleChildScrollView(
+          child: Text(
+            'Simple AAC Sri Lanka (v1.1.0)\n\n'
+            'Created by Yasas Pasindu Fernando\n'
+            'Email: yasaspasindufernando@gmail.com\n'
+            'Tel: +94776905654\n\n'
+            'Created to help Sri Lankan autism children by giving them '
+            'an accessible, offline-ready communication board.',
+          ),
         ),
         actions: [
-          TextButton(
+          FilledButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Close'),
           ),
@@ -1478,9 +1544,13 @@ class _HomePageState extends State<HomePage> {
     final isTablet = screenWidth > 600;
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
-    final themePrimary = Color(_themePrimaryColor);
-    final themeText = Color(_themeTextColor);
-    final themeBackground = Color(_themeBackgroundColor);
+    final customPrimary = Color(_themePrimaryColor);
+    final customText = Color(_themeTextColor);
+    final customBackground = Color(_themeBackgroundColor);
+    final themePrimary = _isDarkMode ? const Color(0xFF1B263B) : customPrimary;
+    final themeText = _isDarkMode ? const Color(0xFFF1F5F9) : customText;
+    final themeBackground =
+        _isDarkMode ? const Color(0xFF111418) : customBackground;
 
     return WillPopScope(
       onWillPop: () async {
@@ -1520,10 +1590,12 @@ class _HomePageState extends State<HomePage> {
                 titleWidget: activeParentCard == null
                     ? Text(
                         'SL AAC',
-                        style: GoogleFonts.playfairDisplay(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 20,
-                          letterSpacing: 1.0,
+                          letterSpacing: 0.6,
                           color: themeText,
                         ),
                       )
@@ -1569,10 +1641,28 @@ class _HomePageState extends State<HomePage> {
                 hideTtsText: _hideTtsText,
                 useImageOverlayLabel: _useImageOverlayLabel,
                 applyTextColorToCards: _applyTextColorToCards,
+                isDarkMode: _isDarkMode,
+                isColorBlindMode: _isColorBlindMode,
+                primaryColorSwatch: customPrimary,
+                textColorSwatch: customText,
+                backgroundColorSwatch: customBackground,
                 isOnlineEnabled: NetworkPolicyService.instance.isOnlineEnabled,
                 onToggleOnline: (enabled) async {
                   await NetworkPolicyService.instance.setOnlineEnabled(enabled);
                   if (mounted) setState(() {});
+                },
+                onToggleDarkMode: (enabled) async {
+                  setState(() {
+                    _isDarkMode = enabled;
+                  });
+                  await ThemeAccessibility.setDarkMode(enabled);
+                  await _saveCards();
+                },
+                onChangeColorBlindMode: (enabled) {
+                  setState(() {
+                    _isColorBlindMode = enabled;
+                  });
+                  _saveCards();
                 },
                 onSelectCategory: _showCategoryDialog,
                 onAddCategory: _showAddCategoryDialog,
@@ -1610,7 +1700,7 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   _showThemeColorDialog(
                     title: 'App color',
-                    initialColor: themePrimary,
+                    initialColor: customPrimary,
                     onSelected: (color) {
                       setState(() {
                         _themePrimaryColor = color.value;
@@ -1623,7 +1713,7 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   _showThemeColorDialog(
                     title: 'Text color',
-                    initialColor: themeText,
+                    initialColor: customText,
                     onSelected: (color) {
                       setState(() {
                         _themeTextColor = color.value;
@@ -1636,7 +1726,7 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   _showThemeColorDialog(
                     title: 'Background color',
-                    initialColor: themeBackground,
+                    initialColor: customBackground,
                     onSelected: (color) {
                       setState(() {
                         _themeBackgroundColor = color.value;
@@ -1768,7 +1858,9 @@ class _HomePageState extends State<HomePage> {
                 await _playTtsTokens();
               }
             },
-            speakerColor: themePrimary,
+            speakerColor: _isDarkMode
+                ? Theme.of(context).colorScheme.primary
+                : themePrimary,
             sizeFactor: _ttsBarSize,
             showActions: _showTtsActions,
             showText: !_hideTtsText,
@@ -1808,8 +1900,36 @@ class _HomePageState extends State<HomePage> {
     final displayLabel = card.getLabel(currentLanguage);
     final isTapAnimated = _tapAnimatedCardId == card.id;
     final useImageOverlay = _useImageOverlayLabel && card.imagePath != null;
-    final cardTextColor =
-        _applyTextColorToCards ? Color(_themeTextColor) : Colors.white;
+    final cardSurfaceColor = ThemeAccessibility.resolveCardSurface(
+      Color(card.colorValue),
+      isDarkMode: _isDarkMode,
+      isColorBlindMode: _isColorBlindMode,
+    );
+    final cardTextColor = useImageOverlay
+        ? (_applyTextColorToCards ? Color(_themeTextColor) : Colors.white)
+        : ThemeAccessibility.resolveCardTextColor(
+            cardSurfaceColor,
+            isDarkMode: _isDarkMode,
+            isColorBlindMode: _isColorBlindMode,
+            applyCustomTextColor: _applyTextColorToCards,
+            customTextColor: Color(_themeTextColor),
+          );
+    final useLightShadow = cardTextColor.computeLuminance() > 0.5;
+    final cardBorder = highlightedCardId == card.id
+        ? Border.all(
+            color: _isColorBlindMode
+                ? const Color(0xFF0072B2)
+                : Colors.yellow.shade200,
+            width: 3,
+          )
+        : _isColorBlindMode
+            ? Border.all(
+                color: _isDarkMode ? Colors.white54 : Colors.black87,
+                width: 2,
+              )
+            : _isDarkMode
+                ? Border.all(color: Colors.white24, width: 1)
+                : null;
 
     return GestureDetector(
       onTap: () async {
@@ -1840,20 +1960,18 @@ class _HomePageState extends State<HomePage> {
         }
       },
       child: AnimatedScale(
-        scale: isTapAnimated ? 1.5 : 1.0,
+        scale: isTapAnimated ? 1.04 : 1.0,
         duration: const Duration(milliseconds: 140),
         curve: Curves.easeOut,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: Color(card.colorValue),
+            color: cardSurfaceColor,
             borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
-            border: highlightedCardId == card.id
-                ? Border.all(color: Colors.yellow.shade200, width: 3)
-                : null,
+            border: cardBorder,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withOpacity(_isDarkMode ? 0.3 : 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -1898,6 +2016,15 @@ class _HomePageState extends State<HomePage> {
                             color: cardTextColor,
                             fontSize: isTablet ? 20 : 16,
                             fontWeight: FontWeight.bold,
+                            shadows: useLightShadow
+                                ? const [
+                                    Shadow(
+                                      blurRadius: 3,
+                                      color: Colors.black26,
+                                      offset: Offset(0, 1),
+                                    ),
+                                  ]
+                                : null,
                           ),
                           textAlign: TextAlign.center,
                           maxLines: 2,

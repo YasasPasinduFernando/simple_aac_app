@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -39,18 +38,26 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     final base = backgroundColor;
     final lighter = Color.lerp(base, Colors.white, 0.08)!;
     final darker = Color.lerp(base, Colors.black, 0.12)!;
+    final fgColor = titleTextColor ??
+        (ThemeData.estimateBrightnessForColor(base) == Brightness.dark
+            ? Colors.white
+            : Colors.black87);
 
     return AppBar(
       title: titleWidget ??
           Text(
             title,
-            style: GoogleFonts.playfairDisplay(
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.4,
-              color: titleTextColor,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+              letterSpacing: 0.3,
+              color: fgColor,
             ),
           ),
       backgroundColor: base,
+      foregroundColor: fgColor,
       elevation: 2,
       shadowColor: Colors.black26,
       flexibleSpace: Container(
@@ -63,31 +70,43 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       automaticallyImplyLeading: false,
-      leadingWidth: showPin && showBack ? 116 : 64,
+      leadingWidth: showPin && showBack ? 124 : 68,
       leading: (showPin || showBack)
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (showPin)
-                  _AppBarIconButton(
-                    icon: isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                    onPressed: onTogglePin,
-                  ),
-                if (showBack)
-                  _AppBarIconButton(
-                    icon: Icons.arrow_back,
-                    onPressed: onBack,
-                  ),
-              ],
+          ? Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (showPin)
+                    _AppBarIconButton(
+                      icon: isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                      color: fgColor,
+                      tooltip: isPinned ? 'Unlock board' : 'Pin board',
+                      onPressed: onTogglePin,
+                    ),
+                  if (showBack)
+                    _AppBarIconButton(
+                      icon: Icons.arrow_back_rounded,
+                      color: fgColor,
+                      tooltip: 'Back',
+                      onPressed: onBack,
+                    ),
+                ],
+              ),
             )
           : null,
       actions: isEditMode
           ? []
           : showMenu
               ? [
-                  _AppBarIconButton(
-                    icon: Icons.menu,
-                    onPressed: onOpenMenu,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: _AppBarIconButton(
+                      icon: Icons.menu_rounded,
+                      color: fgColor,
+                      tooltip: 'Menu',
+                      onPressed: onOpenMenu,
+                    ),
                   ),
                 ]
               : [],
@@ -97,27 +116,32 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 class _AppBarIconButton extends StatelessWidget {
   final IconData icon;
+  final Color color;
+  final String tooltip;
   final VoidCallback? onPressed;
 
   const _AppBarIconButton({
     required this.icon,
+    required this.color,
+    required this.tooltip,
     required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 3),
       child: Ink(
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.15),
+          color: color.withValues(alpha: 0.14),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
         ),
         child: IconButton(
+          tooltip: tooltip,
           constraints: const BoxConstraints(minWidth: 42, minHeight: 42),
           padding: EdgeInsets.zero,
-          icon: Icon(icon, size: 22),
+          icon: Icon(icon, size: 22, color: color),
           onPressed: onPressed,
         ),
       ),

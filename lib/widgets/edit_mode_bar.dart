@@ -18,44 +18,52 @@ class EditModeBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonColor = baseColor.withValues(alpha: 0.9);
+    final buttonBg = textColor.withValues(alpha: 0.16);
+    final borderColor = textColor.withValues(alpha: 0.22);
 
     return Container(
       color: baseColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       child: Row(
         children: [
           _EditBarButton(
-            icon: Icons.check,
+            icon: Icons.check_rounded,
             label: 'Done',
             onTap: onDone,
-            color: buttonColor,
+            backgroundColor: Colors.green.shade600,
+            foregroundColor: Colors.white,
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Edit Words',
               textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 color: textColor,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
           const SizedBox(width: 8),
           _EditBarButton(
-            icon: Icons.undo,
+            icon: Icons.undo_rounded,
             label: 'Undo',
             onTap: onUndo,
-            color: buttonColor,
+            backgroundColor: buttonBg,
+            foregroundColor: textColor,
+            borderColor: borderColor,
           ),
           const SizedBox(width: 6),
           _EditBarButton(
-            icon: Icons.add,
+            icon: Icons.add_rounded,
             label: 'Add New',
             onTap: onAdd,
-            color: buttonColor,
+            backgroundColor: buttonBg,
+            foregroundColor: textColor,
+            borderColor: borderColor,
           ),
         ],
       ),
@@ -67,40 +75,51 @@ class _EditBarButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  final Color color;
+  final Color backgroundColor;
+  final Color foregroundColor;
+  final Color? borderColor;
 
   const _EditBarButton({
     required this.icon,
     required this.label,
     required this.onTap,
-    required this.color,
+    required this.backgroundColor,
+    required this.foregroundColor,
+    this.borderColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 52,
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          elevation: 1,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
-            ),
-          ],
+    return Material(
+      color: backgroundColor,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          constraints: const BoxConstraints(minWidth: 56, minHeight: 50),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: borderColor != null ? Border.all(color: borderColor!) : null,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 19, color: foregroundColor),
+              const SizedBox(height: 2),
+              Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: foregroundColor,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
