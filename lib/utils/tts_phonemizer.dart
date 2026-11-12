@@ -171,12 +171,12 @@ class TtsPhonemizer {
     0x0DAA: 'ɖʰ', // ඪ
     0x0DAB: 'ɳ', // ණ
     0x0DAC: 'ɳɖ', // ඬ
-    0x0DAD: 't̪', // ත
-    0x0DAE: 't̪ʰ', // ථ
-    0x0DAF: 'd̪', // ද
-    0x0DB0: 'd̪ʰ', // ධ
+    0x0DAD: 't', // ත
+    0x0DAE: 'tʰ', // ථ
+    0x0DAF: 'd', // ද
+    0x0DB0: 'dʰ', // ධ
     0x0DB1: 'n', // න
-    0x0DB3: 'nd̪', // ඳ
+    0x0DB3: 'nd', // ඳ
     0x0DB4: 'p', // ප
     0x0DB5: 'pʰ', // ඵ
     0x0DB6: 'b', // බ
@@ -184,11 +184,11 @@ class TtsPhonemizer {
     0x0DB8: 'm', // ම
     0x0DB9: 'mb', // ඹ
     0x0DBA: 'j', // ය
-    0x0DBB: 'r', // ර
+    0x0DBB: 'ɹ', // ර
     0x0DBD: 'l', // ල
     0x0DC0: 'w', // ව
     0x0DC1: 'ʃ', // ශ
-    0x0DC2: 'ʃ', // ෂ
+    0x0DC2: 'ʂ', // ෂ
     0x0DC3: 's', // ස
     0x0DC4: 'h', // හ
     0x0DC5: 'ɭ', // ළ
@@ -234,7 +234,7 @@ class TtsPhonemizer {
         if (r == 0x200D || r == 0x200C) continue; // ZWJ/ZWNJ
 
         if (r == 0x0D82) {
-          // Anusvara (ං) assimilates to following consonant place, else ŋ.
+          // Anusvara (ං) assimilates to following consonant place, else m.
           final next = i + 1 < cp.length ? cp[i + 1] : 0;
           if (next >= 0x0D9A && next <= 0x0D9F) {
             sb.write('ŋ');
@@ -244,10 +244,8 @@ class TtsPhonemizer {
             sb.write('ɳ');
           } else if (next >= 0x0DAD && next <= 0x0DB3) {
             sb.write('n');
-          } else if (next >= 0x0DB4 && next <= 0x0DB9) {
-            sb.write('m');
           } else {
-            sb.write('ŋ');
+            sb.write('m');
           }
           continue;
         }
@@ -281,14 +279,23 @@ class TtsPhonemizer {
             continue;
           }
 
-          sb.write(cons);
+          final nextRaw = i + 1 < cp.length ? cp[i + 1] : 0;
+          if (r == 0x0DBB && nextRaw == 0x0DCA) {
+            // Halanta ර (ර්) before another consonant/end -> alveolar trill r.
+            sb.write('r');
+          } else if (r == 0x0DC1 && (nextRaw == 0x0DCA || nextRaw == 0x0DCF)) {
+            // ශ් / ශා follow eSpeak-ng sibilant assimilation.
+            sb.write('s');
+          } else {
+            sb.write(cons);
+          }
 
           // Consume Yansaya (්+ZWJ+ය) or Rakaransaya (්+ZWJ+ර) medial clusters.
           while (i + 3 < cp.length &&
               cp[i + 1] == 0x0DCA &&
               cp[i + 2] == 0x200D &&
               (cp[i + 3] == 0x0DBA || cp[i + 3] == 0x0DBB)) {
-            sb.write(cp[i + 3] == 0x0DBA ? 'j' : 'r');
+            sb.write(cp[i + 3] == 0x0DBA ? 'j' : 'ɹ');
             i += 3;
           }
 
@@ -301,6 +308,15 @@ class TtsPhonemizer {
             syllableCount++;
             i++;
           } else {
+            // Word-final bare ව after vowel ends cleanly as 'w' (e.g. පුටුව -> pˈuʈuw).
+            final isWordFinal = i + 1 == cp.length || _isPunctuation(next);
+            final prevWasHalanta = i >= 1 && cp[i - 1] == 0x0DCA;
+            if (r == 0x0DC0 &&
+                isWordFinal &&
+                syllableCount > 0 &&
+                !prevWasHalanta) {
+              continue;
+            }
             // Inherent vowel: initial syllable stressed ɐ, subsequent syllables reduce to ə.
             if (syllableCount == 0) {
               sb.write('ˈɐ');
@@ -323,137 +339,6 @@ class TtsPhonemizer {
     }
 
     return outWords.join(' ');
-  }
-
-  // ---------------------------------------------------------------------------
-  // SINHALA ROMANIZER FOR COQUI/PIPER MALE MODEL (si_m / Roshan)
-  // ---------------------------------------------------------------------------
-
-  static final Set<int> _allowedRomanCodepoints = <int>{
-    ...' !\'(),-.0123456789:;?abcdefghijklmnopqrstuvwxyzæñāēīōśşūǣḍḥḷṁṅṇṉṛṝṭ'
-        .runes,
-  };
-
-  static const List<MapEntry<String, String>> _siRomanSpecials = [
-    MapEntry('ඓ', 'ai'),
-    MapEntry('ඖ', 'au'),
-    MapEntry('ඍ', 'ṛ'),
-    MapEntry('ඎ', 'ṝ'),
-    MapEntry('ඐ', 'ḹ'),
-    MapEntry('අ', 'a'),
-    MapEntry('ආ', 'ā'),
-    MapEntry('ඇ', 'æ'),
-    MapEntry('ඈ', 'ǣ'),
-    MapEntry('ඉ', 'i'),
-    MapEntry('ඊ', 'ī'),
-    MapEntry('උ', 'u'),
-    MapEntry('ඌ', 'ū'),
-    MapEntry('එ', 'e'),
-    MapEntry('ඒ', 'ē'),
-    MapEntry('ඔ', 'o'),
-    MapEntry('ඕ', 'ō'),
-    MapEntry('ඞ්', 'ṅ'),
-    MapEntry('ං', 'ṁ'),
-    MapEntry('ඃ', 'ḥ'),
-  ];
-
-  static const List<MapEntry<String, String>> _siRomanConsonants = [
-    MapEntry('ඛ', 'kh'),
-    MapEntry('ඨ', 'ṭh'),
-    MapEntry('ඝ', 'gh'),
-    MapEntry('ඡ', 'ch'),
-    MapEntry('ඣ', 'jh'),
-    MapEntry('ඦ', 'ñj'),
-    MapEntry('ඪ', 'ḍh'),
-    MapEntry('ඬ', 'ṇḍ'),
-    MapEntry('ථ', 'th'),
-    MapEntry('ධ', 'dh'),
-    MapEntry('ඵ', 'ph'),
-    MapEntry('භ', 'bh'),
-    MapEntry('ඹ', 'mb'),
-    MapEntry('ඳ', 'ṉd'),
-    MapEntry('ඟ', 'ṉg'),
-    MapEntry('ඥ', 'gn'),
-    MapEntry('ක', 'k'),
-    MapEntry('ග', 'g'),
-    MapEntry('ච', 'c'),
-    MapEntry('ජ', 'j'),
-    MapEntry('ඤ', 'ñ'),
-    MapEntry('ට', 'ṭ'),
-    MapEntry('ඩ', 'ḍ'),
-    MapEntry('ණ', 'ṇ'),
-    MapEntry('ත', 't'),
-    MapEntry('ද', 'd'),
-    MapEntry('න', 'n'),
-    MapEntry('ප', 'p'),
-    MapEntry('බ', 'b'),
-    MapEntry('ම', 'm'),
-    MapEntry('ය', 'y'),
-    MapEntry('ර', 'r'),
-    MapEntry('ල', 'l'),
-    MapEntry('ව', 'v'),
-    MapEntry('ශ', 'ś'),
-    MapEntry('ෂ', 'ş'),
-    MapEntry('ස', 's'),
-    MapEntry('හ', 'h'),
-    MapEntry('ළ', 'ḷ'),
-    MapEntry('ෆ', 'f'),
-  ];
-
-  static const List<MapEntry<String, String>> _siRomanCombinations = [
-    MapEntry('්', ''),
-    MapEntry('', 'a'),
-    MapEntry('ා', 'ā'),
-    MapEntry('ැ', 'æ'),
-    MapEntry('ෑ', 'ǣ'),
-    MapEntry('ි', 'i'),
-    MapEntry('ී', 'ī'),
-    MapEntry('ු', 'u'),
-    MapEntry('ූ', 'ū'),
-    MapEntry('ෙ', 'e'),
-    MapEntry('ේ', 'ē'),
-    MapEntry('ෛ', 'ai'),
-    MapEntry('ො', 'o'),
-    MapEntry('ෝ', 'ō'),
-    MapEntry('ෘ', 'ṛ'),
-    MapEntry('ෲ', 'ṝ'),
-    MapEntry('ෞ', 'au'),
-    MapEntry('ෳ', 'ḹ'),
-  ];
-
-  static final List<MapEntry<String, String>> _siRomanCombosSorted = () {
-    final list = <MapEntry<String, String>>[];
-    for (final combo in _siRomanCombinations) {
-      for (final cons in _siRomanConsonants) {
-        list.add(MapEntry('${cons.key}${combo.key}', '${cons.value}${combo.value}'));
-      }
-    }
-    for (final s in _siRomanSpecials) {
-      list.add(s);
-    }
-    list.sort((a, b) => b.key.length.compareTo(a.key.length));
-    return list;
-  }();
-
-  /// Transliterates Sinhala Unicode into Romanized tokens expected by the
-  /// native male Sinhala model (`si_LK-roshan-vits`).
-  static String phonemizeSinhalaRoman(String raw) {
-    var text = raw.trim().replaceAll('\u200D', '').replaceAll('\u200C', '');
-    if (text.isEmpty) return '';
-    for (final entry in _siRomanCombosSorted) {
-      text = text.replaceAll(entry.key, entry.value);
-    }
-    // Map prenasalized superscripts or Sanskrit rhotics cleanly onto tokens.txt symbols.
-    text = text.replaceAll('ṣ', 'ş').replaceAll('ḹ', 'l');
-    return String.fromCharCodes(
-      text.toLowerCase().runes.where(_allowedRomanCodepoints.contains),
-    );
-  }
-
-  static List<int> phonemizeSinhalaRomanCodepoints(String raw) {
-    final rom = phonemizeSinhalaRoman(raw);
-    if (rom.isEmpty) return const [];
-    return rom.runes.toList(growable: false);
   }
 
   // ---------------------------------------------------------------------------
@@ -561,6 +446,9 @@ class TtsPhonemizer {
 
         final indV = _taIndependentVowels[r];
         if (indV != null) {
+          if (syllableCount == 0 && r == 0x0B8E) {
+            sb.write('ʲ');
+          }
           if (syllableCount == 0) {
             sb.write('ˈ');
             sb.write(indV);
@@ -577,10 +465,36 @@ class TtsPhonemizer {
           final prevBase = prevHasPulli ? cp[i - 2] : 0;
           final isGeminate = prevHasPulli && prevBase == r;
           final afterNasal = prevHasPulli && _taNasals.contains(prevBase);
-          final afterOtherPulli = prevHasPulli && prevBase != r && !_taNasals.contains(prevBase);
+          final afterOtherPulli =
+              prevHasPulli && prevBase != r && !_taNasals.contains(prevBase);
           final nextIsPulli = i + 1 < cp.length && cp[i + 1] == 0x0BCD;
           final nextIsSameStop =
               nextIsPulli && i + 2 < cp.length && cp[i + 2] == r && _taStops.contains(r);
+
+          // Geminate ச்ச emits single tʃː rather than split 'tʃtʃ'.
+          if (r == 0x0B9A && nextIsSameStop) {
+            sb.write('tʃː');
+            i += 2; // Advance to second ச; handle its vowel below
+            final vAfter = i + 1 < cp.length ? cp[i + 1] : 0;
+            if (_taVowelSigns.containsKey(vAfter)) {
+              final mappedV = _taVowelSigns[vAfter]!;
+              if (syllableCount == 0) {
+                sb.write('ˈ');
+                sb.write(mappedV);
+              } else if (vAfter == 0x0BC1) {
+                sb.write('ʉ');
+              } else {
+                sb.write(mappedV);
+              }
+              syllableCount++;
+              i++;
+            } else {
+              if (syllableCount == 0) sb.write('ˈ');
+              sb.write('ʌ');
+              syllableCount++;
+            }
+            continue;
+          }
 
           sb.write(_mapTamilConsonant(
             r,
@@ -609,17 +523,9 @@ class TtsPhonemizer {
             syllableCount++;
             i++;
           } else {
-            // Inherent short vowel: stressed a initially, ə before word-final ம், else ʌ.
-            if (syllableCount == 0) {
-              sb.write('ˈa');
-            } else if (i + 2 < cp.length &&
-                cp[i + 1] == 0x0BAE &&
-                cp[i + 2] == 0x0BCD &&
-                i + 3 == cp.length) {
-              sb.write('ə');
-            } else {
-              sb.write('ʌ');
-            }
+            // Inherent short vowel in eSpeak-ng Tamil is 'ʌ'.
+            if (syllableCount == 0) sb.write('ˈ');
+            sb.write('ʌ');
             syllableCount++;
           }
           continue;
@@ -649,41 +555,39 @@ class TtsPhonemizer {
     final hard = isInitial || isGeminate || afterStopOrLiquid || hasPulli;
     switch (rune) {
       case 0x0B95: // க
-        if (isGeminate || isInitial || afterStopOrLiquid || hasPulli) return 'k';
+        if (hard) return 'k';
         return 'ɡ';
       case 0x0B99: // ங
         return 'ŋ';
       case 0x0B9A: // ச
         if (afterNasal) return 'dʒ';
         if (isGeminate || afterStopOrLiquid) return 'tʃ';
-        return isInitial ? 's' : 's';
+        return 's';
       case 0x0B9C: // ஜ
         return 'dʒ';
       case 0x0B9E: // ஞ
         return 'ɲ';
       case 0x0B9F: // ட
-        return (isGeminate || afterStopOrLiquid) ? 'ʈ' : (hard ? 'ʈ' : 'ɖ');
+        return (isGeminate || afterStopOrLiquid) ? 'ʈ' : 'ɖ';
       case 0x0BA3: // ண
         return 'ɳ';
       case 0x0BA4: // த
-        if (isInitial || isGeminate || afterStopOrLiquid || hasPulli) return 't̪';
-        return afterNasal ? 'd̪' : 'ð';
+        if (hard) return 't';
+        return 'd';
       case 0x0BA8: // ந
       case 0x0BA9: // ன
         return 'n';
       case 0x0BAA: // ப
         if (afterNasal && !isGeminate) return 'b';
-        if (isInitial || isGeminate || afterStopOrLiquid || hasPulli) return 'p';
-        return 'b';
+        return hard ? 'p' : 'b';
       case 0x0BAE: // ம
         return 'm';
       case 0x0BAF: // ய
         return 'j';
       case 0x0BB0: // ர
-        return 'r';
+        return (hasPulli || isGeminate || afterStopOrLiquid) ? 'r' : 'ɹ';
       case 0x0BB1: // ற
-        if (isGeminate) return 't̪r';
-        if (afterNasal) return 'd̪r';
+        if (hasPulli && isGeminate) return 'ʈ';
         return 'r';
       case 0x0BB2: // ல
         return 'l';
@@ -692,10 +596,11 @@ class TtsPhonemizer {
       case 0x0BB4: // ழ
         return 'ɻ';
       case 0x0BB5: // வ
-        return 'ʋ';
+        return 'v';
       case 0x0BB6: // ஶ
-      case 0x0BB7: // ஷ
         return 'ʃ';
+      case 0x0BB7: // ஷ
+        return 'ʂ';
       case 0x0BB8: // ஸ
         return 's';
       case 0x0BB9: // ஹ

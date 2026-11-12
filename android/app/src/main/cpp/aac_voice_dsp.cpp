@@ -346,25 +346,75 @@ std::vector<double> processPcmSamples(
         if (refinedF0[i] > 0.0) refinedF0[i] *= f0Ratio;
     }
 
-    if (std::abs(formantRatio - 1.0) > 0.01) {
-        std::vector<double> fx1(bins), fx2(bins), s1(bins), s2(bins);
+    double chestDb = 0.0;
+    double presenceDb = 0.0;
+    double apScale = 1.0;
+    if (targetF0Hz > 0.0f && targetF0Hz < 155.0f && formantSemitones < -1.5f) {
+        // Adult Male from Female VITS: rich chest warmth, reduce female ring, tighten glottal closure.
+        chestDb = 3.0;
+        presenceDb = -2.2;
+        apScale = 0.76;
+    } else if (targetF0Hz > 235.0f && targetF0Hz < 290.0f && formantSemitones > 1.0f) {
+        // Child Boy: clean youth fullness while taming female upper shimmer.
+        chestDb = 1.4;
+        presenceDb = -1.4;
+        apScale = 0.82;
+    } else if (targetF0Hz >= 300.0f) {
+        // Child Girl: sweet bright clarity with reduced noise floor.
+        presenceDb = 0.8;
+        apScale = 0.90;
+    }
+
+    // Piecewise-bilinear vocal-tract warp anchored at ~3.6 kHz so F1-F3 shift
+    // naturally while >3.6 kHz fricatives and plosive bursts stay crisp.
+    const double nyq = sampleRate * 0.5;
+    const double pivotDst = std::min(3600.0, nyq * 0.65);
+    const double pivotSrc = std::min(nyq * 0.90, std::max(1200.0, pivotDst * formantRatio));
+    const bool doWarp = std::abs(formantRatio - 1.0) > 0.01;
+    const bool doShape = (chestDb != 0.0 || presenceDb != 0.0 || apScale != 1.0);
+
+    if (doWarp || doShape) {
+        std::vector<double> fxSrc(bins), fxGrid(bins), s1(bins), s2(bins);
         for (int j = 0; j < bins; ++j) {
-            fx1[j] = formantRatio * j / fftSize * sampleRate;
-            fx2[j] = static_cast<double>(j) / fftSize * sampleRate;
+            const double f = static_cast<double>(j) / fftSize * sampleRate;
+            fxGrid[j] = f;
+            if (!doWarp) {
+                fxSrc[j] = f;
+            } else if (f <= pivotSrc) {
+                fxSrc[j] = f / formantRatio;
+            } else {
+                const double u = (f - pivotSrc) / std::max(1.0, nyq - pivotSrc);
+                fxSrc[j] = pivotDst + u * (nyq - pivotDst);
+            }
         }
         for (int i = 0; i < f0Len; ++i) {
-            for (int j = 0; j < bins; ++j) {
-                s1[j] = std::log(std::max(1e-16, spec[i][j]));
+            if (doWarp) {
+                for (int j = 0; j < bins; ++j) {
+                    s1[j] = std::log(std::max(1e-16, spec[i][j]));
+                }
+                interp1(fxSrc.data(), s1.data(), bins, fxGrid.data(), bins, s2.data());
+                for (int j = 0; j < bins; ++j) {
+                    spec[i][j] = std::exp(s2[j]);
+                }
             }
-            interp1(fx1.data(), s1.data(), bins, fx2.data(), bins, s2.data());
-            for (int j = 0; j < bins; ++j) {
-                spec[i][j] = std::exp(s2[j]);
-            }
-            if (formantRatio < 1.0) {
-                const int cut = std::min(bins - 1, std::max(1, static_cast<int>(fftSize * 0.5 * formantRatio)));
-                for (int j = cut; j < bins; ++j) {
-                    const double t = static_cast<double>(j - cut) / std::max(1, bins - cut);
-                    spec[i][j] = spec[i][cut - 1] * std::exp(-3.0 * t);
+            if (doShape) {
+                for (int j = 0; j < bins; ++j) {
+                    const double f = fxGrid[j];
+                    double eqDb = 0.0;
+                    if (chestDb != 0.0) {
+                        const double d = (f - 165.0) / 140.0;
+                        eqDb += chestDb * std::exp(-0.5 * d * d);
+                    }
+                    if (presenceDb != 0.0) {
+                        const double d = (f - 2800.0) / 900.0;
+                        eqDb += presenceDb * std::exp(-0.5 * d * d);
+                    }
+                    if (eqDb != 0.0) {
+                        spec[i][j] *= std::pow(10.0, eqDb / 10.0);
+                    }
+                    if (apScale != 1.0 && f < 3200.0) {
+                        ap[i][j] = std::min(0.999, ap[i][j] * apScale);
+                    }
                 }
             }
         }

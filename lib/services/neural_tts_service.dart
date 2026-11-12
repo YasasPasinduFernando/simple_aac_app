@@ -66,8 +66,8 @@ class NeuralTtsService {
     final lang = _normalizeLang(languageCode);
     try {
       final modelDir = await _ensureLanguageExtracted(lang);
-      if (lang == 'si' || lang == 'ta') {
-        unawaited(_ensureLanguageExtracted('${lang}_m'));
+      if (lang == 'ta') {
+        unawaited(_ensureLanguageExtracted('ta_m'));
       }
       if (modelDir == null) return;
       final port = await _ensureWorker();
@@ -177,12 +177,10 @@ class NeuralTtsService {
         if (port != null) {
           List<List<int>>? codepoints;
           if (spec.languageCode != 'en') {
-            final cps = spec.useRomanPhonemizer
-                ? TtsPhonemizer.phonemizeSinhalaRomanCodepoints(normalizedText)
-                : TtsPhonemizer.phonemizeToCodepoints(
-                    normalizedText,
-                    spec.languageCode,
-                  );
+            final cps = TtsPhonemizer.phonemizeToCodepoints(
+              normalizedText,
+              spec.languageCode,
+            );
             if (cps.isNotEmpty) {
               codepoints = [cps];
             }
@@ -295,7 +293,7 @@ class NeuralTtsService {
 
       final files = switch (lang) {
         'en' => const ['model.int8.onnx', 'tokens.txt', 'lexicon.txt'],
-        'si' || 'si_m' || 'ta' || 'ta_m' => const ['model.int8.onnx', 'tokens.txt'],
+        'si' || 'ta' || 'ta_m' => const ['model.int8.onnx', 'tokens.txt'],
         _ => const <String>[],
       };
       if (files.isEmpty) return null;
@@ -400,11 +398,13 @@ class NeuralTtsService {
     if (_cacheDirPath != null) return _cacheDirPath;
     try {
       final tmp = await getTemporaryDirectory();
-      final legacyDir = Directory('${tmp.path}/aac_tts_cache');
-      if (await legacyDir.exists()) {
-        unawaited(legacyDir.delete(recursive: true).catchError((_) => legacyDir));
+      for (final oldName in const ['aac_tts_cache', 'aac_tts_cache_v2']) {
+        final legacyDir = Directory('${tmp.path}/$oldName');
+        if (await legacyDir.exists()) {
+          unawaited(legacyDir.delete(recursive: true).catchError((_) => legacyDir));
+        }
       }
-      final dir = Directory('${tmp.path}/aac_tts_cache_v2');
+      final dir = Directory('${tmp.path}/aac_tts_cache_v3');
       await dir.create(recursive: true);
       _cacheDirPath = dir.path;
       return _cacheDirPath;
@@ -437,7 +437,7 @@ class NeuralTtsService {
 
   static String _cacheKey(TtsAcousticSpec spec, String text) {
     final raw =
-        'v2|${spec.modelKey}|${spec.speakerId}|${spec.targetF0Hz.toStringAsFixed(1)}|${spec.formantSemitones.toStringAsFixed(2)}|${spec.speed.toStringAsFixed(2)}|$text';
+        'v3|${spec.modelKey}|${spec.speakerId}|${spec.targetF0Hz.toStringAsFixed(1)}|${spec.formantSemitones.toStringAsFixed(2)}|${spec.speed.toStringAsFixed(2)}|$text';
     var h1 = 0x811c9dc5;
     var h2 = 0x01000193;
     for (final unit in raw.codeUnits) {

@@ -315,7 +315,6 @@ class TtsAcousticSpec {
   const TtsAcousticSpec({
     required this.languageCode,
     required this.modelKey,
-    required this.useRomanPhonemizer,
     required this.localeTag,
     required this.speakerId,
     required this.targetF0Hz,
@@ -327,7 +326,6 @@ class TtsAcousticSpec {
 
   final String languageCode;
   final String modelKey;
-  final bool useRomanPhonemizer;
   final String localeTag;
   final int speakerId;
   final double targetF0Hz;
@@ -338,7 +336,7 @@ class TtsAcousticSpec {
 }
 
 extension TtsVoiceProfileAcoustic on TtsVoiceProfile {
-  /// Resolves native female/male model pack + WORLD vocal-tract parameters so
+  /// Resolves clean neural VITS model pack + WORLD vocal-tract parameters so
   /// Woman, Man, Child (Boy), and Child (Girl) each have distinct, natural speech.
   TtsAcousticSpec acousticSpecFor(String rawLanguageCode) {
     final lower = rawLanguageCode.toLowerCase();
@@ -356,51 +354,50 @@ extension TtsVoiceProfileAcoustic on TtsVoiceProfile {
         return TtsAcousticSpec(
           languageCode: lang,
           modelKey: lang,
-          useRomanPhonemizer: false,
           localeTag: localeTag,
           speakerId: lang == 'en' ? 60 : 0,
-          targetF0Hz: lang == 'en' ? 216.0 : 214.0,
+          targetF0Hz: lang == 'en' ? 216.0 : 212.0,
           formantSemitones: -0.53,
           fallbackTargetF0Hz: 214.0,
           fallbackFormantSemitones: -0.53,
           speed: lang == 'en' ? 0.96 : 0.98,
         );
       case TtsVoiceProfile.man:
+        // Use native crisp human male voices for en (LibriTTS sid=749) & ta (Valluvar),
+        // and clean chan4lk + non-linear WORLD male vocoder for si (accurate Sinhala G2P).
+        final hasNativeMale = lang != 'si';
         return TtsAcousticSpec(
           languageCode: lang,
-          // Use true native human male neural speakers (LibriTTS sid=749 / Roshan / Valluvar).
-          modelKey: lang == 'en' ? 'en' : '${lang}_m',
-          useRomanPhonemizer: lang == 'si',
+          modelKey: lang == 'ta' ? 'ta_m' : lang,
           localeTag: localeTag,
           speakerId: lang == 'en' ? 749 : 0,
-          targetF0Hz: 0.0,
-          formantSemitones: 0.0,
+          targetF0Hz: hasNativeMale ? 0.0 : 122.0,
+          formantSemitones: hasNativeMale ? 0.0 : -3.30,
           fallbackTargetF0Hz: 122.0,
-          fallbackFormantSemitones: -3.5,
-          speed: lang == 'en' ? 0.96 : 0.97,
+          fallbackFormantSemitones: -3.40,
+          speed: 0.96,
         );
       case TtsVoiceProfile.boy:
+        // Child Boy: pre-adolescent F0 (~252-258 Hz) + youth formant shift.
+        final fromMale = lang != 'si';
         return TtsAcousticSpec(
           languageCode: lang,
-          // Start child Boy from native Male speaker + WORLD shorter child vocal tract (1.24x).
-          modelKey: lang == 'en' ? 'en' : '${lang}_m',
-          useRomanPhonemizer: lang == 'si',
+          modelKey: lang == 'ta' ? 'ta_m' : lang,
           localeTag: localeTag,
           speakerId: lang == 'en' ? 749 : 0,
-          targetF0Hz: lang == 'en' ? 248.0 : 245.0,
-          formantSemitones: 3.72,
-          fallbackTargetF0Hz: 248.0,
-          fallbackFormantSemitones: 3.72,
+          targetF0Hz: fromMale ? 252.0 : 258.0,
+          formantSemitones: fromMale ? 3.65 : 2.15,
+          fallbackTargetF0Hz: 252.0,
+          fallbackFormantSemitones: 3.65,
           speed: 1.04,
         );
       case TtsVoiceProfile.girl:
         return TtsAcousticSpec(
           languageCode: lang,
           modelKey: lang,
-          useRomanPhonemizer: false,
           localeTag: localeTag,
           speakerId: lang == 'en' ? 60 : 0,
-          // Cute pre-adolescent Girl vocal tract (1.28x formant stretch) from native Female base.
+          // Pre-adolescent Girl vocal tract from clean Female base.
           targetF0Hz: 340.0,
           formantSemitones: 4.27,
           fallbackTargetF0Hz: 340.0,

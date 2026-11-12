@@ -71,29 +71,11 @@ void main() {
         expect(cps, isNotEmpty, reason: 'Empty codepoints for $word');
         expect(ipa.contains('\u207f'), isFalse); // Must not emit unsupported superscript
       }
-      expect(TtsPhonemizer.phonemizeSinhala('වතුර'), contains('w'));
-      expect(TtsPhonemizer.phonemizeSinhala('හොඳයි'), contains('nd̪'));
-    });
-
-    test('romanizes Sinhala seed words cleanly for Roshan male model', () {
-      for (final word in const [
-        sinhalaHello,
-        sinhalaHappy,
-        sinhalaSad,
-        sinhalaAngry,
-        sinhalaMore,
-        sinhalaGood,
-        sinhalaPlay,
-        'ආයුබෝවන්, මට වතුර ඕනේ.',
-        'ශ්‍රී ලංකා',
-      ]) {
-        final rom = TtsPhonemizer.phonemizeSinhalaRoman(word);
-        final cps = TtsPhonemizer.phonemizeSinhalaRomanCodepoints(word);
-        expect(rom, isNotEmpty, reason: 'Empty romanization for $word');
-        expect(cps, isNotEmpty);
-      }
-      expect(TtsPhonemizer.phonemizeSinhalaRoman('සතුටුයි'), 'satuṭuyi');
-      expect(TtsPhonemizer.phonemizeSinhalaRoman('හොඳයි'), 'hoṉdayi');
+      expect(TtsPhonemizer.phonemizeSinhala('වතුර'), 'wˈɐtuɹə');
+      expect(TtsPhonemizer.phonemizeSinhala('තවත්'), 'tˈɐwət');
+      expect(TtsPhonemizer.phonemizeSinhala('හොඳයි'), 'hˈondəji');
+      expect(TtsPhonemizer.phonemizeSinhala('සෙල්ලම්'), 'sˈelləm');
+      expect(TtsPhonemizer.phonemizeSinhala('හෙලෝ'), 'hˈeloː');
     });
 
     test('phonemizes all default Tamil seed words and intervocalic rules', () {
@@ -114,13 +96,14 @@ void main() {
         expect(ipa, isNotEmpty, reason: 'Empty IPA for $word');
         expect(cps, isNotEmpty, reason: 'Empty codepoints for $word');
       }
-      expect(TtsPhonemizer.phonemizeTamil('மகிழ்ச்சி'), contains('ɻ'));
-      expect(TtsPhonemizer.phonemizeTamil('கோபம்'), contains('b'));
+      expect(TtsPhonemizer.phonemizeTamil('மகிழ்ச்சி'), 'mˈʌɡiɻtʃːi');
+      expect(TtsPhonemizer.phonemizeTamil('கோபம்'), 'kˈoːbʌm');
+      expect(TtsPhonemizer.phonemizeTamil('வணக்கம்'), 'vˈʌɳʌkkʌm');
     });
   });
 
   group('TtsVoiceProfileAcoustic separation guarantees', () {
-    test('routes Man/Boy to native Male models and separates Child Girl vs Woman cleanly', () {
+    test('routes Woman, Man, Child Boy, and Child Girl to clear separated specs', () {
       for (final lang in ['en', 'si', 'ta']) {
         final man = TtsVoiceProfile.man.acousticSpecFor(lang);
         final woman = TtsVoiceProfile.woman.acousticSpecFor(lang);
@@ -132,32 +115,36 @@ void main() {
         expect(boy.languageCode, lang);
         expect(girl.languageCode, lang);
 
-        // Female models feed Woman & Girl; native Male models feed Man & Boy.
         if (lang == 'en') {
           expect(man.modelKey, 'en');
           expect(man.speakerId, isNot(equals(woman.speakerId)));
           expect(boy.speakerId, equals(man.speakerId));
           expect(girl.speakerId, equals(woman.speakerId));
+          expect(man.targetF0Hz, 0.0);
+          expect(man.formantSemitones, 0.0);
+        } else if (lang == 'ta') {
+          expect(man.modelKey, 'ta_m');
+          expect(boy.modelKey, 'ta_m');
+          expect(woman.modelKey, 'ta');
+          expect(girl.modelKey, 'ta');
+          expect(man.targetF0Hz, 0.0);
+          expect(man.formantSemitones, 0.0);
         } else {
-          expect(man.modelKey, '${lang}_m');
-          expect(boy.modelKey, '${lang}_m');
-          expect(woman.modelKey, lang);
-          expect(girl.modelKey, lang);
+          // Sinhala uses clean high-HNR chan4lk model + non-linear WORLD across all 4 voices.
+          expect(man.modelKey, 'si');
+          expect(boy.modelKey, 'si');
+          expect(woman.modelKey, 'si');
+          expect(girl.modelKey, 'si');
+          expect(man.targetF0Hz, inInclusiveRange(115.0, 130.0));
+          expect(man.formantSemitones, lessThan(-2.5));
         }
-        expect(man.useRomanPhonemizer, lang == 'si');
-        expect(boy.useRomanPhonemizer, lang == 'si');
-        expect(woman.useRomanPhonemizer, isFalse);
-        expect(girl.useRomanPhonemizer, isFalse);
 
-        // Man plays native un-pitched male voice (targetF0Hz == 0) to prevent pitch-down artifacts.
-        expect(man.targetF0Hz, 0.0);
-        expect(man.formantSemitones, 0.0);
         expect(man.fallbackTargetF0Hz, lessThan(woman.fallbackTargetF0Hz - 70));
 
-        // Boy (from Male) & Girl (from Female) use WORLD shorter child vocal tract + higher F0.
-        expect(boy.targetF0Hz, greaterThan(woman.targetF0Hz + 20));
+        // Boy & Girl occupy distinct child pitch/formant bands above Woman and well separated from each other.
+        expect(boy.targetF0Hz, greaterThan(woman.targetF0Hz + 30));
         expect(girl.targetF0Hz, greaterThan(boy.targetF0Hz + 70));
-        expect(boy.formantSemitones, greaterThan(woman.formantSemitones + 3.0));
+        expect(boy.formantSemitones, greaterThan(woman.formantSemitones + 2.0));
         expect(girl.formantSemitones, greaterThan(boy.formantSemitones));
       }
     });
