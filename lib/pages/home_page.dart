@@ -78,12 +78,21 @@ class _HomePageState extends State<HomePage> {
   double _ttsBarSize = 1.0;
   bool _showTtsActions = true;
   bool _hideTtsText = false;
-  bool _useImageOverlayLabel = false;
+  bool _useImageOverlayLabel = true;
   bool _applyTextColorToCards = false;
   bool _isDarkMode = ThemeAccessibility.darkModeNotifier.value;
   bool _isColorBlindMode = false;
   SpeechCapabilityReport? _speechCapabilities;
   bool _isBusyOperation = false;
+
+  @visibleForTesting
+  bool get useImageOverlayLabelForTesting => _useImageOverlayLabel;
+
+  @visibleForTesting
+  set useImageOverlayLabelForTesting(bool value) => _useImageOverlayLabel = value;
+
+  @visibleForTesting
+  void resetSettingsForTesting() => _resetSettingsToDefaults();
 
   @override
   void initState() {
@@ -124,7 +133,7 @@ class _HomePageState extends State<HomePage> {
     final nextTtsSize = prefs.getDouble('ttsBarSize') ?? 1.0;
     final nextShowActions = prefs.getBool('showTtsActions') ?? true;
     final nextHideTts = prefs.getBool('hideTtsText') ?? false;
-    final nextOverlay = prefs.getBool('useImageOverlayLabel') ?? false;
+    final nextOverlay = prefs.getBool('useImageOverlayLabel') ?? true;
     final nextApplyText = prefs.getBool('applyTextColorToCards') ?? false;
     final nextDark =
         prefs.getBool(ThemeAccessibility.darkModePrefKey) ?? _isDarkMode;
@@ -1182,36 +1191,40 @@ class _HomePageState extends State<HomePage> {
               debugPrint(
                 '[HomePage] resetting settings only; card data is preserved',
               );
-              setState(() {
-                gridColumns = 2;
-                showTtsInput = true;
-                orientationMode = 'portrait';
-                fullScreen = true;
-                currentLanguage = 'en';
-                _themePrimaryColor = _defaultPrimaryColorValue;
-                _themeTextColor = Colors.white.value;
-                _themeBackgroundColor = Colors.white.value;
-                _ttsBarSize = 1.0;
-                _showTtsActions = true;
-                _hideTtsText = false;
-                _useImageOverlayLabel = false;
-                _applyTextColorToCards = false;
-                _isDarkMode = false;
-                _isColorBlindMode = false;
-                ThemeAccessibility.darkModeNotifier.value = false;
-                selectedCategory = 'All';
-                visibleCardIdsByParent.clear();
-                _resetTtsInput();
-              });
-              UiModeHelper.applyOrientation(orientationMode);
-              UiModeHelper.applySystemUi(fullScreen);
-              _saveCards();
+              _resetSettingsToDefaults();
               Navigator.pop(context);
             },
           ),
         ],
       ),
     );
+  }
+
+  void _resetSettingsToDefaults() {
+    setState(() {
+      gridColumns = 2;
+      showTtsInput = true;
+      orientationMode = 'portrait';
+      fullScreen = true;
+      currentLanguage = 'en';
+      _themePrimaryColor = _defaultPrimaryColorValue;
+      _themeTextColor = Colors.white.value;
+      _themeBackgroundColor = Colors.white.value;
+      _ttsBarSize = 1.0;
+      _showTtsActions = true;
+      _hideTtsText = false;
+      _useImageOverlayLabel = true;
+      _applyTextColorToCards = false;
+      _isDarkMode = false;
+      _isColorBlindMode = false;
+      ThemeAccessibility.darkModeNotifier.value = false;
+      selectedCategory = 'All';
+      visibleCardIdsByParent.clear();
+      _resetTtsInput();
+    });
+    UiModeHelper.applyOrientation(orientationMode);
+    UiModeHelper.applySystemUi(fullScreen);
+    _saveCards();
   }
 
   void _showVisibleCountDialog() {

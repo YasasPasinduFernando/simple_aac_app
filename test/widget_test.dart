@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker_android/image_picker_android.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_aac_app/main.dart';
+import 'package:simple_aac_app/pages/home_page.dart';
+import 'package:simple_aac_app/services/card_storage_service.dart';
 import 'package:simple_aac_app/utils/card_image.dart';
 import 'package:simple_aac_app/widgets/home_app_bar.dart';
 
@@ -75,5 +80,38 @@ void main() {
       expect(thumbColor, isNot(equals(primary)),
           reason: 'Selected thumbColor must not match primary track color for $brightness');
     }
+  });
+
+  testWidgets(
+      'HomePage defaults useImageOverlayLabel to true on first install and restores it on settings reset',
+      (tester) async {
+    final tempDir = Directory.systemTemp.createTempSync('aac_default_test_');
+    addTearDown(() {
+      CardStorageService.resetTestHooks();
+      if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+    });
+    CardStorageService.docsDirectoryOverride = () async => tempDir;
+    SharedPreferences.setMockInitialValues({});
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: HomePage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final homeState = tester.state(find.byType(HomePage)) as dynamic;
+    expect(homeState.useImageOverlayLabelForTesting, isTrue,
+        reason: 'Clean install must default useImageOverlayLabel to true');
+
+    // Manually toggle off and verify
+    homeState.useImageOverlayLabelForTesting = false;
+    expect(homeState.useImageOverlayLabelForTesting, isFalse);
+
+    // Call reset settings and verify it is restored to true
+    homeState.resetSettingsForTesting();
+    await tester.pumpAndSettle();
+    expect(homeState.useImageOverlayLabelForTesting, isTrue,
+        reason: 'Reset settings must restore useImageOverlayLabel to true');
   });
 }
