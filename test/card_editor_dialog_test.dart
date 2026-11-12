@@ -112,4 +112,63 @@ void main() {
     expect(find.byType(SmartSearchIcon), findsOneWidget);
     expect(find.text('Offline Mode Is Active'), findsOneWidget);
   });
+
+  testWidgets(
+      'CardEditorDialog top-right close button and image delete bin button operate correctly',
+      (tester) async {
+    final card = AACCard(
+      id: 'wave_test',
+      label: 'Wave',
+      labelSinhala: 'අත වනන්න',
+      labelTamil: 'அசை',
+      imagePath: 'assets/images/seed/wave.jpg',
+      colorValue: 0xFF90CAF9,
+      category: 'General',
+    );
+
+    var closed = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () async {
+                await showDialog(
+                  context: context,
+                  builder: (_) => CardEditorDialog(
+                    card: card,
+                    isNew: false,
+                    categories: const ['All', 'General'],
+                    audioPlayer: _FakeAudioPlayer(),
+                  ),
+                );
+                closed = true;
+              },
+              child: const Text('Open'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    // Verify dialog header has close button and image has delete bin button
+    expect(find.byTooltip('Close'), findsOneWidget);
+    expect(find.byTooltip('Remove Image'), findsOneWidget);
+    expect(find.byIcon(Icons.delete_outline_rounded), findsOneWidget);
+
+    // Tap Remove Image bin icon
+    await tester.tap(find.byTooltip('Remove Image'));
+    await tester.pumpAndSettle();
+    expect(card.imagePath, isNull);
+    expect(find.text('No Image Selected'), findsOneWidget);
+
+    // Tap header Close button
+    await tester.tap(find.byTooltip('Close'));
+    await tester.pumpAndSettle();
+    expect(closed, isTrue);
+  });
 }

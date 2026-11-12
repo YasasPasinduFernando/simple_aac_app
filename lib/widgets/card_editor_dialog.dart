@@ -383,6 +383,18 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
               ? Icons.add_photo_alternate_rounded
               : Icons.edit_rounded,
           title: widget.isNew ? 'Create New Card' : 'Edit Card',
+          trailing: IconButton(
+            tooltip: 'Close',
+            icon: const Icon(Icons.close_rounded),
+            onPressed: () async {
+              if (_isClosing) return;
+              _isClosing = true;
+              await _stopAll();
+              if (mounted) {
+                Navigator.pop(context);
+              }
+            },
+          ),
         ),
         content: SizedBox(
           width: maxWidth,
@@ -532,12 +544,15 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                                 _cameraAnalysis = null;
                               });
                             },
-                            child: const Padding(
-                              padding: EdgeInsets.all(6),
-                              child: Icon(
-                                Icons.close_rounded,
-                                color: Colors.white,
-                                size: 18,
+                            child: const Tooltip(
+                              message: 'Remove Image',
+                              child: Padding(
+                                padding: EdgeInsets.all(6),
+                                child: Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
                               ),
                             ),
                           ),
