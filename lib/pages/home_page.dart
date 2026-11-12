@@ -93,8 +93,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadCards();
-    // Defer TTS engine setup slightly so initial storage read and first frame paint complete first.
-    Future.microtask(_initTts);
   }
 
   Future<void> _initTts() async {
@@ -118,9 +116,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadCards() async {
+    final sw = Stopwatch()..start();
     final results = await Future.wait<dynamic>([
       SharedPreferences.getInstance(),
-      CardStorageService.loadCards(defaultCards: _createSeedImageCards()),
+      CardStorageService.loadCards(defaultCardsBuilder: _createSeedImageCards),
     ]);
     if (!mounted) return;
 
@@ -172,9 +171,17 @@ class _HomePageState extends State<HomePage> {
       _migrateVisibleCountIfNeeded(prefs);
     });
 
-    ThemeAccessibility.darkModeNotifier.value = nextDark;
+    if (ThemeAccessibility.darkModeNotifier.value != nextDark) {
+      ThemeAccessibility.darkModeNotifier.value = nextDark;
+    }
     UiModeHelper.applyOrientation(nextOrientation);
     UiModeHelper.applySystemUi(nextFullScreen);
+    debugPrint('[HomePage] cold loadCards completed in ${sw.elapsedMilliseconds}ms');
+
+    // Initialize TTS after first frame paints and loaded language/voice settings are known.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_initTts());
+    });
   }
 
   List<AACCard> _createSeedImageCards() {

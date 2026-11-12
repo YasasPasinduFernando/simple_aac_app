@@ -56,8 +56,13 @@ class CardStorageService {
   }
 
   static Future<List<AACCard>> loadCards({
-    required List<AACCard> defaultCards,
+    List<AACCard> defaultCards = const [],
+    List<AACCard> Function()? defaultCardsBuilder,
   }) async {
+    List<AACCard>? cachedDefaults;
+    List<AACCard> resolvedDefaults() =>
+        cachedDefaults ??= (defaultCardsBuilder != null ? defaultCardsBuilder() : defaultCards);
+
     final initResults = await Future.wait<dynamic>([
       SharedPreferences.getInstance(),
       _getDocsDirectory(),
@@ -80,16 +85,17 @@ class CardStorageService {
         return primaryCards;
       }
 
+      final defaults = resolvedDefaults();
       final cards = await _applyDefaultCatalogMigration(
         primaryCards,
-        defaultCards,
+        defaults,
         prefs,
         file,
         backupFile,
       );
       final seedCatalogChanged = _normalizeSeedCatalog(
         cards,
-        defaultCards,
+        defaults,
       );
       final mediaChanged = await _migrateMediaFilesToDocuments(
         cards,
@@ -109,8 +115,9 @@ class CardStorageService {
 
     final backupCards = await _readCardsFile(backupFile, source: 'backup');
     if (backupCards != null) {
-      _mergeMissingDefaults(backupCards, defaultCards);
-      _normalizeSeedCatalog(backupCards, defaultCards);
+      final defaults = resolvedDefaults();
+      _mergeMissingDefaults(backupCards, defaults);
+      _normalizeSeedCatalog(backupCards, defaults);
       await _migrateMediaFilesToDocuments(backupCards);
       await _writeCardsFile(file, backupFile, backupCards);
       await _markSeeded(prefs);
@@ -124,8 +131,9 @@ class CardStorageService {
 
     final legacyCards = _readLegacyPrefsCards(prefs);
     if (legacyCards != null) {
-      _mergeMissingDefaults(legacyCards, defaultCards);
-      _normalizeSeedCatalog(legacyCards, defaultCards);
+      final defaults = resolvedDefaults();
+      _mergeMissingDefaults(legacyCards, defaults);
+      _normalizeSeedCatalog(legacyCards, defaults);
       await _migrateMediaFilesToDocuments(legacyCards);
       await _writeCardsFile(file, backupFile, legacyCards);
       await _markSeeded(prefs);
@@ -149,7 +157,7 @@ class CardStorageService {
       return emptyCards;
     }
 
-    final seededCards = defaultCards.map(_cloneCard).toList();
+    final seededCards = resolvedDefaults().map(_cloneCard).toList();
     await _writeCardsFile(file, backupFile, seededCards);
     await _markSeeded(prefs);
     await _syncLegacyCards(prefs, seededCards);

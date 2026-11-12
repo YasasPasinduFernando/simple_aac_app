@@ -60,6 +60,10 @@ android {
             applicationIdSuffix = ".dev"
             manifestPlaceholders["appName"] = "Simple AAC DEV"
         }
+        getByName("profile") {
+            applicationIdSuffix = ".dev"
+            manifestPlaceholders["appName"] = "Simple AAC DEV"
+        }
         release {
             val releaseSigning = signingConfigs.getByName("release")
             if (releaseSigning.storeFile == null || !releaseSigning.storeFile!!.exists()) {
