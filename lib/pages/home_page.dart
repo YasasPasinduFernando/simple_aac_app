@@ -17,7 +17,7 @@ import '../services/card_storage_service.dart';
 import '../services/network_policy_service.dart';
 import '../services/speech_engine.dart';
 import '../widgets/card_editor_dialog.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import '../widgets/professional_color_picker_dialog.dart';
 
 import '../widgets/edit_mode_bar.dart';
 import '../widgets/home_app_bar.dart';
@@ -1560,42 +1560,19 @@ class _HomePageState extends State<HomePage> {
 
   void _showThemeColorDialog({
     required String title,
+    String? subtitle,
     required Color initialColor,
+    ColorPickerPreviewType previewType = ColorPickerPreviewType.appHeader,
     required ValueChanged<Color> onSelected,
   }) {
-    Color tempColor = initialColor;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        title: StyledDialogHeader(
-          icon: Icons.palette_rounded,
-          title: title,
-          subtitle: 'Pick a color for Normal Mode',
-        ),
-        content: SingleChildScrollView(
-          child: ColorPicker(
-            pickerColor: tempColor,
-            onColorChanged: (color) {
-              tempColor = color;
-            },
-            enableAlpha: false,
-            labelTypes: const [],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              onSelected(tempColor);
-              Navigator.pop(context);
-            },
-            child: const Text('Apply'),
-          ),
-        ],
+      builder: (context) => ProfessionalColorPickerDialog(
+        title: title,
+        subtitle: subtitle ?? 'Pick a color for Normal Mode',
+        initialColor: initialColor,
+        previewType: previewType,
+        onApply: onSelected,
       ),
     );
   }
@@ -2305,7 +2282,9 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   _showThemeColorDialog(
                     title: 'App color',
+                    subtitle: 'Pick a color for Normal Mode',
                     initialColor: customPrimary,
+                    previewType: ColorPickerPreviewType.appHeader,
                     onSelected: (color) {
                       setState(() {
                         _themePrimaryColor = color.value;
@@ -2318,7 +2297,9 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   _showThemeColorDialog(
                     title: 'Text color',
+                    subtitle: 'Pick a color for Normal Mode text',
                     initialColor: customText,
+                    previewType: ColorPickerPreviewType.textColor,
                     onSelected: (color) {
                       setState(() {
                         _themeTextColor = color.value;
@@ -2331,7 +2312,9 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   _showThemeColorDialog(
                     title: 'Background color',
+                    subtitle: 'Pick a color for board background',
                     initialColor: customBackground,
+                    previewType: ColorPickerPreviewType.backgroundColor,
                     onSelected: (color) {
                       setState(() {
                         _themeBackgroundColor = color.value;
