@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker_android/image_picker_android.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
@@ -23,27 +25,30 @@ void main() {
     expect(androidPicker.useAndroidPhotoPicker, isTrue);
   });
 
-  testWidgets('HomeAppBar renders pin and back buttons cleanly without overflow',
+  testWidgets('HomeAppBar renders approved redesign with PIN, Simple AAC, and Menu',
       (tester) async {
     tester.view.physicalSize = const Size(360, 640);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
+    bool pinToggled = false;
+    bool menuOpened = false;
+
     for (final showBack in [false, true]) {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             appBar: HomeAppBar(
-              title: 'SL AAC',
+              title: 'Simple AAC',
               showBack: showBack,
               onBack: () {},
               showPin: true,
               isPinned: false,
-              onTogglePin: () {},
+              onTogglePin: () => pinToggled = true,
               isEditMode: false,
               showMenu: true,
-              onOpenMenu: () {},
+              onOpenMenu: () => menuOpened = true,
               backgroundColor: const Color(0xFF0277BD),
               titleTextColor: Colors.white,
             ),
@@ -53,6 +58,64 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
+      expect(find.text('Simple AAC'), findsOneWidget);
+      expect(find.byIcon(Icons.push_pin_outlined), findsOneWidget);
+      expect(find.byIcon(Icons.menu_rounded), findsOneWidget);
+      if (showBack) {
+        expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
+      }
+    }
+
+    // Verify interaction
+    await tester.tap(find.byIcon(Icons.push_pin_outlined));
+    expect(pinToggled, isTrue);
+
+    await tester.tap(find.byIcon(Icons.menu_rounded));
+    expect(menuOpened, isTrue);
+  });
+
+  testWidgets(
+      'HomeAppBar is responsive across narrow, standard (Galaxy A34), and wide screens with font scaling',
+      (tester) async {
+    // Test across small phone (320), Galaxy A34 width (384), large phone (480)
+    for (final width in [320.0, 384.0, 480.0]) {
+      for (final scale in [1.0, 1.5, 2.0]) {
+        tester.view.physicalSize = Size(width, 700);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: MediaQuery(
+              data: MediaQueryData(
+                size: Size(width, 700),
+                textScaler: TextScaler.linear(scale),
+              ),
+              child: Scaffold(
+                appBar: HomeAppBar(
+                  title: 'Simple AAC',
+                  showBack: false,
+                  onBack: () {},
+                  showPin: true,
+                  isPinned: false,
+                  onTogglePin: () {},
+                  isEditMode: false,
+                  showMenu: true,
+                  onOpenMenu: () {},
+                  backgroundColor: const Color(0xFF0277BD),
+                  titleTextColor: Colors.white,
+                ),
+                body: const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull,
+            reason: 'Failed at width $width with text scale $scale');
+        expect(find.text('Simple AAC'), findsOneWidget);
+      }
     }
   });
 
@@ -113,5 +176,44 @@ void main() {
     await tester.pumpAndSettle();
     expect(homeState.useImageOverlayLabelForTesting, isTrue,
         reason: 'Reset settings must restore useImageOverlayLabel to true');
+  });
+
+  testWidgets('Render header snapshot for visual comparison', (tester) async {
+    final boundaryKey = GlobalKey();
+    await tester.pumpWidget(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: RepaintBoundary(
+            key: boundaryKey,
+            child: SizedBox(
+              width: 384,
+              child: HomeAppBar(
+                title: 'Simple AAC',
+                showBack: false,
+                onBack: () {},
+                showPin: true,
+                isPinned: false,
+                onTogglePin: () {},
+                isEditMode: false,
+                showMenu: true,
+                onOpenMenu: () {},
+                backgroundColor: const Color(0xFF0277BD),
+                titleTextColor: Colors.white,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final boundary =
+        boundaryKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+    await tester.runAsync(() async {
+      final image = await boundary.toImage(pixelRatio: 2.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      File('/home/yasas/.gemini/antigravity/brain/45b3362b-7002-4cdb-9492-575f18061013/scratch/header_rendered_preview.png')
+          .writeAsBytesSync(byteData!.buffer.asUint8List());
+    });
   });
 }

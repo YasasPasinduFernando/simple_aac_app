@@ -2202,21 +2202,8 @@ class _HomePageState extends State<HomePage> {
             ? null
             : HomeAppBar(
                 title: activeParentCard == null
-                    ? 'AAC App'
+                    ? 'Simple AAC'
                     : activeParentCard!.getLabel(currentLanguage),
-                titleWidget: activeParentCard == null
-                    ? Text(
-                        'SL AAC',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20,
-                          letterSpacing: 0.6,
-                          color: themeText,
-                        ),
-                      )
-                    : null,
                 backgroundColor: themePrimary,
                 showBack: activeParentCard != null && !isPinned,
                 onBack: () {
