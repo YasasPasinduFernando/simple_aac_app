@@ -164,24 +164,90 @@ class BackupService {
     Directory backupDir,
   ) async {
     final manifestFile = File('${backupDir.path}/cards.json');
-    final decoded = jsonDecode(await manifestFile.readAsString()) as List;
-    final restored = decoded.map((c) => AACCard.fromJson(c)).toList();
+    if (!await manifestFile.exists()) {
+      debugPrint('[BackupService] cards.json not found in ${backupDir.path}');
+      return const <AACCard>[];
+    }
+
+    final raw = await manifestFile.readAsString();
+    if (raw.trim().isEmpty) {
+      debugPrint('[BackupService] cards.json is empty in ${backupDir.path}');
+      return const <AACCard>[];
+    }
+
+    final dynamic decoded;
+    try {
+      decoded = jsonDecode(raw);
+    } catch (e) {
+      debugPrint('[BackupService] failed to parse cards.json: $e');
+      return const <AACCard>[];
+    }
+
+    final List<dynamic> cardList;
+    if (decoded is List) {
+      cardList = decoded;
+    } else if (decoded is Map && decoded['cards'] is List) {
+      cardList = decoded['cards'] as List<dynamic>;
+    } else {
+      debugPrint(
+        '[BackupService] unexpected cards.json structure: ${decoded.runtimeType}',
+      );
+      return const <AACCard>[];
+    }
+
+    final restored = <AACCard>[];
+    for (final item in cardList) {
+      if (item is Map<String, dynamic>) {
+        try {
+          restored.add(AACCard.fromJson(item));
+        } catch (e) {
+          debugPrint('[BackupService] skipping invalid card entry: $e');
+        }
+      } else if (item is Map) {
+        try {
+          restored.add(AACCard.fromJson(Map<String, dynamic>.from(item)));
+        } catch (e) {
+          debugPrint('[BackupService] skipping invalid card entry: $e');
+        }
+      }
+    }
+
     debugPrint(
       '[BackupService] restoring backup from ${backupDir.path}: '
       '${restored.length} top-level cards, '
       '${CardStorageService.countCards(restored)} total cards',
     );
 
+    final backupRoot = backupDir.absolute.path.replaceAll('\\', '/');
+
     Future<String?> restoreMedia(String? relPath, String mediaType) async {
-      if (relPath == null) return null;
+      if (relPath == null || relPath.isEmpty) return null;
       if (_isAssetPath(relPath)) return relPath;
-      final sourcePath = '${backupDir.path}/${relPath.replaceAll('\\', '/')}';
-      final sourceFile = File(sourcePath);
+
+      final normalizedRel = relPath.replaceAll('\\', '/');
+      if (normalizedRel.startsWith('/') ||
+          normalizedRel.split('/').any((seg) => seg == '..')) {
+        debugPrint(
+          '[BackupService] blocked path traversal in media path: $relPath',
+        );
+        return null;
+      }
+
+      final sourceFile = File('${backupDir.path}/$normalizedRel');
+      final resolvedSource = sourceFile.absolute.path.replaceAll('\\', '/');
+      if (resolvedSource != backupRoot &&
+          !resolvedSource.startsWith('$backupRoot/')) {
+        debugPrint(
+          '[BackupService] blocked out-of-bounds media path: $resolvedSource',
+        );
+        return null;
+      }
+
       if (!await sourceFile.exists() || await sourceFile.length() <= 0) {
         return null;
       }
 
-      final base = _basename(sourcePath);
+      final base = _basename(sourceFile.path);
       final mediaDir = await CardStorageService.mediaDirectory(mediaType);
       final destPath = '${mediaDir.path}/$base';
       var targetPath = destPath;
@@ -195,7 +261,7 @@ class BackupService {
       }
       await sourceFile.copy(targetPath);
       debugPrint(
-        '[BackupService] restored $mediaType file: source=$sourcePath, '
+        '[BackupService] restored $mediaType file: source=${sourceFile.path}, '
         'target=$targetPath',
       );
       return targetPath;
@@ -240,9 +306,15 @@ class BackupService {
       );
 
   static Future<BackupPayload> restoreFromZipBytes(List<int> bytes) async {
+    if (bytes.isEmpty) return const BackupPayload(cards: [], settings: {});
     final tempDir = await Directory.systemTemp.createTemp('aac_restore_');
     try {
-      await _extractZipBytesToDirectory(bytes, tempDir);
+      try {
+        await _extractZipBytesToDirectory(bytes, tempDir);
+      } catch (e) {
+        debugPrint('[BackupService] failed to unpack zip bytes: $e');
+        return const BackupPayload(cards: [], settings: {});
+      }
       final directManifest = File('${tempDir.path}/cards.json');
       final nestedManifest = File('${tempDir.path}/AAC_Backup/cards.json');
       if (await directManifest.exists()) {
@@ -258,7 +330,9 @@ class BackupService {
       }
       return const BackupPayload(cards: [], settings: {});
     } finally {
-      await tempDir.delete(recursive: true);
+      if (await tempDir.exists()) {
+        await tempDir.delete(recursive: true);
+      }
     }
   }
 
