@@ -92,15 +92,44 @@ class SpeechEngine {
   final FlutterTts _tts;
   final MethodChannel _channel;
   bool _initialized = false;
+  bool _voicesLoaded = false;
   String? _activeLanguageTag;
+  String? _activeVoiceKey;
+  double? _activeRateFlutter;
   Future<void>? _initFuture;
+  Future<void>? _voicesFuture;
   Future<SpeechCapabilityReport?>? _probeFuture;
   SpeechCapabilityReport? _lastReport;
+  Map<String, List<({String name, String locale})>> _voicesByLang = const {};
   int _speechEpoch = 0;
+
+  static const Map<String, List<String>> _preferredVoices = {
+    'si': ['si-lk-x-sin-local'],
+    'ta': ['ta-in-x-tac-local', 'ta-in-x-tad-local'],
+    'en': [
+      'en-us-x-tpf-local',
+      'en-us-x-iob-local',
+      'en-gb-x-gbc-local',
+      'en-in-x-ena-local',
+      'en-us-x-tpd-local',
+      'en-us-x-iog-local',
+    ],
+  };
+
+  static const Map<String, double> _tunedRatesFlutter = {
+    'si': 0.465, // 0.93x Android
+    'ta': 0.475, // 0.95x Android
+    'en': 0.48,  // 0.96x Android
+  };
 
   SpeechCapabilityReport? get lastCapabilities => _lastReport;
 
   static bool get _isAndroid => !kIsWeb && Platform.isAndroid;
+
+  static String _langPrefix(String locale) {
+    final idx = locale.indexOf(RegExp('[-_]'));
+    return (idx > 0 ? locale.substring(0, idx) : locale).toLowerCase();
+  }
 
   static List<String> _localeCandidatesFor(String langCode) {
     return switch (langCode) {
@@ -124,15 +153,72 @@ class SpeechEngine {
   Future<void> _doInitialize() async {
     try {
       await _tts.setLanguage('en-US');
-      await _tts.setSpeechRate(0.5);
+      await _tts.setSpeechRate(_tunedRatesFlutter['en']!);
       await _tts.setVolume(1.0);
       await _tts.setPitch(1.0);
       await _tts.awaitSpeakCompletion(true);
       _activeLanguageTag = 'en-US';
+      _activeRateFlutter = _tunedRatesFlutter['en']!;
       _initialized = true;
     } catch (e) {
       debugPrint('[SpeechEngine] initialize failed: $e');
     }
+  }
+
+  Future<void> _ensureVoiceCatalogLoaded() {
+    if (_voicesLoaded) return Future.value();
+    if (_voicesFuture != null) return _voicesFuture!;
+    final fut = _loadVoiceCatalog();
+    _voicesFuture = fut;
+    fut.whenComplete(() {
+      if (_voicesFuture == fut) _voicesFuture = null;
+    });
+    return fut;
+  }
+
+  Future<void> _loadVoiceCatalog() async {
+    try {
+      final rawVoices = await _tts.getVoices as List?;
+      if (rawVoices != null) {
+        final grouped = <String, List<({String name, String locale})>>{};
+        for (final entry in rawVoices) {
+          if (entry is! Map) continue;
+          final name = entry['name']?.toString() ?? '';
+          final locale = entry['locale']?.toString() ?? '';
+          final lang = _langPrefix(locale);
+          if (name.isEmpty ||
+              locale.isEmpty ||
+              name.endsWith('-network') ||
+              (lang != 'si' && lang != 'ta' && lang != 'en')) {
+            continue;
+          }
+          grouped.putIfAbsent(lang, () => []).add((name: name, locale: locale));
+        }
+        _voicesByLang = grouped;
+      }
+      _voicesLoaded = true;
+    } catch (_) {
+      _voicesLoaded = true;
+    }
+  }
+
+  @visibleForTesting
+  static ({String name, String locale})? pickBestOfflineVoice(
+    String langCode,
+    List<({String name, String locale})> localVoices,
+  ) {
+    if (localVoices.isEmpty) return null;
+    for (final preferred in _preferredVoices[langCode] ?? const <String>[]) {
+      for (final v in localVoices) {
+        if (v.name == preferred) return v;
+      }
+    }
+    for (final v in localVoices) {
+      if (!v.name.endsWith('-language') && !v.name.contains('-sfg-')) {
+        return v;
+      }
+    }
+    return localVoices.first;
   }
 
   /// Queries platform TTS capabilities for the UI status dialog without ever
@@ -258,6 +344,10 @@ class SpeechEngine {
     if (epoch != _speechEpoch) {
       return const SpeechResult(status: SpeechStatus.spoken);
     }
+    await _ensureVoiceCatalogLoaded();
+    if (epoch != _speechEpoch) {
+      return const SpeechResult(status: SpeechStatus.spoken);
+    }
 
     final isMixed = segments.length > 1;
     try {
@@ -299,24 +389,50 @@ class SpeechEngine {
   }
 
   Future<bool> _configureLanguage(String langCode) async {
-    final candidates = _localeCandidatesFor(langCode);
-    if (_activeLanguageTag != null && candidates.contains(_activeLanguageTag)) {
-      return true;
+    final targetRate = _tunedRatesFlutter[langCode] ?? 0.48;
+    if (_activeRateFlutter != targetRate) {
+      try {
+        await _tts.setSpeechRate(targetRate);
+        _activeRateFlutter = targetRate;
+      } catch (_) {}
     }
 
-    for (final tag in candidates) {
-      try {
-        final res = await _tts.setLanguage(tag);
-        if (res == 1 || res == true) {
-          _activeLanguageTag = tag;
-          return true;
-        }
-      } catch (_) {}
+    final candidates = _localeCandidatesFor(langCode);
+    final preferredVoice =
+        pickBestOfflineVoice(langCode, _voicesByLang[langCode] ?? const []);
+    final localeOrder = preferredVoice == null
+        ? candidates
+        : <String>[
+            preferredVoice.locale,
+            ...candidates.where((c) => c != preferredVoice.locale),
+          ];
+
+    var languageConfigured = false;
+    var resolvedLocale = localeOrder.first;
+
+    if (_activeLanguageTag != null &&
+        ((preferredVoice != null && _activeLanguageTag == preferredVoice.locale) ||
+            (preferredVoice == null && candidates.contains(_activeLanguageTag)))) {
+      languageConfigured = true;
+      resolvedLocale = _activeLanguageTag!;
+    } else {
+      for (final tag in localeOrder) {
+        try {
+          final res = await _tts.setLanguage(tag);
+          if (res == 1 || res == true) {
+            _activeLanguageTag = tag;
+            resolvedLocale = tag;
+            languageConfigured = true;
+            break;
+          }
+        } catch (_) {}
+      }
     }
 
     // Fallback across any other installed Android TTS engines if current engine
     // does not carry a compatible locale.
-    if (_isAndroid) {
+    var switchedEngine = false;
+    if (!languageConfigured && _isAndroid) {
       try {
         final rawEngines = await _tts.getEngines as List?;
         final current = (await _tts.getDefaultEngine)?.toString();
@@ -325,21 +441,45 @@ class SpeechEngine {
             final engName = eng.toString();
             if (engName.isEmpty || engName == current) continue;
             await _tts.setEngine(engName);
-            await _tts.setSpeechRate(0.5);
+            await _tts.setSpeechRate(targetRate);
+            _activeRateFlutter = targetRate;
             await _tts.setPitch(1.0);
+            _activeVoiceKey = null;
             for (final tag in candidates) {
               final res = await _tts.setLanguage(tag);
               if (res == 1 || res == true) {
                 _activeLanguageTag = tag;
-                return true;
+                resolvedLocale = tag;
+                languageConfigured = true;
+                switchedEngine = true;
+                break;
               }
             }
+            if (languageConfigured) break;
           }
         }
       } catch (_) {}
     }
 
-    return false;
+    if (preferredVoice != null && !switchedEngine) {
+      final voiceKey = '${preferredVoice.name}@${preferredVoice.locale}';
+      if (_activeVoiceKey != voiceKey) {
+        try {
+          final vRes = await _tts.setVoice({
+            'name': preferredVoice.name,
+            'locale': preferredVoice.locale,
+          });
+          if (vRes == 1 || vRes == true) {
+            _activeVoiceKey = voiceKey;
+            _activeLanguageTag = preferredVoice.locale;
+          }
+        } catch (_) {}
+      }
+    } else if (!switchedEngine && _activeVoiceKey != null && _activeLanguageTag != resolvedLocale) {
+      _activeVoiceKey = null;
+    }
+
+    return languageConfigured;
   }
 
   Future<void> dispose() async {

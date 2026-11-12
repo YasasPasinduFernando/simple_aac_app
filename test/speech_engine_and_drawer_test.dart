@@ -181,4 +181,67 @@ void main() {
     expect(report.missingLanguages, ['si', 'ta']);
     expect(report.unsupportedLanguages, ['ta']);
   });
+
+  test('SpeechEngine selects best offline local voices and applies tuned rates', () async {
+    final calls = <MethodCall>[];
+    const fttsChannel = MethodChannel('flutter_tts');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(fttsChannel, (call) async {
+      calls.add(call);
+      if (call.method == 'getVoices') {
+        return [
+          {'name': 'en-us-x-sfg-network', 'locale': 'en-US'},
+          {'name': 'en-us-x-iog-local', 'locale': 'en-US'},
+          {'name': 'en-us-x-tpf-local', 'locale': 'en-US'},
+          {'name': 'si-lk-x-sin-local', 'locale': 'si-LK'},
+          {'name': 'ta-in-x-tad-local', 'locale': 'ta-IN'},
+          {'name': 'ta-in-x-tac-local', 'locale': 'ta-IN'},
+        ];
+      }
+      if (call.method == 'setLanguage' ||
+          call.method == 'setVoice' ||
+          call.method == 'setSpeechRate' ||
+          call.method == 'setVolume' ||
+          call.method == 'setPitch' ||
+          call.method == 'awaitSpeakCompletion' ||
+          call.method == 'speak' ||
+          call.method == 'stop') {
+        return 1;
+      }
+      return null;
+    });
+
+    final engine = SpeechEngine.forTest();
+    expect(
+      (await engine.speak('සෙල්ලම්', preferredLanguage: 'si')).isSuccess,
+      isTrue,
+    );
+    expect(
+      (await engine.speak('வணக்கம்', preferredLanguage: 'ta')).isSuccess,
+      isTrue,
+    );
+    expect(
+      (await engine.speak('Hello', preferredLanguage: 'en')).isSuccess,
+      isTrue,
+    );
+
+    final setVoices = calls
+        .where((c) => c.method == 'setVoice')
+        .map((c) => Map<String, dynamic>.from(c.arguments as Map)['name'])
+        .toList();
+    expect(setVoices, [
+      'si-lk-x-sin-local',
+      'ta-in-x-tac-local',
+      'en-us-x-tpf-local',
+    ]);
+
+    final rates = calls
+        .where((c) => c.method == 'setSpeechRate')
+        .map((c) => c.arguments)
+        .toList();
+    expect(rates, [0.48, 0.465, 0.475, 0.48]);
+
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(fttsChannel, null);
+  });
 }
