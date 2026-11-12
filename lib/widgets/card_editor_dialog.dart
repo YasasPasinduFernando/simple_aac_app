@@ -10,8 +10,10 @@ import '../models/aac_card_model.dart';
 import '../services/card_storage_service.dart';
 import '../services/multilingual_concept_service.dart';
 import '../services/network_policy_service.dart';
+import '../utils/animated_media_helper.dart';
 import '../utils/app_permissions_helper.dart';
 import '../utils/camera_object_helper.dart';
+import '../utils/card_image.dart';
 import 'smart_image_search_dialog.dart';
 import 'styled_dialog_header.dart';
 
@@ -163,6 +165,18 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         ),
       );
     }
+  }
+
+  Future<void> _pickAnimatedClip() async {
+    final savedPath = await AnimatedMediaHelper.pickOrCreateAnimatedGif(
+      context,
+      cardId: widget.card.id,
+    );
+    if (savedPath == null || !mounted) return;
+    setState(() {
+      widget.card.imagePath = savedPath;
+      _cameraAnalysis = null;
+    });
   }
 
   Future<void> _openSmartSearch() async {
@@ -451,6 +465,30 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                     fit: StackFit.expand,
                     children: [
                       _buildImageView(imagePath),
+                      if (isGifImagePath(imagePath))
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.68),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: const Text(
+                              'GIF',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10.5,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.6,
+                              ),
+                            ),
+                          ),
+                        ),
                       Positioned(
                         top: 8,
                         right: 8,
@@ -596,6 +634,54 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
               ],
             ),
           ),
+          const SizedBox(height: 8),
+          Material(
+            color: colorScheme.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: _pickAnimatedClip,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: colorScheme.primary.withValues(alpha: 0.28),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.gif_box_rounded,
+                      size: 20,
+                      color: colorScheme.primary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'GIF / Short Video (Max 30s)',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: colorScheme.primary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -724,23 +810,11 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   }
 
   Widget _buildImageView(String path) {
-    if (path.startsWith('assets/')) {
-      return Image.asset(
+    if (isAssetImagePath(path) || File(path).existsSync()) {
+      return buildCardImage(
         path,
         fit: BoxFit.contain,
         cacheWidth: 640,
-        gaplessPlayback: true,
-        errorBuilder: (_, __, ___) =>
-            const Icon(Icons.broken_image_outlined, size: 40, color: Colors.grey),
-      );
-    }
-    final file = File(path);
-    if (file.existsSync()) {
-      return Image.file(
-        file,
-        fit: BoxFit.contain,
-        cacheWidth: 640,
-        gaplessPlayback: true,
         errorBuilder: (_, __, ___) =>
             const Icon(Icons.broken_image_outlined, size: 40, color: Colors.grey),
       );

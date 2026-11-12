@@ -112,6 +112,42 @@ class MainActivity : FlutterActivity() {
                             }
                         }
                     }
+                } else if (call.method == "convertVideoToGif") {
+                    val inputPath = call.argument<String>("inputPath")
+                    val outputPath = call.argument<String>("outputPath")
+                    if (inputPath.isNullOrBlank() || outputPath.isNullOrBlank()) {
+                        result.error("INVALID_ARGS", "inputPath and outputPath are required", null)
+                        return@setMethodCallHandler
+                    }
+                    visionExecutor.execute {
+                        try {
+                            val res = VideoGifEncoder.convertVideoToGif(
+                                applicationContext,
+                                inputPath,
+                                outputPath
+                            )
+                            mainHandler.post {
+                                result.success(
+                                    mapOf(
+                                        "outputPath" to res.outputPath,
+                                        "durationMs" to res.durationMs,
+                                        "frameCount" to res.frameCount,
+                                        "width" to res.width,
+                                        "height" to res.height,
+                                        "sizeBytes" to res.sizeBytes
+                                    )
+                                )
+                            }
+                        } catch (e: VideoTooLongException) {
+                            mainHandler.post {
+                                result.error("VIDEO_TOO_LONG", e.message, mapOf("durationMs" to e.durationMs))
+                            }
+                        } catch (e: Exception) {
+                            mainHandler.post {
+                                result.error("GIF_ENCODE_FAILED", e.message ?: "Failed to convert video to GIF", null)
+                            }
+                        }
+                    }
                 } else {
                     result.notImplemented()
                 }

@@ -16,6 +16,20 @@ class CardStorageService {
   static const String _hasSeededDefaultsKey = 'hasSeededDefaultCards';
   static const String _seededDefaultVersionKey = 'seededDefaultCardsVersion';
 
+  @visibleForTesting
+  static Future<Directory> Function()? docsDirectoryOverride;
+
+  @visibleForTesting
+  static void resetTestHooks() {
+    docsDirectoryOverride = null;
+  }
+
+  static Future<Directory> _getDocsDirectory() {
+    final override = docsDirectoryOverride;
+    if (override != null) return override();
+    return getApplicationDocumentsDirectory();
+  }
+
   static String _join(String parent, String child) {
     return '$parent${Platform.pathSeparator}$child';
   }
@@ -46,7 +60,7 @@ class CardStorageService {
   }) async {
     final initResults = await Future.wait<dynamic>([
       SharedPreferences.getInstance(),
-      getApplicationDocumentsDirectory(),
+      _getDocsDirectory(),
     ]);
     final prefs = initResults[0] as SharedPreferences;
     final docsDir = initResults[1] as Directory;
@@ -148,7 +162,7 @@ class CardStorageService {
 
   static Future<void> saveCards(List<AACCard> cards) async {
     final prefs = await SharedPreferences.getInstance();
-    final docsDir = await getApplicationDocumentsDirectory();
+    final docsDir = await _getDocsDirectory();
     final file = await _cardsFile(docsDir);
     final backupFile = await _cardsBackupFile(docsDir);
 
@@ -166,7 +180,7 @@ class CardStorageService {
   }
 
   static Future<Directory> mediaDirectory(String mediaType) async {
-    final docsDir = await getApplicationDocumentsDirectory();
+    final docsDir = await _getDocsDirectory();
     final mediaDir =
         Directory(_join(_join(docsDir.path, 'aac_media'), mediaType));
     if (!await mediaDir.exists()) {
@@ -184,8 +198,11 @@ class CardStorageService {
     if (!await sourceFile.exists()) {
       throw FileSystemException('Source media file not found', sourcePath);
     }
+    if (await sourceFile.length() <= 0) {
+      throw FileSystemException('Source media file is empty', sourcePath);
+    }
 
-    final docsDir = await getApplicationDocumentsDirectory();
+    final docsDir = await _getDocsDirectory();
     if (_isInsideDirectory(sourcePath, docsDir.path)) {
       debugPrint(
         '[CardStorage] $mediaType file already in app documents: $sourcePath',
@@ -213,8 +230,7 @@ class CardStorageService {
     List<AACCard> cards, {
     String? docsPath,
   }) async {
-    final resolvedDocsPath =
-        docsPath ?? (await getApplicationDocumentsDirectory()).path;
+    final resolvedDocsPath = docsPath ?? (await _getDocsDirectory()).path;
     var changed = false;
     for (final card in cards) {
       changed =

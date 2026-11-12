@@ -54,7 +54,7 @@ class BackupService {
       if (path == null) return null;
       if (_isAssetPath(path)) return path;
       final file = File(path);
-      if (!await file.exists()) return null;
+      if (!await file.exists() || await file.length() <= 0) return null;
       if (pathMap.containsKey(path)) return pathMap[path];
 
       final base = _basename(path);
@@ -194,7 +194,9 @@ class BackupService {
       if (_isAssetPath(relPath)) return relPath;
       final sourcePath = '${backupDir.path}/${relPath.replaceAll('\\', '/')}';
       final sourceFile = File(sourcePath);
-      if (!await sourceFile.exists()) return null;
+      if (!await sourceFile.exists() || await sourceFile.length() <= 0) {
+        return null;
+      }
 
       final base = _basename(sourcePath);
       final mediaDir = await CardStorageService.mediaDirectory(mediaType);
@@ -249,10 +251,20 @@ class BackupService {
     List<int> bytes,
     Directory target,
   ) async {
+    final targetRoot = target.absolute.path.replaceAll('\\', '/');
     final archive = ZipDecoder().decodeBytes(bytes);
     for (final file in archive) {
-      final name = file.name.replaceAll('\\', '/');
-      final outPath = '${target.path}/$name';
+      final rawName = file.name.replaceAll('\\', '/');
+      if (rawName.startsWith('/') ||
+          rawName.split('/').any((seg) => seg == '..')) {
+        continue;
+      }
+      final outPath = '${target.path}/$rawName';
+      final resolvedOut = File(outPath).absolute.path.replaceAll('\\', '/');
+      if (resolvedOut != targetRoot &&
+          !resolvedOut.startsWith('$targetRoot/')) {
+        continue;
+      }
       if (file.isFile) {
         final outFile = File(outPath);
         await outFile.parent.create(recursive: true);

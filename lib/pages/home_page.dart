@@ -26,6 +26,7 @@ import '../widgets/landscape_menu.dart';
 import '../widgets/styled_dialog_header.dart';
 import '../widgets/tts_bar.dart';
 import '../widgets/visible_cards_dialog.dart';
+import '../utils/animated_media_helper.dart';
 import '../utils/app_permissions_helper.dart';
 import '../utils/camera_object_helper.dart';
 import '../utils/card_image.dart';
@@ -361,14 +362,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _pickImage(AACCard card) async {
-    final source = await showDialog<ImageSource>(
+    final choice = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         title: const StyledDialogHeader(
           icon: Icons.add_a_photo_rounded,
           title: 'Choose Image Source',
-          subtitle: 'Add a picture to this card',
+          subtitle: 'Add a photo or short GIF to this card',
         ),
         content: SingleChildScrollView(
           child: Column(
@@ -378,13 +379,19 @@ class _HomePageState extends State<HomePage> {
                 icon: Icons.camera_alt_rounded,
                 title: 'Camera',
                 subtitle: 'Take a new photo now',
-                onTap: () => Navigator.pop(context, ImageSource.camera),
+                onTap: () => Navigator.pop(context, 'camera'),
               ),
               DialogOptionTile(
                 icon: Icons.photo_library_rounded,
                 title: 'Gallery',
                 subtitle: 'Choose a photo from your device',
-                onTap: () => Navigator.pop(context, ImageSource.gallery),
+                onTap: () => Navigator.pop(context, 'gallery'),
+              ),
+              DialogOptionTile(
+                icon: Icons.gif_box_rounded,
+                title: 'GIF / Short Video',
+                subtitle: 'Max 30s video clip or existing .gif',
+                onTap: () => Navigator.pop(context, 'gif'),
               ),
             ],
           ),
@@ -392,7 +399,22 @@ class _HomePageState extends State<HomePage> {
       ),
     );
 
-    if (source == ImageSource.camera) {
+    if (!mounted) return;
+    if (choice == 'gif') {
+      final gifPath = await AnimatedMediaHelper.pickOrCreateAnimatedGif(
+        context,
+        cardId: card.id,
+      );
+      if (gifPath != null && mounted) {
+        setState(() {
+          card.imagePath = gifPath;
+        });
+        _saveCards();
+      }
+      return;
+    }
+
+    if (choice == 'camera') {
       try {
         final outcome = await CameraObjectHelper.captureAndVerify(
           context,
@@ -436,7 +458,7 @@ class _HomePageState extends State<HomePage> {
           );
         }
       }
-    } else if (source == ImageSource.gallery) {
+    } else if (choice == 'gallery') {
       final allowed = await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
       if (!allowed || !mounted) return;
 
