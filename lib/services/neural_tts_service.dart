@@ -66,6 +66,9 @@ class NeuralTtsService {
     final lang = _normalizeLang(languageCode);
     try {
       final modelDir = await _ensureLanguageExtracted(lang);
+      if (lang == 'si' || lang == 'ta') {
+        unawaited(_ensureLanguageExtracted('${lang}_m'));
+      }
       if (modelDir == null) return;
       final port = await _ensureWorker();
       if (port == null) return;
@@ -166,18 +169,20 @@ class NeuralTtsService {
       return outPath;
     }
 
-    // Tier 1: Bundled offline neural VITS + C++ Signalsmith Stretch DSP.
+    // Tier 1: Bundled offline neural VITS + C++ WORLD Vocoder DSP.
     if (_supportsNativeNeural) {
-      final modelDir = await _ensureLanguageExtracted(spec.languageCode);
+      final modelDir = await _ensureLanguageExtracted(spec.modelKey);
       if (modelDir != null) {
         final port = await _ensureWorker();
         if (port != null) {
           List<List<int>>? codepoints;
           if (spec.languageCode != 'en') {
-            final cps = TtsPhonemizer.phonemizeToCodepoints(
-              normalizedText,
-              spec.languageCode,
-            );
+            final cps = spec.useRomanPhonemizer
+                ? TtsPhonemizer.phonemizeSinhalaRomanCodepoints(normalizedText)
+                : TtsPhonemizer.phonemizeToCodepoints(
+                    normalizedText,
+                    spec.languageCode,
+                  );
             if (cps.isNotEmpty) {
               codepoints = [cps];
             }
@@ -185,7 +190,7 @@ class NeuralTtsService {
           if (spec.languageCode == 'en' || codepoints != null) {
             final ok = await _sendWorkerRequest(port, {
               'cmd': 'synth',
-              'lang': spec.languageCode,
+              'lang': spec.modelKey,
               'modelDir': modelDir,
               'text': spec.languageCode == 'en' ? normalizedText : '',
               'codepoints': codepoints,
@@ -290,7 +295,7 @@ class NeuralTtsService {
 
       final files = switch (lang) {
         'en' => const ['model.int8.onnx', 'tokens.txt', 'lexicon.txt'],
-        'si' || 'ta' => const ['model.int8.onnx', 'tokens.txt'],
+        'si' || 'si_m' || 'ta' || 'ta_m' => const ['model.int8.onnx', 'tokens.txt'],
         _ => const <String>[],
       };
       if (files.isEmpty) return null;
@@ -395,7 +400,11 @@ class NeuralTtsService {
     if (_cacheDirPath != null) return _cacheDirPath;
     try {
       final tmp = await getTemporaryDirectory();
-      final dir = Directory('${tmp.path}/aac_tts_cache');
+      final legacyDir = Directory('${tmp.path}/aac_tts_cache');
+      if (await legacyDir.exists()) {
+        unawaited(legacyDir.delete(recursive: true).catchError((_) => legacyDir));
+      }
+      final dir = Directory('${tmp.path}/aac_tts_cache_v2');
       await dir.create(recursive: true);
       _cacheDirPath = dir.path;
       return _cacheDirPath;
@@ -428,7 +437,7 @@ class NeuralTtsService {
 
   static String _cacheKey(TtsAcousticSpec spec, String text) {
     final raw =
-        '${spec.languageCode}|${spec.speakerId}|${spec.targetF0Hz.toStringAsFixed(1)}|${spec.formantSemitones.toStringAsFixed(2)}|${spec.speed.toStringAsFixed(2)}|$text';
+        'v2|${spec.modelKey}|${spec.speakerId}|${spec.targetF0Hz.toStringAsFixed(1)}|${spec.formantSemitones.toStringAsFixed(2)}|${spec.speed.toStringAsFixed(2)}|$text';
     var h1 = 0x811c9dc5;
     var h2 = 0x01000193;
     for (final unit in raw.codeUnits) {

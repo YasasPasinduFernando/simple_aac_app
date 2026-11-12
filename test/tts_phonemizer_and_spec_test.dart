@@ -75,6 +75,27 @@ void main() {
       expect(TtsPhonemizer.phonemizeSinhala('හොඳයි'), contains('nd̪'));
     });
 
+    test('romanizes Sinhala seed words cleanly for Roshan male model', () {
+      for (final word in const [
+        sinhalaHello,
+        sinhalaHappy,
+        sinhalaSad,
+        sinhalaAngry,
+        sinhalaMore,
+        sinhalaGood,
+        sinhalaPlay,
+        'ආයුබෝවන්, මට වතුර ඕනේ.',
+        'ශ්‍රී ලංකා',
+      ]) {
+        final rom = TtsPhonemizer.phonemizeSinhalaRoman(word);
+        final cps = TtsPhonemizer.phonemizeSinhalaRomanCodepoints(word);
+        expect(rom, isNotEmpty, reason: 'Empty romanization for $word');
+        expect(cps, isNotEmpty);
+      }
+      expect(TtsPhonemizer.phonemizeSinhalaRoman('සතුටුයි'), 'satuṭuyi');
+      expect(TtsPhonemizer.phonemizeSinhalaRoman('හොඳයි'), 'hoṉdayi');
+    });
+
     test('phonemizes all default Tamil seed words and intervocalic rules', () {
       const seedTa = [
         tamilHello,
@@ -99,7 +120,7 @@ void main() {
   });
 
   group('TtsVoiceProfileAcoustic separation guarantees', () {
-    test('separates Man, Woman, Boy, Girl clearly across EN, SI, TA', () {
+    test('routes Man/Boy to native Male models and separates Child Girl vs Woman cleanly', () {
       for (final lang in ['en', 'si', 'ta']) {
         final man = TtsVoiceProfile.man.acousticSpecFor(lang);
         final woman = TtsVoiceProfile.woman.acousticSpecFor(lang);
@@ -111,24 +132,33 @@ void main() {
         expect(boy.languageCode, lang);
         expect(girl.languageCode, lang);
 
-        // Boy & Girl must have higher pitch + shorter child vocal-tract formants than Woman.
-        expect(boy.targetF0Hz, greaterThan(woman.targetF0Hz + 40));
-        expect(girl.targetF0Hz, greaterThan(boy.targetF0Hz + 30));
-        expect(boy.formantSemitones, greaterThan(woman.formantSemitones + 2.5));
-        expect(girl.formantSemitones, greaterThan(boy.formantSemitones + 1.0));
-
-        // Male must either use native male speaker (EN sid=817) or deeper target F0 + formants.
+        // Female models feed Woman & Girl; native Male models feed Man & Boy.
         if (lang == 'en') {
+          expect(man.modelKey, 'en');
           expect(man.speakerId, isNot(equals(woman.speakerId)));
-          expect(man.fallbackTargetF0Hz, lessThan(woman.fallbackTargetF0Hz - 70));
-          expect(
-            man.fallbackFormantSemitones,
-            lessThan(woman.fallbackFormantSemitones - 2.0),
-          );
+          expect(boy.speakerId, equals(man.speakerId));
+          expect(girl.speakerId, equals(woman.speakerId));
         } else {
-          expect(man.targetF0Hz, lessThan(woman.targetF0Hz - 70));
-          expect(man.formantSemitones, lessThan(woman.formantSemitones - 2.0));
+          expect(man.modelKey, '${lang}_m');
+          expect(boy.modelKey, '${lang}_m');
+          expect(woman.modelKey, lang);
+          expect(girl.modelKey, lang);
         }
+        expect(man.useRomanPhonemizer, lang == 'si');
+        expect(boy.useRomanPhonemizer, lang == 'si');
+        expect(woman.useRomanPhonemizer, isFalse);
+        expect(girl.useRomanPhonemizer, isFalse);
+
+        // Man plays native un-pitched male voice (targetF0Hz == 0) to prevent pitch-down artifacts.
+        expect(man.targetF0Hz, 0.0);
+        expect(man.formantSemitones, 0.0);
+        expect(man.fallbackTargetF0Hz, lessThan(woman.fallbackTargetF0Hz - 70));
+
+        // Boy (from Male) & Girl (from Female) use WORLD shorter child vocal tract + higher F0.
+        expect(boy.targetF0Hz, greaterThan(woman.targetF0Hz + 20));
+        expect(girl.targetF0Hz, greaterThan(boy.targetF0Hz + 70));
+        expect(boy.formantSemitones, greaterThan(woman.formantSemitones + 3.0));
+        expect(girl.formantSemitones, greaterThan(boy.formantSemitones));
       }
     });
   });

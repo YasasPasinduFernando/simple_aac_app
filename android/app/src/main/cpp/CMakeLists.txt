@@ -3,10 +3,19 @@ project(aac_voice_dsp LANGUAGES CXX)
 
 add_library(aac_voice_dsp SHARED
     aac_voice_dsp.cpp
+    world/cheaptrick.cpp
+    world/common.cpp
+    world/d4c.cpp
+    world/dio.cpp
+    world/fft.cpp
+    world/matlabfunctions.cpp
+    world/stonemask.cpp
+    world/synthesis.cpp
 )
 
 target_include_directories(aac_voice_dsp PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/world
 )
 
 target_compile_options(aac_voice_dsp PRIVATE

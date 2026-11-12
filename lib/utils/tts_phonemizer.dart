@@ -326,6 +326,137 @@ class TtsPhonemizer {
   }
 
   // ---------------------------------------------------------------------------
+  // SINHALA ROMANIZER FOR COQUI/PIPER MALE MODEL (si_m / Roshan)
+  // ---------------------------------------------------------------------------
+
+  static final Set<int> _allowedRomanCodepoints = <int>{
+    ...' !\'(),-.0123456789:;?abcdefghijklmnopqrstuvwxyzæñāēīōśşūǣḍḥḷṁṅṇṉṛṝṭ'
+        .runes,
+  };
+
+  static const List<MapEntry<String, String>> _siRomanSpecials = [
+    MapEntry('ඓ', 'ai'),
+    MapEntry('ඖ', 'au'),
+    MapEntry('ඍ', 'ṛ'),
+    MapEntry('ඎ', 'ṝ'),
+    MapEntry('ඐ', 'ḹ'),
+    MapEntry('අ', 'a'),
+    MapEntry('ආ', 'ā'),
+    MapEntry('ඇ', 'æ'),
+    MapEntry('ඈ', 'ǣ'),
+    MapEntry('ඉ', 'i'),
+    MapEntry('ඊ', 'ī'),
+    MapEntry('උ', 'u'),
+    MapEntry('ඌ', 'ū'),
+    MapEntry('එ', 'e'),
+    MapEntry('ඒ', 'ē'),
+    MapEntry('ඔ', 'o'),
+    MapEntry('ඕ', 'ō'),
+    MapEntry('ඞ්', 'ṅ'),
+    MapEntry('ං', 'ṁ'),
+    MapEntry('ඃ', 'ḥ'),
+  ];
+
+  static const List<MapEntry<String, String>> _siRomanConsonants = [
+    MapEntry('ඛ', 'kh'),
+    MapEntry('ඨ', 'ṭh'),
+    MapEntry('ඝ', 'gh'),
+    MapEntry('ඡ', 'ch'),
+    MapEntry('ඣ', 'jh'),
+    MapEntry('ඦ', 'ñj'),
+    MapEntry('ඪ', 'ḍh'),
+    MapEntry('ඬ', 'ṇḍ'),
+    MapEntry('ථ', 'th'),
+    MapEntry('ධ', 'dh'),
+    MapEntry('ඵ', 'ph'),
+    MapEntry('භ', 'bh'),
+    MapEntry('ඹ', 'mb'),
+    MapEntry('ඳ', 'ṉd'),
+    MapEntry('ඟ', 'ṉg'),
+    MapEntry('ඥ', 'gn'),
+    MapEntry('ක', 'k'),
+    MapEntry('ග', 'g'),
+    MapEntry('ච', 'c'),
+    MapEntry('ජ', 'j'),
+    MapEntry('ඤ', 'ñ'),
+    MapEntry('ට', 'ṭ'),
+    MapEntry('ඩ', 'ḍ'),
+    MapEntry('ණ', 'ṇ'),
+    MapEntry('ත', 't'),
+    MapEntry('ද', 'd'),
+    MapEntry('න', 'n'),
+    MapEntry('ප', 'p'),
+    MapEntry('බ', 'b'),
+    MapEntry('ම', 'm'),
+    MapEntry('ය', 'y'),
+    MapEntry('ර', 'r'),
+    MapEntry('ල', 'l'),
+    MapEntry('ව', 'v'),
+    MapEntry('ශ', 'ś'),
+    MapEntry('ෂ', 'ş'),
+    MapEntry('ස', 's'),
+    MapEntry('හ', 'h'),
+    MapEntry('ළ', 'ḷ'),
+    MapEntry('ෆ', 'f'),
+  ];
+
+  static const List<MapEntry<String, String>> _siRomanCombinations = [
+    MapEntry('්', ''),
+    MapEntry('', 'a'),
+    MapEntry('ා', 'ā'),
+    MapEntry('ැ', 'æ'),
+    MapEntry('ෑ', 'ǣ'),
+    MapEntry('ි', 'i'),
+    MapEntry('ී', 'ī'),
+    MapEntry('ු', 'u'),
+    MapEntry('ූ', 'ū'),
+    MapEntry('ෙ', 'e'),
+    MapEntry('ේ', 'ē'),
+    MapEntry('ෛ', 'ai'),
+    MapEntry('ො', 'o'),
+    MapEntry('ෝ', 'ō'),
+    MapEntry('ෘ', 'ṛ'),
+    MapEntry('ෲ', 'ṝ'),
+    MapEntry('ෞ', 'au'),
+    MapEntry('ෳ', 'ḹ'),
+  ];
+
+  static final List<MapEntry<String, String>> _siRomanCombosSorted = () {
+    final list = <MapEntry<String, String>>[];
+    for (final combo in _siRomanCombinations) {
+      for (final cons in _siRomanConsonants) {
+        list.add(MapEntry('${cons.key}${combo.key}', '${cons.value}${combo.value}'));
+      }
+    }
+    for (final s in _siRomanSpecials) {
+      list.add(s);
+    }
+    list.sort((a, b) => b.key.length.compareTo(a.key.length));
+    return list;
+  }();
+
+  /// Transliterates Sinhala Unicode into Romanized tokens expected by the
+  /// native male Sinhala model (`si_LK-roshan-vits`).
+  static String phonemizeSinhalaRoman(String raw) {
+    var text = raw.trim().replaceAll('\u200D', '').replaceAll('\u200C', '');
+    if (text.isEmpty) return '';
+    for (final entry in _siRomanCombosSorted) {
+      text = text.replaceAll(entry.key, entry.value);
+    }
+    // Map prenasalized superscripts or Sanskrit rhotics cleanly onto tokens.txt symbols.
+    text = text.replaceAll('ṣ', 'ş').replaceAll('ḹ', 'l');
+    return String.fromCharCodes(
+      text.toLowerCase().runes.where(_allowedRomanCodepoints.contains),
+    );
+  }
+
+  static List<int> phonemizeSinhalaRomanCodepoints(String raw) {
+    final rom = phonemizeSinhalaRoman(raw);
+    if (rom.isEmpty) return const [];
+    return rom.runes.toList(growable: false);
+  }
+
+  // ---------------------------------------------------------------------------
   // TAMIL PHONEMIZER (Unicode ta -> Piper IPA)
   // ---------------------------------------------------------------------------
 

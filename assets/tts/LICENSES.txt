@@ -1,6 +1,8 @@
 Offline Neural TTS Assets & DSP Attribution:
 1. sherpa-onnx (Apache-2.0 License) - Next-gen Kaldi ONNX runtime inference engine.
 2. English model: en_US-libritts_r-medium INT8 via k2-fsa/sherpa-onnx & rhasspy/piper-voices (MIT License), lexicon-en-us (CMUdict BSD-2-Clause derived).
-3. Sinhala model: chan4lk/piper-tts-sinhala INT8 (MIT License, OpenSLR 30 corpus).
-4. Tamil model: tinisoft/piper-ta_IN-rasa_female-medium INT8 (CC-BY-4.0 License, AI4Bharat Rasa corpus).
-5. Voice Formant & Pitch DSP: Signalsmith Stretch v1.3.2 & Signalsmith Linear (MIT License, Copyright Signalsmith Audio).
+3. Sinhala Female model: chan4lk/piper-tts-sinhala INT8 (MIT License, OpenSLR 30 corpus).
+4. Sinhala Male model: nexusclouduk/sinhala_piper si_LK-roshan-vits INT8 (Apache-2.0 License, Dialog-UoM Roshan voice).
+5. Tamil Female model: tinisoft/piper-ta_IN-rasa_female-medium INT8 (CC-BY-4.0 License, AI4Bharat Rasa corpus).
+6. Tamil Male model: Jeyaram-K/piper-tamil-voices ta_IN-ValluvarNeural-medium INT8 (Apache-2.0 License).
+7. Voice Formant & Pitch Vocoder: WORLD Speech Analysis/Synthesis System (Modified BSD License, Copyright M. Morise).

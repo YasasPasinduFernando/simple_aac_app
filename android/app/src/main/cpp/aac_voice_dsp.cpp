@@ -9,7 +9,12 @@
 #include <jni.h>
 #endif
 
-#include "signalsmith-stretch/signalsmith-stretch.h"
+#include "world/cheaptrick.h"
+#include "world/d4c.h"
+#include "world/dio.h"
+#include "world/matlabfunctions.h"
+#include "world/stonemask.h"
+#include "world/synthesis.h"
 
 #define AAC_EXPORT __attribute__((visibility("default")))
 
@@ -19,7 +24,7 @@ constexpr float kPi = 3.14159265358979323846f;
 
 struct WavData {
     int sampleRate = 22050;
-    std::vector<float> samples;
+    std::vector<double> samples;
 };
 
 bool readWav(const std::string& path, WavData& out) {
@@ -71,11 +76,11 @@ bool readWav(const std::string& path, WavData& out) {
         out.samples.resize(n);
         const int16_t* p = reinterpret_cast<const int16_t*>(rawData.data());
         for (size_t i = 0; i < n; ++i) {
-            float sum = 0.0f;
+            double sum = 0.0;
             for (int c = 0; c < channels; ++c) {
-                sum += static_cast<float>(p[i * channels + c]) / 32768.0f;
+                sum += static_cast<double>(p[i * channels + c]) / 32768.0;
             }
-            out.samples[i] = sum / static_cast<float>(channels);
+            out.samples[i] = sum / static_cast<double>(channels);
         }
         return !out.samples.empty();
     }
@@ -85,11 +90,11 @@ bool readWav(const std::string& path, WavData& out) {
         out.samples.resize(n);
         const float* p = reinterpret_cast<const float*>(rawData.data());
         for (size_t i = 0; i < n; ++i) {
-            float sum = 0.0f;
+            double sum = 0.0;
             for (int c = 0; c < channels; ++c) {
-                sum += p[i * channels + c];
+                sum += static_cast<double>(p[i * channels + c]);
             }
-            out.samples[i] = sum / static_cast<float>(channels);
+            out.samples[i] = sum / static_cast<double>(channels);
         }
         return !out.samples.empty();
     }
@@ -97,7 +102,7 @@ bool readWav(const std::string& path, WavData& out) {
     return false;
 }
 
-bool writeWav(const std::string& path, const std::vector<float>& samples, int sr) {
+bool writeWav(const std::string& path, const std::vector<double>& samples, int sr) {
     if (samples.empty() || sr <= 0) return false;
     std::ofstream f(path, std::ios::binary);
     if (!f) return false;
@@ -127,121 +132,124 @@ bool writeWav(const std::string& path, const std::vector<float>& samples, int sr
 
     std::vector<int16_t> pcm(samples.size());
     for (size_t i = 0; i < samples.size(); ++i) {
-        const float clamped = std::max(-1.0f, std::min(1.0f, samples[i]));
-        pcm[i] = static_cast<int16_t>(std::lrintf(clamped * 32767.0f));
+        const double clamped = std::max(-1.0, std::min(1.0, samples[i]));
+        pcm[i] = static_cast<int16_t>(std::lrint(clamped * 32767.0));
     }
     f.write(reinterpret_cast<const char*>(pcm.data()), dataBytes);
     f.flush();
     return f.good();
 }
 
-// Fast normalized-square-difference pitch estimator over voiced speech frames.
-float estimateMedianF0(const std::vector<float>& x, int sr) {
-    const int frameLen = std::max(256, static_cast<int>(0.030 * sr));
-    const int hop = std::max(64, static_cast<int>(0.010 * sr));
-    const int minLag = std::max(2, static_cast<int>(sr / 450.0));
-    const int maxLag = std::min(frameLen - 2, static_cast<int>(sr / 65.0));
-    if (static_cast<int>(x.size()) < frameLen || minLag >= maxLag) return 200.0f;
-
-    double gEnergy = 0.0;
-    for (float v : x) gEnergy += static_cast<double>(v) * v;
-    const double gRms = std::sqrt(gEnergy / static_cast<double>(x.size()));
-    if (gRms < 1e-5) return 200.0f;
-
-    std::vector<float> f0s;
-    for (int start = 0; start + frameLen <= static_cast<int>(x.size()); start += hop) {
-        double fe = 0.0;
-        for (int i = 0; i < frameLen; ++i) {
-            const double v = x[start + i];
-            fe += v * v;
-        }
-        if (std::sqrt(fe / frameLen) < gRms * 0.35) continue;
-
-        double bestNorm = -1.0;
-        int bestLag = -1;
-        for (int lag = minLag; lag <= maxLag; ++lag) {
-            double num = 0.0;
-            double denA = 0.0;
-            double denB = 0.0;
-            const int n = frameLen - lag;
-            for (int i = 0; i < n; ++i) {
-                const double a = x[start + i];
-                const double b = x[start + i + lag];
-                num += a * b;
-                denA += a * a;
-                denB += b * b;
-            }
-            const double den = std::sqrt(denA * denB);
-            if (den < 1e-12) continue;
-            const double nsdf = num / den;
-            if (nsdf > bestNorm) {
-                bestNorm = nsdf;
-                bestLag = lag;
-            }
-        }
-        if (bestNorm > 0.55 && bestLag > 0) {
-            f0s.push_back(static_cast<float>(sr) / static_cast<float>(bestLag));
-        }
-    }
-
-    if (f0s.empty()) return 200.0f;
-    std::sort(f0s.begin(), f0s.end());
-    return f0s[f0s.size() / 2];
-}
-
 struct Biquad {
-    float b0 = 1.0f, b1 = 0.0f, b2 = 0.0f, a1 = 0.0f, a2 = 0.0f;
-    float z1 = 0.0f, z2 = 0.0f;
+    double b0 = 1.0, b1 = 0.0, b2 = 0.0, a1 = 0.0, a2 = 0.0;
+    double z1 = 0.0, z2 = 0.0;
 
-    void setHighpass(float fc, float sr, float q = 0.707f) {
-        const float w0 = 2.0f * kPi * std::min(fc, sr * 0.45f) / sr;
-        const float cs = std::cos(w0);
-        const float sn = std::sin(w0);
-        const float alpha = sn / (2.0f * q);
-        const float a0 = 1.0f + alpha;
-        b0 = (1.0f + cs) * 0.5f / a0;
-        b1 = -(1.0f + cs) / a0;
+    void setHighpass(double fc, double sr, double q = 0.707) {
+        const double w0 = 2.0 * kPi * std::min(fc, sr * 0.45) / sr;
+        const double cs = std::cos(w0);
+        const double sn = std::sin(w0);
+        const double alpha = sn / (2.0 * q);
+        const double a0 = 1.0 + alpha;
+        b0 = (1.0 + cs) * 0.5 / a0;
+        b1 = -(1.0 + cs) / a0;
         b2 = b0;
-        a1 = (-2.0f * cs) / a0;
-        a2 = (1.0f - alpha) / a0;
-        z1 = z2 = 0.0f;
+        a1 = (-2.0 * cs) / a0;
+        a2 = (1.0 - alpha) / a0;
+        z1 = z2 = 0.0;
     }
 
-    void setLowShelf(float fc, float sr, float gainDb) {
-        const float A = std::pow(10.0f, gainDb / 40.0f);
-        const float w0 = 2.0f * kPi * std::min(fc, sr * 0.45f) / sr;
-        const float cs = std::cos(w0);
-        const float sn = std::sin(w0);
-        const float beta = sn * std::sqrt((A * A + 1.0f) - (A - 1.0f) * (A - 1.0f));
-        const float a0 = (A + 1.0f) + (A - 1.0f) * cs + beta;
-        b0 = A * ((A + 1.0f) - (A - 1.0f) * cs + beta) / a0;
-        b1 = 2.0f * A * ((A - 1.0f) - (A + 1.0f) * cs) / a0;
-        b2 = A * ((A + 1.0f) - (A - 1.0f) * cs - beta) / a0;
-        a1 = -2.0f * ((A - 1.0f) + (A + 1.0f) * cs) / a0;
-        a2 = ((A + 1.0f) + (A - 1.0f) * cs - beta) / a0;
-        z1 = z2 = 0.0f;
+    void setLowpass(double fc, double sr, double q = 0.707) {
+        const double w0 = 2.0 * kPi * std::min(fc, sr * 0.45) / sr;
+        const double cs = std::cos(w0);
+        const double sn = std::sin(w0);
+        const double alpha = sn / (2.0 * q);
+        const double a0 = 1.0 + alpha;
+        b0 = (1.0 - cs) * 0.5 / a0;
+        b1 = (1.0 - cs) / a0;
+        b2 = b0;
+        a1 = (-2.0 * cs) / a0;
+        a2 = (1.0 - alpha) / a0;
+        z1 = z2 = 0.0;
     }
 
-    inline float tick(float x) {
-        const float y = b0 * x + z1;
+    void setLowShelf(double fc, double sr, double gainDb) {
+        const double A = std::pow(10.0, gainDb / 40.0);
+        const double w0 = 2.0 * kPi * std::min(fc, sr * 0.45) / sr;
+        const double cs = std::cos(w0);
+        const double sn = std::sin(w0);
+        const double beta = sn * std::sqrt(std::max(0.0, (A * A + 1.0) - (A - 1.0) * (A - 1.0)));
+        const double a0 = (A + 1.0) + (A - 1.0) * cs + beta;
+        b0 = A * ((A + 1.0) - (A - 1.0) * cs + beta) / a0;
+        b1 = 2.0 * A * ((A - 1.0) - (A + 1.0) * cs) / a0;
+        b2 = A * ((A + 1.0) - (A - 1.0) * cs - beta) / a0;
+        a1 = -2.0 * ((A - 1.0) + (A + 1.0) * cs) / a0;
+        a2 = ((A + 1.0) + (A - 1.0) * cs - beta) / a0;
+        z1 = z2 = 0.0;
+    }
+
+    inline double tick(double x) {
+        const double y = b0 * x + z1;
         z1 = b1 * x - a1 * y + z2;
         z2 = b2 * x - a2 * y;
         return y;
     }
 };
 
-void cleanAndNormalize(std::vector<float>& y, int sr) {
+// Energy-gated median F0 prevents silent/onset half-F0 octave errors.
+double robustMedianF0(
+    const std::vector<double>& x,
+    int fs,
+    const std::vector<double>& f0,
+    double framePeriodMs
+) {
+    double gEnergy = 0.0;
+    for (double v : x) gEnergy += v * v;
+    const double gRms = std::sqrt(gEnergy / std::max<size_t>(1, x.size()));
+    const int halfWin = std::max(1, static_cast<int>(0.015 * fs));
+
+    std::vector<double> voiced;
+    for (size_t i = 0; i < f0.size(); ++i) {
+        if (f0[i] < 80.0 || f0[i] > 420.0) continue;
+        const int center = static_cast<int>(i * (framePeriodMs * 0.001) * fs);
+        const int s = std::max(0, center - halfWin);
+        const int e = std::min<int>(static_cast<int>(x.size()), center + halfWin);
+        double fe = 0.0;
+        for (int k = s; k < e; ++k) fe += x[k] * x[k];
+        if (std::sqrt(fe / std::max(1, e - s)) >= gRms * 0.40) {
+            voiced.push_back(f0[i]);
+        }
+    }
+    if (voiced.empty()) {
+        for (double v : f0) {
+            if (v > 80.0 && v < 420.0) voiced.push_back(v);
+        }
+    }
+    if (voiced.empty()) return 200.0;
+    std::sort(voiced.begin(), voiced.end());
+    return voiced[voiced.size() / 2];
+}
+
+void cleanAndNormalize(std::vector<double>& y, int sr, bool polishMale) {
     if (y.empty() || sr <= 0) return;
 
     Biquad hp;
-    hp.setHighpass(75.0f, static_cast<float>(sr));
-    for (float& v : y) v = hp.tick(v);
+    hp.setHighpass(75.0, static_cast<double>(sr));
+    for (double& v : y) v = hp.tick(v);
 
-    float peak = 0.0f;
-    for (float v : y) peak = std::max(peak, std::abs(v));
-    if (peak < 1e-5f) return;
+    if (polishMale) {
+        // Gentle high-frequency breath/sibilance tame + chest warmth for native male voices.
+        Biquad deHiss;
+        deHiss.setLowpass(6800.0, static_cast<double>(sr), 0.707);
+        Biquad chest;
+        chest.setLowShelf(140.0, static_cast<double>(sr), 2.2);
+        for (double& v : y) v = chest.tick(deHiss.tick(v));
+    }
 
-    const float thresh = peak * 0.015f;
+    double peak = 0.0;
+    for (double v : y) peak = std::max(peak, std::abs(v));
+    if (peak < 1e-5) return;
+
+    const double thresh = peak * 0.015;
     size_t first = 0;
     size_t last = y.size();
     while (first < y.size() && std::abs(y[first]) < thresh) ++first;
@@ -251,82 +259,121 @@ void cleanAndNormalize(std::vector<float>& y, int sr) {
     first -= leadPad;
     last = std::min(y.size(), last + static_cast<size_t>(0.040 * sr));
     if (last > first) {
-        y = std::vector<float>(y.begin() + first, y.begin() + last);
+        y = std::vector<double>(y.begin() + first, y.begin() + last);
     }
 
-    peak = 0.0f;
-    for (float v : y) peak = std::max(peak, std::abs(v));
-    if (peak > 1e-5f) {
-        const float gain = std::min(12.0f, 0.84f / peak);
-        for (float& v : y) v = std::tanh(v * gain);
-        float newPeak = 0.0f;
-        for (float v : y) newPeak = std::max(newPeak, std::abs(v));
-        if (newPeak > 0.85f) {
-            const float rescale = 0.84f / newPeak;
-            for (float& v : y) v *= rescale;
+    peak = 0.0;
+    for (double v : y) peak = std::max(peak, std::abs(v));
+    if (peak > 1e-5) {
+        const double gain = std::min(12.0, 0.84 / peak);
+        for (double& v : y) v = std::tanh(v * gain);
+        double newPeak = 0.0;
+        for (double v : y) newPeak = std::max(newPeak, std::abs(v));
+        if (newPeak > 0.85) {
+            const double rescale = 0.84 / newPeak;
+            for (double& v : y) v *= rescale;
         }
     }
 
     const size_t fade = std::min<size_t>(static_cast<size_t>(0.005 * sr), y.size() / 4);
     for (size_t i = 0; i < fade; ++i) {
-        const float g = static_cast<float>(i) / static_cast<float>(fade);
+        const double g = static_cast<double>(i) / static_cast<double>(fade);
         y[i] *= g;
         y[y.size() - 1 - i] *= g;
     }
 }
 
-std::vector<float> processPcmSamples(
-    const float* samples,
+std::vector<double> processPcmSamples(
+    const double* samples,
     int32_t numSamples,
     int32_t sampleRate,
     float targetF0Hz,
     float formantSemitones
 ) {
-    std::vector<float> in(samples, samples + numSamples);
+    std::vector<double> x(samples, samples + numSamples);
     if (targetF0Hz <= 0.0f && std::abs(formantSemitones) < 0.05f) {
-        cleanAndNormalize(in, sampleRate);
-        return in;
+        // Native Male path: skip vocoder completely, apply warmth + de-hiss + normalization.
+        cleanAndNormalize(x, sampleRate, true);
+        return x;
     }
 
-    const float srcF0 = estimateMedianF0(in, sampleRate);
-    float pitchDeltaSt = 0.0f;
-    if (targetF0Hz > 0.0f) {
-        pitchDeltaSt = 12.0f * std::log2(std::max(60.0f, targetF0Hz) / std::max(60.0f, srcF0));
-        pitchDeltaSt = std::max(-14.0f, std::min(12.0f, pitchDeltaSt));
+    const double formantRatio = std::max(0.65, std::min(1.50, std::pow(2.0, formantSemitones / 12.0)));
+
+    DioOption dioOpt;
+    InitializeDioOption(&dioOpt);
+    dioOpt.frame_period = 5.0;
+    dioOpt.speed = 1;
+    dioOpt.f0_floor = 71.0;
+    dioOpt.f0_ceil = 550.0;
+    dioOpt.allowed_range = 0.1;
+
+    const int f0Len = GetSamplesForDIO(sampleRate, numSamples, dioOpt.frame_period);
+    std::vector<double> f0(f0Len, 0.0);
+    std::vector<double> timeAxis(f0Len, 0.0);
+    std::vector<double> refinedF0(f0Len, 0.0);
+
+    Dio(x.data(), numSamples, sampleRate, &dioOpt, timeAxis.data(), f0.data());
+    StoneMask(x.data(), numSamples, sampleRate, timeAxis.data(), f0.data(), f0Len, refinedF0.data());
+
+    const double medF0 = robustMedianF0(x, sampleRate, refinedF0, dioOpt.frame_period);
+    const double f0Ratio = (targetF0Hz > 0.0f)
+        ? std::max(0.55, std::min(2.35, static_cast<double>(targetF0Hz) / medF0))
+        : 1.0;
+
+    CheapTrickOption ctOpt;
+    InitializeCheapTrickOption(sampleRate, &ctOpt);
+    ctOpt.f0_floor = 71.0;
+    const int fftSize = GetFFTSizeForCheapTrick(sampleRate, &ctOpt);
+    ctOpt.fft_size = fftSize;
+    const int bins = fftSize / 2 + 1;
+
+    std::vector<double> specBuf(static_cast<size_t>(f0Len) * bins, 0.0);
+    std::vector<double> apBuf(static_cast<size_t>(f0Len) * bins, 0.0);
+    std::vector<double*> spec(f0Len), ap(f0Len);
+    for (int i = 0; i < f0Len; ++i) {
+        spec[i] = &specBuf[static_cast<size_t>(i) * bins];
+        ap[i] = &apBuf[static_cast<size_t>(i) * bins];
     }
 
-    signalsmith::stretch::SignalsmithStretch<float> stretch;
-    stretch.presetDefault(1, static_cast<float>(sampleRate));
-    stretch.setTransposeSemitones(pitchDeltaSt, 0.0f);
-    stretch.setFormantSemitones(formantSemitones, false);
-    stretch.setFormantBase(srcF0 / static_cast<float>(sampleRate));
+    CheapTrick(x.data(), numSamples, sampleRate, timeAxis.data(), refinedF0.data(), f0Len, &ctOpt, spec.data());
 
-    const int totalLat = stretch.inputLatency() + stretch.outputLatency();
-    std::vector<float> padded(in.size() + static_cast<size_t>(totalLat), 0.0f);
-    std::copy(in.begin(), in.end(), padded.begin());
+    D4COption d4cOpt;
+    InitializeD4COption(&d4cOpt);
+    d4cOpt.threshold = 0.85;
+    D4C(x.data(), numSamples, sampleRate, timeAxis.data(), refinedF0.data(), f0Len, fftSize, &d4cOpt, ap.data());
 
-    std::vector<float> rawOut(padded.size(), 0.0f);
-    const float* inPtrs[1] = { padded.data() };
-    float* outPtrs[1] = { rawOut.data() };
-    stretch.process(inPtrs, static_cast<int>(padded.size()), outPtrs, static_cast<int>(rawOut.size()));
+    for (int i = 0; i < f0Len; ++i) {
+        if (refinedF0[i] > 0.0) refinedF0[i] *= f0Ratio;
+    }
 
-    // Skip sample-exact STFT latency (inputLatency + outputLatency) so y[i] aligns with in[i].
-    const size_t skip = std::min<size_t>(static_cast<size_t>(totalLat), rawOut.size());
-    std::vector<float> y(rawOut.begin() + skip, rawOut.end());
-
-    // Preserve unvoiced sibilant/consonant clarity (>4.4 kHz) & chest warmth when shifting down strongly.
-    if (pitchDeltaSt < -4.0f) {
-        Biquad airHp;
-        airHp.setHighpass(4400.0f, static_cast<float>(sampleRate), 0.707f);
-        Biquad chestShelf;
-        chestShelf.setLowShelf(160.0f, static_cast<float>(sampleRate), 2.5f);
-        const size_t n = std::min(y.size(), in.size());
-        for (size_t i = 0; i < n; ++i) {
-            y[i] = chestShelf.tick(y[i]) + 0.55f * airHp.tick(in[i]);
+    if (std::abs(formantRatio - 1.0) > 0.01) {
+        std::vector<double> fx1(bins), fx2(bins), s1(bins), s2(bins);
+        for (int j = 0; j < bins; ++j) {
+            fx1[j] = formantRatio * j / fftSize * sampleRate;
+            fx2[j] = static_cast<double>(j) / fftSize * sampleRate;
+        }
+        for (int i = 0; i < f0Len; ++i) {
+            for (int j = 0; j < bins; ++j) {
+                s1[j] = std::log(std::max(1e-16, spec[i][j]));
+            }
+            interp1(fx1.data(), s1.data(), bins, fx2.data(), bins, s2.data());
+            for (int j = 0; j < bins; ++j) {
+                spec[i][j] = std::exp(s2[j]);
+            }
+            if (formantRatio < 1.0) {
+                const int cut = std::min(bins - 1, std::max(1, static_cast<int>(fftSize * 0.5 * formantRatio)));
+                for (int j = cut; j < bins; ++j) {
+                    const double t = static_cast<double>(j - cut) / std::max(1, bins - cut);
+                    spec[i][j] = spec[i][cut - 1] * std::exp(-3.0 * t);
+                }
+            }
         }
     }
 
-    cleanAndNormalize(y, sampleRate);
+    std::vector<double> y(numSamples, 0.0);
+    Synthesis(refinedF0.data(), f0Len, spec.data(), ap.data(), fftSize, dioOpt.frame_period, sampleRate, numSamples, y.data());
+
+    cleanAndNormalize(y, sampleRate, false);
     return y;
 }
 
@@ -343,8 +390,12 @@ AAC_EXPORT int32_t aac_process_float_pcm_to_wav(
     float formantSemitones
 ) {
     if (!samples || numSamples <= 0 || sampleRate <= 0 || !outWavPath) return -1;
-    std::vector<float> out = processPcmSamples(
-        samples, numSamples, sampleRate, targetF0Hz, formantSemitones
+    std::vector<double> dSamples(numSamples);
+    for (int32_t i = 0; i < numSamples; ++i) {
+        dSamples[i] = static_cast<double>(samples[i]);
+    }
+    std::vector<double> out = processPcmSamples(
+        dSamples.data(), numSamples, sampleRate, targetF0Hz, formantSemitones
     );
     return writeWav(outWavPath, out, sampleRate) ? 0 : -2;
 }
@@ -358,7 +409,7 @@ AAC_EXPORT int32_t aac_process_wav_file(
     if (!inWavPath || !outWavPath) return -1;
     WavData wav;
     if (!readWav(inWavPath, wav)) return -2;
-    std::vector<float> out = processPcmSamples(
+    std::vector<double> out = processPcmSamples(
         wav.samples.data(),
         static_cast<int32_t>(wav.samples.size()),
         wav.sampleRate,

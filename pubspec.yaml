@@ -60,7 +60,9 @@ flutter:
     - assets/sounds/
     - assets/tts/en/
     - assets/tts/si/
+    - assets/tts/si_m/
     - assets/tts/ta/
+    - assets/tts/ta_m/
 
 dependency_overrides:
   record_linux: ^1.2.1

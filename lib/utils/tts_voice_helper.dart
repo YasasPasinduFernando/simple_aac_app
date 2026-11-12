@@ -314,6 +314,8 @@ class TtsVoiceHelper {
 class TtsAcousticSpec {
   const TtsAcousticSpec({
     required this.languageCode,
+    required this.modelKey,
+    required this.useRomanPhonemizer,
     required this.localeTag,
     required this.speakerId,
     required this.targetF0Hz,
@@ -324,6 +326,8 @@ class TtsAcousticSpec {
   });
 
   final String languageCode;
+  final String modelKey;
+  final bool useRomanPhonemizer;
   final String localeTag;
   final int speakerId;
   final double targetF0Hz;
@@ -334,9 +338,8 @@ class TtsAcousticSpec {
 }
 
 extension TtsVoiceProfileAcoustic on TtsVoiceProfile {
-  /// Resolves neural speaker selection and Signalsmith formant/F0 parameters
-  /// so Woman, Man, Child (Boy), and Child (Girl) sound unmistakably distinct
-  /// and crisp across English, Sinhala, and Tamil.
+  /// Resolves native female/male model pack + WORLD vocal-tract parameters so
+  /// Woman, Man, Child (Boy), and Child (Girl) each have distinct, natural speech.
   TtsAcousticSpec acousticSpecFor(String rawLanguageCode) {
     final lower = rawLanguageCode.toLowerCase();
     final lang = lower.startsWith('si')
@@ -352,47 +355,57 @@ extension TtsVoiceProfileAcoustic on TtsVoiceProfile {
       case TtsVoiceProfile.woman:
         return TtsAcousticSpec(
           languageCode: lang,
+          modelKey: lang,
+          useRomanPhonemizer: false,
           localeTag: localeTag,
           speakerId: lang == 'en' ? 60 : 0,
-          targetF0Hz: lang == 'ta' ? 212.0 : 214.0,
-          formantSemitones: -0.6,
+          targetF0Hz: lang == 'en' ? 216.0 : 214.0,
+          formantSemitones: -0.53,
           fallbackTargetF0Hz: 214.0,
-          fallbackFormantSemitones: -0.5,
+          fallbackFormantSemitones: -0.53,
           speed: lang == 'en' ? 0.96 : 0.98,
         );
       case TtsVoiceProfile.man:
         return TtsAcousticSpec(
           languageCode: lang,
+          // Use true native human male neural speakers (LibriTTS sid=749 / Roshan / Valluvar).
+          modelKey: lang == 'en' ? 'en' : '${lang}_m',
+          useRomanPhonemizer: lang == 'si',
           localeTag: localeTag,
-          // LibriTTS speaker 817 is a clean native male (~134 Hz, low hiss).
-          speakerId: lang == 'en' ? 817 : 0,
-          targetF0Hz: lang == 'en' ? 0.0 : 124.0,
-          formantSemitones: lang == 'en' ? 0.0 : -3.4,
-          fallbackTargetF0Hz: 124.0,
-          fallbackFormantSemitones: -3.4,
+          speakerId: lang == 'en' ? 749 : 0,
+          targetF0Hz: 0.0,
+          formantSemitones: 0.0,
+          fallbackTargetF0Hz: 122.0,
+          fallbackFormantSemitones: -3.5,
           speed: lang == 'en' ? 0.96 : 0.97,
         );
       case TtsVoiceProfile.boy:
         return TtsAcousticSpec(
           languageCode: lang,
+          // Start child Boy from native Male speaker + WORLD shorter child vocal tract (1.24x).
+          modelKey: lang == 'en' ? 'en' : '${lang}_m',
+          useRomanPhonemizer: lang == 'si',
           localeTag: localeTag,
-          speakerId: lang == 'en' ? 60 : 0,
-          targetF0Hz: 268.0,
-          formantSemitones: 3.2,
-          fallbackTargetF0Hz: 268.0,
-          fallbackFormantSemitones: 3.2,
+          speakerId: lang == 'en' ? 749 : 0,
+          targetF0Hz: lang == 'en' ? 248.0 : 245.0,
+          formantSemitones: 3.72,
+          fallbackTargetF0Hz: 248.0,
+          fallbackFormantSemitones: 3.72,
           speed: 1.04,
         );
       case TtsVoiceProfile.girl:
         return TtsAcousticSpec(
           languageCode: lang,
+          modelKey: lang,
+          useRomanPhonemizer: false,
           localeTag: localeTag,
           speakerId: lang == 'en' ? 60 : 0,
-          targetF0Hz: 308.0,
-          formantSemitones: 4.6,
-          fallbackTargetF0Hz: 308.0,
-          fallbackFormantSemitones: 4.6,
-          speed: 1.03,
+          // Cute pre-adolescent Girl vocal tract (1.28x formant stretch) from native Female base.
+          targetF0Hz: 340.0,
+          formantSemitones: 4.27,
+          fallbackTargetF0Hz: 340.0,
+          fallbackFormantSemitones: 4.27,
+          speed: 1.05,
         );
     }
   }
