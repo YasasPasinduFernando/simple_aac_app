@@ -33,14 +33,11 @@ import kotlin.math.sqrt
 class MainActivity : FlutterActivity() {
     private val channelName = "aac_backup"
     private val visionChannelName = "aac_vision"
-    private val speechChannelName = "aac_speech"
     private val visionExecutor = Executors.newSingleThreadExecutor()
-    private val speechExecutor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
 
     private var imageLabeler: ImageLabeler? = null
     private var objectDetector: ObjectDetector? = null
-    private var speechBridge: SpeechBridge? = null
 
     private fun getLabeler(): ImageLabeler {
         return imageLabeler ?: ImageLabeling.getClient(
@@ -91,6 +88,24 @@ class MainActivity : FlutterActivity() {
                         result.success(true)
                     } catch (e: Exception) {
                         result.error("LAUNCH_FAILED", e.message, null)
+                    }
+                } else if (call.method == "openTtsInstaller") {
+                    try {
+                        val installIntent = Intent(android.speech.tts.TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        startActivity(installIntent)
+                        result.success(true)
+                    } catch (_: Exception) {
+                        try {
+                            val settingsIntent = Intent("com.android.settings.TTS_SETTINGS").apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            startActivity(settingsIntent)
+                            result.success(true)
+                        } catch (_: Exception) {
+                            result.success(false)
+                        }
                     }
                 } else {
                     result.notImplemented()
@@ -173,50 +188,6 @@ class MainActivity : FlutterActivity() {
                     }
                 } else {
                     result.notImplemented()
-                }
-            }
-
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, speechChannelName)
-            .setMethodCallHandler { call, result ->
-                val bridge = speechBridge ?: SpeechBridge(applicationContext).also { speechBridge = it }
-                when (call.method) {
-                    "probeCapabilities" -> {
-                        speechExecutor.execute {
-                            try {
-                                val report = bridge.probeCapabilities()
-                                mainHandler.post { result.success(report) }
-                            } catch (e: Exception) {
-                                mainHandler.post { result.error("PROBE_FAILED", e.message, null) }
-                            }
-                        }
-                    }
-                    "synthesizeSegments" -> {
-                        val rawSegs = call.argument<List<Map<String, String>>>("segments") ?: emptyList()
-                        val outPath = call.argument<String>("outputPath")
-                        val speechRate = (call.argument<Double>("speechRate") ?: 0.96).toFloat()
-                        val allowNetwork = call.argument<Boolean>("allowNetworkVoice") ?: false
-                        if (outPath.isNullOrBlank()) {
-                            result.error("INVALID_ARGS", "outputPath is required", null)
-                            return@setMethodCallHandler
-                        }
-                        speechExecutor.execute {
-                            try {
-                                val res = bridge.synthesizeSegmentsToWav(
-                                    segments = rawSegs,
-                                    outputPath = outPath,
-                                    speechRate = speechRate,
-                                    allowNetworkVoice = allowNetwork,
-                                )
-                                mainHandler.post { result.success(res) }
-                            } catch (e: Exception) {
-                                mainHandler.post { result.error("SYNTH_FAILED", e.message, null) }
-                            }
-                        }
-                    }
-                    "openTtsInstaller" -> {
-                        result.success(bridge.openTtsInstaller())
-                    }
-                    else -> result.notImplemented()
                 }
             }
     }
@@ -363,9 +334,6 @@ class MainActivity : FlutterActivity() {
         imageLabeler = null
         objectDetector = null
         visionExecutor.shutdown()
-        speechBridge?.shutdown()
-        speechBridge = null
-        speechExecutor.shutdown()
         super.onDestroy()
     }
 

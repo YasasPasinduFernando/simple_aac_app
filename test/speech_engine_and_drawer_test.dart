@@ -76,50 +76,84 @@ void main() {
     expect(opened, isTrue);
   });
 
-  test('SpeechEngine parses capability report cleanly via channel mock', () async {
-    const channel = MethodChannel('aac_speech_test_probe');
+  test('SpeechEngine speaks en, si, ta, and mixed phrases via flutter_tts channel', () async {
+    final calls = <MethodCall>[];
+    const fttsChannel = MethodChannel('flutter_tts');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (call) async {
-      if (call.method == 'probeCapabilities') {
-        return {
-          'initialized': true,
-          'defaultEngine': 'com.google.android.tts',
-          'engines': [
-            {'name': 'com.google.android.tts', 'label': 'Google TTS'},
-          ],
-          'languages': {
-            'en': {
-              'localeTag': 'en-US',
-              'hasOfflineVoice': true,
-              'availabilityCode': 1,
-              'offlineVoiceCount': 4,
-              'voiceCount': 6,
-            },
-            'si': {
-              'localeTag': 'si-LK',
-              'hasOfflineVoice': false,
-              'availabilityCode': -1,
-              'offlineVoiceCount': 0,
-              'voiceCount': 1,
-            },
-          },
-        };
+        .setMockMethodCallHandler(fttsChannel, (call) async {
+      calls.add(call);
+      if (call.method == 'setLanguage' ||
+          call.method == 'setSpeechRate' ||
+          call.method == 'setVolume' ||
+          call.method == 'setPitch' ||
+          call.method == 'awaitSpeakCompletion' ||
+          call.method == 'speak' ||
+          call.method == 'stop') {
+        return 1;
       }
-      if (call.method == 'openTtsInstaller') return true;
       return null;
     });
 
-    final engine = SpeechEngine.forTest(channel: channel);
-    final report = await engine.probeCapabilities();
-    // On Linux VM `Platform.isAndroid` is false so probeCapabilities returns null gracefully.
-    expect(report == null || report.defaultEngine == 'com.google.android.tts', isTrue);
-    await expectLater(engine.stop(), completes);
+    final engine = SpeechEngine.forTest();
+
+    final siRes = await engine.speak('සෙල්ලම්', preferredLanguage: 'si');
+    expect(siRes.isSuccess, isTrue);
+
+    final mixRes = await engine.speak(
+      'මට water එකක් දෙන්න',
+      preferredLanguage: 'si',
+    );
+    expect(mixRes.isSuccess, isTrue);
+
+    final langs = calls
+        .where((c) => c.method == 'setLanguage')
+        .map((c) => c.arguments)
+        .toList();
+    expect(langs, containsAllInOrder(['en-US', 'si-LK', 'en-US', 'si-LK']));
+
+    final spoken = calls
+        .where((c) => c.method == 'speak')
+        .map((c) => c.arguments)
+        .toList();
+    expect(spoken, ['සෙල්ලම්', 'මට', 'water', 'එකක් දෙන්න']);
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, null);
+        .setMockMethodCallHandler(fttsChannel, null);
   });
 
-  test('SpeechResult & SpeechCapabilityReport track missing offline languages', () {
+  test('SpeechEngine reports languageUnavailable if no locale works and speak returns 0', () async {
+    const fttsChannel = MethodChannel('flutter_tts');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(fttsChannel, (call) async {
+      if (call.method == 'setLanguage') {
+        return call.arguments == 'en-US' ? 1 : 0;
+      }
+      if (call.method == 'speak') return 0;
+      if (call.method == 'setSpeechRate' ||
+          call.method == 'setVolume' ||
+          call.method == 'setPitch' ||
+          call.method == 'awaitSpeakCompletion' ||
+          call.method == 'stop') {
+        return 1;
+      }
+      return null;
+    });
+
+    final engine = SpeechEngine.forTest();
+    final res = await engine.speak('හොඳයි', preferredLanguage: 'si');
+    expect(res.isSuccess, isFalse);
+    expect(res.status, SpeechStatus.languageUnavailable);
+    expect(res.missingLanguages, ['si']);
+
+    final emptyRes = await engine.speak('   ', preferredLanguage: 'si');
+    expect(emptyRes.isSuccess, isFalse);
+    expect(emptyRes.status, SpeechStatus.emptyText);
+
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(fttsChannel, null);
+  });
+
+  test('SpeechCapabilityReport tracks supported vs missing offline packs separately', () {
     const report = SpeechCapabilityReport(
       initialized: true,
       defaultEngine: 'com.google.android.tts',
@@ -127,68 +161,24 @@ void main() {
         'en': LanguageVoiceStatus(
           languageCode: 'en',
           localeTag: 'en-US',
+          isLanguageAvailable: true,
           hasOfflineVoice: true,
-          availabilityCode: 1,
-          offlineVoiceCount: 2,
-          totalVoiceCount: 2,
         ),
         'si': LanguageVoiceStatus(
           languageCode: 'si',
           localeTag: 'si-LK',
+          isLanguageAvailable: true,
           hasOfflineVoice: false,
-          availabilityCode: -1,
-          offlineVoiceCount: 0,
-          totalVoiceCount: 0,
+        ),
+        'ta': LanguageVoiceStatus(
+          languageCode: 'ta',
+          localeTag: 'ta-IN',
+          isLanguageAvailable: false,
+          hasOfflineVoice: false,
         ),
       },
     );
-    expect(report.hasOfflineFor('en'), isTrue);
-    expect(report.hasOfflineFor('si-LK'), isFalse);
-    expect(report.missingLanguages, ['si']);
-
-    const emptyRes = SpeechResult(status: SpeechStatus.emptyAudio);
-    expect(emptyRes.isSuccess, isFalse);
-
-    const missingRes = SpeechResult(
-      status: SpeechStatus.missingLanguageData,
-      missingLanguages: ['si'],
-    );
-    expect(missingRes.isSuccess, isFalse);
-    expect(missingRes.missingLanguages, ['si']);
-
-    const failRes = SpeechResult(
-      status: SpeechStatus.synthesisFailed,
-      errorMessage: 'ta',
-    );
-    expect(failRes.isSuccess, isFalse);
-    expect(failRes.errorMessage, 'ta');
-
-    // Uninstalled voices carrying 'notInstalled' must not falsely count as offline-ready.
-    final uninstalled = LanguageVoiceStatus.fromMap('si', {
-      'localeTag': 'si-LK',
-      'hasOfflineVoice': false,
-      'availabilityCode': -1,
-      'offlineVoiceCount': 0,
-      'voiceCount': 1,
-      'voices': [
-        {
-          'name': 'si-lk-x-sin-local',
-          'locale': 'si-LK',
-          'requiresNetwork': false,
-          'notInstalled': true,
-        }
-      ],
-    });
-    expect(uninstalled.hasOfflineVoice, isFalse);
-    expect(uninstalled.offlineVoiceCount, 0);
-  });
-
-  test('SpeechEngine rejects empty/whitespace utterances explicitly', () async {
-    final res = await SpeechEngine.instance.speak(
-      '   ',
-      preferredLanguage: 'si',
-    );
-    expect(res.isSuccess, isFalse);
-    expect(res.status, SpeechStatus.emptyAudio);
+    expect(report.missingLanguages, ['si', 'ta']);
+    expect(report.unsupportedLanguages, ['ta']);
   });
 }

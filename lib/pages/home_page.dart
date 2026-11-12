@@ -92,6 +92,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _initTts() async {
+    await SpeechEngine.instance.initialize();
     final report = await SpeechEngine.instance.probeCapabilities();
     if (mounted && report != null) {
       setState(() {
@@ -260,7 +261,9 @@ class _HomePageState extends State<HomePage> {
         preferredLanguage: currentLanguage,
         waitForCompletion: waitForCompletion,
       );
-      if (!result.isSuccess && mounted) {
+      if (!result.isSuccess &&
+          result.status != SpeechStatus.emptyText &&
+          mounted) {
         final missingLang = result.missingLanguages.isNotEmpty
             ? _getLanguageName(result.missingLanguages.first)
             : _getLanguageName(currentLanguage);
@@ -269,9 +272,9 @@ class _HomePageState extends State<HomePage> {
           ..showSnackBar(
             SnackBar(
               content: Text(
-                result.status == SpeechStatus.missingLanguageData
-                    ? 'Offline $missingLang voice is not installed on this device.'
-                    : 'Speech output unavailable for $missingLang.',
+                result.status == SpeechStatus.languageUnavailable
+                    ? '$missingLang speech voice is not installed on this device.'
+                    : 'Speech engine unavailable for $missingLang.',
               ),
               action: SnackBarAction(
                 label: 'Install Voice',
@@ -778,9 +781,13 @@ class _HomePageState extends State<HomePage> {
   String _speechDrawerSubtitle() {
     final report = _speechCapabilities;
     if (report == null) return 'Automatic offline voice';
-    final missing = report.missingLanguages;
-    if (missing.isEmpty) return 'English, Sinhala & Tamil ready offline';
-    return 'Missing offline: ${missing.map(_getLanguageName).join(', ')}';
+    final unsupported = report.unsupportedLanguages;
+    if (unsupported.isEmpty) {
+      return report.missingLanguages.isEmpty
+          ? 'English, Sinhala & Tamil ready offline'
+          : 'English, Sinhala & Tamil ready';
+    }
+    return 'Check voice data: ${unsupported.map(_getLanguageName).join(', ')}';
   }
 
   void _showOfflineSpeechDialog() {
@@ -845,19 +852,22 @@ class _HomePageState extends State<HomePage> {
                       Builder(
                         builder: (_) {
                           final status = report?.languages[code];
-                          final ready = status?.hasOfflineVoice ?? false;
+                          final offlineReady = status?.hasOfflineVoice ?? false;
+                          final available = status?.isLanguageAvailable ?? false;
                           final sub = status == null
-                              ? 'Checking offline voice data...'
-                              : (ready
+                              ? 'Checking device speech engine...'
+                              : (offlineReady
                                   ? 'Offline voice ready ($locale)'
-                                  : 'Offline voice data not installed ($locale)');
+                                  : (available
+                                      ? 'Voice ready ($locale, uses device fallback)'
+                                      : 'Language pack not installed ($locale)'));
                           return DialogOptionTile(
-                            icon: ready
+                            icon: offlineReady || available
                                 ? Icons.check_circle_rounded
                                 : Icons.download_for_offline_outlined,
                             title: name,
                             subtitle: sub,
-                            selected: ready,
+                            selected: offlineReady || available,
                             onTap: () => unawaited(
                               SpeechEngine.instance.speak(
                                 switch (code) {
