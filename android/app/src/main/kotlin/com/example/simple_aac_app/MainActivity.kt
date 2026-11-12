@@ -33,14 +33,14 @@ import kotlin.math.sqrt
 class MainActivity : FlutterActivity() {
     private val channelName = "aac_backup"
     private val visionChannelName = "aac_vision"
-    private val voiceChannelName = "aac_voice"
+    private val speechChannelName = "aac_speech"
     private val visionExecutor = Executors.newSingleThreadExecutor()
-    private val voiceExecutor = Executors.newSingleThreadExecutor()
+    private val speechExecutor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
 
     private var imageLabeler: ImageLabeler? = null
     private var objectDetector: ObjectDetector? = null
-    private var voiceBridge: AacVoiceBridge? = null
+    private var speechBridge: SpeechBridge? = null
 
     private fun getLabeler(): ImageLabeler {
         return imageLabeler ?: ImageLabeling.getClient(
@@ -176,54 +176,45 @@ class MainActivity : FlutterActivity() {
                 }
             }
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, voiceChannelName)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, speechChannelName)
             .setMethodCallHandler { call, result ->
-                val bridge = voiceBridge ?: AacVoiceBridge(applicationContext).also { voiceBridge = it }
+                val bridge = speechBridge ?: SpeechBridge(applicationContext).also { speechBridge = it }
                 when (call.method) {
-                    "processVoiceWav" -> {
-                        val inPath = call.argument<String>("inputPath")
-                        val outPath = call.argument<String>("outputPath")
-                        val targetF0 = (call.argument<Double>("targetF0Hz") ?: 0.0).toFloat()
-                        val formantSt = (call.argument<Double>("formantSemitones") ?: 0.0).toFloat()
-                        if (inPath.isNullOrBlank() || outPath.isNullOrBlank()) {
-                            result.error("INVALID_ARGS", "inputPath and outputPath are required", null)
-                            return@setMethodCallHandler
-                        }
-                        voiceExecutor.execute {
+                    "probeCapabilities" -> {
+                        speechExecutor.execute {
                             try {
-                                val ok = bridge.processVoiceWav(inPath, outPath, targetF0, formantSt)
-                                mainHandler.post { result.success(ok) }
+                                val report = bridge.probeCapabilities()
+                                mainHandler.post { result.success(report) }
                             } catch (e: Exception) {
-                                mainHandler.post { result.error("DSP_FAILED", e.message, null) }
+                                mainHandler.post { result.error("PROBE_FAILED", e.message, null) }
                             }
                         }
                     }
-                    "synthesizeFallbackWav" -> {
-                        val text = call.argument<String>("text")
-                        val localeTag = call.argument<String>("localeTag") ?: "en-US"
+                    "synthesizeSegments" -> {
+                        val rawSegs = call.argument<List<Map<String, String>>>("segments") ?: emptyList()
                         val outPath = call.argument<String>("outputPath")
-                        val targetF0 = (call.argument<Double>("targetF0Hz") ?: 0.0).toFloat()
-                        val formantSt = (call.argument<Double>("formantSemitones") ?: 0.0).toFloat()
                         val speechRate = (call.argument<Double>("speechRate") ?: 0.96).toFloat()
-                        if (text.isNullOrBlank() || outPath.isNullOrBlank()) {
-                            result.error("INVALID_ARGS", "text and outputPath are required", null)
+                        val allowNetwork = call.argument<Boolean>("allowNetworkVoice") ?: false
+                        if (outPath.isNullOrBlank()) {
+                            result.error("INVALID_ARGS", "outputPath is required", null)
                             return@setMethodCallHandler
                         }
-                        voiceExecutor.execute {
+                        speechExecutor.execute {
                             try {
-                                val ok = bridge.synthesizeCleanFallbackWav(
-                                    text,
-                                    localeTag,
-                                    outPath,
-                                    targetF0,
-                                    formantSt,
-                                    speechRate
+                                val res = bridge.synthesizeSegmentsToWav(
+                                    segments = rawSegs,
+                                    outputPath = outPath,
+                                    speechRate = speechRate,
+                                    allowNetworkVoice = allowNetwork,
                                 )
-                                mainHandler.post { result.success(ok) }
+                                mainHandler.post { result.success(res) }
                             } catch (e: Exception) {
-                                mainHandler.post { result.error("TTS_FALLBACK_FAILED", e.message, null) }
+                                mainHandler.post { result.error("SYNTH_FAILED", e.message, null) }
                             }
                         }
+                    }
+                    "openTtsInstaller" -> {
+                        result.success(bridge.openTtsInstaller())
                     }
                     else -> result.notImplemented()
                 }
@@ -372,9 +363,9 @@ class MainActivity : FlutterActivity() {
         imageLabeler = null
         objectDetector = null
         visionExecutor.shutdown()
-        voiceBridge?.shutdown()
-        voiceBridge = null
-        voiceExecutor.shutdown()
+        speechBridge?.shutdown()
+        speechBridge = null
+        speechExecutor.shutdown()
         super.onDestroy()
     }
 

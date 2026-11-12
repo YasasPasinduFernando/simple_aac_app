@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/default_seed_cards.dart';
 import '../models/aac_card_model.dart';
 import '../services/card_storage_service.dart';
-import '../services/tts_service.dart';
+import '../services/speech_engine.dart';
 import '../services/storage_service.dart';
 import '../widgets/aac_card_widget.dart';
 import '../widgets/card_editor_dialog.dart';
@@ -17,7 +17,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TTSService _ttsService = TTSService();
   final TextEditingController _textController = TextEditingController();
   final AudioPlayer _audioPlayer = AudioPlayer();
 
@@ -31,8 +30,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _initializeApp() async {
-    await _ttsService.initialize();
+    await SpeechEngine.instance.probeCapabilities();
     await _loadData();
+  }
+
+  List<AACCard> _createDefaultCards() {
+    return createDefaultSeedCards();
   }
 
   Future<void> _loadData() async {
@@ -47,17 +50,13 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  List<AACCard> _createDefaultCards() {
-    return createDefaultSeedCards();
-  }
-
   Future<void> _saveData() async {
     await StorageService.saveCards(cards);
     await StorageService.saveGridColumns(gridColumns);
   }
 
   Future<void> _speak(String text) async {
-    await _ttsService.speak(text);
+    await SpeechEngine.instance.speak(text, preferredLanguage: 'en');
   }
 
   Future<void> _showCardEditor(AACCard card) async {
@@ -272,7 +271,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _audioPlayer.dispose();
-    _ttsService.stop();
+    SpeechEngine.instance.stop();
     _textController.dispose();
     super.dispose();
   }

@@ -43,8 +43,8 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onRestore;
   final VoidCallback onResetSettings;
   final VoidCallback? onManagePermissions;
-  final String voiceProfileLabel;
-  final VoidCallback? onShowVoiceProfile;
+  final String speechStatusLabel;
+  final VoidCallback? onShowOfflineSpeech;
   final VoidCallback onShowAbout;
 
   const HomeDrawer({
@@ -91,8 +91,8 @@ class HomeDrawer extends StatelessWidget {
     required this.onRestore,
     required this.onResetSettings,
     this.onManagePermissions,
-    this.voiceProfileLabel = 'Woman',
-    this.onShowVoiceProfile,
+    this.speechStatusLabel = 'Automatic offline voice',
+    this.onShowOfflineSpeech,
     required this.onShowAbout,
   }) : super(key: key);
 
@@ -130,12 +130,12 @@ class HomeDrawer extends StatelessWidget {
                   value: showTtsInput,
                   onChanged: (_) => onToggleTtsInput(),
                 ),
-                if (onShowVoiceProfile != null)
+                if (onShowOfflineSpeech != null)
                   _buildDrawerItem(
                     icon: Icons.record_voice_over_rounded,
-                    title: 'Voice Profile',
-                    subtitle: voiceProfileLabel,
-                    onTap: onShowVoiceProfile!,
+                    title: 'Offline Speech',
+                    subtitle: speechStatusLabel,
+                    onTap: onShowOfflineSpeech!,
                   ),
                 _buildSwitchItem(
                   icon: Icons.text_fields_rounded,

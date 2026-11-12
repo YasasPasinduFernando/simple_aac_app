@@ -15,7 +15,7 @@ import '../models/tts_token.dart';
 import '../services/backup_service.dart';
 import '../services/card_storage_service.dart';
 import '../services/network_policy_service.dart';
-import '../services/neural_tts_service.dart';
+import '../services/speech_engine.dart';
 import '../widgets/card_editor_dialog.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
@@ -31,7 +31,6 @@ import '../utils/app_permissions_helper.dart';
 import '../utils/camera_object_helper.dart';
 import '../utils/card_image.dart';
 import '../utils/theme_accessibility.dart';
-import '../utils/tts_voice_helper.dart';
 import '../utils/ui_mode_helper.dart';
 
 class HomePage extends StatefulWidget {
@@ -83,7 +82,7 @@ class _HomePageState extends State<HomePage> {
   bool _applyTextColorToCards = false;
   bool _isDarkMode = ThemeAccessibility.darkModeNotifier.value;
   bool _isColorBlindMode = false;
-  TtsVoiceProfile _ttsVoiceProfile = TtsVoiceProfile.woman;
+  SpeechCapabilityReport? _speechCapabilities;
   bool _isBusyOperation = false;
 
   @override
@@ -93,7 +92,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _initTts() async {
-    await NeuralTtsService.instance.warmUp(currentLanguage);
+    final report = await SpeechEngine.instance.probeCapabilities();
+    if (mounted && report != null) {
+      setState(() {
+        _speechCapabilities = report;
+      });
+    }
   }
 
   Future<void> _loadCards() async {
@@ -125,8 +129,6 @@ class _HomePageState extends State<HomePage> {
         prefs.getBool(ThemeAccessibility.darkModePrefKey) ?? _isDarkMode;
     final nextColorBlind =
         prefs.getBool(ThemeAccessibility.colorBlindPrefKey) ?? false;
-    final nextVoiceProfile =
-        TtsVoiceHelper.fromStorage(prefs.getString(TtsVoiceHelper.prefKey));
 
     setState(() {
       cards = loadedCards;
@@ -146,7 +148,6 @@ class _HomePageState extends State<HomePage> {
       _applyTextColorToCards = nextApplyText;
       _isDarkMode = nextDark;
       _isColorBlindMode = nextColorBlind;
-      _ttsVoiceProfile = nextVoiceProfile;
       _updateCategories();
       _migrateVisibleCountIfNeeded(prefs);
     });
@@ -239,7 +240,6 @@ class _HomePageState extends State<HomePage> {
           prefs.setBool(ThemeAccessibility.darkModePrefKey, _isDarkMode),
           prefs.setBool(
               ThemeAccessibility.colorBlindPrefKey, _isColorBlindMode),
-          prefs.setString(TtsVoiceHelper.prefKey, _ttsVoiceProfile.name),
         ]);
       }),
     ]);
@@ -255,12 +255,33 @@ class _HomePageState extends State<HomePage> {
   Future<void> _speak(String text, {bool waitForCompletion = false}) async {
     try {
       await _audioPlayer.stop();
-      await NeuralTtsService.instance.speak(
+      final result = await SpeechEngine.instance.speak(
         text,
-        languageCode: currentLanguage,
-        profile: _ttsVoiceProfile,
+        preferredLanguage: currentLanguage,
         waitForCompletion: waitForCompletion,
       );
+      if (!result.isSuccess && mounted) {
+        final missingLang = result.missingLanguages.isNotEmpty
+            ? _getLanguageName(result.missingLanguages.first)
+            : _getLanguageName(currentLanguage);
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(
+                result.status == SpeechStatus.missingLanguageData
+                    ? 'Offline $missingLang voice is not installed on this device.'
+                    : 'Speech output unavailable for $missingLang.',
+              ),
+              action: SnackBarAction(
+                label: 'Install Voice',
+                onPressed: () {
+                  unawaited(SpeechEngine.instance.openSystemTtsInstaller());
+                },
+              ),
+            ),
+          );
+      }
     } catch (e) {
       debugPrint('[HomePage] TTS speak error: $e');
     }
@@ -314,7 +335,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<bool> _playVoice(String path) async {
     try {
-      await NeuralTtsService.instance.stop();
+      await SpeechEngine.instance.stop();
       await _audioPlayer.stop();
       await _audioPlayer.play(DeviceFileSource(path));
       return true;
@@ -699,7 +720,7 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             currentLanguage = code;
           });
-          unawaited(NeuralTtsService.instance.warmUp(code));
+          unawaited(_initTts());
           _saveCards();
           Navigator.pop(context);
           Navigator.pop(context);
@@ -754,29 +775,49 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showVoiceProfileDialog() {
+  String _speechDrawerSubtitle() {
+    final report = _speechCapabilities;
+    if (report == null) return 'Automatic offline voice';
+    final missing = report.missingLanguages;
+    if (missing.isEmpty) return 'English, Sinhala & Tamil ready offline';
+    return 'Missing offline: ${missing.map(_getLanguageName).join(', ')}';
+  }
+
+  void _showOfflineSpeechDialog() {
     Navigator.pop(context);
-    unawaited(NeuralTtsService.instance.warmUp(currentLanguage));
+    var report = _speechCapabilities;
+    var probing = false;
+
     showDialog(
       context: context,
       builder: (dialogContext) {
-        Future<void> selectAndPreview(
-          TtsVoiceProfile profile,
-          VoidCallback refreshDialog,
-        ) async {
-          setState(() {
-            _ttsVoiceProfile = profile;
-          });
-          refreshDialog();
-          _saveCards();
-          await NeuralTtsService.instance.stop();
-          await _speak(
-            TtsVoiceHelper.sampleGreeting(currentLanguage, profile),
-          );
-        }
-
         return StatefulBuilder(
           builder: (dialogContext, setDialogState) {
+            Future<void> refreshProbe() async {
+              setDialogState(() => probing = true);
+              final fresh =
+                  await SpeechEngine.instance.probeCapabilities(forceRefresh: true);
+              if (mounted) {
+                setState(() => _speechCapabilities = fresh);
+              }
+              if (dialogContext.mounted) {
+                setDialogState(() {
+                  report = fresh;
+                  probing = false;
+                });
+              }
+            }
+
+            if (report == null && !probing) {
+              unawaited(refreshProbe());
+            }
+
+            const languages = [
+              ('en', 'English', 'en-US'),
+              ('si', 'Sinhala (සිංහල)', 'si-LK'),
+              ('ta', 'Tamil (தமிழ்)', 'ta-IN'),
+            ];
+
             return AlertDialog(
               insetPadding: const EdgeInsets.symmetric(
                 horizontal: 20,
@@ -784,34 +825,78 @@ class _HomePageState extends State<HomePage> {
               ),
               title: const StyledDialogHeader(
                 icon: Icons.record_voice_over_rounded,
-                title: 'Select Voice',
-                subtitle: 'Choose natural speech voice profile',
+                title: 'Offline Speech',
+                subtitle: 'Automatic multilingual speech engine',
               ),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final profile in TtsVoiceProfile.values)
-                      DialogOptionTile(
-                        icon: TtsVoiceHelper.iconFor(profile),
-                        title: TtsVoiceHelper.labelFor(profile),
-                        subtitle: TtsVoiceHelper.subtitleFor(profile),
-                        selected: _ttsVoiceProfile == profile,
-                        onTap: () => unawaited(
-                          selectAndPreview(profile, () => setDialogState(() {})),
+                    if (report?.defaultEngine != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Text(
+                          'Engine: ${report!.defaultEngine}',
+                          style: Theme.of(dialogContext).textTheme.bodySmall,
                         ),
+                      ),
+                    for (final (code, name, locale) in languages)
+                      Builder(
+                        builder: (_) {
+                          final status = report?.languages[code];
+                          final ready = status?.hasOfflineVoice ?? false;
+                          final sub = status == null
+                              ? 'Checking offline voice data...'
+                              : (ready
+                                  ? 'Offline voice ready ($locale)'
+                                  : 'Offline voice data not installed ($locale)');
+                          return DialogOptionTile(
+                            icon: ready
+                                ? Icons.check_circle_rounded
+                                : Icons.download_for_offline_outlined,
+                            title: name,
+                            subtitle: sub,
+                            selected: ready,
+                            onTap: () => unawaited(
+                              SpeechEngine.instance.speak(
+                                switch (code) {
+                                  'si' => 'ආයුබෝවන්! මට water ඕනේ.',
+                                  'ta' => 'வணக்கம்! எனக்கு water வேண்டும்.',
+                                  _ => 'Hello! Ready to speak.',
+                                },
+                                preferredLanguage: code,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    if (probing)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: LinearProgressIndicator(),
                       ),
                   ],
                 ),
               ),
               actions: [
-                OutlinedButton.icon(
-                  onPressed: () => unawaited(
-                    selectAndPreview(
-                      _ttsVoiceProfile,
-                      () => setDialogState(() {}),
-                    ),
+                if ((report?.missingLanguages ?? const []).isNotEmpty)
+                  TextButton.icon(
+                    onPressed: () {
+                      unawaited(SpeechEngine.instance.openSystemTtsInstaller());
+                    },
+                    icon: const Icon(Icons.download_rounded, size: 18),
+                    label: const Text('Install Voices'),
                   ),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    final sample = switch (currentLanguage) {
+                      'si' => 'ආයුබෝවන්, මට water ඕනේ.',
+                      'ta' => 'வணக்கம், எனக்கு water வேண்டும்.',
+                      _ => 'Hello, I am ready to speak.',
+                    };
+                    unawaited(_speak(sample));
+                  },
                   icon: const Icon(Icons.volume_up_rounded, size: 18),
                   label: const Text('Test'),
                 ),
@@ -1103,7 +1188,6 @@ class _HomePageState extends State<HomePage> {
                 _applyTextColorToCards = false;
                 _isDarkMode = false;
                 _isColorBlindMode = false;
-                _ttsVoiceProfile = TtsVoiceProfile.woman;
                 ThemeAccessibility.darkModeNotifier.value = false;
                 selectedCategory = 'All';
                 visibleCardIdsByParent.clear();
@@ -1265,7 +1349,6 @@ class _HomePageState extends State<HomePage> {
       'applyTextColorToCards': _applyTextColorToCards,
       'darkMode': _isDarkMode,
       'colorBlindMode': _isColorBlindMode,
-      TtsVoiceHelper.prefKey: _ttsVoiceProfile.name,
       'selectedCategory': selectedCategory,
     };
   }
@@ -1910,16 +1993,12 @@ class _HomePageState extends State<HomePage> {
       _isDarkMode = settings['darkMode'] as bool? ?? _isDarkMode;
       _isColorBlindMode =
           settings['colorBlindMode'] as bool? ?? _isColorBlindMode;
-      if (settings.containsKey(TtsVoiceHelper.prefKey)) {
-        _ttsVoiceProfile = TtsVoiceHelper.fromStorage(
-          settings[TtsVoiceHelper.prefKey]?.toString(),
-        );
-      }
+      // Legacy 'ttsVoiceProfile' key in older backups is ignored intentionally.
       ThemeAccessibility.darkModeNotifier.value = _isDarkMode;
 
       _resetTtsInput();
     });
-    unawaited(NeuralTtsService.instance.warmUp(currentLanguage));
+    unawaited(_initTts());
     _updateCategories();
     if (!allCategories.contains(selectedCategory)) {
       setState(() {
@@ -2144,7 +2223,7 @@ class _HomePageState extends State<HomePage> {
             : HomeDrawer(
                 selectedCategory: selectedCategory,
                 currentLanguageLabel: _getLanguageName(currentLanguage),
-                voiceProfileLabel: TtsVoiceHelper.labelFor(_ttsVoiceProfile),
+                speechStatusLabel: _speechDrawerSubtitle(),
                 gridColumns: gridColumns,
                 visibleCardsLabel: _getVisibleCardsLabel(),
                 isEditMode: isEditMode,
@@ -2261,7 +2340,7 @@ class _HomePageState extends State<HomePage> {
                   UiModeHelper.applySystemUi(fullScreen);
                 },
                 onShowLanguage: _showLanguageDialog,
-                onShowVoiceProfile: _showVoiceProfileDialog,
+                onShowOfflineSpeech: _showOfflineSpeechDialog,
                 onShowGrid: _showGridOptions,
                 onShowVisibleCount: _showVisibleCountDialog,
                 onBackup: _backupWithPicker,
@@ -2715,7 +2794,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _highlightTimer?.cancel();
     _tapAnimTimer?.cancel();
-    unawaited(NeuralTtsService.instance.stop());
+    unawaited(SpeechEngine.instance.stop());
     _audioPlayer.dispose();
     _gridController.dispose();
     super.dispose();

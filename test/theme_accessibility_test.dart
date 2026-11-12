@@ -109,8 +109,8 @@ void main() {
             onShowTtsBarSize: () {},
             onToggleFullScreen: () {},
             onShowLanguage: () {},
-            voiceProfileLabel: 'Woman',
-            onShowVoiceProfile: () {},
+            speechStatusLabel: 'Automatic offline voice',
+            onShowOfflineSpeech: () {},
             onShowGrid: () {},
             onShowVisibleCount: () {},
             onBackup: () {},
@@ -126,9 +126,9 @@ void main() {
 
     expect(tester.takeException(), isNull);
 
-    await tester.scrollUntilVisible(find.text('Voice Profile'), 200);
-    expect(find.text('Voice Profile'), findsOneWidget);
-    expect(find.textContaining('Woman'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Offline Speech'), 200);
+    expect(find.text('Offline Speech'), findsOneWidget);
+    expect(find.textContaining('Automatic offline voice'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('Dark Mode'), 200);
     expect(find.text('Dark Mode'), findsOneWidget);
