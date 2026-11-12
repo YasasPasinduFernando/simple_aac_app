@@ -3,7 +3,8 @@
 **Document Date:** November 12, 2026  
 **Target Release Date:** November 14, 2026  
 **Release Branch:** `release/play-2026-11-14`  
-**Latest Release Commit:** `aeb9887` (`feat(branding): integrate new official Simple AAC logo and launcher icon suite`)  
+**Latest Release Commit:** `92d8f0f` (`fix(ui): add close button to CardEditorDialog header and change image clear button to trash bin icon`)  
+**Previous Commits:** `aeb9887` (branding), `fc7afef` (backup hardening)  
 **Base RC Commit:** `185f207` (`feat(speech): select best offline Google voices with subtle pacing for RC`)  
 **Stable Rollback Baseline:** `0549334` (`tag: simple-aac-tts-stable-v1`, `stable/lightweight-multilingual-tts-v1`)  
 **Original Play v1.0.2 Baseline:** `e6fc156` (`release/play-v1.0.2`)  
