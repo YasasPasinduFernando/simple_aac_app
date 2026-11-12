@@ -310,3 +310,90 @@ class TtsVoiceHelper {
     return voices;
   }
 }
+
+class TtsAcousticSpec {
+  const TtsAcousticSpec({
+    required this.languageCode,
+    required this.localeTag,
+    required this.speakerId,
+    required this.targetF0Hz,
+    required this.formantSemitones,
+    required this.fallbackTargetF0Hz,
+    required this.fallbackFormantSemitones,
+    required this.speed,
+  });
+
+  final String languageCode;
+  final String localeTag;
+  final int speakerId;
+  final double targetF0Hz;
+  final double formantSemitones;
+  final double fallbackTargetF0Hz;
+  final double fallbackFormantSemitones;
+  final double speed;
+}
+
+extension TtsVoiceProfileAcoustic on TtsVoiceProfile {
+  /// Resolves neural speaker selection and Signalsmith formant/F0 parameters
+  /// so Woman, Man, Child (Boy), and Child (Girl) sound unmistakably distinct
+  /// and crisp across English, Sinhala, and Tamil.
+  TtsAcousticSpec acousticSpecFor(String rawLanguageCode) {
+    final lower = rawLanguageCode.toLowerCase();
+    final lang = lower.startsWith('si')
+        ? 'si'
+        : (lower.startsWith('ta') ? 'ta' : 'en');
+    final localeTag = switch (lang) {
+      'si' => 'si-LK',
+      'ta' => 'ta-IN',
+      _ => 'en-US',
+    };
+
+    switch (this) {
+      case TtsVoiceProfile.woman:
+        return TtsAcousticSpec(
+          languageCode: lang,
+          localeTag: localeTag,
+          speakerId: lang == 'en' ? 60 : 0,
+          targetF0Hz: lang == 'ta' ? 212.0 : 214.0,
+          formantSemitones: -0.6,
+          fallbackTargetF0Hz: 214.0,
+          fallbackFormantSemitones: -0.5,
+          speed: lang == 'en' ? 0.96 : 0.98,
+        );
+      case TtsVoiceProfile.man:
+        return TtsAcousticSpec(
+          languageCode: lang,
+          localeTag: localeTag,
+          // LibriTTS speaker 817 is a clean native male (~134 Hz, low hiss).
+          speakerId: lang == 'en' ? 817 : 0,
+          targetF0Hz: lang == 'en' ? 0.0 : 124.0,
+          formantSemitones: lang == 'en' ? 0.0 : -3.4,
+          fallbackTargetF0Hz: 124.0,
+          fallbackFormantSemitones: -3.4,
+          speed: lang == 'en' ? 0.96 : 0.97,
+        );
+      case TtsVoiceProfile.boy:
+        return TtsAcousticSpec(
+          languageCode: lang,
+          localeTag: localeTag,
+          speakerId: lang == 'en' ? 60 : 0,
+          targetF0Hz: 268.0,
+          formantSemitones: 3.2,
+          fallbackTargetF0Hz: 268.0,
+          fallbackFormantSemitones: 3.2,
+          speed: 1.04,
+        );
+      case TtsVoiceProfile.girl:
+        return TtsAcousticSpec(
+          languageCode: lang,
+          localeTag: localeTag,
+          speakerId: lang == 'en' ? 60 : 0,
+          targetF0Hz: 308.0,
+          formantSemitones: 4.6,
+          fallbackTargetF0Hz: 308.0,
+          fallbackFormantSemitones: 4.6,
+          speed: 1.03,
+        );
+    }
+  }
+}

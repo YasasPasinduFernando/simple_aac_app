@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -16,6 +15,7 @@ import '../models/tts_token.dart';
 import '../services/backup_service.dart';
 import '../services/card_storage_service.dart';
 import '../services/network_policy_service.dart';
+import '../services/neural_tts_service.dart';
 import '../widgets/card_editor_dialog.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
@@ -42,7 +42,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final FlutterTts _tts = FlutterTts();
   final ImagePicker _picker = ImagePicker();
   final AudioPlayer _audioPlayer = AudioPlayer();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -85,8 +84,6 @@ class _HomePageState extends State<HomePage> {
   bool _isDarkMode = ThemeAccessibility.darkModeNotifier.value;
   bool _isColorBlindMode = false;
   TtsVoiceProfile _ttsVoiceProfile = TtsVoiceProfile.woman;
-  List<dynamic>? _cachedTtsVoices;
-  String? _lastTtsConfigKey;
   bool _isBusyOperation = false;
 
   @override
@@ -96,23 +93,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _initTts() async {
-    try {
-      await TtsVoiceHelper.preferBestEngine(_tts);
-      await _tts.awaitSpeakCompletion(true);
-      await _applyCurrentTtsConfig();
-    } catch (e) {
-      debugPrint('[HomePage] TTS init failed: $e');
-    }
-  }
-
-  Future<void> _applyCurrentTtsConfig() async {
-    _cachedTtsVoices = await TtsVoiceHelper.applyProfile(
-      _tts,
-      languageCode: currentLanguage,
-      profile: _ttsVoiceProfile,
-      cachedVoices: _cachedTtsVoices,
-    );
-    _lastTtsConfigKey = '$currentLanguage:${_ttsVoiceProfile.name}';
+    await NeuralTtsService.instance.warmUp(currentLanguage);
   }
 
   Future<void> _loadCards() async {
@@ -166,7 +147,6 @@ class _HomePageState extends State<HomePage> {
       _isDarkMode = nextDark;
       _isColorBlindMode = nextColorBlind;
       _ttsVoiceProfile = nextVoiceProfile;
-      _lastTtsConfigKey = null;
       _updateCategories();
       _migrateVisibleCountIfNeeded(prefs);
     });
@@ -272,13 +252,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _speak(String text) async {
-    final configKey = '$currentLanguage:${_ttsVoiceProfile.name}';
+  Future<void> _speak(String text, {bool waitForCompletion = false}) async {
     try {
-      if (_lastTtsConfigKey != configKey) {
-        await _applyCurrentTtsConfig();
-      }
-      await _tts.speak(text);
+      await _audioPlayer.stop();
+      await NeuralTtsService.instance.speak(
+        text,
+        languageCode: currentLanguage,
+        profile: _ttsVoiceProfile,
+        waitForCompletion: waitForCompletion,
+      );
     } catch (e) {
       debugPrint('[HomePage] TTS speak error: $e');
     }
@@ -332,6 +314,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<bool> _playVoice(String path) async {
     try {
+      await NeuralTtsService.instance.stop();
       await _audioPlayer.stop();
       await _audioPlayer.play(DeviceFileSource(path));
       return true;
@@ -365,7 +348,7 @@ class _HomePageState extends State<HomePage> {
           } catch (_) {}
         }
       }
-      await _speak(token.label);
+      await _speak(token.label, waitForCompletion: true);
     }
   }
 
@@ -715,8 +698,8 @@ class _HomePageState extends State<HomePage> {
         void selectLang(String code) {
           setState(() {
             currentLanguage = code;
-            _lastTtsConfigKey = null;
           });
+          unawaited(NeuralTtsService.instance.warmUp(code));
           _saveCards();
           Navigator.pop(context);
           Navigator.pop(context);
@@ -773,6 +756,7 @@ class _HomePageState extends State<HomePage> {
 
   void _showVoiceProfileDialog() {
     Navigator.pop(context);
+    unawaited(NeuralTtsService.instance.warmUp(currentLanguage));
     showDialog(
       context: context,
       builder: (dialogContext) {
@@ -782,11 +766,10 @@ class _HomePageState extends State<HomePage> {
         ) async {
           setState(() {
             _ttsVoiceProfile = profile;
-            _lastTtsConfigKey = null;
           });
           refreshDialog();
           _saveCards();
-          await _tts.stop();
+          await NeuralTtsService.instance.stop();
           await _speak(
             TtsVoiceHelper.sampleGreeting(currentLanguage, profile),
           );
@@ -1121,7 +1104,6 @@ class _HomePageState extends State<HomePage> {
                 _isDarkMode = false;
                 _isColorBlindMode = false;
                 _ttsVoiceProfile = TtsVoiceProfile.woman;
-                _lastTtsConfigKey = null;
                 ThemeAccessibility.darkModeNotifier.value = false;
                 selectedCategory = 'All';
                 visibleCardIdsByParent.clear();
@@ -1933,11 +1915,11 @@ class _HomePageState extends State<HomePage> {
           settings[TtsVoiceHelper.prefKey]?.toString(),
         );
       }
-      _lastTtsConfigKey = null;
       ThemeAccessibility.darkModeNotifier.value = _isDarkMode;
 
       _resetTtsInput();
     });
+    unawaited(NeuralTtsService.instance.warmUp(currentLanguage));
     _updateCategories();
     if (!allCategories.contains(selectedCategory)) {
       setState(() {
@@ -2733,7 +2715,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _highlightTimer?.cancel();
     _tapAnimTimer?.cancel();
-    _tts.stop();
+    unawaited(NeuralTtsService.instance.stop());
     _audioPlayer.dispose();
     _gridController.dispose();
     super.dispose();

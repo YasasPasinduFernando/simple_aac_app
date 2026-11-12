@@ -17,7 +17,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "com.example.simple_aac_app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -52,6 +52,13 @@ android {
                 storePassword = storePasswordVal
                 storeFile = rootProject.file(storeFilePath)
             }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
         }
     }
 

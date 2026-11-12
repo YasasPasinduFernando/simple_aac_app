@@ -33,11 +33,14 @@ import kotlin.math.sqrt
 class MainActivity : FlutterActivity() {
     private val channelName = "aac_backup"
     private val visionChannelName = "aac_vision"
+    private val voiceChannelName = "aac_voice"
     private val visionExecutor = Executors.newSingleThreadExecutor()
+    private val voiceExecutor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
 
     private var imageLabeler: ImageLabeler? = null
     private var objectDetector: ObjectDetector? = null
+    private var voiceBridge: AacVoiceBridge? = null
 
     private fun getLabeler(): ImageLabeler {
         return imageLabeler ?: ImageLabeling.getClient(
@@ -170,6 +173,59 @@ class MainActivity : FlutterActivity() {
                     }
                 } else {
                     result.notImplemented()
+                }
+            }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, voiceChannelName)
+            .setMethodCallHandler { call, result ->
+                val bridge = voiceBridge ?: AacVoiceBridge(applicationContext).also { voiceBridge = it }
+                when (call.method) {
+                    "processVoiceWav" -> {
+                        val inPath = call.argument<String>("inputPath")
+                        val outPath = call.argument<String>("outputPath")
+                        val targetF0 = (call.argument<Double>("targetF0Hz") ?: 0.0).toFloat()
+                        val formantSt = (call.argument<Double>("formantSemitones") ?: 0.0).toFloat()
+                        if (inPath.isNullOrBlank() || outPath.isNullOrBlank()) {
+                            result.error("INVALID_ARGS", "inputPath and outputPath are required", null)
+                            return@setMethodCallHandler
+                        }
+                        voiceExecutor.execute {
+                            try {
+                                val ok = bridge.processVoiceWav(inPath, outPath, targetF0, formantSt)
+                                mainHandler.post { result.success(ok) }
+                            } catch (e: Exception) {
+                                mainHandler.post { result.error("DSP_FAILED", e.message, null) }
+                            }
+                        }
+                    }
+                    "synthesizeFallbackWav" -> {
+                        val text = call.argument<String>("text")
+                        val localeTag = call.argument<String>("localeTag") ?: "en-US"
+                        val outPath = call.argument<String>("outputPath")
+                        val targetF0 = (call.argument<Double>("targetF0Hz") ?: 0.0).toFloat()
+                        val formantSt = (call.argument<Double>("formantSemitones") ?: 0.0).toFloat()
+                        val speechRate = (call.argument<Double>("speechRate") ?: 0.96).toFloat()
+                        if (text.isNullOrBlank() || outPath.isNullOrBlank()) {
+                            result.error("INVALID_ARGS", "text and outputPath are required", null)
+                            return@setMethodCallHandler
+                        }
+                        voiceExecutor.execute {
+                            try {
+                                val ok = bridge.synthesizeCleanFallbackWav(
+                                    text,
+                                    localeTag,
+                                    outPath,
+                                    targetF0,
+                                    formantSt,
+                                    speechRate
+                                )
+                                mainHandler.post { result.success(ok) }
+                            } catch (e: Exception) {
+                                mainHandler.post { result.error("TTS_FALLBACK_FAILED", e.message, null) }
+                            }
+                        }
+                    }
+                    else -> result.notImplemented()
                 }
             }
     }
@@ -316,6 +372,9 @@ class MainActivity : FlutterActivity() {
         imageLabeler = null
         objectDetector = null
         visionExecutor.shutdown()
+        voiceBridge?.shutdown()
+        voiceBridge = null
+        voiceExecutor.shutdown()
         super.onDestroy()
     }
 

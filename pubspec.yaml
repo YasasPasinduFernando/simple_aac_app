@@ -43,6 +43,8 @@ dependencies:
   # Share backup file
   share_plus: ^10.0.2
   http: ^1.6.0
+  ffi: ^2.1.0
+  sherpa_onnx: ^2.0.1
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +58,9 @@ flutter:
     - assets/images/
     - assets/images/seed/
     - assets/sounds/
+    - assets/tts/en/
+    - assets/tts/si/
+    - assets/tts/ta/
 
 dependency_overrides:
   record_linux: ^1.2.1
