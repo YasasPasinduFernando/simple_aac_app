@@ -27,6 +27,7 @@ import '../widgets/styled_dialog_header.dart';
 import '../widgets/tts_bar.dart';
 import '../widgets/visible_cards_dialog.dart';
 import '../utils/app_permissions_helper.dart';
+import '../utils/camera_object_helper.dart';
 import '../utils/card_image.dart';
 import '../utils/theme_accessibility.dart';
 import '../utils/tts_voice_helper.dart';
@@ -391,14 +392,56 @@ class _HomePageState extends State<HomePage> {
       ),
     );
 
-    if (source != null) {
-      final allowed = source == ImageSource.camera
-          ? await AppPermissionsHelper.ensureCameraPermission(context)
-          : await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
+    if (source == ImageSource.camera) {
+      try {
+        final outcome = await CameraObjectHelper.captureAndVerify(
+          context,
+          cardId: card.id,
+          imageQuality: 80,
+        );
+        if (outcome != null && mounted) {
+          setState(() {
+            card.imagePath = outcome.imagePath;
+          });
+          _saveCards();
+          if (outcome.analysis.analyzerAvailable &&
+              outcome.analysis.hasObject &&
+              outcome.analysis.labels.isNotEmpty) {
+            final suggested = outcome.analysis.labels.first;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Detected (offline): $suggested'),
+                action: SnackBarAction(
+                  label: 'Use Word',
+                  onPressed: () {
+                    if (!mounted) return;
+                    setState(() {
+                      card.label = suggested;
+                    });
+                    _saveCards();
+                  },
+                ),
+              ),
+            );
+          }
+        }
+      } catch (error, stackTrace) {
+        debugPrint('[HomePage] camera capture failed: $error');
+        debugPrint(stackTrace.toString());
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Camera photo could not be saved. Check permissions if needed.'),
+            ),
+          );
+        }
+      }
+    } else if (source == ImageSource.gallery) {
+      final allowed = await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
       if (!allowed || !mounted) return;
 
       try {
-        final image = await _picker.pickImage(source: source, imageQuality: 80);
+        final image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
         if (image != null) {
           final permanentPath = await CardStorageService.persistMediaFile(
             image.path,

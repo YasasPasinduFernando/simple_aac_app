@@ -11,6 +11,7 @@ import '../services/card_storage_service.dart';
 import '../services/multilingual_concept_service.dart';
 import '../services/network_policy_service.dart';
 import '../utils/app_permissions_helper.dart';
+import '../utils/camera_object_helper.dart';
 import 'smart_image_search_dialog.dart';
 import 'styled_dialog_header.dart';
 
@@ -54,6 +55,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   DateTime? _recordStart;
   bool _isPlaying = false;
   String _detectedConcept = '';
+  CameraAnalysisResult? _cameraAnalysis;
 
   @override
   void initState() {
@@ -107,14 +109,15 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     return raw.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
   }
 
-  Future<void> _pickImageFromSource(ImageSource source) async {
-    final allowed = source == ImageSource.camera
-        ? await AppPermissionsHelper.ensureCameraPermission(context)
-        : await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
+  Future<void> _pickFromGallery() async {
+    final allowed = await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
     if (!allowed || !mounted) return;
 
     try {
-      final picked = await _picker.pickImage(source: source, imageQuality: 85);
+      final picked = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
       if (picked == null) return;
       final permanentPath = await CardStorageService.persistMediaFile(
         picked.path,
@@ -124,23 +127,43 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       if (!mounted) return;
       setState(() {
         widget.card.imagePath = permanentPath;
+        _cameraAnalysis = null;
       });
     } catch (e) {
       if (!mounted) return;
-      final label = source == ImageSource.camera ? 'Camera' : 'Gallery';
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text(
-            '$label unavailable or permission denied. Check App Permissions if needed.',
+            'Gallery unavailable or permission denied. Check App Permissions if needed.',
           ),
         ),
       );
     }
   }
 
-  Future<void> _pickFromGallery() => _pickImageFromSource(ImageSource.gallery);
-
-  Future<void> _pickFromCamera() => _pickImageFromSource(ImageSource.camera);
+  Future<void> _pickFromCamera() async {
+    try {
+      final outcome = await CameraObjectHelper.captureAndVerify(
+        context,
+        cardId: widget.card.id,
+        imageQuality: 85,
+      );
+      if (outcome == null || !mounted) return;
+      setState(() {
+        widget.card.imagePath = outcome.imagePath;
+        _cameraAnalysis = outcome.analysis;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Camera unavailable or permission denied. Check App Permissions if needed.',
+          ),
+        ),
+      );
+    }
+  }
 
   Future<void> _openSmartSearch() async {
     final query = _detectedConcept.isNotEmpty
@@ -160,6 +183,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     if (resultPath != null && mounted) {
       setState(() {
         widget.card.imagePath = resultPath;
+        _cameraAnalysis = null;
       });
     }
   }
@@ -438,6 +462,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                             onTap: () {
                               setState(() {
                                 widget.card.imagePath = null;
+                                _cameraAnalysis = null;
                               });
                             },
                             child: const Padding(
@@ -475,6 +500,10 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                   ),
           ),
           const SizedBox(height: 10),
+          if (hasImage && _cameraAnalysis != null) ...[
+            _buildCameraDetectionBanner(context, _cameraAnalysis!),
+            const SizedBox(height: 10),
+          ],
           if (_detectedConcept.isNotEmpty) ...[
             InkWell(
               onTap: _openSmartSearch,
@@ -566,6 +595,128 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCameraDetectionBanner(
+    BuildContext context,
+    CameraAnalysisResult analysis,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    if (!analysis.analyzerAvailable) return const SizedBox.shrink();
+
+    if (!analysis.hasObject) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: colorScheme.errorContainer.withValues(alpha: 0.45),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: colorScheme.error.withValues(alpha: 0.35),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              size: 18,
+              color: colorScheme.error,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'No object detected in photo',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onErrorContainer,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: _pickFromCamera,
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              ),
+              child: const Text('Retake'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (analysis.labels.isEmpty) return const SizedBox.shrink();
+
+    final currentEn = _controllerEn.text.trim().toLowerCase();
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: colorScheme.secondaryContainer.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.secondary.withValues(alpha: 0.25),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.center_focus_strong_rounded,
+                size: 16,
+                color: colorScheme.secondary,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Detected (offline) — tap to use word:',
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSecondaryContainer,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: analysis.labels.map((label) {
+              final isSelected = currentEn == label.toLowerCase();
+              return ActionChip(
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                avatar: Icon(
+                  isSelected ? Icons.check_rounded : Icons.add_rounded,
+                  size: 15,
+                  color: isSelected
+                      ? colorScheme.primary
+                      : colorScheme.onSecondaryContainer,
+                ),
+                label: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _controllerEn.text = label;
+                    _controllerEn.selection = TextSelection.fromPosition(
+                      TextPosition(offset: label.length),
+                    );
+                  });
+                },
+              );
+            }).toList(),
           ),
         ],
       ),
