@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 
 enum ColorPickerPreviewType {
   appHeader,
-  textColor,
-  backgroundColor,
+  textPreview,
+  backgroundPreview;
+
+  // Backwards-compatible aliases
+  static const textColor = textPreview;
+  static const backgroundColor = backgroundPreview;
 }
 
 class ProfessionalColorPickerDialog extends StatefulWidget {
@@ -32,6 +36,28 @@ class ProfessionalColorPickerDialog extends StatefulWidget {
     PresetColorItem('Coral', Color(0xFFE53935)),
     PresetColorItem('Purple', Color(0xFF8E24AA)),
     PresetColorItem('Warm Brown', Color(0xFF8B5A46)),
+  ];
+
+  static const List<PresetColorItem> textPresets = [
+    PresetColorItem('White', Color(0xFFFFFFFF)),
+    PresetColorItem('Black', Color(0xFF000000)),
+    PresetColorItem('Purple', Color(0xFF7E57C2)),
+    PresetColorItem('Green', Color(0xFF00C853)),
+    PresetColorItem('Orange', Color(0xFFFF6D00)),
+    PresetColorItem('Red', Color(0xFFD50000)),
+    PresetColorItem('Magenta', Color(0xFFD500F9)),
+    PresetColorItem('Royal Blue', Color(0xFF0288D1)),
+  ];
+
+  static const List<PresetColorItem> backgroundPresets = [
+    PresetColorItem('White', Color(0xFFFFFFFF)),
+    PresetColorItem('Sky Blue', Color(0xFF42A5F5)),
+    PresetColorItem('Royal Blue', Color(0xFF0288D1)),
+    PresetColorItem('Teal', Color(0xFF00B4D8)),
+    PresetColorItem('Mint Green', Color(0xFF81C784)),
+    PresetColorItem('Soft Yellow', Color(0xFFFFF176)),
+    PresetColorItem('Soft Pink', Color(0xFFF48FB1)),
+    PresetColorItem('Lavender', Color(0xFFCE93D8)),
   ];
 
   @override
@@ -103,6 +129,17 @@ class _ProfessionalColorPickerDialogState
 
   bool _isColorSelected(Color a, Color b) {
     return a.red == b.red && a.green == b.green && a.blue == b.blue;
+  }
+
+  List<PresetColorItem> get _activePresets {
+    switch (widget.previewType) {
+      case ColorPickerPreviewType.textPreview:
+        return ProfessionalColorPickerDialog.textPresets;
+      case ColorPickerPreviewType.backgroundPreview:
+        return ProfessionalColorPickerDialog.backgroundPresets;
+      case ColorPickerPreviewType.appHeader:
+        return ProfessionalColorPickerDialog.presets;
+    }
   }
 
   @override
@@ -252,193 +289,594 @@ class _ProfessionalColorPickerDialogState
   Widget _buildPreviewContent(ColorScheme colorScheme, bool isDark) {
     switch (widget.previewType) {
       case ColorPickerPreviewType.appHeader:
-        final lighter = Color.lerp(_currentColor, Colors.white, 0.10)!;
-        final darker = Color.lerp(_currentColor, Colors.black, 0.14)!;
-        return Container(
-          height: 48,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [lighter, darker],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.12),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Stack(
-            children: [
-              const Positioned.fill(
-                child: CustomPaint(
-                  painter: _MiniWavePainter(),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(9),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.28),
-                          width: 1.0,
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.push_pin,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Container(
-                      height: 18,
-                      width: 1.2,
-                      margin: const EdgeInsets.symmetric(horizontal: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.35),
-                        borderRadius: BorderRadius.circular(1),
-                      ),
-                    ),
-                    const Expanded(
-                      child: Text(
-                        'Simple AAC',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.2,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(9),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.28),
-                          width: 1.0,
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.menu_rounded,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-
-      case ColorPickerPreviewType.textColor:
-        return Container(
-          height: 48,
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: colorScheme.outlineVariant),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          child: Row(
-            children: [
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: _currentColor.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  'Aa',
-                  style: TextStyle(
-                    color: _currentColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Simple AAC Labels',
-                  style: TextStyle(
-                    color: _currentColor,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        );
-
-      case ColorPickerPreviewType.backgroundColor:
-        return Container(
-          height: 48,
-          decoration: BoxDecoration(
-            color: _currentColor,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: Colors.black.withValues(alpha: 0.15),
-            ),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Flexible(child: _buildMiniCardChip('Hello', const Color(0xFFFDD835))),
-              const SizedBox(width: 6),
-              Flexible(child: _buildMiniCardChip('Sad', const Color(0xFF90CAF9))),
-              const SizedBox(width: 6),
-              Flexible(child: _buildMiniCardChip('Play', const Color(0xFFA5D6A7))),
-            ],
-          ),
-        );
+        return _buildAppHeaderPreview();
+      case ColorPickerPreviewType.textPreview:
+        return _buildTextPreview(colorScheme, isDark);
+      case ColorPickerPreviewType.backgroundPreview:
+        return _buildBackgroundPreview(colorScheme, isDark);
     }
   }
 
-  Widget _buildMiniCardChip(String label, Color color) {
+  Widget _buildAppHeaderPreview() {
+    final lighter = Color.lerp(_currentColor, Colors.white, 0.10)!;
+    final darker = Color.lerp(_currentColor, Colors.black, 0.14)!;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      height: 48,
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(14),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [lighter, darker],
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.14),
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          const Positioned.fill(
+            child: CustomPaint(
+              painter: _MiniWavePainter(),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(9),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.28),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.push_pin,
+                    size: 16,
+                    color: Colors.white,
+                  ),
+                ),
+                Container(
+                  height: 18,
+                  width: 1.2,
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                ),
+                const Expanded(
+                  child: Text(
+                    'Simple AAC',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(9),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.28),
+                      width: 1.0,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.menu_rounded,
+                    size: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Text Color Preview:
+  /// Shows 3 sample AAC cards with stable yellow card bodies.
+  /// The label text demonstrates text readability:
+  /// Card 1: Default black text (#111827)
+  /// Card 2: Initial/Current text (or sample purple #7E57C2)
+  /// Card 3: Live Selected Candidate text (_currentColor)
+  Widget _buildTextPreview(ColorScheme colorScheme, bool isDark) {
+    final initialAccent = (widget.initialColor != const Color(0xFF000000) &&
+            widget.initialColor != const Color(0xFF111827) &&
+            widget.initialColor != const Color(0xFF212121))
+        ? widget.initialColor
+        : const Color(0xFF7E57C2);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+          width: 1.0,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildTextSampleCard(
+              label: 'Hello',
+              textColor: const Color(0xFF111827),
+              cardColor: const Color(0xFFFFF59D),
+              semanticsLabel: 'Default black text sample',
+              onTap: () => _updateColor(const Color(0xFF000000)),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildTextSampleCard(
+              label: 'Hello',
+              textColor: initialAccent,
+              cardColor: const Color(0xFFFFF59D),
+              semanticsLabel: 'Current saved text sample',
+              onTap: () => _updateColor(initialAccent),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildTextSampleCard(
+              label: 'Hello',
+              textColor: _currentColor,
+              cardColor: const Color(0xFFFFF59D),
+              isCandidate: true,
+              semanticsLabel: 'Selected candidate text sample',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextSampleCard({
+    required String label,
+    required Color textColor,
+    required Color cardColor,
+    bool isCandidate = false,
+    String? semanticsLabel,
+    VoidCallback? onTap,
+  }) {
+    final cardContent = Container(
+      key: isCandidate ? const ValueKey('candidate_text_card') : null,
+      constraints: const BoxConstraints(minHeight: 82),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(14),
+        border: isCandidate
+            ? Border.all(
+                color: const Color(0xFF0288D1),
+                width: 2.0,
+              )
+            : Border.all(
+                color: Colors.black.withValues(alpha: 0.12),
+                width: 1.0,
+              ),
+        boxShadow: [
+          BoxShadow(
+            color: isCandidate
+                ? const Color(0xFF0288D1).withValues(alpha: 0.18)
+                : Colors.black.withValues(alpha: 0.08),
+            blurRadius: isCandidate ? 5 : 3,
+            offset: const Offset(0, 1.5),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(
+            width: 34,
+            height: 34,
+            child: CustomPaint(
+              painter: _StickFigurePainter(
+                color: Colors.black87,
+                isCrying: false,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w900,
+                color: textColor,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (onTap != null) {
+      return Semantics(
+        label: semanticsLabel,
+        button: true,
+        child: GestureDetector(
+          onTap: onTap,
+          child: cardContent,
+        ),
+      );
+    }
+
+    return Semantics(
+      label: semanticsLabel,
+      child: cardContent,
+    );
+  }
+
+  /// Background Color Preview:
+  /// Shows a miniature Simple AAC app layout where the candidate color
+  /// visibly fills the board/body canvas beneath the header, with
+  /// the sentence composer bar and AAC cards resting on top.
+  Widget _buildBackgroundPreview(ColorScheme colorScheme, bool isDark) {
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: _currentColor, // Candidate color fills body area!
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: Colors.black.withValues(alpha: 0.16),
+            width: 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 1. Mini Top App Header Bar
+            _buildMiniAppHeader(),
+
+            // 2. Main Content Body Area
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Sentence Composer Bar
+                  _buildMiniSentenceBar(),
+                  const SizedBox(height: 8),
+
+                  // 3 AAC Cards
+                  _buildMiniCardsRow(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniAppHeader() {
+    return Container(
+      height: 30,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0288D1), Color(0xFF01579B)],
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 18,
+            height: 18,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.35),
+                width: 0.8,
+              ),
+            ),
+            child: const Icon(
+              Icons.push_pin,
+              size: 10,
+              color: Colors.white,
+            ),
+          ),
+          Container(
+            height: 12,
+            width: 1.0,
+            margin: const EdgeInsets.symmetric(horizontal: 6),
+            color: Colors.white.withValues(alpha: 0.4),
+          ),
+          const Expanded(
+            child: Text(
+              'Simple AAC',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ),
+          Container(
+            width: 18,
+            height: 18,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.35),
+                width: 0.8,
+              ),
+            ),
+            child: const Icon(
+              Icons.menu_rounded,
+              size: 11,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniSentenceBar() {
+    return Container(
+      height: 26,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(7),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 3,
             offset: const Offset(0, 1),
           ),
         ],
       ),
-      child: Text(
-        label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          color: Colors.black87,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('😋', style: TextStyle(fontSize: 10)),
+                  SizedBox(width: 2.5),
+                  Flexible(
+                    child: Text(
+                      'Happy',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 8.5,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildMiniSentenceAction(
+                icon: Icons.backspace_outlined,
+                label: 'Delete',
+              ),
+              const SizedBox(width: 2.5),
+              _buildMiniSentenceAction(
+                icon: Icons.close_rounded,
+                label: 'Clear',
+              ),
+              const SizedBox(width: 3),
+              Container(
+                width: 18,
+                height: 18,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF0288D1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.volume_up_rounded,
+                  size: 11,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniSentenceAction({
+    required IconData icon,
+    required String label,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1.5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0),
+          width: 0.8,
         ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 8, color: Colors.black54),
+          const SizedBox(width: 1.5),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 7.5,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMiniCardsRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildMiniAACCard(
+            color: const Color(0xFFFDD835),
+            label: 'Hello',
+            isStickHappy: true,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: _buildMiniAACCard(
+            color: const Color(0xFF90CAF9),
+            label: 'Sad',
+            isStickSad: true,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: _buildMiniAACCard(
+            color: const Color(0xFFEF5350),
+            label: 'Angry',
+            isImagePlaceholder: true,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMiniAACCard({
+    required Color color,
+    required String label,
+    bool isStickHappy = false,
+    bool isStickSad = false,
+    bool isImagePlaceholder = false,
+  }) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 2.5,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (isStickHappy)
+            const SizedBox(
+              width: 26,
+              height: 26,
+              child: CustomPaint(
+                painter: _StickFigurePainter(
+                  color: Colors.black87,
+                  isCrying: false,
+                ),
+              ),
+            )
+          else if (isStickSad)
+            const SizedBox(
+              width: 26,
+              height: 26,
+              child: CustomPaint(
+                painter: _StickFigurePainter(
+                  color: Colors.black87,
+                  isCrying: true,
+                ),
+              ),
+            )
+          else if (isImagePlaceholder)
+            Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.35),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: const Icon(
+                Icons.image_outlined,
+                size: 15,
+                color: Colors.white,
+              ),
+            ),
+          const SizedBox(height: 2),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -472,7 +910,7 @@ class _ProfessionalColorPickerDialogState
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: ProfessionalColorPickerDialog.presets.map((item) {
+          children: _activePresets.map((item) {
             final isSelected = _isColorSelected(_currentColor, item.color);
             return Semantics(
               label: 'Preset color ${item.name}',
@@ -944,4 +1382,98 @@ class _MiniWavePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _StickFigurePainter extends CustomPainter {
+  final Color color;
+  final bool isCrying;
+  const _StickFigurePainter({
+    this.color = Colors.black87,
+    this.isCrying = false,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final strokePaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final fillPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final cx = size.width / 2;
+    final headRadius = size.height * 0.20;
+    final headCenter = Offset(cx, headRadius + 2.0);
+
+    // Head circle
+    canvas.drawCircle(headCenter, headRadius, strokePaint);
+
+    // Eyes
+    final eyeDx = headRadius * 0.38;
+    canvas.drawCircle(Offset(cx - eyeDx, headCenter.dy - 1.0), 1.2, fillPaint);
+    canvas.drawCircle(Offset(cx + eyeDx, headCenter.dy - 1.0), 1.2, fillPaint);
+
+    if (isCrying) {
+      // Frown
+      final mouthRect = Rect.fromCircle(
+        center: Offset(cx, headCenter.dy + headRadius * 0.6),
+        radius: headRadius * 0.35,
+      );
+      canvas.drawArc(mouthRect, math.pi * 1.15, math.pi * 0.7, false, strokePaint..strokeWidth = 1.3);
+
+      // Tears
+      final tearPaint = Paint()
+        ..color = const Color(0xFF42A5F5)
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(Offset(cx - eyeDx, headCenter.dy + 3.0), 1.2, tearPaint);
+      canvas.drawCircle(Offset(cx + eyeDx, headCenter.dy + 3.0), 1.2, tearPaint);
+    } else {
+      // Smile
+      final mouthRect = Rect.fromCircle(
+        center: Offset(cx, headCenter.dy + headRadius * 0.1),
+        radius: headRadius * 0.45,
+      );
+      canvas.drawArc(mouthRect, 0.25, math.pi - 0.5, false, strokePaint..strokeWidth = 1.3);
+    }
+
+    strokePaint.strokeWidth = 1.8;
+
+    // Body
+    final neck = Offset(cx, headCenter.dy + headRadius);
+    final crotch = Offset(cx, size.height * 0.72);
+    canvas.drawLine(neck, crotch, strokePaint);
+
+    // Arms
+    if (isCrying) {
+      final shoulderY = neck.dy + 3.0;
+      canvas.drawLine(Offset(cx, shoulderY), Offset(cx - size.width * 0.3, shoulderY + size.height * 0.2), strokePaint);
+      canvas.drawLine(Offset(cx, shoulderY), Offset(cx + size.width * 0.3, shoulderY + size.height * 0.2), strokePaint);
+    } else {
+      final shoulderY = neck.dy + 3.0;
+      final leftHand = Offset(cx - size.width * 0.36, neck.dy - 2.0);
+      final rightHand = Offset(cx + size.width * 0.36, neck.dy - 2.0);
+      canvas.drawLine(Offset(cx, shoulderY), leftHand, strokePaint);
+      canvas.drawLine(Offset(cx, shoulderY), rightHand, strokePaint);
+
+      // Wave ticks / fingers
+      canvas.drawLine(leftHand, Offset(leftHand.dx - 2.5, leftHand.dy - 3.5), strokePaint..strokeWidth = 1.2);
+      canvas.drawLine(leftHand, Offset(leftHand.dx + 1.5, leftHand.dy - 4.0), strokePaint..strokeWidth = 1.2);
+      canvas.drawLine(rightHand, Offset(rightHand.dx + 2.5, rightHand.dy - 3.5), strokePaint..strokeWidth = 1.2);
+      canvas.drawLine(rightHand, Offset(rightHand.dx - 1.5, rightHand.dy - 4.0), strokePaint..strokeWidth = 1.2);
+    }
+
+    strokePaint.strokeWidth = 1.8;
+
+    // Legs
+    canvas.drawLine(crotch, Offset(cx - size.width * 0.24, size.height - 1.5), strokePaint);
+    canvas.drawLine(crotch, Offset(cx + size.width * 0.24, size.height - 1.5), strokePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _StickFigurePainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.isCrying != isCrying;
 }

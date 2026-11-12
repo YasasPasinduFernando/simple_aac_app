@@ -2297,9 +2297,9 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   _showThemeColorDialog(
                     title: 'Text color',
-                    subtitle: 'Pick a color for Normal Mode text',
+                    subtitle: 'Pick a color for Normal Mode',
                     initialColor: customText,
-                    previewType: ColorPickerPreviewType.textColor,
+                    previewType: ColorPickerPreviewType.textPreview,
                     onSelected: (color) {
                       setState(() {
                         _themeTextColor = color.value;
@@ -2312,9 +2312,9 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   _showThemeColorDialog(
                     title: 'Background color',
-                    subtitle: 'Pick a color for board background',
+                    subtitle: 'Pick a color for the main content area (body)',
                     initialColor: customBackground,
-                    previewType: ColorPickerPreviewType.backgroundColor,
+                    previewType: ColorPickerPreviewType.backgroundPreview,
                     onSelected: (color) {
                       setState(() {
                         _themeBackgroundColor = color.value;
