@@ -62,4 +62,18 @@ void main() {
     expect(fileWidget, isA<Image>());
     expect((fileWidget as Image).image, isA<ResizeImage>());
   });
+
+  test('Switch theme provides distinct thumbColor from trackColor when selected in light and dark modes', () {
+    for (final brightness in [Brightness.light, Brightness.dark]) {
+      final theme = AACApp.buildTheme(brightness);
+      final thumbColor = theme.switchTheme.thumbColor?.resolve({WidgetState.selected});
+      final primary = theme.colorScheme.primary;
+      final onPrimary = theme.colorScheme.onPrimary;
+
+      expect(thumbColor, equals(onPrimary),
+          reason: 'Selected thumbColor must be onPrimary for $brightness');
+      expect(thumbColor, isNot(equals(primary)),
+          reason: 'Selected thumbColor must not match primary track color for $brightness');
+    }
+  });
 }

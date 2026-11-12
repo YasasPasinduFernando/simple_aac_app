@@ -34,6 +34,9 @@ void main() async {
 class AACApp extends StatelessWidget {
   const AACApp({Key? key}) : super(key: key);
 
+  @visibleForTesting
+  static ThemeData buildTheme(Brightness brightness) => _buildTheme(brightness);
+
   static ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
     final seed = isDark ? const Color(0xFF38BDF8) : const Color(0xFF0288D1);
@@ -76,7 +79,7 @@ class AACApp extends StatelessWidget {
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return colorScheme.primary;
+            return colorScheme.onPrimary;
           }
           return isDark ? Colors.grey.shade500 : Colors.grey.shade400;
         }),
