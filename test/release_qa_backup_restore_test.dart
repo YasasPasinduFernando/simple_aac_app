@@ -40,7 +40,7 @@ void main() {
       CardStorageService.docsDirectoryOverride = () async => srcDir;
 
       final jpgBytes = utf8.encode('FAKE_JPEG_IMAGE_CONTENT_FOR_TEST_PURPOSES');
-      final gifBytes = _sampleGif;
+      const gifBytes = _sampleGif;
       final voiceBytes = utf8.encode('FAKE_M4A_VOICE_RECORDING_BYTES');
 
       final jpgSrc = File('${srcDir.path}/photo.jpg')..writeAsBytesSync(jpgBytes);
