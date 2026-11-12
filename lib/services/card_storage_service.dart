@@ -160,7 +160,16 @@ class CardStorageService {
     return seededCards;
   }
 
-  static Future<void> saveCards(List<AACCard> cards) async {
+  static Future<void> _saveQueue = Future<void>.value();
+
+  static Future<void> saveCards(List<AACCard> cards) {
+    // Serialize file writes so rapid card edits/imports cannot race on the .tmp swap.
+    final next = _saveQueue.catchError((_) {}).then((_) => _saveCardsSerial(cards));
+    _saveQueue = next;
+    return next;
+  }
+
+  static Future<void> _saveCardsSerial(List<AACCard> cards) async {
     final prefs = await SharedPreferences.getInstance();
     final docsDir = await _getDocsDirectory();
     final file = await _cardsFile(docsDir);

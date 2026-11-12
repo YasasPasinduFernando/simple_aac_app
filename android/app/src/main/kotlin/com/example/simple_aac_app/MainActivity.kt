@@ -112,9 +112,26 @@ class MainActivity : FlutterActivity() {
                             }
                         }
                     }
+                } else if (call.method == "probeVideoDuration") {
+                    val inputPath = call.argument<String>("inputPath")
+                    if (inputPath.isNullOrBlank()) {
+                        result.error("INVALID_ARGS", "inputPath is required", null)
+                        return@setMethodCallHandler
+                    }
+                    visionExecutor.execute {
+                        try {
+                            val durationMs = VideoGifEncoder.probeDurationMs(applicationContext, inputPath)
+                            mainHandler.post { result.success(durationMs) }
+                        } catch (e: Exception) {
+                            mainHandler.post {
+                                result.error("PROBE_FAILED", e.message ?: "Could not inspect video", null)
+                            }
+                        }
+                    }
                 } else if (call.method == "convertVideoToGif") {
                     val inputPath = call.argument<String>("inputPath")
                     val outputPath = call.argument<String>("outputPath")
+                    val trimToLimit = call.argument<Boolean>("trimToLimit") ?: false
                     if (inputPath.isNullOrBlank() || outputPath.isNullOrBlank()) {
                         result.error("INVALID_ARGS", "inputPath and outputPath are required", null)
                         return@setMethodCallHandler
@@ -124,13 +141,16 @@ class MainActivity : FlutterActivity() {
                             val res = VideoGifEncoder.convertVideoToGif(
                                 applicationContext,
                                 inputPath,
-                                outputPath
+                                outputPath,
+                                trimToLimit
                             )
                             mainHandler.post {
                                 result.success(
                                     mapOf(
                                         "outputPath" to res.outputPath,
                                         "durationMs" to res.durationMs,
+                                        "encodedDurationMs" to res.encodedDurationMs,
+                                        "trimmed" to res.trimmed,
                                         "frameCount" to res.frameCount,
                                         "width" to res.width,
                                         "height" to res.height,

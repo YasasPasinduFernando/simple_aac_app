@@ -29,16 +29,41 @@ object VideoGifEncoder {
     data class EncodeResult(
         val outputPath: String,
         val durationMs: Long,
+        val encodedDurationMs: Long,
+        val trimmed: Boolean,
         val frameCount: Int,
         val width: Int,
         val height: Int,
         val sizeBytes: Long
     )
 
+    fun probeDurationMs(context: Context, inputPath: String): Long {
+        val inputFile = File(inputPath)
+        if (!inputFile.exists() || inputFile.length() <= 0L) {
+            throw IllegalArgumentException("Video file not found or empty")
+        }
+        val retriever = MediaMetadataRetriever()
+        return try {
+            try {
+                retriever.setDataSource(context, Uri.fromFile(inputFile))
+            } catch (_: Exception) {
+                retriever.setDataSource(inputPath)
+            }
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                ?.toLongOrNull() ?: 0L
+        } finally {
+            try {
+                retriever.release()
+            } catch (_: Exception) {
+            }
+        }
+    }
+
     fun convertVideoToGif(
         context: Context,
         inputPath: String,
-        outputPath: String
+        outputPath: String,
+        trimToLimit: Boolean = false
     ): EncodeResult {
         val inputFile = File(inputPath)
         if (!inputFile.exists() || inputFile.length() <= 0L) {
@@ -58,9 +83,11 @@ object VideoGifEncoder {
             if (durationMs <= 0L) {
                 throw IllegalArgumentException("Unable to read video duration")
             }
-            if (durationMs > MAX_DURATION_MS) {
+            val wasTrimmed = durationMs > MAX_DURATION_MS
+            if (wasTrimmed && !trimToLimit) {
                 throw VideoTooLongException(durationMs, 30_000L)
             }
+            val encodeDurationMs = if (wasTrimmed) 30_000L else durationMs
 
             val firstRaw = retriever.getFrameAtTime(0L, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
                 ?: retriever.getFrameAtTime(-1L)
@@ -79,13 +106,13 @@ object VideoGifEncoder {
             val outH = max(2, ((srcH * scale).roundToInt() / 2) * 2)
 
             val desiredFps = when {
-                durationMs <= 6_000L -> 8
-                durationMs <= 15_000L -> 6
+                encodeDurationMs <= 6_000L -> 8
+                encodeDurationMs <= 15_000L -> 6
                 else -> 4
             }
-            val rawFrameCount = ((durationMs * desiredFps) / 1000.0).roundToInt()
+            val rawFrameCount = ((encodeDurationMs * desiredFps) / 1000.0).roundToInt()
             val frameCount = rawFrameCount.coerceIn(2, MAX_FRAMES)
-            val frameDelayMs = (durationMs.toDouble() / frameCount).roundToInt().coerceIn(80, 500)
+            val frameDelayMs = (encodeDurationMs.toDouble() / frameCount).roundToInt().coerceIn(80, 500)
             val delayCs = (frameDelayMs / 10).coerceIn(8, 50)
 
             val outFile = File(outputPath)
@@ -98,9 +125,9 @@ object VideoGifEncoder {
             BufferedOutputStream(FileOutputStream(outFile), 32 * 1024).use { out ->
                 writeGifHeader(out, outW, outH)
 
-                val stepUs = (durationMs * 1000L) / frameCount
+                val stepUs = (encodeDurationMs * 1000L) / frameCount
                 for (i in 0 until frameCount) {
-                    val timeUs = (i * stepUs).coerceIn(0L, max(0L, (durationMs - 50L) * 1000L))
+                    val timeUs = (i * stepUs).coerceIn(0L, max(0L, (encodeDurationMs - 50L) * 1000L))
                     val bmp = extractScaledFrame(retriever, timeUs, outW, outH) ?: continue
                     try {
                         val prepared = if (bmp.width == outW && bmp.height == outH) {
@@ -136,6 +163,8 @@ object VideoGifEncoder {
             return EncodeResult(
                 outputPath = outFile.absolutePath,
                 durationMs = durationMs,
+                encodedDurationMs = encodeDurationMs,
+                trimmed = wasTrimmed,
                 frameCount = writtenFrames,
                 width = outW,
                 height = outH,

@@ -113,23 +113,6 @@ class BackupService {
     }
   }
 
-  static List<int> _zipDirectory(Directory dir) {
-    final archive = Archive();
-    final rootPath = dir.path.replaceAll('\\', '/');
-    for (final entity in dir.listSync(recursive: true)) {
-      if (entity is File) {
-        final filePath = entity.path.replaceAll('\\', '/');
-        final relPath = filePath.startsWith(rootPath)
-            ? filePath.substring(rootPath.length + 1)
-            : filePath;
-        final data = entity.readAsBytesSync();
-        archive.addFile(ArchiveFile(relPath, data.length, data));
-      }
-    }
-    final zipEncoder = ZipEncoder();
-    return zipEncoder.encode(archive) ?? <int>[];
-  }
-
   static Future<List<int>?> buildBackupZip(
     List<AACCard> cards, {
     Map<String, dynamic>? settings,
@@ -139,7 +122,7 @@ class BackupService {
     try {
       debugPrint('[BackupService] building backup zip in ${backupRoot.path}');
       await _writeBackupToDirectory(cards, backupRoot, settings);
-      return _zipDirectory(backupRoot);
+      return await compute(_encodeZipDirectoryWorker, backupRoot.path);
     } finally {
       await tempDir.delete(recursive: true);
     }
@@ -250,30 +233,11 @@ class BackupService {
   static Future<void> _extractZipBytesToDirectory(
     List<int> bytes,
     Directory target,
-  ) async {
-    final targetRoot = target.absolute.path.replaceAll('\\', '/');
-    final archive = ZipDecoder().decodeBytes(bytes);
-    for (final file in archive) {
-      final rawName = file.name.replaceAll('\\', '/');
-      if (rawName.startsWith('/') ||
-          rawName.split('/').any((seg) => seg == '..')) {
-        continue;
-      }
-      final outPath = '${target.path}/$rawName';
-      final resolvedOut = File(outPath).absolute.path.replaceAll('\\', '/');
-      if (resolvedOut != targetRoot &&
-          !resolvedOut.startsWith('$targetRoot/')) {
-        continue;
-      }
-      if (file.isFile) {
-        final outFile = File(outPath);
-        await outFile.parent.create(recursive: true);
-        await outFile.writeAsBytes(file.content as List<int>, flush: true);
-      } else {
-        await Directory(outPath).create(recursive: true);
-      }
-    }
-  }
+  ) =>
+      compute(
+        _extractZipBytesWorker,
+        _ExtractZipArgs(bytes: bytes, targetPath: target.path),
+      );
 
   static Future<BackupPayload> restoreFromZipBytes(List<int> bytes) async {
     final tempDir = await Directory.systemTemp.createTemp('aac_restore_');
@@ -300,5 +264,55 @@ class BackupService {
 
   static bool _isAssetPath(String path) {
     return path.startsWith('assets/');
+  }
+}
+
+class _ExtractZipArgs {
+  final List<int> bytes;
+  final String targetPath;
+
+  const _ExtractZipArgs({required this.bytes, required this.targetPath});
+}
+
+List<int> _encodeZipDirectoryWorker(String dirPath) {
+  final dir = Directory(dirPath);
+  final archive = Archive();
+  final rootPath = dir.path.replaceAll('\\', '/');
+  for (final entity in dir.listSync(recursive: true)) {
+    if (entity is File) {
+      final filePath = entity.path.replaceAll('\\', '/');
+      final relPath = filePath.startsWith(rootPath)
+          ? filePath.substring(rootPath.length + 1)
+          : filePath;
+      final data = entity.readAsBytesSync();
+      archive.addFile(ArchiveFile(relPath, data.length, data));
+    }
+  }
+  return ZipEncoder().encode(archive) ?? <int>[];
+}
+
+void _extractZipBytesWorker(_ExtractZipArgs args) {
+  final target = Directory(args.targetPath);
+  final targetRoot = target.absolute.path.replaceAll('\\', '/');
+  final archive = ZipDecoder().decodeBytes(args.bytes);
+  for (final file in archive) {
+    final rawName = file.name.replaceAll('\\', '/');
+    if (rawName.startsWith('/') ||
+        rawName.split('/').any((seg) => seg == '..')) {
+      continue;
+    }
+    final outPath = '${target.path}/$rawName';
+    final resolvedOut = File(outPath).absolute.path.replaceAll('\\', '/');
+    if (resolvedOut != targetRoot &&
+        !resolvedOut.startsWith('$targetRoot/')) {
+      continue;
+    }
+    if (file.isFile) {
+      final outFile = File(outPath);
+      outFile.parent.createSync(recursive: true);
+      outFile.writeAsBytesSync(file.content as List<int>, flush: true);
+    } else {
+      Directory(outPath).createSync(recursive: true);
+    }
   }
 }

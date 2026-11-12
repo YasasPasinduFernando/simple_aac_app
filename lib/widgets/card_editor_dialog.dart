@@ -56,6 +56,8 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   Timer? _recordTimer;
   DateTime? _recordStart;
   bool _isPlaying = false;
+  bool _isClosing = false;
+  bool _isMediaBusy = false;
   String _detectedConcept = '';
   CameraAnalysisResult? _cameraAnalysis;
 
@@ -112,10 +114,12 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   }
 
   Future<void> _pickFromGallery() async {
-    final allowed = await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
-    if (!allowed || !mounted) return;
-
+    if (_isMediaBusy || _isClosing) return;
+    _isMediaBusy = true;
     try {
+      final allowed = await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
+      if (!allowed || !mounted) return;
+
       final picked = await _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 85,
@@ -140,10 +144,14 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
           ),
         ),
       );
+    } finally {
+      _isMediaBusy = false;
     }
   }
 
   Future<void> _pickFromCamera() async {
+    if (_isMediaBusy || _isClosing) return;
+    _isMediaBusy = true;
     try {
       final outcome = await CameraObjectHelper.captureAndVerify(
         context,
@@ -164,41 +172,55 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
           ),
         ),
       );
+    } finally {
+      _isMediaBusy = false;
     }
   }
 
   Future<void> _pickAnimatedClip() async {
-    final savedPath = await AnimatedMediaHelper.pickOrCreateAnimatedGif(
-      context,
-      cardId: widget.card.id,
-    );
-    if (savedPath == null || !mounted) return;
-    setState(() {
-      widget.card.imagePath = savedPath;
-      _cameraAnalysis = null;
-    });
+    if (_isMediaBusy || _isClosing) return;
+    _isMediaBusy = true;
+    try {
+      final savedPath = await AnimatedMediaHelper.pickOrCreateAnimatedGif(
+        context,
+        cardId: widget.card.id,
+      );
+      if (savedPath == null || !mounted) return;
+      setState(() {
+        widget.card.imagePath = savedPath;
+        _cameraAnalysis = null;
+      });
+    } finally {
+      _isMediaBusy = false;
+    }
   }
 
   Future<void> _openSmartSearch() async {
-    final query = _detectedConcept.isNotEmpty
-        ? _detectedConcept
-        : (_controllerEn.text.trim().isNotEmpty
-            ? _controllerEn.text.trim()
-            : '');
+    if (_isMediaBusy || _isClosing) return;
+    _isMediaBusy = true;
+    try {
+      final query = _detectedConcept.isNotEmpty
+          ? _detectedConcept
+          : (_controllerEn.text.trim().isNotEmpty
+              ? _controllerEn.text.trim()
+              : '');
 
-    final resultPath = await showDialog<String>(
-      context: context,
-      builder: (context) => SmartImageSearchDialog(
-        initialQuery: query,
-        cardId: widget.card.id,
-      ),
-    );
+      final resultPath = await showDialog<String>(
+        context: context,
+        builder: (context) => SmartImageSearchDialog(
+          initialQuery: query,
+          cardId: widget.card.id,
+        ),
+      );
 
-    if (resultPath != null && mounted) {
-      setState(() {
-        widget.card.imagePath = resultPath;
-        _cameraAnalysis = null;
-      });
+      if (resultPath != null && mounted) {
+        setState(() {
+          widget.card.imagePath = resultPath;
+          _cameraAnalysis = null;
+        });
+      }
+    } finally {
+      _isMediaBusy = false;
     }
   }
 
@@ -390,8 +412,10 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                         ),
                       ),
                       onPressed: () async {
+                        if (_isClosing) return;
+                        _isClosing = true;
                         await _stopAll();
-                        if (context.mounted) {
+                        if (mounted) {
                           Navigator.pop(context, CardEditorAction.addSubCard);
                         }
                       },
@@ -405,8 +429,10 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         actions: [
           TextButton(
             onPressed: () async {
+              if (_isClosing) return;
+              _isClosing = true;
               await _stopAll();
-              if (context.mounted) {
+              if (mounted) {
                 Navigator.pop(context);
               }
             },
@@ -420,7 +446,10 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
               ),
             ),
             onPressed: () async {
+              if (_isClosing) return;
+              _isClosing = true;
               await _stopAll();
+              if (!mounted) return;
               _saveCard();
             },
             child: const Text(

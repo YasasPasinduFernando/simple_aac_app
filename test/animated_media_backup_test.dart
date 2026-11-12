@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -71,9 +70,10 @@ void main() {
   });
 
   group('AnimatedMediaHelper video/GIF selection & >30s guard', () {
-    testWidgets('rejects video >30s cleanly without mutating card',
+    testWidgets(
+        'warns when video >30s and lets user Cancel or Use First 30s cleanly',
         (tester) async {
-      final tempDir = Directory.systemTemp.createTempSync('gif_reject_');
+      final tempDir = Directory.systemTemp.createTempSync('gif_trim_');
       addTearDown(() {
         if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
       });
@@ -81,21 +81,39 @@ void main() {
 
       final longVideo = File('${tempDir.path}/long.mp4')
         ..writeAsBytesSync([1, 2, 3, 4]);
+      final persistedTrimmed = File('${tempDir.path}/persisted_trim.gif');
 
       Duration? capturedMaxDuration;
+      bool converterCalled = false;
+      bool capturedTrimFlag = false;
+
       AnimatedMediaHelper.videoPickerOverride =
           (source, {Duration? maxDuration}) async {
         capturedMaxDuration = maxDuration;
         return XFile(longVideo.path);
       };
+      AnimatedMediaHelper.durationProbeOverride = (_) async => 42000;
       AnimatedMediaHelper.converterOverride = ({
         required String inputPath,
         required String outputPath,
+        bool trimToLimit = false,
       }) async {
-        throw PlatformException(
-          code: 'VIDEO_TOO_LONG',
-          message: 'Video is 42s long. Maximum allowed is 30s.',
+        converterCalled = true;
+        capturedTrimFlag = trimToLimit;
+        File(outputPath).writeAsBytesSync(_sampleGifBytes);
+        return GifConversionResult(
+          outputPath: outputPath,
+          durationMs: 42000,
+          encodedDurationMs: trimToLimit ? 30000 : 42000,
+          trimmed: trimToLimit,
+          frameCount: 90,
+          sizeBytes: _sampleGifBytes.length,
         );
+      };
+      AnimatedMediaHelper.persistMediaOverride =
+          (sourcePath, {required String cardId}) async {
+        persistedTrimmed.writeAsBytesSync(File(sourcePath).readAsBytesSync());
+        return persistedTrimmed.path;
       };
 
       late BuildContext savedContext;
@@ -112,23 +130,45 @@ void main() {
         ),
       );
 
-      final resultFuture = AnimatedMediaHelper.pickOrCreateAnimatedGif(
+      // 1) User cancels when warned about >30s video.
+      final cancelFuture = AnimatedMediaHelper.pickOrCreateAnimatedGif(
         savedContext,
-        cardId: 'card_long',
+        cardId: 'card_long_cancel',
       );
       await tester.pumpAndSettle();
-
       await tester.tap(find.text('Choose Video (Max 30s)'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Video Longer Than 30s'), findsOneWidget);
+      expect(find.textContaining('42s'), findsOneWidget);
+      expect(find.text('Use First 30s'), findsOneWidget);
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(await cancelFuture, isNull);
+      expect(converterCalled, isFalse);
+
+      // 2) User confirms 'Use First 30s' -> trims cleanly and persists .gif.
+      final trimFuture = AnimatedMediaHelper.pickOrCreateAnimatedGif(
+        savedContext,
+        cardId: 'card_long_trim',
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Choose Video (Max 30s)'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Use First 30s'));
       await tester.pump();
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 50)),
       );
       await tester.pumpAndSettle();
 
-      final result = await resultFuture;
+      final trimmedPath = await trimFuture;
       expect(capturedMaxDuration, const Duration(seconds: 30));
-      expect(result, isNull);
-      expect(find.textContaining('42s'), findsOneWidget);
+      expect(converterCalled, isTrue);
+      expect(capturedTrimFlag, isTrue);
+      expect(trimmedPath, persistedTrimmed.path);
+      expect(File(trimmedPath!).readAsBytesSync(), _sampleGifBytes);
     });
 
     testWidgets(
@@ -150,6 +190,7 @@ void main() {
       AnimatedMediaHelper.converterOverride = ({
         required String inputPath,
         required String outputPath,
+        bool trimToLimit = false,
       }) async {
         File(outputPath).writeAsBytesSync(_sampleGifBytes);
         return GifConversionResult(
@@ -431,6 +472,30 @@ void main() {
       final payload = await BackupService.restoreFromZipBytes(zipBytes);
       expect(payload.cards, isEmpty);
       expect(outsideTarget.existsSync(), isFalse);
+    });
+
+    test('concurrent saveCards calls serialize safely without race errors',
+        () async {
+      final tempDir = Directory.systemTemp.createTempSync('save_serial_');
+      addTearDown(() {
+        if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+      });
+      CardStorageService.docsDirectoryOverride = () async => tempDir;
+
+      await Future.wait([
+        for (var i = 1; i <= 5; i++)
+          CardStorageService.saveCards([
+            AACCard(
+              id: 'card_$i',
+              label: 'Word $i',
+              colorValue: 0xFF90CAF9,
+            ),
+          ]),
+      ]);
+
+      final loaded = await CardStorageService.loadCards(defaultCards: const []);
+      expect(loaded.length, 1);
+      expect(loaded.single.id, 'card_5');
     });
   });
 }

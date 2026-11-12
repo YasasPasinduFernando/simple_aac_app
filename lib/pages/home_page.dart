@@ -87,6 +87,7 @@ class _HomePageState extends State<HomePage> {
   TtsVoiceProfile _ttsVoiceProfile = TtsVoiceProfile.woman;
   List<dynamic>? _cachedTtsVoices;
   String? _lastTtsConfigKey;
+  bool _isBusyOperation = false;
 
   @override
   void initState() {
@@ -1710,62 +1711,131 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _backupAndShare() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Backup started...')),
+  Future<void> _runAsyncOperation({
+    required String title,
+    required String subtitle,
+    required Future<void> Function() task,
+  }) async {
+    if (_isBusyOperation || !mounted) return;
+    _isBusyOperation = true;
+    final rootNav = Navigator.of(context, rootNavigator: true);
+    var dialogOpen = true;
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      useRootNavigator: true,
+      builder: (ctx) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+          content: Row(
+            children: [
+              const SizedBox(
+                width: 28,
+                height: 28,
+                child: CircularProgressIndicator(strokeWidth: 3),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
-    final zipBytes = await BackupService.buildBackupZip(
-      cards,
-      settings: _buildBackupSettings(),
-    );
-    if (zipBytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Backup failed to create zip')),
-      );
-      return;
+    try {
+      await task();
+    } finally {
+      if (dialogOpen && rootNav.mounted) {
+        rootNav.pop();
+        dialogOpen = false;
+      }
+      _isBusyOperation = false;
     }
-    final docsDir = await getApplicationDocumentsDirectory();
-    final path = '${docsDir.path}/aac_backup.zip';
-    await File(path).writeAsBytes(zipBytes, flush: true);
-    await Share.shareXFiles(
-      [XFile(path)],
-      text: 'AAC App backup',
+  }
+
+  Future<void> _backupAndShare() async {
+    String? sharePath;
+    await _runAsyncOperation(
+      title: 'Preparing Backup...',
+      subtitle: 'Packaging cards, GIFs & voice clips',
+      task: () async {
+        final zipBytes = await BackupService.buildBackupZip(
+          cards,
+          settings: _buildBackupSettings(),
+        );
+        if (zipBytes == null) {
+          _showMessage('Backup failed to create zip');
+          return;
+        }
+        final docsDir = await getApplicationDocumentsDirectory();
+        final path = '${docsDir.path}/aac_backup.zip';
+        await File(path).writeAsBytes(zipBytes, flush: true);
+        sharePath = path;
+      },
     );
+    if (sharePath != null && mounted) {
+      await Share.shareXFiles(
+        [XFile(sharePath!)],
+        text: 'AAC App backup',
+      );
+    }
   }
 
   Future<void> _backupToDownloads() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Backup started...')),
-    );
-    final zipBytes = await BackupService.buildBackupZip(
-      cards,
-      settings: _buildBackupSettings(),
-    );
-    if (zipBytes == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Backup failed to create zip')),
-      );
-      return;
-    }
-
     if (Platform.isAndroid && mounted) {
       await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
+      if (!mounted) return;
     }
-
-    try {
-      final savedPath = await BackupService.saveZipToDownloads(zipBytes);
-      if (savedPath == null) {
-        throw Exception('Downloads save failed');
-      }
-      _showMessage('Backup saved to $savedPath');
-    } catch (_) {
-      final fallback = await BackupService.saveZipToAppDocs(zipBytes);
-      _showMessage('Cannot save to Downloads. Backup saved to $fallback');
-    }
+    await _runAsyncOperation(
+      title: 'Saving Backup...',
+      subtitle: 'Writing compressed archive in background',
+      task: () async {
+        final zipBytes = await BackupService.buildBackupZip(
+          cards,
+          settings: _buildBackupSettings(),
+        );
+        if (zipBytes == null) {
+          _showMessage('Backup failed to create zip');
+          return;
+        }
+        try {
+          final savedPath = await BackupService.saveZipToDownloads(zipBytes);
+          if (savedPath == null) {
+            throw Exception('Downloads save failed');
+          }
+          _showMessage('Backup saved to $savedPath');
+        } catch (_) {
+          final fallback = await BackupService.saveZipToAppDocs(zipBytes);
+          _showMessage('Cannot save to Downloads. Backup saved to $fallback');
+        }
+      },
+    );
   }
 
   Future<void> _restoreFromPickedFile() async {
-    _showMessage('Restore started...');
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -1775,22 +1845,28 @@ class _HomePageState extends State<HomePage> {
       if (result == null || !mounted) return;
 
       final picked = result.files.single;
-      var zipBytes = picked.bytes;
-      if (zipBytes == null && picked.path != null) {
-        zipBytes = await File(picked.path!).readAsBytes();
-      }
-      if (zipBytes == null) {
-        _showMessage('Cannot read selected backup');
-        return;
-      }
-      final payload = await BackupService.restoreFromZipBytes(zipBytes);
-      if (!mounted) return;
-      if (payload.cards.isEmpty) {
-        _showMessage('Backup not found in selected file');
-        return;
-      }
-      _applyRestoredBackup(payload);
-      _showMessage('Backup restored successfully!');
+      await _runAsyncOperation(
+        title: 'Restoring Backup...',
+        subtitle: 'Unpacking cards, GIFs & settings safely',
+        task: () async {
+          var zipBytes = picked.bytes;
+          if (zipBytes == null && picked.path != null) {
+            zipBytes = await File(picked.path!).readAsBytes();
+          }
+          if (zipBytes == null) {
+            _showMessage('Cannot read selected backup');
+            return;
+          }
+          final payload = await BackupService.restoreFromZipBytes(zipBytes);
+          if (!mounted) return;
+          if (payload.cards.isEmpty) {
+            _showMessage('Backup not found in selected file');
+            return;
+          }
+          _applyRestoredBackup(payload);
+          _showMessage('Backup restored successfully!');
+        },
+      );
     } catch (e) {
       debugPrint('[HomePage] Backup restore failed: $e');
       _showMessage('Invalid or unreadable backup ZIP file');
@@ -1867,46 +1943,58 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _backupToAppDocsZip() async {
-    try {
-      final zipBytes = await BackupService.buildBackupZip(
-        cards,
-        settings: _buildBackupSettings(),
-      );
-      if (!mounted) return;
-      if (zipBytes == null) {
-        _showMessage('Backup failed to create zip');
-        return;
-      }
-      final path = await BackupService.saveZipToAppDocs(zipBytes);
-      _showMessage('Backup saved to $path');
-    } catch (e) {
-      debugPrint('[HomePage] AppDocs backup failed: $e');
-      _showMessage('Backup could not be saved');
-    }
+    await _runAsyncOperation(
+      title: 'Saving Backup...',
+      subtitle: 'Creating local backup ZIP in background',
+      task: () async {
+        try {
+          final zipBytes = await BackupService.buildBackupZip(
+            cards,
+            settings: _buildBackupSettings(),
+          );
+          if (!mounted) return;
+          if (zipBytes == null) {
+            _showMessage('Backup failed to create zip');
+            return;
+          }
+          final path = await BackupService.saveZipToAppDocs(zipBytes);
+          _showMessage('Backup saved to $path');
+        } catch (e) {
+          debugPrint('[HomePage] AppDocs backup failed: $e');
+          _showMessage('Backup could not be saved');
+        }
+      },
+    );
   }
 
   Future<void> _restoreFromAppDocsZip() async {
-    try {
-      final docsDir = await getApplicationDocumentsDirectory();
-      final zipFile = File('${docsDir.path}/aac_backup.zip');
-      if (!await zipFile.exists()) {
-        _showMessage('No backup found in app folder');
-        return;
-      }
-      final payload = await BackupService.restoreFromZipBytes(
-        await zipFile.readAsBytes(),
-      );
-      if (!mounted) return;
-      if (payload.cards.isEmpty) {
-        _showMessage('Backup not found in app folder file');
-        return;
-      }
-      _applyRestoredBackup(payload);
-      _showMessage('Backup restored successfully!');
-    } catch (e) {
-      debugPrint('[HomePage] AppDocs restore failed: $e');
-      _showMessage('Backup file could not be restored');
-    }
+    await _runAsyncOperation(
+      title: 'Restoring Backup...',
+      subtitle: 'Restoring local backup ZIP safely',
+      task: () async {
+        try {
+          final docsDir = await getApplicationDocumentsDirectory();
+          final zipFile = File('${docsDir.path}/aac_backup.zip');
+          if (!await zipFile.exists()) {
+            _showMessage('No backup found in app folder');
+            return;
+          }
+          final payload = await BackupService.restoreFromZipBytes(
+            await zipFile.readAsBytes(),
+          );
+          if (!mounted) return;
+          if (payload.cards.isEmpty) {
+            _showMessage('Backup not found in app folder file');
+            return;
+          }
+          _applyRestoredBackup(payload);
+          _showMessage('Backup restored successfully!');
+        } catch (e) {
+          debugPrint('[HomePage] AppDocs restore failed: $e');
+          _showMessage('Backup file could not be restored');
+        }
+      },
+    );
   }
 
   void _showAbout() {
@@ -2277,73 +2365,137 @@ class _HomePageState extends State<HomePage> {
     Color themePrimary,
     Color themeText,
   ) {
+    final displayedCards = _getDisplayedCards();
+    final colorScheme = Theme.of(context).colorScheme;
+    final viewKey = ValueKey(
+      '${activeParentCard?.id ?? 'root'}_${selectedCategory}_${displayedCards.isEmpty ? 'empty' : 'grid'}',
+    );
+
+    Widget topBanner = const SizedBox.shrink(key: ValueKey('no_banner'));
+    if (isEditMode) {
+      topBanner = EditModeBar(
+        key: const ValueKey('edit_mode_bar'),
+        onDone: _exitEditMode,
+        onUndo: _undoEditChanges,
+        baseColor: themePrimary,
+        textColor: themeText,
+        onAdd: () {
+          if (!isPinned) {
+            _createCard(parent: activeParentCard);
+          }
+        },
+      );
+    } else if (showTtsInput) {
+      topBanner = TtsBar(
+        key: const ValueKey('tts_bar'),
+        tokens: _ttsTokens,
+        isTablet: isTablet,
+        onDelete: _deleteLastWord,
+        onClear: _clearTtsInput,
+        onSpeak: () async {
+          if (_ttsTokens.isNotEmpty) {
+            await _playTtsTokens();
+          }
+        },
+        speakerColor: _isDarkMode
+            ? Theme.of(context).colorScheme.primary
+            : themePrimary,
+        sizeFactor: _ttsBarSize,
+        showActions: _showTtsActions,
+        showText: !_hideTtsText,
+      );
+    }
+
     return Column(
       children: [
-        if (isEditMode)
-          EditModeBar(
-            onDone: _exitEditMode,
-            onUndo: _undoEditChanges,
-            baseColor: themePrimary,
-            textColor: themeText,
-            onAdd: () {
-              if (!isPinned) {
-                _createCard(parent: activeParentCard);
-              }
-            },
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) => SizeTransition(
+            sizeFactor: animation,
+            axisAlignment: -1.0,
+            child: FadeTransition(opacity: animation, child: child),
           ),
-        if (!isEditMode && showTtsInput)
-          TtsBar(
-            tokens: _ttsTokens,
-            isTablet: isTablet,
-            onDelete: _deleteLastWord,
-            onClear: _clearTtsInput,
-            onSpeak: () async {
-              if (_ttsTokens.isNotEmpty) {
-                await _playTtsTokens();
-              }
-            },
-            speakerColor: _isDarkMode
-                ? Theme.of(context).colorScheme.primary
-                : themePrimary,
-            sizeFactor: _ttsBarSize,
-            showActions: _showTtsActions,
-            showText: !_hideTtsText,
-          ),
+          child: topBanner,
+        ),
         Expanded(
-          child: Builder(
-            builder: (context) {
-              final displayedCards = _getDisplayedCards();
-              if (displayedCards.isEmpty) {
-                return Center(
-                  child: Text(
-                    'No cards in this category. Tap + to add a card!',
-                    style: TextStyle(
-                        fontSize: isTablet ? 18 : 16, color: Colors.grey),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.0, 0.02),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
+            ),
+            child: displayedCards.isEmpty
+                ? Center(
+                    key: viewKey,
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor:
+                                colorScheme.surfaceContainerHighest,
+                            child: Icon(
+                              Icons.style_outlined,
+                              size: 30,
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'No cards in this category',
+                            style: TextStyle(
+                              fontSize: isTablet ? 18 : 16,
+                              fontWeight: FontWeight.w600,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Tap + in Edit Mode to add a photo or GIF card.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: isTablet ? 14 : 13,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : GridView.builder(
+                    key: viewKey,
+                    controller: _gridController,
+                    cacheExtent: 360,
+                    padding: EdgeInsets.all(isTablet ? 20 : 12),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: isTablet
+                          ? (gridColumns == 1 ? 2 : gridColumns + 1)
+                          : gridColumns,
+                      crossAxisSpacing: isTablet ? 16 : 12,
+                      mainAxisSpacing: isTablet ? 16 : 12,
+                      childAspectRatio: isTablet ? 1.1 : 1.0,
+                    ),
+                    itemCount: displayedCards.length,
+                    itemBuilder: (context, i) {
+                      final card = displayedCards[i];
+                      return RepaintBoundary(
+                        key: ValueKey(card.id),
+                        child: _buildCardWidget(card, isTablet),
+                      );
+                    },
                   ),
-                );
-              }
-              return GridView.builder(
-                controller: _gridController,
-                cacheExtent: 360,
-                padding: EdgeInsets.all(isTablet ? 20 : 12),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: isTablet
-                      ? (gridColumns == 1 ? 2 : gridColumns + 1)
-                      : gridColumns,
-                  crossAxisSpacing: isTablet ? 16 : 12,
-                  mainAxisSpacing: isTablet ? 16 : 12,
-                  childAspectRatio: isTablet ? 1.1 : 1.0,
-                ),
-                itemCount: displayedCards.length,
-                itemBuilder: (context, i) {
-                  final card = displayedCards[i];
-                  return RepaintBoundary(
-                    key: ValueKey(card.id),
-                    child: _buildCardWidget(card, isTablet),
-                  );
-                },
-              );
-            },
           ),
         ),
       ],
