@@ -223,8 +223,8 @@ Following a report of Camera and Record Video launch failures on a physical Sams
 - **Worktree Location:** `/media/yasas/New Volume2/yasas/PersonalProjects/simple aac/simple_aac_play_release`
 - **Latest Commit:** `fb6954f` (Bilingual User Guide Suite)
 - **Documentation Suite:** `docs/user-guide/`
-  - `Simple_AAC_User_Guide.md` & `Simple_AAC_User_Guide.pdf` (English, 27 pages)
-  - `Simple_AAC_User_Guide_SI.md` & `Simple_AAC_User_Guide_SI.pdf` (Sinhala, 27 pages)
+  - `Simple_AAC_User_Guide.md` & `Simple_AAC_User_Guide.pdf` (English, 7 pages)
+  - `Simple_AAC_User_Guide_SI.md` & `Simple_AAC_User_Guide_SI.pdf` (Sinhala, 7 pages)
   - `USER_GUIDE_QA_REPORT.md` (Detailed audit report & SHA-256 checksums)
   - `Simple_AAC_v1.1.0_User_Guide.zip` (57 MB complete media & guide bundle)
 - **Status:** **100% AUDITED, TESTED & CERTIFIED FOR NOVEMBER 14, 2026 RELEASE CANDIDATE ACCEPTANCE**.

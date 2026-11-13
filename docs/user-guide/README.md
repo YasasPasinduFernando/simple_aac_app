@@ -14,10 +14,10 @@ docs/user-guide/
 ├── README.md                          # Documentation overview & asset manifest
 ├── Simple_AAC_User_Guide.md           # Master English user guide (Markdown)
 ├── Simple_AAC_User_Guide.html         # Responsive, print-ready HTML documentation (English)
-├── Simple_AAC_User_Guide.pdf          # High-resolution offline vector PDF export (English, 27 pages)
+├── Simple_AAC_User_Guide.pdf          # High-resolution offline vector PDF export (English, 7 pages)
 ├── Simple_AAC_User_Guide_SI.md        # Master Sinhala user guide / පරිශීලක අත්පොත (Markdown)
 ├── Simple_AAC_User_Guide_SI.html      # Responsive, print-ready HTML documentation (Sinhala)
-├── Simple_AAC_User_Guide_SI.pdf       # High-resolution offline vector PDF export (Sinhala, 27 pages)
+├── Simple_AAC_User_Guide_SI.pdf       # High-resolution offline vector PDF export (Sinhala, 7 pages)
 ├── USER_GUIDE_QA_REPORT.md            # Verification, accessibility audit & QA report
 ├── screenshots/                       # Real ADB captured application screens (PNG)
 ├── gifs/                              # Optimized animated walkthrough demonstrations (GIF)

@@ -2,312 +2,527 @@
 <html lang="si">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simple AAC ශ්‍රී ලංකා — පරිශීලක අත්පොත (v1.1.0)</title>
+
 <style>
   @page {
-    size: A4;
-    margin: 16mm 14mm 16mm 14mm;
-    @bottom-center {
+    size: A4 portrait;
+    margin: 14mm 18mm 14mm 18mm;
+    @bottom-left {
+      content: "Simple AAC ශ්‍රී ලංකා — පරිශීලක අත්පොත (v1.1.0)";
+      font-size: 8pt;
+      font-family: "Noto Sans Sinhala", "Iskoola Pota", sans-serif;
+      color: #64748b;
+    }
+    @bottom-right {
       content: "පිටුව " counter(page) " / " counter(pages);
-      font-size: 9pt;
+      font-size: 8pt;
+      font-family: "Noto Sans Sinhala", "Iskoola Pota", sans-serif;
       color: #64748b;
     }
   }
 
+  * { box-sizing: border-box; }
+
   body {
     font-family: "Noto Sans Sinhala", "Iskoola Pota", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.75;
+    line-height: 1.5;
     color: #1e293b;
-    background-color: #f8fafc;
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    background: #ffffff;
+    font-size: 9.5pt;
+    text-align: left;
   }
 
-  .container {
-    max-width: 880px;
-    margin: 0 auto;
-    background: #ffffff;
-    padding: 40px 50px;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  .doc-header {
+    margin-bottom: 10px;
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   h1 {
     color: #01579b;
-    border-bottom: 3px solid #0288d1;
-    padding-bottom: 12px;
-    margin-top: 0;
-    font-size: 24pt;
-    line-height: 1.4;
+    font-size: 20pt;
+    font-weight: 700;
+    margin: 0 0 2px 0;
+    line-height: 1.25;
+  }
+
+  .subtitle {
+    color: #475569;
+    font-size: 9.5pt;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1.5px solid #0288d1;
+    margin: 0 0 10px 0;
+  }
+
+  .toc-box {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 9px 14px;
+    margin-bottom: 12px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .toc-title {
+    font-size: 9.5pt;
+    font-weight: 700;
+    color: #0277bd;
+    margin: 0 0 6px 0;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 3px;
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px 24px;
+  }
+
+  .toc-item {
+    font-size: 8.5pt;
+    color: #334155;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 1px 0;
+  }
+
+  .toc-num {
+    font-weight: 700;
+    color: #0284c7;
+    margin-right: 4px;
+  }
+
+  .toc-page {
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .dots {
+    flex: 1;
+    border-bottom: 1px dotted #cbd5e1;
+    margin: 0 4px;
   }
 
   h2 {
     color: #0277bd;
-    border-bottom: 1.5px solid #e2e8f0;
-    padding-bottom: 8px;
-    margin-top: 36px;
-    font-size: 17pt;
-    line-height: 1.4;
+    font-size: 13.5pt;
+    font-weight: 700;
+    margin: 14pt 0 4pt 0;
+    padding-bottom: 2px;
+    border-bottom: 1.2px solid #e2e8f0;
     page-break-after: avoid;
+    break-after: avoid;
+    line-height: 1.25;
+  }
+
+  .page-start {
+    margin-top: 0;
   }
 
   h3 {
-    color: #039be5;
-    margin-top: 24px;
-    font-size: 13pt;
-    line-height: 1.4;
-    page-break-after: avoid;
-  }
-
-  p, li {
+    color: #0369a1;
     font-size: 10.5pt;
-    color: #334155;
-  }
-
-  hr {
-    border: none;
-    border-top: 1px solid #e2e8f0;
-    margin: 30px 0;
-  }
-
-  img {
-    display: block;
-    max-width: 380px;
-    width: 85%;
-    height: auto;
-    margin: 16px auto 8px auto;
-    border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-    border: 1px solid #e2e8f0;
-    page-break-inside: avoid;
-  }
-
-  em {
-    display: block;
-    text-align: center;
-    color: #64748b;
-    font-size: 9pt;
-    margin-bottom: 24px;
+    font-weight: 600;
+    margin: 9pt 0 3pt 0;
     page-break-after: avoid;
+    break-after: avoid;
+    line-height: 1.25;
+  }
+
+  p {
+    margin: 0 0 5pt 0;
+    color: #334155;
+    text-align: left;
+    orphans: 3;
+    widows: 3;
   }
 
   ul, ol {
-    padding-left: 24px;
-    margin-bottom: 16px;
+    margin: 0 0 5pt 0;
+    padding-left: 18px;
   }
 
   li {
-    margin-bottom: 6px;
+    margin-bottom: 2pt;
+    color: #334155;
   }
+
+  strong { color: #0f172a; }
+  em { font-style: italic; color: inherit; display: inline; }
 
   code {
     background: #f1f5f9;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 9.5pt;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 8.5pt;
     font-family: ui-monospace, Menlo, Monaco, monospace;
     color: #0284c7;
+    border: 1px solid #e2e8f0;
   }
 
-  @media print {
-    body {
-      background: #ffffff;
-      padding: 0;
-    }
-    .container {
-      max-width: 100%;
-      padding: 0;
-      box-shadow: none;
-    }
-    img {
-      max-width: 320px;
-      page-break-inside: avoid;
-    }
-    h2, h3 {
-      page-break-after: avoid;
-    }
-    p, em {
-      orphans: 3;
-      widows: 3;
-    }
+  .fig-row {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin: 6pt 0 8pt 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .fig-col {
+    flex: 1;
+    max-width: 195px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+  }
+
+  .fig-col img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid #cbd5e1;
+    display: block;
+    background: #ffffff;
+  }
+
+  .fig-single {
+    text-align: center;
+    margin: 6pt 0 8pt 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .fig-single img {
+    max-width: 195px;
+    max-height: 220px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid #cbd5e1;
+    display: block;
+    background: #ffffff;
+  }
+
+  figcaption {
+    font-size: 8pt;
+    font-style: italic;
+    color: #64748b;
+    margin-top: 4px;
+    text-align: center;
+    line-height: 1.25;
+    display: block;
+  }
+
+  .fig-row-3 {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 6pt 0 8pt 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .fig-row-3 .fig-col {
+    flex: 1;
+    max-width: 165px;
+  }
+
+  .fig-row-3 img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid #cbd5e1;
+    display: block;
+  }
+
+  .callout {
+    background: #f0f9ff;
+    border-left: 3px solid #0284c7;
+    border-radius: 0 5px 5px 0;
+    padding: 5px 10px;
+    margin: 5pt 0 7pt 0;
+    font-size: 8.5pt;
+    color: #0369a1;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .page-break {
+    page-break-before: always;
+    break-before: page;
   }
 </style>
+
 </head>
 <body>
-<div class="container">
-<h1 id="simple-aac-v110">Simple AAC ශ්‍රී ලංකා — පරිශීලක අත්පොත (v1.1.0)</h1>
-<p><strong>දිනපතා සන්නිවේදනය, කාඩ්පත් සැකසීම සහ ප්‍රවේශ්‍යතාව සඳහා වූ සම්පූර්ණ මගපෙන්වීම</strong></p>
-<hr />
-<h2 id="_1">පටුන</h2>
-<ol>
-<li><a href="#1-වන-පරිච්ඡේදය-simple-aac-වෙත-සාදරයෙන්-පිළිගනිමු">1 වන පරිච්ඡේදය: Simple AAC වෙත සාදරයෙන් පිළිගනිමු</a></li>
-<li><a href="#2-වන-පරිච්ඡේදය-කථනය-සහ-වාක්‍ය-සැකසීම">2 වන පරිච්ඡේදය: කථනය සහ වාක්‍ය සැකසීම</a></li>
-<li><a href="#3-වන-පරිච්ඡේදය-කාඩ්පත්-සංස්කරණය-සහ-භාෂා-ත්‍රිත්වය">3 වන පරිච්ඡේදය: කාඩ්පත් සංස්කරණය සහ භාෂා ත්‍රිත්වය</a></li>
-<li><a href="#4-වන-පරිච්ඡේදය-චලන-රූප-animated-gifs-සහ-වීඩියෝ-ලූප">4 වන පරිච්ඡේදය: චලන රූප (Animated GIFs) සහ වීඩියෝ ලූප</a></li>
-<li><a href="#5-වන-පරිච්ඡේදය-කාණ්ඩ-categories-සහ-ෆෝල්ඩර-මගින්-සංවිධානය-කිරීම">5 වන පරිච්ඡේදය: කාණ්ඩ (Categories) සහ ෆෝල්ඩර මගින් සංවිධානය කිරීම</a></li>
-<li><a href="#6-වන-පරිච්ඡේදය-වර්ණ-තේමා-live-preview-සහ-ස්පර්ශක-කම්පනය-haptic-feedback">6 වන පරිච්ඡේදය: වර්ණ තේමා, Live Preview සහ ස්පර්ශක කම්පනය (Haptic Feedback)</a></li>
-<li><a href="#7-වන-පරිච්ඡේදය-ළමා-ආරක්ෂාව-සහ-board-pinning-pin-අගුල">7 වන පරිච්ඡේදය: ළමා ආරක්ෂාව සහ Board Pinning (PIN අගුල)</a></li>
-<li><a href="#8-වන-පරිච්ඡේදය-දත්ත-සුරැකීම-backup-නැවත-ලබාගැනීම-restore-සහ-නොබැඳි-රහස්‍යතාව">8 වන පරිච්ඡේදය: දත්ත සුරැකීම (Backup), නැවත ලබාගැනීම (Restore) සහ නොබැඳි රහස්‍යතාව</a></li>
-</ol>
-<hr />
-<h2 id="1-simple-aac">1 වන පරිච්ඡේදය: Simple AAC වෙත සාදරයෙන් පිළිගනිමු</h2>
-<p>Simple AAC ශ්‍රී ලංකා යනු කථන අපහසුතා ඇති දරුවන්, ඕටිසම් (Autism Spectrum), කථන ප්‍රමාදයන්, ආඝාතය (Stroke) හෝ වෙනත් සන්නිවේදන දුෂ්කරතා සහිත පුද්ගලයන් උදෙසාම විශේෂයෙන් නිර්මාණය කරන ලද විකල්ප සහ වර්ධක සන්නිවේදන (AAC) මෘදුකාංගයකි.</p>
-<p>මෙය 100% ක්ම අන්තර්ජාල සම්බන්ධතාවයකින් තොරව (Offline) ක්‍රියාත්මක වන අතර, සිංහල, දෙමළ සහ ඉංග්‍රීසි භාෂා ත්‍රිත්වයෙන්ම ක්ෂණිකව කථා කිරීමේ හැකියාව සලසයි.</p>
-<h3 id="main-interface">ප්‍රධාන අතුරුමුහුණත (Main Interface)</h3>
-<p>ඔබ ඇප් එක විවෘත කළ විට, ඇසට පහසු මෙන්ම පැහැදිලි බව උපරිම කරන නිල් පැහැති තේමාවෙන් (Blue Theme) යුතු මුල් තිරය දිස්වේ.</p>
-<p><img alt="Simple AAC මුල් තිරය" src="screenshots/01_home_screen.png" />
-<em>රූපය 1.1: නිල් පැහැති ශීර්ෂය (Header), වාක්‍ය තීරුව (Sentence Bar) සහ සන්නිවේදන කාඩ්පත් සහිත Simple AAC මුල් තිරය.</em></p>
-<p>ප්‍රධාන අතුරුමුහුණත කොටස් තුනකින් සමන්විත වේ:
-1. <strong>ඉහළ තීරුව (Top Bar)</strong>: වම්පසින් ඇති <strong>Pin Board</strong> (ආරක්ෂිත අගුල), මැදින් ඇති <strong>Simple AAC</strong> නාමය සහ දකුණුපසින් ඇති <strong>Menu (සැකසුම් මෙනුව)</strong>.
-2. <strong>වාක්‍ය තීරුව (Sentence Composer Bar)</strong>: තෝරාගත් කාඩ්පත් පෙළගැසෙන සහ එකවර ශ්‍රවණය කළ හැකි ප්‍රදේශය.
-3. <strong>කාඩ්පත් ජාලය (AAC Card Grid)</strong>: කුඩා දරුවන්ට සහ ඇඟිලි පාලනය අපහසු අයට පවා පහසුවෙන් ස්පර්ශ කළ හැකි ඉහළ ප්‍රතිවිරෝධතා (High Contrast) සහිත කාඩ්පත්.</p>
-<p><img alt="කාඩ්පත් ජාලය" src="screenshots/02_aac_cards_grid.png" />
-<em>රූපය 1.2: විශ්වීය සංකේත සහ පැහැදිලි අකුරු සහිත සන්නිවේදන කාඩ්පත් ජාලය.</em></p>
-<hr />
-<h2 id="2">2 වන පරිච්ඡේදය: කථනය සහ වාක්‍ය සැකසීම</h2>
-<h3 id="21">2.1 කාඩ්පතක් ස්පර්ශ කර කථා කිරීම</h3>
-<p>සන්නිවේදනය ආරම්භ කිරීම ඉතා පහසුය:
-- <strong>ක්ෂණික හඬ (Tap to Speak)</strong>: සැකසුම් වල "Tap to Speak" සක්‍රිය කර ඇති විට, ඕනෑම කාඩ්පතක් ස්පර්ශ කළ සැණින් එම කාඩ්පතෙහි නම ශබ්ද නගා කියවනු ලැබේ.
-- <strong>ස්පර්ශක සංවේදනය (Haptic Pop)</strong>: කාඩ්පතක් ස්පර්ශ කරන සෑම අවස්ථාවකදීම සුළු කම්පනයක් (Live Vibration) සහ අලංකාර Pop effect එකක් ලැබෙන බැවින්, දරුවාට ක්‍රියාව නිවැරදිව සිදු වූ බව ක්ෂණිකව දැනේ.</p>
-<p><img alt="Card Tap and Speak Animation" src="gifs/card_tap_speak.gif" />
-<em>රූපය 2.1: කාඩ්පත් ස්පර්ශ කර වාක්‍ය සාදන සහ හඬින් ප්‍රකාශ වන ආකාරය දැක්වෙන සජීවී ආදර්ශනය.</em></p>
-<p><img alt="Speaking Card" src="screenshots/03_speaking_card.png" />
-<em>රූපය 2.2: "Hello" කාඩ්පත ස්පර්ශ කළ විට එය වාක්‍ය තීරුවට එක්වී ශබ්ද නගා කියවෙන ආකාරය.</em></p>
-<h3 id="22">2.2 සම්පූර්ණ වාක්‍ය ගොඩනැගීම</h3>
-<p>එකිනෙකට වෙනස් කාඩ්පත් කිහිපයක් අනුපිළිවෙලින් ස්පර්ශ කිරීමෙන් සම්පූර්ණ අදහසක් ප්‍රකාශ කළ හැක.</p>
-<p><img alt="Sentence Bar" src="screenshots/04_sentence_bar.png" />
-<em>රූපය 2.3: "Hello" සහ "Happy" එකතු කර වාක්‍යයක් ගොඩනගා ඇති ආකාරය.</em></p>
-<p>වාක්‍ය තීරුවේ ඇති පාලක:
-- <strong>Delete (මකනය)</strong>: අවසානයට එක් කළ කාඩ්පත පමණක් ඉවත් කරයි.
-- <strong>Clear (හිස් කිරීම)</strong>: වාක්‍ය තීරුවේ ඇති සියලුම වචන එකවර ඉවත් කරයි.
-- <strong>Speak Sentence (ස්පීකර ලකුණ)</strong>: සම්පූර්ණ වාක්‍යයම එකදිගට චතුර ලෙස ශබ්ද නගා කියවයි.</p>
-<hr />
-<h2 id="3">3 වන පරිච්ඡේදය: කාඩ්පත් සංස්කරණය සහ භාෂා ත්‍රිත්වය</h2>
-<p>සෑම පුද්ගලයෙකුගේම අවශ්‍යතා වෙනස් වේ. Simple AAC මගින් ඕනෑම කාඩ්පතක් තම අවශ්‍යතාවයට අනුව වෙනස් කරගත හැක.</p>
-<h3 id="31-edit-mode">3.1 සංස්කරණ මාදිලිය (Edit Mode) සක්‍රිය කිරීම</h3>
-<ol>
-<li>ඉහළ දකුණු කෙළවරේ ඇති <strong>Menu Button</strong> ස්පර්ශ කරන්න.</li>
-<li><strong>Enable Edit Mode</strong> තෝරන්න.</li>
-<li>පුවරුව සංස්කරණ තත්ත්වයට පත්වන අතර, කාඩ්පත් මත රතු පැහැති Delete ලකුණ සහ ඉහළින් <strong>Add New</strong> බොත්තම දිස්වේ.</li>
-</ol>
-<p><img alt="Edit Mode Active" src="screenshots/05_edit_mode_active.png" />
-<em>රූපය 3.1: කාඩ්පත් සංස්කරණ මාදිලිය (Edit Mode) ක්‍රියාත්මකව ඇති ආකාරය.</em></p>
-<h3 id="32-card-editor-dialog">3.2 කාඩ්පත් සංස්කරණ කවුළුව (Card Editor Dialog)</h3>
-<p>Edit Mode ක්‍රියාත්මකව තිබියදී ඕනෑම කාඩ්පතක් ස්පර්ශ කිරීමෙන් සංස්කරණ කවුළුව විවෘත වේ.</p>
-<p><img alt="Card Editor Dialog" src="screenshots/06_card_editor_dialog.png" />
-<em>රූපය 3.2: පින්තූර, භාෂා ත්‍රිත්වයේ නම් සහ හඬ පටිගත කිරීමේ පහසුකම් සහිත සංස්කරණ කවුළුව.</em></p>
-<h3 id="33">3.3 කැමරාවෙන් සහ ගැලරියෙන් සැබෑ ඡායාරූප එක් කිරීම</h3>
-<ul>
-<li><strong>Camera (කැමරාව)</strong>: දරුවා දිනපතා භාවිත කරන සැබෑ භාණ්ඩ (වතුර බෝතලය, සෙල්ලම් බඩු, පවුලේ සාමාජිකයන්) ඡායාරූප ගෙන කාඩ්පතට ඇතුළත් කළ හැක. (කැමරා අවසර නොමැති නම් ස්වයංක්‍රීයව අවසර විමසයි).</li>
-<li><strong>Gallery (ගැලරිය)</strong>: දුරකථනයේ ඇති පින්තූර පහසුවෙන් තෝරාගත හැක.</li>
-</ul>
-<p><img alt="Camera Flow" src="screenshots/08_camera_flow.png" />
-<em>රූපය 3.3: කැමරාව මගින් සැබෑ ලෝකයේ ද්‍රව්‍ය ඡායාරූපගත කර කාඩ්පත් වලට එක් කිරීම.</em></p>
-<h3 id="34-smart-image-search">3.4 ස්මාර්ට් පින්තූර සෙවීම (Smart Image Search)</h3>
-<p>දරුවන්ට සුදුසු, ආරක්ෂිත පින්තූර සෙවීම සඳහා Smart Search පහසුකම භාවිතා කළ හැක.</p>
-<p><img alt="Smart Image Search" src="screenshots/10_smart_image_search.png" />
-<em>රූපය 3.4: දරුවන්ට ආරක්ෂිත Smart Image Search සෙවුම් කවුළුව.</em></p>
-<h3 id="35">3.5 සිංහල, දෙමළ සහ ඉංග්‍රීසි භාෂා ත්‍රිත්වය</h3>
-<p>ශ්‍රී ලාංකික පරිසරයට ගැලපෙන ලෙස එකම කාඩ්පතට භාෂා තුනෙන්ම නම් ලබාදිය හැක:
-- <strong>English Label</strong>: ඉංග්‍රීසි නම (උදා: Hello, Water).
-- <strong>Sinhala Label (සිංහල)</strong>: නිවැරදි සිංහල යුනිකෝඩ් නම (උදා: හෙලෝ, වතුර, බඩගිනියි).
-- <strong>Tamil Label (தமிழ்)</strong>: නිවැරදි දෙමළ නම (උදා: வணக்கம், தண்ணீர்).</p>
-<p><img alt="Multilingual Labels" src="screenshots/14_multilingual_labels.png" />
-<em>රූපය 3.5: සිංහල, දෙමළ සහ ඉංග්‍රීසි ලේබල් එකවර කළමනාකරණය කිරීම.</em></p>
-<h3 id="36-custom-voice-recording">3.6 ඔබේම හඬ පටිගත කිරීම (Custom Voice Recording)</h3>
-<p>දරුවා වඩාත් කැමති මවගේ, පියාගේ හෝ ගුරුවරයාගේ සැබෑ හඬින්ම කාඩ්පත කථා කිරීමට සැලැස්විය හැක:
-1. සංස්කරණ කවුළුවේ ඇති <strong>Record Voice</strong> ස්පර්ශ කරන්න.
-2. මයික්‍රෆෝනයට පැහැදිලිව වචනය පවසන්න.
-3. <strong>Stop</strong> ඔබා සුරකින්න. ඉන්පසු එම කාඩ්පත ස්පර්ශ කරන සෑම විටම වාදනය වන්නේ එම සැබෑ හඬයි!</p>
-<p><img alt="Custom Voice Recorder" src="screenshots/13_custom_voice_recorder.png" />
-<em>රූපය 3.6: උසස් තත්ත්වයේ හඬ පටිගත කිරීමේ පහසුකම.</em></p>
-<hr />
-<h2 id="4-animated-gifs">4 වන පරිච්ඡේදය: චලන රූප (Animated GIFs) සහ වීඩියෝ ලූප</h2>
-<p>ඕටිසම් සහිත දරුවන්ට ස්ථිතික පින්තූර වලට වඩා යම් ක්‍රියාවක් (උදා: පැනීම, අත් සේදීම, වතුර බීම) සජීවීව දැකීමෙන් වටහා ගැනීම ඉතා පහසුය.</p>
-<h3 id="41-animated-gifs">4.1 Animated GIFs එක් කිරීම</h3>
-<p>Simple AAC මගින් බැටරිය වැය නොවන අයුරින් අඛණ්ඩව ලූප (loop) වන සජීවී GIF රූප කාඩ්පත් වලට එක් කළ හැක.</p>
-<p><img alt="Animated GIFs" src="screenshots/11_animated_gifs.png" />
-<em>රූපය 4.1: චලන රූප (GIF) එක් කිරීමේ කවුළුව.</em></p>
-<h3 id="42-gif">4.2 කෙටි වීඩියෝ GIF බවට පරිවර්තනය කිරීම</h3>
-<p>තත්පර 30 දක්වා වූ කෙටි වීඩියෝ ක්ලිප් (උදා: සංඥා භාෂාව, චිකිත්සක ක්‍රියාකාරකම්) ඇප් එක තුළදීම ස්වයංක්‍රීයව සුමට GIF එකක් බවට පත් කරගත හැක.</p>
-<p><img alt="Video to GIF Converter" src="screenshots/12_video_to_gif.png" />
-<em>රූපය 4.2: කෙටි වීඩියෝ සජීවී කාඩ්පත් බවට පත් කිරීමේ මෙවලම.</em></p>
-<hr />
-<h2 id="5-categories">5 වන පරිච්ඡේදය: කාණ්ඩ (Categories) සහ ෆෝල්ඩර මගින් සංවිධානය කිරීම</h2>
-<p>වචන මාලාව පුළුල් වන විට, ඒවා කාණ්ඩ අනුව (උදා: <em>හැඟීම්</em>, <em>ආහාර සහ බීම</em>, <em>පාසල</em>, <em>ක්‍රියාකාරකම්</em>) ෆෝල්ඩර තුළට එක් කළ හැක.</p>
-<p><img alt="Folder View" src="screenshots/07_folder_view.png" />
-<em>රූපය 5.1: "More -&gt;" ෆෝල්ඩරය තුළට පිවිස අදාළ වචන කාණ්ඩය වෙත ප්‍රවේශ වීම.</em></p>
-<p>ෆෝල්ඩරයක් ස්පර්ශ කළ විට එම කාණ්ඩයේ කාඩ්පත් වෙත ගමන් කරන අතර, ඉහළින් ඇති වාක්‍ය තීරුව එලෙසම රඳවා තබා ගනී.</p>
-<hr />
-<h2 id="6-live-preview-haptic-feedback">6 වන පරිච්ඡේදය: වර්ණ තේමා, Live Preview සහ ස්පර්ශක කම්පනය (Haptic Feedback)</h2>
-<h3 id="61-settings-drawer">6.1 සැකසුම් මෙනුව (Settings Drawer)</h3>
-<p>ඉහළ දකුණුපස ඇති Menu බොත්තමෙන් සැකසුම් මෙනුව විවෘත වේ.</p>
-<p><img alt="Settings Drawer" src="screenshots/16_settings_drawer.png" />
-<em>රූපය 6.1: v1.1.0 අනුවාදය, නොබැඳි තත්ත්වය, සහ Haptic Feedback ස්විචය සහිත සැකසුම් මෙනුව.</em></p>
-<h3 id="62-live-preview">6.2 සජීවී පෙරදසුන (Live Preview) සහිත වර්ණ තේරීම</h3>
-<p>Simple AAC v1.1.0 හි සජීවීව වෙනස්වීම් පෙනෙන අලුත්ම Color Pickers හඳුන්වා දී ඇත:</p>
-<p><img alt="Live Color Picker Workflow" src="gifs/color_picker_flow.gif" />
-<em>රූපය 6.2: සැකසුම් මෙනුවෙන් වර්ණ වෙනස් කරන ආකාරය දැක්වෙන සජීවී ආදර්ශනය.</em></p>
-<ol>
-<li>
-<p><strong>Primary App Color (ප්‍රධාන ඇප් වර්ණය)</strong>: ඉහළ තීරුව සහ ප්‍රධාන බොත්තම් වල වර්ණය වෙනස් කරයි.
-   <img alt="Primary App Color Picker" src="screenshots/17_color_picker_app_color.png" />
-   <em>රූපය 6.3: කුඩා ශීර්ෂ පෙරදසුනක් සහ සූදානම් කළ වර්ණ සහිත Primary Color Picker.</em></p>
-</li>
-<li>
-<p><strong>Global Text Color (අකුරු වර්ණය)</strong>: පුවරුවේ ඇති සියලුම කාඩ්පත් වල අකුරු වල වර්ණය වෙනස් කරයි.
-   <img alt="Global Text Color Picker" src="screenshots/18_color_picker_text_color.png" />
-   <em>රූපය 6.4: කාඩ්පත් 3 ක සජීවී පෙරදසුනක් සහිත Text Color Picker.</em></p>
-</li>
-<li>
-<p><strong>Board Background Color (පසුබිම් වර්ණය)</strong>: කාඩ්පත් පිහිටි පසුබිම් කැන්වසයේ වර්ණය වෙනස් කරයි.
-   <img alt="Board Background Color Picker" src="screenshots/19_color_picker_board_background.png" />
-   <em>රූපය 6.5: සැබෑ කාඩ්පත් සමග වෙනස පෙනෙන Board Background Color Picker.</em></p>
-</li>
-</ol>
-<h3 id="63-color-blind-safe-mode">6.3 වර්ණ අන්ධභාවය සඳහා සහාය (Color-Blind Safe Mode)</h3>
-<p>වර්ණ හඳුනාගැනීමේ අපහසුතා ඇති අය සඳහා WCAG AAA ප්‍රමිතියට අනුකූල ඉහළ ප්‍රතිවිරෝධතා සහිත විශේෂ වර්ණ පද්ධතියක් (Color-Blind Safe Mode) ඇත.</p>
-<p><img alt="Color Vision Support" src="screenshots/20_appearance_and_color_vision.png" />
-<em>රූපය 6.6: Color Vision Support ප්‍රවේශ්‍යතා සැකසුම්.</em></p>
-<h3 id="64-haptic-feedback">6.4 ස්පර්ශක ප්‍රතිචාරය (Haptic Feedback)</h3>
-<p>කාඩ්පතක් ස්පර්ශ කරන විට දැනෙන කම්පන සංවේදනය අවශ්‍ය නම් මෙම ස්විචයෙන් සක්‍රිය හෝ අක්‍රිය කරගත හැක (Default ලෙස On කර ඇත).</p>
-<hr />
-<h2 id="7-board-pinning-pin">7 වන පරිච්ඡේදය: ළමා ආරක්ෂාව සහ Board Pinning (PIN අගුල)</h2>
-<p>දරුවා අතින් අත්වැරදීමකින් කාඩ්පත් මැකී යාම හෝ සැකසුම් වෙනස් වීම වැළැක්වීම සඳහා PIN අංකයක් මගින් පුවරුව අගුළු දැමිය හැක.</p>
-<h3 id="71-board-lock">7.1 Board Lock සක්‍රිය කිරීම</h3>
-<p>ඉහළ වම් කෙළවරේ ඇති <strong>Pin Board</strong> බොත්තම ස්පර්ශ කර අංක 4 කින් යුත් රහස්‍ය අංකයක් (PIN) ඇතුළත් කරන්න.</p>
-<p><img alt="PIN Dialog" src="screenshots/15_pin_dialog.png" />
-<em>රූපය 7.1: රහස්‍ය PIN අංකය ඇතුළත් කිරීමේ කවුළුව.</em></p>
-<p>අගුළු දැමූ පසු:
-- Settings Drawer එක විවෘත කළ නොහැක.
-- Edit Mode වෙත පිවිසිය නොහැක.
-- කාඩ්පත් මැකීම හෝ මාරු කිරීම සිදු කළ නොහැක.
-- දරුවාට කිසිදු බියකින් තොරව නිදහසේ සන්නිවේදනය කළ හැක.</p>
-<hr />
-<h2 id="8-backup-restore">8 වන පරිච්ඡේදය: දත්ත සුරැකීම (Backup), නැවත ලබාගැනීම (Restore) සහ නොබැඳි රහස්‍යතාව</h2>
-<h3 id="81-100-strict-offline-privacy">8.1 100% නොබැඳි රහස්‍යතාව (Strict Offline Privacy)</h3>
-<p>ඔබගේ දරුවාගේ ඡායාරූප, පටිගත කළ හඬවල් හෝ සන්නිවේදන තොරතුරු කිසිදු බාහිර සේවාදායකයකට (Server) නොයවන අතර, සියල්ල ඔබගේ දුරකථනය තුළම පමණක් සුරක්ෂිතව පවතී.</p>
-<p><img alt="Backup and Storage" src="screenshots/21_backup_export.png" />
-<em>රූපය 8.1: සැකසුම් මෙනුවේ ඇති Cards &amp; Storage කොටස.</em></p>
-<h3 id="82-export-backup">8.2 උපස්ථ පිටපතක් ලබාගැනීම (Export Backup)</h3>
-<ol>
-<li>සැකසුම් මෙනුව විවෘත කර <strong>CARDS &amp; STORAGE</strong> වෙත යන්න.</li>
-<li><strong>Export Backup</strong> තෝරන්න.</li>
-<li>ඔබ සැකසූ සියලුම කාඩ්පත්, ඡායාරූප සහ හඬ පට ZIP ගොනුවක් ලෙස ඔබගේ දුරකථනයේ <code>Downloads</code> ෆෝල්ඩරයට ක්ෂණිකව සුරැකේ.</li>
-</ol>
-<h3 id="83-import-restore">8.3 උපස්ථය නැවත ලබාගැනීම (Import Restore)</h3>
-<p>නව දුරකථනයකට මාරු වන විට හෝ පැරණි දත්ත නැවත ලබාගැනීමට:
-1. <strong>Import Restore</strong> තෝරන්න.
-2. කලින් සුරකින ලද Simple AAC ZIP ගොනුව තෝරන්න.
-3. ඇප් එක මගින් සියලුම කාඩ්පත් සහ ශ්‍රව්‍ය ගොනු නැවත පිහිටුවනු ලබයි.</p>
-<h3 id="84-offline-tts">8.4 Offline TTS පරීක්ෂා කිරීම</h3>
-<p>සිංහල, දෙමළ සහ ඉංග්‍රීසි නොබැඳි කථන එන්ජිම ක්‍රියාත්මක බව සැකසුම් වල <strong>Offline Speech</strong> මගින් පරීක්ෂා කරගත හැක:</p>
-<p><img alt="Offline Speech Settings" src="screenshots/24_offline_speech_settings.png" />
-<em>රූපය 8.2: නොබැඳි කථන (TTS) තත්ත්වය පෙන්වන කවුළුව.</em></p>
-<hr />
-<p><em>Simple AAC ශ්‍රී ලංකා — අනුවාදය 1.1.0</em><br />
-<em>ශ්‍රී ලංකාවේ කථන අපහසුතා ඇති දරුවන්ට සහ වැඩිහිටියන්ට ගෞරවනීය, විශ්වාසනීය සහ ස්වාධීන සන්නිවේදන නිදහසක්.</em></p>
+
+<!-- PAGE 1 -->
+<div class="doc-header">
+  <h1>Simple AAC ශ්‍රී ලංකා — පරිශීලක අත්පොත (v1.1.0)</h1>
+  <div class="subtitle">දිනපතා සන්නිවේදනය, කාඩ්පත් සැකසීම සහ ප්‍රවේශ්‍යතාව සඳහා වූ සම්පූර්ණ මගපෙන්වීම</div>
+  <hr class="divider">
 </div>
+
+<div class="toc-box">
+  <div class="toc-title">පටුන (Table of Contents)</div>
+  <div class="toc-grid">
+    <a class="toc-item" href="#ch1"><span><span class="toc-num">1.</span>Simple AAC වෙත සාදරයෙන් පිළිගනිමු</span><span class="dots"></span><span class="toc-page">පිටුව 1</span></a>
+    <a class="toc-item" href="#ch2"><span><span class="toc-num">2.</span>කථනය සහ වාක්‍ය සැකසීම</span><span class="dots"></span><span class="toc-page">පිටුව 2</span></a>
+    <a class="toc-item" href="#ch3"><span><span class="toc-num">3.</span>කාඩ්පත් සංස්කරණය සහ භාෂා ත්‍රිත්වය</span><span class="dots"></span><span class="toc-page">පිටුව 3</span></a>
+    <a class="toc-item" href="#ch4"><span><span class="toc-num">4.</span>චලන රූප (GIF) සහ වීඩියෝ ලූප</span><span class="dots"></span><span class="toc-page">පිටුව 4</span></a>
+    <a class="toc-item" href="#ch5"><span><span class="toc-num">5.</span>කාණ්ඩ සහ ෆෝල්ඩර මගින් සංවිධානය</span><span class="dots"></span><span class="toc-page">පිටුව 5</span></a>
+    <a class="toc-item" href="#ch6"><span><span class="toc-num">6.</span>වර්ණ තේමා, Live Preview &amp; Haptics</span><span class="dots"></span><span class="toc-page">පිටුව 5</span></a>
+    <a class="toc-item" href="#ch7"><span><span class="toc-num">7.</span>ළමා ආරක්ෂාව සහ Board Pinning</span><span class="dots"></span><span class="toc-page">පිටුව 7</span></a>
+    <a class="toc-item" href="#ch8"><span><span class="toc-num">8.</span>දත්ත සුරැකීම, Restore &amp; Privacy</span><span class="dots"></span><span class="toc-page">පිටුව 7</span></a>
+  </div>
+</div>
+
+<h2 id="ch1" class="page-start">1 වන පරිච්ඡේදය: Simple AAC වෙත සාදරයෙන් පිළිගනිමු</h2>
+<p><strong>Simple AAC ශ්‍රී ලංකා</strong> යනු කථන අපහසුතා ඇති දරුවන්, ඕටිසම් (Autism Spectrum), කථන ප්‍රමාදයන්, ආඝාතය (Stroke) හෝ වෙනත් සන්නිවේදන දුෂ්කරතා සහිත පුද්ගලයන් උදෙසාම විශේෂයෙන් නිර්මාණය කරන ලද විකල්ප සහ වර්ධක සන්නිවේදන (AAC) මෘදුකාංගයකි. මෙය 100% ක්ම අන්තර්ජාල සම්බන්ධතාවයකින් තොරව (Offline) ක්‍රියාත්මක වන අතර, <strong>සිංහල, දෙමළ සහ ඉංග්‍රීසි</strong> භාෂා ත්‍රිත්වයෙන්ම ක්ෂණිකව කථා කිරීමේ හැකියාව සලසයි.</p>
+
+<h3>1.1 ප්‍රධාන අතුරුමුහුණත (Main Interface)</h3>
+<p>ඔබ ඇප් එක විවෘත කළ විට, ඇසට පහසු මෙන්ම පැහැදිලි බව උපරිම කරන නිල් පැහැති තේමාවෙන් (Blue Theme) යුතු මුල් තිරය දිස්වේ. ප්‍රධාන අතුරුමුහුණත කොටස් තුනකින් සමන්විත වේ:</p>
+<ul>
+  <li><strong>ඉහළ තීරුව (Top Bar):</strong> වම්පසින් ඇති <strong>Pin Board</strong> (ආරක්ෂිත අගුල), මැදින් ඇති <strong>Simple AAC</strong> නාමය සහ දකුණුපසින් ඇති <strong>Menu (සැකසුම් මෙනුව)</strong>.</li>
+  <li><strong>වාක්‍ය තීරුව (Sentence Composer Bar):</strong> තෝරාගත් කාඩ්පත් පෙළගැසෙන සහ එකවර ශ්‍රවණය කළ හැකි ප්‍රදේශය.</li>
+  <li><strong>කාඩ්පත් ජාලය (AAC Card Grid):</strong> කුඩා දරුවන්ට සහ ඇඟිලි පාලනය අපහසු අයට පවා පහසුවෙන් ස්පර්ශ කළ හැකි ඉහළ ප්‍රතිවිරෝධතා (High Contrast) සහිත කාඩ්පත්.</li>
+</ul>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/01_home_screen.png" alt="Simple AAC මුල් තිරය">
+    <figcaption>රූපය 1.1: නිල් පැහැති ශීර්ෂය, වාක්‍ය තීරුව සහ කාඩ්පත් සහිත මුල් තිරය</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/02_aac_cards_grid.png" alt="කාඩ්පත් ජාලය">
+    <figcaption>රූපය 1.2: විශ්වීය සංකේත සහ පැහැදිලි අකුරු සහිත කාඩ්පත් ජාලය</figcaption>
+  </figure>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page-break"></div>
+<h2 id="ch2" class="page-start">2 වන පරිච්ඡේදය: කථනය සහ වාක්‍ය සැකසීම</h2>
+
+<h3>2.1 කාඩ්පතක් ස්පර්ශ කර කථා කිරීම</h3>
+<p>සන්නිවේදනය ආරම්භ කිරීම ඉතා පහසුය. Simple AAC ක්ෂණික බහු-සංවේදී ප්‍රතිචාර ලබාදෙයි:</p>
+<ul>
+  <li><strong>ක්ෂණික හඬ (Tap to Speak):</strong> සැකසුම් වල "Tap to Speak" සක්‍රිය කර ඇති විට, ඕනෑම කාඩ්පතක් ස්පර්ශ කළ සැණින් එම කාඩ්පතෙහි නම නොබැඳි TTS හෝ පටිගත කළ හඬින් ශබ්ද නගා කියවනු ලැබේ.</li>
+  <li><strong>ස්පර්ශක සංවේදනය (Haptic Pop):</strong> කාඩ්පතක් ස්පර්ශ කරන සෑම අවස්ථාවකදීම සුළු කම්පනයක් (Live Vibration) සහ අලංකාර Pop effect එකක් ලැබෙන බැවින්, දරුවාට ක්‍රියාව නිවැරදිව සිදු වූ බව ක්ෂණිකව දැනේ.</li>
+</ul>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="gifs/card_tap_speak.gif" alt="Card Tap and Speak Animation">
+    <figcaption>රූපය 2.1: කාඩ්පත් ස්පර්ශ කර වාක්‍ය සාදන ආකාරය</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/03_speaking_card.png" alt="Speaking Card">
+    <figcaption>රූපය 2.2: "Hello" කාඩ්පත වාක්‍ය තීරුවට එක්වීම</figcaption>
+  </figure>
+</div>
+
+<h3>2.2 සම්පූර්ණ වාක්‍ය ගොඩනැගීම</h3>
+<p>එකිනෙකට වෙනස් කාඩ්පත් කිහිපයක් අනුපිළිවෙලින් ස්පර්ශ කිරීමෙන් සම්පූර්ණ අදහසක් ප්‍රකාශ කළ හැක (උදා: <em>"Hello"</em> + <em>"Happy"</em>). වාක්‍ය තීරුවේ ඇති පාලක:</p>
+<ul>
+  <li><strong>Delete (මකනය):</strong> අවසානයට එක් කළ කාඩ්පත පමණක් ඉවත් කරයි.</li>
+  <li><strong>Clear (හිස් කිරීම):</strong> වාක්‍ය තීරුවේ ඇති සියලුම වචන එකවර ඉවත් කරයි.</li>
+  <li><strong>Speak Sentence (ස්පීකර ලකුණ):</strong> සම්පූර්ණ වාක්‍යයම එකදිගට චතුර ලෙස ශබ්ද නගා කියවයි.</li>
+</ul>
+
+<div class="fig-single">
+  <img src="screenshots/04_sentence_bar.png" alt="Sentence Bar">
+  <figcaption>රූපය 2.3: "Hello" සහ "Happy" එකතු කර වාක්‍යයක් ගොඩනගා ඇති ආකාරය</figcaption>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page-break"></div>
+<h2 id="ch3" class="page-start">3 වන පරිච්ඡේදය: කාඩ්පත් සංස්කරණය සහ භාෂා ත්‍රිත්වය</h2>
+<p>සෑම පුද්ගලයෙකුගේම අවශ්‍යතා වෙනස් වේ. Simple AAC මගින් ඕනෑම කාඩ්පතක් තම අවශ්‍යතාවයට අනුව වෙනස් කරගත හැක.</p>
+
+<h3>3.1 සංස්කරණ මාදිලිය (Edit Mode) සක්‍රිය කිරීම</h3>
+<p>කාඩ්පත් වෙනස් කිරීමට ඉහළ දකුණුපස <strong>Menu</strong> &rarr; <strong>Enable Edit Mode</strong> තෝරන්න. කාඩ්පත් මත රතු Delete ලකුණ සහ ඉහළින් <strong>Add New</strong> බොත්තම දිස්වේ. ඕනෑම කාඩ්පතක් ස්පර්ශ කිරීමෙන් සංස්කරණ කවුළුව විවෘත වේ.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/05_edit_mode_active.png" alt="Edit Mode Active">
+    <figcaption>රූපය 3.1: කාඩ්පත් සංස්කරණ මාදිලිය (Edit Mode)</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/06_card_editor_dialog.png" alt="Card Editor Dialog">
+    <figcaption>රූපය 3.2: කාඩ්පත් සංස්කරණ කවුළුව</figcaption>
+  </figure>
+</div>
+
+<h3>3.2 කැමරාවෙන් සහ ගැලරියෙන් සැබෑ ඡායාරූප එක් කිරීම</h3>
+<ul>
+  <li><strong>Camera (කැමරාව):</strong> දරුවා භාවිත කරන සැබෑ භාණ්ඩ (වතුර බෝතලය, සෙල්ලම් බඩු, පවුලේ අය) ඡායාරූප ගෙන කාඩ්පතට ඇතුළත් කළ හැක.</li>
+  <li><strong>Gallery (ගැලරිය):</strong> දුරකථනයේ ඇති පින්තූර පහසුවෙන් තෝරාගත හැක.</li>
+  <li><strong>Smart Image Search:</strong> දරුවන්ට සුදුසු ආරක්ෂිත පින්තූර සෙවීමේ පහසුකම.</li>
+</ul>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/08_camera_flow.png" alt="Camera Flow">
+    <figcaption>රූපය 3.3: කැමරාව මගින් සැබෑ ද්‍රව්‍ය ඡායාරූපගත කිරීම</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/10_smart_image_search.png" alt="Smart Image Search">
+    <figcaption>රූපය 3.4: දරුවන්ට ආරක්ෂිත Smart Image Search</figcaption>
+  </figure>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page-break"></div>
+<h3 class="page-start">3.3 භාෂා ත්‍රිත්වය සහ සැබෑ හඬ පටිගත කිරීම</h3>
+<p>ශ්‍රී ලාංකික පරිසරයට ගැලපෙන ලෙස එකම කාඩ්පතට භාෂා තුනෙන්ම නම් ලබාදිය හැක: <strong>English</strong> (Hello), <strong>Sinhala</strong> (හෙලෝ, සතුටුයි, වතුර), සහ <strong>Tamil</strong> (வணக்கம், மகிழ்ச்சி, தண்ணீர்). දරුවා වඩාත් කැමති මවගේ හෝ ගුරුවරයාගේ සැබෑ හඬින්ම කාඩ්පත කථා කිරීමට <strong>Record Voice</strong> මගින් හඬ පටිගත කරගත හැක.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/14_multilingual_labels.png" alt="Multilingual Labels">
+    <figcaption>රූපය 3.5: සිංහල, දෙමළ සහ ඉංග්‍රීසි ලේබල් කළමනාකරණය</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/13_custom_voice_recorder.png" alt="Custom Voice Recorder">
+    <figcaption>රූපය 3.6: උසස් තත්ත්වයේ සැබෑ හඬ පටිගත කිරීම</figcaption>
+  </figure>
+</div>
+
+<h2 id="ch4">4 වන පරිච්ඡේදය: චලන රූප (Animated GIFs) සහ වීඩියෝ ලූප</h2>
+<p>ඕටිසම් සහිත දරුවන්ට ස්ථිතික පින්තූර වලට වඩා යම් ක්‍රියාවක් (උදා: <em>පැනීම</em>, <em>වතුර බීම</em>, හෝ <em>අත් සේදීම</em>) සජීවීව දැකීමෙන් වටහා ගැනීම ඉතා පහසුය. Simple AAC මගින් බැටරිය වැය නොවන අයුරින් අඛණ්ඩව ලූප වන සජීවී GIF රූප කාඩ්පත් වලට එක් කළ හැක.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/11_animated_gifs.png" alt="Animated GIFs">
+    <figcaption>රූපය 4.1: චලන රූප (GIF) එක් කිරීමේ කවුළුව</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/12_video_to_gif.png" alt="Video to GIF Converter">
+    <figcaption>රූපය 4.2: කෙටි වීඩියෝ සජීවී කාඩ්පත් බවට පත් කිරීම</figcaption>
+  </figure>
+</div>
+<p>තත්පර 30 දක්වා වූ කෙටි වීඩියෝ ක්ලිප් (උදා: සංඥා භාෂාව, චිකිත්සක ක්‍රියාකාරකම්) ඇප් එක තුළදීම ස්වයංක්‍රීයව සුමට GIF එකක් බවට පත් කරගත හැක.</p>
+
+<!-- PAGE 5 -->
+<div class="page-break"></div>
+<h2 id="ch5" class="page-start">5 වන පරිච්ඡේදය: කාණ්ඩ (Categories) සහ ෆෝල්ඩර මගින් සංවිධානය කිරීම</h2>
+<p>වචන මාලාව පුළුල් වන විට, ඒවා කාණ්ඩ අනුව (උදා: <em>හැඟීම්</em>, <em>ආහාර සහ බීම</em>, <em>පාසල</em>, <em>ක්‍රියාකාරකම්</em>) ෆෝල්ඩර තුළට එක් කළ හැක. ෆෝල්ඩරයක් ස්පර්ශ කළ විට එම කාණ්ඩයේ කාඩ්පත් වෙත ගමන් කරන අතර, ඉහළින් ඇති වාක්‍ය තීරුව එලෙසම රඳවා තබා ගනී.</p>
+
+<div class="fig-single">
+  <img src="screenshots/07_folder_view.png" alt="Folder View">
+  <figcaption>රූපය 5.1: "More -&gt;" ෆෝල්ඩරය තුළට පිවිස අදාළ වචන කාණ්ඩය වෙත ප්‍රවේශ වීම</figcaption>
+</div>
+
+<h2 id="ch6">6 වන පරිච්ඡේදය: වර්ණ තේමා, Live Preview සහ ස්පර්ශක කම්පනය (Haptic Feedback)</h2>
+
+<h3>6.1 සැකසුම් මෙනුව සහ සජීවී පෙරදසුන (Live Preview)</h3>
+<p>ඉහළ දකුණුපස ඇති Menu බොත්තමෙන් සැකසුම් මෙනුව විවෘත වේ. Simple AAC v1.1.0 හි සජීවීව වෙනස්වීම් පෙනෙන අලුත්ම Color Pickers හඳුන්වා දී ඇත:</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/16_settings_drawer.png" alt="Settings Drawer">
+    <figcaption>රූපය 6.1: v1.1.0 සහ Haptics ස්විචය සහිත මෙනුව</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="gifs/color_picker_flow.gif" alt="Live Color Picker Workflow">
+    <figcaption>රූපය 6.2: වර්ණ වෙනස් කරන සජීවී ආදර්ශනය</figcaption>
+  </figure>
+</div>
+
+<!-- PAGE 6 -->
+<div class="page-break"></div>
+<h3 class="page-start">6.2 නව වර්ණ තේරීම් මෙවලම්</h3>
+<p>ප්‍රධාන ඇප් වර්ණය, අකුරු වල වර්ණය සහ පසුබිම් කැන්වසයේ වර්ණය සජීවී පෙරදසුන් සහිතව වෙනස් කරගත හැක:</p>
+
+<div class="fig-row-3">
+  <figure class="fig-col">
+    <img src="screenshots/17_color_picker_app_color.png" alt="Primary App Color">
+    <figcaption>රූපය 6.3: ප්‍රධාන ඇප් වර්ණ තේරීම</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/18_color_picker_text_color.png" alt="Global Text Color">
+    <figcaption>රූපය 6.4: අකුරු වල වර්ණ තේරීම</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/19_color_picker_board_background.png" alt="Board Background Color">
+    <figcaption>රූපය 6.5: පසුබිම් කැන්වස් වර්ණ තේරීම</figcaption>
+  </figure>
+</div>
+
+<h3>6.3 වර්ණ අන්ධභාවය සඳහා සහාය (Color-Blind Safe Mode) සහ Haptic Feedback</h3>
+<p>වර්ණ හඳුනාගැනීමේ අපහසුතා ඇති අය සඳහා WCAG AAA ප්‍රමිතියට අනුකූල ඉහළ ප්‍රතිවිරෝධතා සහිත විශේෂ වර්ණ පද්ධතියක් (Color-Blind Safe Mode) සහ ස්පර්ශක ප්‍රතිචාරය (Haptic Feedback) සැකසුම් මෙනුවෙන් සක්‍රිය කරගත හැක.</p>
+
+<div class="fig-single">
+  <img src="screenshots/20_appearance_and_color_vision.png" alt="Color Vision Support">
+  <figcaption>රූපය 6.6: Color Vision Support ප්‍රවේශ්‍යතා සැකසුම්</figcaption>
+</div>
+
+<!-- PAGE 7 -->
+<div class="page-break"></div>
+<h2 id="ch7" class="page-start">7 වන පරිච්ඡේදය: ළමා ආරක්ෂාව සහ Board Pinning (PIN අගුල)</h2>
+<p>දරුවා අතින් අත්වැරදීමකින් කාඩ්පත් මැකී යාම හෝ සැකසුම් වෙනස් වීම වැළැක්වීම සඳහා ඉහළ වම් කෙළවරේ ඇති <strong>Pin Board</strong> බොත්තම ස්පර්ශ කර අංක 4 කින් යුත් රහස්‍ය අංකයක් (PIN) ඇතුළත් කළ හැක. අගුළු දැමූ පසු සැකසුම් මෙනුව සහ Edit Mode අක්‍රිය වන අතර, දරුවාට බියකින් තොරව නිදහසේ සන්නිවේදනය කළ හැක.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/15_pin_dialog.png" alt="PIN Dialog">
+    <figcaption>රූපය 7.1: රහස්‍ය PIN අංකය ඇතුළත් කිරීමේ කවුළුව</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/15_pin_mode_locked.png" alt="Locked Board Mode">
+    <figcaption>රූපය 7.2: පුවරුව අගුළු දමා සුරක්ෂිත කර ඇති ආකාරය</figcaption>
+  </figure>
+</div>
+
+<h2 id="ch8">8 වන පරිච්ඡේදය: දත්ත සුරැකීම (Backup), නැවත ලබාගැනීම (Restore) සහ නොබැඳි රහස්‍යතාව</h2>
+
+<h3>8.1 100% නොබැඳි රහස්‍යතාව (Strict Offline Privacy)</h3>
+<p>ඔබගේ දරුවාගේ ඡායාරූප, පටිගත කළ හඬවල් හෝ සන්නිවේදන තොරතුරු කිසිදු බාහිර සේවාදායකයකට (Server) නොයවන අතර, සියල්ල ඔබගේ දුරකථනය තුළම පමණක් සුරක්ෂිතව පවතී.</p>
+
+<h3>8.2 උපස්ථ ලබාගැනීම සහ නැවත පිහිටුවීම</h3>
+<ul>
+  <li><strong>Export Backup:</strong> ඔබ සැකසූ සියලුම කාඩ්පත්, ඡායාරූප සහ හඬ පට ZIP ගොනුවක් ලෙස ඔබගේ දුරකථනයේ <code>Downloads</code> ෆෝල්ඩරයට ක්ෂණිකව සුරැකේ.</li>
+  <li><strong>Import Restore:</strong> නව දුරකථනයකට මාරු වන විට කලින් සුරකින ලද Simple AAC ZIP ගොනුව තෝරා සියලුම කාඩ්පත් නැවත ලබාගත හැක.</li>
+</ul>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/21_backup_export.png" alt="Backup and Storage">
+    <figcaption>රූපය 8.1: සැකසුම් මෙනුවේ ඇති Cards &amp; Storage කොටස</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/24_offline_speech_settings.png" alt="Offline Speech Settings">
+    <figcaption>රූපය 8.2: නොබැඳි කථන (TTS) තත්ත්වය පෙන්වන කවුළුව</figcaption>
+  </figure>
+</div>
+
+<div class="callout">
+  <strong>දත්ත සුරක්ෂිතතාව පිළිබඳ සටහන:</strong> Simple AAC සතුව ස්වයංක්‍රීය <code>.bak</code> ගොනු සුරැකීමේ තාක්ෂණයක් (Atomic Persistence) ඇති අතර, කාඩ්පත් 1,000+ දක්වා වූ විශාල දත්ත එකතු පවා කිසිදු දත්ත හානියකින් තොරව සුරක්ෂිතව තබාගත හැක.
+</div>
+
+<hr class="divider">
+<p style="text-align: center; color: #64748b; font-size: 8.5pt; margin-top: 6px;">
+  <em>Simple AAC ශ්‍රී ලංකා &bull; අනුවාදය 1.1.0 &bull; ශ්‍රී ලාංකික දරුවන්ට සහ වැඩිහිටියන්ට ගෞරවනීය සන්නිවේදන නිදහසක්.</em>
+</p>
+
 </body>
 </html>

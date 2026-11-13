@@ -2,309 +2,545 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simple AAC Sri Lanka — User Guide (v1.1.0)</title>
+
 <style>
   @page {
-    size: A4;
-    margin: 16mm 14mm 16mm 14mm;
-    @bottom-center {
+    size: A4 portrait;
+    margin: 14mm 18mm 14mm 18mm;
+    @bottom-left {
+      content: "Simple AAC Sri Lanka — User Guide (v1.1.0)";
+      font-size: 8pt;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #64748b;
+    }
+    @bottom-right {
       content: "Page " counter(page) " of " counter(pages);
-      font-size: 9pt;
+      font-size: 8pt;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: #64748b;
     }
   }
 
+  * { box-sizing: border-box; }
+
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Sinhala", "Noto Sans Tamil", sans-serif;
-    line-height: 1.6;
+    line-height: 1.38;
     color: #1e293b;
-    background-color: #f8fafc;
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    background: #ffffff;
+    font-size: 9.5pt;
+    text-align: left;
   }
 
-  .container {
-    max-width: 880px;
-    margin: 0 auto;
-    background: #ffffff;
-    padding: 40px 50px;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  .doc-header {
+    margin-bottom: 10px;
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   h1 {
     color: #01579b;
-    border-bottom: 3px solid #0288d1;
-    padding-bottom: 12px;
-    margin-top: 0;
-    font-size: 26pt;
+    font-size: 21pt;
+    font-weight: 700;
+    margin: 0 0 2px 0;
+    line-height: 1.15;
+    letter-spacing: -0.3px;
   }
 
-  h2 {
-    color: #0277bd;
-    border-bottom: 1.5px solid #e2e8f0;
-    padding-bottom: 8px;
-    margin-top: 36px;
-    font-size: 18pt;
-    page-break-after: avoid;
+  .subtitle {
+    color: #475569;
+    font-size: 9.5pt;
+    font-weight: 500;
+    margin-bottom: 10px;
   }
 
-  h3 {
-    color: #039be5;
-    margin-top: 24px;
-    font-size: 13pt;
-    page-break-after: avoid;
-  }
-
-  p, li {
-    font-size: 10.5pt;
-    color: #334155;
-  }
-
-  hr {
+  .divider {
     border: none;
-    border-top: 1px solid #e2e8f0;
-    margin: 30px 0;
+    border-top: 1.5px solid #0288d1;
+    margin: 0 0 10px 0;
   }
 
-  img {
-    display: block;
-    max-width: 380px;
-    width: 85%;
-    height: auto;
-    margin: 16px auto 8px auto;
-    border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-    border: 1px solid #e2e8f0;
+  /* Table of Contents */
+  .toc-box {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 9px 14px;
+    margin-bottom: 12px;
+    break-inside: avoid;
     page-break-inside: avoid;
   }
 
-  em {
-    display: block;
-    text-align: center;
+  .toc-title {
+    font-size: 9.5pt;
+    font-weight: 700;
+    color: #0277bd;
+    margin: 0 0 6px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 3px;
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px 24px;
+  }
+
+  .toc-item {
+    font-size: 8.5pt;
+    color: #334155;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 1px 0;
+  }
+
+  .toc-num {
+    font-weight: 700;
+    color: #0284c7;
+    margin-right: 4px;
+  }
+
+  .toc-page {
     color: #64748b;
-    font-size: 9pt;
-    margin-bottom: 24px;
+    font-weight: 600;
+  }
+
+  .dots {
+    flex: 1;
+    border-bottom: 1px dotted #cbd5e1;
+    margin: 0 4px;
+  }
+
+  /* Headings */
+  h2 {
+    color: #0277bd;
+    font-size: 14pt;
+    font-weight: 700;
+    margin: 14pt 0 4pt 0;
+    padding-bottom: 2px;
+    border-bottom: 1.2px solid #e2e8f0;
     page-break-after: avoid;
+    break-after: avoid;
+    line-height: 1.2;
+  }
+
+  .page-start {
+    margin-top: 0;
+  }
+
+  h3 {
+    color: #0369a1;
+    font-size: 11pt;
+    font-weight: 600;
+    margin: 9pt 0 3pt 0;
+    page-break-after: avoid;
+    break-after: avoid;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 0 0 5pt 0;
+    color: #334155;
+    text-align: left;
+    orphans: 3;
+    widows: 3;
   }
 
   ul, ol {
-    padding-left: 24px;
-    margin-bottom: 16px;
+    margin: 0 0 5pt 0;
+    padding-left: 18px;
   }
 
   li {
-    margin-bottom: 6px;
+    margin-bottom: 2pt;
+    color: #334155;
   }
+
+  strong { color: #0f172a; }
+  em { font-style: italic; color: inherit; display: inline; }
 
   code {
     background: #f1f5f9;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 9.5pt;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 8.5pt;
     font-family: ui-monospace, Menlo, Monaco, monospace;
     color: #0284c7;
+    border: 1px solid #e2e8f0;
   }
 
-  @media print {
-    body {
-      background: #ffffff;
-      padding: 0;
-    }
-    .container {
-      max-width: 100%;
-      padding: 0;
-      box-shadow: none;
-    }
-    img {
-      max-width: 320px;
-      page-break-inside: avoid;
-    }
-    h2, h3 {
-      page-break-after: avoid;
-    }
-    p, em {
-      orphans: 3;
-      widows: 3;
-    }
+  .inline-pill {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    color: #0369a1;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-weight: 500;
+    display: inline-block;
+    white-space: nowrap;
+    margin: 0 1px;
+  }
+
+  /* Figures */
+  .fig-row {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin: 6pt 0 8pt 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .fig-col {
+    flex: 1;
+    max-width: 195px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+  }
+
+  .fig-col img {
+    width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid #cbd5e1;
+    display: block;
+    background: #ffffff;
+  }
+
+  .fig-single {
+    text-align: center;
+    margin: 6pt 0 8pt 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .fig-single img {
+    max-width: 195px;
+    max-height: 220px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid #cbd5e1;
+    display: block;
+    background: #ffffff;
+  }
+
+  figcaption {
+    font-size: 8pt;
+    font-style: italic;
+    color: #64748b;
+    margin-top: 4px;
+    text-align: center;
+    line-height: 1.2;
+    display: block;
+  }
+
+  .fig-row-3 {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 6pt 0 8pt 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .fig-row-3 .fig-col {
+    flex: 1;
+    max-width: 165px;
+  }
+
+  .fig-row-3 img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid #cbd5e1;
+    display: block;
+  }
+
+  .callout {
+    background: #f0f9ff;
+    border-left: 3px solid #0284c7;
+    border-radius: 0 5px 5px 0;
+    padding: 5px 10px;
+    margin: 5pt 0 7pt 0;
+    font-size: 8.5pt;
+    color: #0369a1;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .page-break {
+    page-break-before: always;
+    break-before: page;
   }
 </style>
+
 </head>
 <body>
-<div class="container">
-<h1 id="simple-aac-sri-lanka-user-guide-v110">Simple AAC Sri Lanka — User Guide (v1.1.0)</h1>
-<p><strong>Your Complete Manual for Daily Communication, Customization, and Accessibility</strong></p>
-<hr />
-<h2 id="table-of-contents">Table of Contents</h2>
-<ol>
-<li><a href="#chapter-1-getting-started-with-simple-aac">Chapter 1: Getting Started with Simple AAC</a></li>
-<li><a href="#chapter-2-speaking-and-sentence-composition">Chapter 2: Speaking and Sentence Composition</a></li>
-<li><a href="#chapter-3-customizing-cards-and-multilingual-content">Chapter 3: Customizing Cards and Multilingual Content</a></li>
-<li><a href="#chapter-4-animated-gifs-and-video-loops">Chapter 4: Animated GIFs and Video Loops</a></li>
-<li><a href="#chapter-5-folders-and-category-organization">Chapter 5: Folders and Category Organization</a></li>
-<li><a href="#chapter-6-appearance-themes-and-haptic-feedback">Chapter 6: Appearance, Themes and Haptic Feedback</a></li>
-<li><a href="#chapter-7-safety-board-pinning-and-child-lock">Chapter 7: Safety, Board Pinning and Child Lock</a></li>
-<li><a href="#chapter-8-data-backup-restore-and-offline-privacy">Chapter 8: Data Backup, Restore and Offline Privacy</a></li>
-</ol>
-<hr />
-<h2 id="chapter-1-getting-started-with-simple-aac">Chapter 1: Getting Started with Simple AAC</h2>
-<p>Simple AAC Sri Lanka is an augmentative and alternative communication (AAC) platform engineered specifically for non-verbal children, individuals with autism, speech delays, aphasia, or stroke recovery. </p>
-<p>Built with an offline-first philosophy, Simple AAC provides instantaneous speech playback in English, Sinhala, and Tamil without requiring any internet connection or cloud subscription.</p>
-<h3 id="main-interface-overview">Main Interface Overview</h3>
-<p>When you launch Simple AAC, you are greeted by the clean, calming default Blue Gradient theme designed to maximize readability and reduce sensory overstimulation.</p>
-<p><img alt="Simple AAC Home Screen" src="screenshots/01_home_screen.png" />
-<em>Figure 1.1: The Simple AAC Home Screen showing the Blue App Header, Sentence Composer Bar, and High-Contrast AAC Communication Cards.</em></p>
-<p>The interface is structured into three primary areas:
-1. <strong>Top Application Bar</strong>: Contains the <strong>Pin Board</strong> security lock button on the left, the <strong>Simple AAC</strong> title in the center, and the <strong>Menu (Drawer)</strong> button on the right.
-2. <strong>Sentence Composer Bar</strong>: Displays the sequence of words selected by the user, complete with immediate auditory playback and intuitive editing controls.
-3. <strong>AAC Card Grid</strong>: A responsive, high-contrast grid of visual communication symbols designed for easy targeting by small fingers or individuals with fine-motor challenges.</p>
-<p><img alt="AAC Cards Grid" src="screenshots/02_aac_cards_grid.png" />
-<em>Figure 1.2: High-contrast AAC Communication Cards with clear typography and universally recognized visual pictograms.</em></p>
-<hr />
-<h2 id="chapter-2-speaking-and-sentence-composition">Chapter 2: Speaking and Sentence Composition</h2>
-<h3 id="21-tapping-to-speak">2.1 Tapping to Speak</h3>
-<p>Communication begins with a single touch. Simple AAC provides dual-mode auditory feedback:
-- <strong>Instant Speech</strong>: When <strong>Tap to Speak</strong> is enabled in Settings, touching any card immediately speaks its label using offline Text-to-Speech (TTS) or custom recorded voice.
-- <strong>Haptic Pop</strong>: Every touch triggers an authentic physical vibration and subtle visual pop effect, confirming the selection for tactile learners.</p>
-<p><img alt="Card Tap and Speak Animation" src="gifs/card_tap_speak.gif" />
-<em>Figure 2.1: Live demonstration of tapping cards, building sentences, and hearing continuous speech output.</em></p>
-<p><img alt="Speaking Card" src="screenshots/03_speaking_card.png" />
-<em>Figure 2.2: Tapping the "Hello" card places it onto the sentence bar and triggers immediate speech playback.</em></p>
-<h3 id="22-constructing-multi-word-sentences">2.2 Constructing Multi-Word Sentences</h3>
-<p>Users can express complete thoughts by tapping multiple cards in sequence.</p>
-<p><img alt="Sentence Bar" src="screenshots/04_sentence_bar.png" />
-<em>Figure 2.3: Building compound sentences ("Hello" + "Happy") in the Sentence Composer Bar.</em></p>
-<p>Controls available in the Sentence Bar:
-- <strong>Delete (Back Arrow)</strong>: Removes the most recently added card from the end of the sentence.
-- <strong>Clear</strong>: Empties the entire sentence bar in one tap.
-- <strong>Speak Sentence (Speaker Button)</strong>: Speaks the entire constructed sentence fluently from left to right.</p>
-<hr />
-<h2 id="chapter-3-customizing-cards-and-multilingual-content">Chapter 3: Customizing Cards and Multilingual Content</h2>
-<p>Every individual communicates differently. Simple AAC allows caregivers, speech therapists, and educators to personalize every card.</p>
-<h3 id="31-enabling-edit-mode">3.1 Enabling Edit Mode</h3>
-<ol>
-<li>Tap the <strong>Menu Button</strong> (top right) to open the Settings Drawer.</li>
-<li>Select <strong>Enable Edit Mode</strong>.</li>
-<li>The board enters customization mode: cards display a red trash-can badge, and an <strong>Add New</strong> action bar appears at the top.</li>
-</ol>
-<p><img alt="Edit Mode Active" src="screenshots/05_edit_mode_active.png" />
-<em>Figure 3.1: Edit Mode active with "Add New" button and individual card delete badges.</em></p>
-<h3 id="32-the-card-editor-dialog">3.2 The Card Editor Dialog</h3>
-<p>Tapping any card in Edit Mode opens the comprehensive <strong>Edit Card Dialog</strong>.</p>
-<p><img alt="Card Editor Dialog" src="screenshots/06_card_editor_dialog.png" />
-<em>Figure 3.2: Card Editor Dialog with options for Web Search, Gallery, Camera, GIF import, multilingual labels, and voice recording.</em></p>
-<h3 id="33-adding-authentic-photos-via-camera-and-gallery">3.3 Adding Authentic Photos via Camera and Gallery</h3>
-<ul>
-<li><strong>Camera</strong>: Tap <strong>Camera</strong> to capture real-world items (e.g., child's own water bottle, favorite toy, family members). The app automatically requests standard Android camera permissions if not previously granted.</li>
-<li><strong>Gallery</strong>: Tap <strong>Gallery</strong> to select high-resolution family photos or customized therapy pictograms from device storage.</li>
-</ul>
-<p><img alt="Camera Flow" src="screenshots/08_camera_flow.png" />
-<em>Figure 3.3: Direct Camera capture integration for personalized real-world item cards.</em></p>
-<h3 id="34-smart-image-search-safe-search">3.4 Smart Image Search (Safe Search)</h3>
-<p>When Online Features are enabled by the caregiver, the <strong>Smart Search</strong> tool provides a curated library of child-safe visual concepts.</p>
-<p><img alt="Smart Image Search" src="screenshots/10_smart_image_search.png" />
-<em>Figure 3.4: Child-safe Smart Image Search interface.</em></p>
-<h3 id="35-true-multilingual-support-english-sinhala-tamil">3.5 True Multilingual Support (English, Sinhala, Tamil)</h3>
-<p>Simple AAC supports Sri Lanka's official languages with native trilingual input:
-- <strong>English Label</strong>: Standard international English terminology.
-- <strong>Sinhala Label (සිංහල)</strong>: Authentic Sinhala Unicode text (e.g., හෙලෝ, සතුටුයි, වතුර).
-- <strong>Tamil Label (தமிழ்)</strong>: Authentic Tamil Unicode text (e.g., வணக்கம், மகிழ்ச்சி, தண்ணீர்).</p>
-<p><img alt="Multilingual Labels" src="screenshots/14_multilingual_labels.png" />
-<em>Figure 3.5: Trilingual label editor supporting English, Sinhala, and Tamil simultaneously.</em></p>
-<h3 id="36-custom-voice-recording">3.6 Custom Voice Recording</h3>
-<p>For children who respond best to a parent's or therapist's familiar voice:
-1. Tap <strong>Record Voice</strong> in the Card Editor.
-2. Speak clearly into the microphone.
-3. Tap <strong>Stop</strong> to save. The recorded audio takes precedence over synthesized TTS whenever the card is tapped!</p>
-<p><img alt="Custom Voice Recorder" src="screenshots/13_custom_voice_recorder.png" />
-<em>Figure 3.6: High-fidelity custom voice recording interface.</em></p>
-<hr />
-<h2 id="chapter-4-animated-gifs-and-video-loops">Chapter 4: Animated GIFs and Video Loops</h2>
-<p>Visual learners and children with ASD often comprehend dynamic actions (such as <em>jumping</em>, <em>drinking</em>, <em>washing hands</em>) significantly better through animation than static images.</p>
-<h3 id="41-importing-animated-gifs">4.1 Importing Animated GIFs</h3>
-<p>Simple AAC includes a dedicated high-performance GIF engine that loops animated actions smoothly without draining battery power.</p>
-<p><img alt="Animated GIFs" src="screenshots/11_animated_gifs.png" />
-<em>Figure 4.1: GIF import dialog supporting loopable action animations.</em></p>
-<h3 id="42-converting-short-videos-to-gifs">4.2 Converting Short Videos to GIFs</h3>
-<p>Caregivers can record short video clips (up to 30 seconds) of actual therapies, routines, or sign language gestures, and Simple AAC automatically converts them into lightweight, battery-efficient animated card loops.</p>
-<p><img alt="Video to GIF Converter" src="screenshots/12_video_to_gif.png" />
-<em>Figure 4.2: Integrated short-video to GIF converter for motion-based AAC cards.</em></p>
-<hr />
-<h2 id="chapter-5-folders-and-category-organization">Chapter 5: Folders and Category Organization</h2>
-<p>As vocabulary grows, cards can be neatly grouped into categories (e.g., <em>Feelings</em>, <em>Food &amp; Drink</em>, <em>School</em>, <em>Activities</em>).</p>
-<p><img alt="Folder View" src="screenshots/07_folder_view.png" />
-<em>Figure 5.1: Navigating into subfolders and category decks ("More -&gt;").</em></p>
-<p>Tapping a folder card smoothly navigates into the category deck, presenting related vocabulary while retaining the persistent sentence composer bar at the top.</p>
-<hr />
-<h2 id="chapter-6-appearance-themes-and-haptic-feedback">Chapter 6: Appearance, Themes and Haptic Feedback</h2>
-<h3 id="61-settings-drawer">6.1 Settings Drawer</h3>
-<p>Access the Settings Drawer by tapping the top-right Menu button at any time.</p>
-<p><img alt="Settings Drawer" src="screenshots/16_settings_drawer.png" />
-<em>Figure 6.1: Main Settings Drawer showing version 1.1.0, Offline status, Speech options, and Haptic Feedback toggle.</em></p>
-<h3 id="62-redesigned-color-customization">6.2 Redesigned Color Customization</h3>
-<p>Simple AAC v1.1.0 features brand-new visual Color Pickers equipped with live interactive preview canvases:</p>
-<p><img alt="Live Color Picker Workflow" src="gifs/color_picker_flow.gif" />
-<em>Figure 6.2: Live demonstration of opening the Settings Drawer and fine-tuning application colors.</em></p>
-<ol>
-<li>
-<p><strong>Primary App Color</strong>: Adjusts the header, buttons, and primary accents.
-   <img alt="Primary App Color Picker" src="screenshots/17_color_picker_app_color.png" />
-   <em>Figure 6.3: Primary App Color Picker featuring a live mini-header preview and quick preset chips.</em></p>
-</li>
-<li>
-<p><strong>Global Text Color</strong>: Adjusts card text and typography across the entire board.
-   <img alt="Global Text Color Picker" src="screenshots/18_color_picker_text_color.png" />
-   <em>Figure 6.4: Text Color Picker featuring a 3-card live preview canvas.</em></p>
-</li>
-<li>
-<p><strong>Board Background Color</strong>: Sets the background canvas of the AAC communication grid.
-   <img alt="Board Background Color Picker" src="screenshots/19_color_picker_board_background.png" />
-   <em>Figure 6.5: Board Background Color Picker with real-time multi-card contrast preview.</em></p>
-</li>
-</ol>
-<h3 id="63-color-vision-support-color-blind-safe-mode">6.3 Color Vision Support (Color-Blind Safe Mode)</h3>
-<p>For users with color vision deficiency (protanopia, deuteranopia, tritanopia), Simple AAC provides a certified <strong>Color-Blind Safe Mode</strong> with optimized contrast ratios exceeding WCAG AAA standards.</p>
-<p><img alt="Color Vision Support" src="screenshots/20_appearance_and_color_vision.png" />
-<em>Figure 6.6: Color Vision Support settings for high-contrast accessibility.</em></p>
-<h3 id="64-haptic-feedback">6.4 Haptic Feedback</h3>
-<p>Enable <strong>Haptic Feedback</strong> in the Settings Drawer to deliver a satisfying tactile response on every card tap, reinforcing cause-and-effect learning.</p>
-<hr />
-<h2 id="chapter-7-safety-board-pinning-and-child-lock">Chapter 7: Safety, Board Pinning and Child Lock</h2>
-<p>Accidental taps or intentional exploration can inadvertently delete cards or alter settings. Simple AAC includes a robust PIN protection mechanism.</p>
-<h3 id="71-activating-board-lock">7.1 Activating Board Lock</h3>
-<p>Tap the <strong>Pin Board</strong> button on the top-left of the application header to lock the board.</p>
-<p><img alt="PIN Dialog" src="screenshots/15_pin_dialog.png" />
-<em>Figure 7.1: Setting up or entering the 4-digit security PIN.</em></p>
-<p>When locked:
-- The Settings Drawer is disabled.
-- Edit Mode cannot be accessed.
-- Card positions and labels cannot be modified.
-- The user can communicate freely without risk of data alteration.</p>
-<hr />
-<h2 id="chapter-8-data-backup-restore-and-offline-privacy">Chapter 8: Data Backup, Restore and Offline Privacy</h2>
-<h3 id="81-100-strict-offline-privacy">8.1 100% Strict Offline Privacy</h3>
-<p>Simple AAC operates entirely on the device. No personal photos, recorded voices, or communication logs are transmitted to external servers.</p>
-<p><img alt="Backup and Storage" src="screenshots/21_backup_export.png" />
-<em>Figure 8.1: Cards &amp; Storage management section in the Settings Drawer.</em></p>
-<h3 id="82-exporting-backups">8.2 Exporting Backups</h3>
-<ol>
-<li>Open the Settings Drawer and scroll to <strong>CARDS &amp; STORAGE</strong>.</li>
-<li>Tap <strong>Export Backup</strong>.</li>
-<li>All custom cards, photos, recorded audio files, and layout preferences are bundled into a portable ZIP archive saved to your device's <code>Downloads</code> folder.</li>
-</ol>
-<h3 id="83-restoring-backups">8.3 Restoring Backups</h3>
-<p>To migrate to a new device or recover settings:
-1. Tap <strong>Import Restore</strong>.
-2. Select your previously exported Simple AAC ZIP file.
-3. The app safely unpacks and verifies all cards and audio assets, immediately restoring your complete personalized vocabulary.</p>
-<h3 id="84-offline-tts-configuration">8.4 Offline TTS Configuration</h3>
-<p>Verify your offline voice models by tapping <strong>Offline Speech</strong> in the drawer:</p>
-<p><img alt="Offline Speech Settings" src="screenshots/24_offline_speech_settings.png" />
-<em>Figure 8.2: Offline Speech configuration ensuring native English, Sinhala, and Tamil TTS engines are active.</em></p>
-<hr />
-<p><em>Simple AAC Sri Lanka — Version 1.1.0 (Release Candidate)</em><br />
-<em>Empowering voices across Sri Lanka with dignity, independence, and reliability.</em></p>
+
+<!-- PAGE 1 -->
+<div class="doc-header">
+  <h1>Simple AAC Sri Lanka — User Guide (v1.1.0)</h1>
+  <div class="subtitle">Your Complete Manual for Daily Communication, Customization, and Accessibility</div>
+  <hr class="divider">
 </div>
+
+<div class="toc-box">
+  <div class="toc-title">Table of Contents</div>
+  <div class="toc-grid">
+    <a class="toc-item" href="#ch1"><span><span class="toc-num">1.</span>Getting Started with Simple AAC</span><span class="dots"></span><span class="toc-page">Page 1</span></a>
+    <a class="toc-item" href="#ch2"><span><span class="toc-num">2.</span>Speaking &amp; Sentence Composition</span><span class="dots"></span><span class="toc-page">Page 2</span></a>
+    <a class="toc-item" href="#ch3"><span><span class="toc-num">3.</span>Customizing Cards &amp; Languages</span><span class="dots"></span><span class="toc-page">Page 3</span></a>
+    <a class="toc-item" href="#ch4"><span><span class="toc-num">4.</span>Animated GIFs &amp; Video Loops</span><span class="dots"></span><span class="toc-page">Page 4</span></a>
+    <a class="toc-item" href="#ch5"><span><span class="toc-num">5.</span>Folders &amp; Category Organization</span><span class="dots"></span><span class="toc-page">Page 5</span></a>
+    <a class="toc-item" href="#ch6"><span><span class="toc-num">6.</span>Appearance, Themes &amp; Haptics</span><span class="dots"></span><span class="toc-page">Page 5</span></a>
+    <a class="toc-item" href="#ch7"><span><span class="toc-num">7.</span>Safety, Board Pinning &amp; Child Lock</span><span class="dots"></span><span class="toc-page">Page 7</span></a>
+    <a class="toc-item" href="#ch8"><span><span class="toc-num">8.</span>Data Backup, Restore &amp; Privacy</span><span class="dots"></span><span class="toc-page">Page 7</span></a>
+  </div>
+</div>
+
+<h2 id="ch1" class="page-start">Chapter 1: Getting Started with Simple AAC</h2>
+<p><strong>Simple AAC Sri Lanka</strong> is an augmentative and alternative communication (AAC) platform engineered specifically for non-verbal children, individuals with autism (ASD), speech delays, aphasia, or stroke recovery. Built with an offline-first philosophy, Simple AAC provides instantaneous speech playback in <strong>English, Sinhala, and Tamil</strong> without requiring any internet connection or cloud subscription.</p>
+
+<h3>1.1 Main Interface Overview</h3>
+<p>When you launch Simple AAC, you are greeted by the clean, calming default Blue Theme designed to maximize readability and reduce sensory overstimulation. The interface consists of three primary areas:</p>
+<ul>
+  <li><strong>Top Application Bar:</strong> Houses the <strong>Pin Board</strong> security lock (left), <strong>Simple AAC</strong> title (center), and the <strong>Menu (Drawer)</strong> button (right).</li>
+  <li><strong>Sentence Composer Bar:</strong> Displays selected cards in sequence with immediate speech controls (Delete, Clear, Speak).</li>
+  <li><strong>AAC Card Grid:</strong> High-contrast visual communication cards designed for easy targeting by fine-motor challenged fingers.</li>
+</ul>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/01_home_screen.png" alt="Simple AAC Home Screen">
+    <figcaption>Figure 1.1: Home Screen with Blue Header &amp; Sentence Bar</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/02_aac_cards_grid.png" alt="AAC Cards Grid">
+    <figcaption>Figure 1.2: High-contrast AAC Communication Cards Grid</figcaption>
+  </figure>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page-break"></div>
+<h2 id="ch2" class="page-start">Chapter 2: Speaking and Sentence Composition</h2>
+
+<h3>2.1 Tapping to Speak</h3>
+<p>Communication begins with a single touch. Simple AAC provides immediate multi-sensory feedback:</p>
+<ul>
+  <li><strong>Instant Speech:</strong> When <em>Tap to Speak</em> is enabled in Settings, touching any card speaks its label immediately via offline Text-to-Speech (TTS) or custom recorded voice.</li>
+  <li><strong>Haptic Pop:</strong> Every touch triggers a responsive physical vibration and subtle visual pop effect, confirming selection for tactile learners.</li>
+</ul>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="gifs/card_tap_speak.gif" alt="Card Tap and Speak Animation">
+    <figcaption>Figure 2.1: Live demonstration of tapping cards &amp; speech</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/03_speaking_card.png" alt="Speaking Card">
+    <figcaption>Figure 2.2: Tapping "Hello" places card on sentence bar</figcaption>
+  </figure>
+</div>
+
+<h3>2.2 Constructing Multi-Word Sentences</h3>
+<p>Users can express complex thoughts by tapping cards sequentially (e.g., <em>"Hello"</em> + <em>"Happy"</em>). The Sentence Composer Bar provides three primary actions:</p>
+<ul>
+  <li><strong>Delete (Back Arrow):</strong> Removes the most recently added card from the sentence.</li>
+  <li><strong>Clear:</strong> Empties the entire sentence bar in a single tap.</li>
+  <li><strong>Speak Sentence (Speaker Button):</strong> Speaks the entire constructed sentence fluently from left to right.</li>
+</ul>
+
+<div class="fig-single">
+  <img src="screenshots/04_sentence_bar.png" alt="Sentence Bar">
+  <figcaption>Figure 2.3: Building multi-word sentences in the Sentence Composer Bar</figcaption>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page-break"></div>
+<h2 id="ch3" class="page-start">Chapter 3: Customizing Cards and Multilingual Content</h2>
+<p>Every individual communicates differently. Simple AAC allows caregivers, speech therapists, and educators to fully personalize every card's imagery, labels, and audio.</p>
+
+<h3>3.1 Enabling Edit Mode &amp; Card Editor</h3>
+<p>To customize cards, tap <strong>Menu</strong> (top right) &rarr; <strong>Enable Edit Mode</strong>. Red trash-can badges appear on cards, and an <strong>Add New</strong> button displays at the top. Tapping any card opens the comprehensive <strong>Edit Card Dialog</strong>.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/05_edit_mode_active.png" alt="Edit Mode Active">
+    <figcaption>Figure 3.1: Edit Mode active with Add New button</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/06_card_editor_dialog.png" alt="Card Editor Dialog">
+    <figcaption>Figure 3.2: Card Editor Dialog with customization tools</figcaption>
+  </figure>
+</div>
+
+<h3>3.2 Adding Authentic Photos &amp; Smart Search</h3>
+<ul>
+  <li><strong>Camera:</strong> Capture real-world items (child's bottle, favorite toy, family members). The app requests standard Android permissions automatically.</li>
+  <li><strong>Gallery:</strong> Select family photos or therapy pictograms stored on the device.</li>
+  <li><strong>Smart Image Search:</strong> When online features are enabled, search a curated, child-safe library of concepts.</li>
+</ul>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/08_camera_flow.png" alt="Camera Flow">
+    <figcaption>Figure 3.3: Direct Camera photo capture</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/10_smart_image_search.png" alt="Smart Image Search">
+    <figcaption>Figure 3.4: Child-safe Smart Image Search</figcaption>
+  </figure>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page-break"></div>
+<h3 class="page-start">3.3 Trilingual Support &amp; Custom Voice Recording</h3>
+<p>Simple AAC supports Sri Lanka's official languages with simultaneous trilingual labels: <strong>English</strong> (e.g., <em>Hello</em>), <strong>Sinhala</strong> (හෙලෝ, සතුටුයි, වතුර), and <strong>Tamil</strong> (வணக்கம், மகிழ்ச்சි, தண்ணீர்). For children who respond best to familiar family voices, caregivers can record custom audio directly in the editor, which takes precedence over synthesized speech.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/14_multilingual_labels.png" alt="Multilingual Labels">
+    <figcaption>Figure 3.5: Trilingual English, Sinhala &amp; Tamil labels</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/13_custom_voice_recorder.png" alt="Custom Voice Recorder">
+    <figcaption>Figure 3.6: High-fidelity custom voice recording</figcaption>
+  </figure>
+</div>
+
+<h2 id="ch4">Chapter 4: Animated GIFs and Video Loops</h2>
+<p>Visual learners and individuals with autism frequently comprehend dynamic actions (such as <span class="inline-pill">jumping</span>, <span class="inline-pill">drinking</span>, or <span class="inline-pill">washing hands</span>) significantly better through motion than static images. Simple AAC includes a dedicated high-performance GIF engine that loops smoothly without draining battery power.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/11_animated_gifs.png" alt="Animated GIFs">
+    <figcaption>Figure 4.1: GIF import for loopable action cards</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/12_video_to_gif.png" alt="Video to GIF Converter">
+    <figcaption>Figure 4.2: Built-in 30s video-to-GIF converter</figcaption>
+  </figure>
+</div>
+<p>Caregivers can record short video clips (up to 30 seconds) of actual therapies, routines, or sign language gestures, and the app automatically converts them into lightweight, battery-efficient animated loops.</p>
+
+<!-- PAGE 5 -->
+<div class="page-break"></div>
+<h2 id="ch5" class="page-start">Chapter 5: Folders and Category Organization</h2>
+<p>As vocabulary expands, cards can be organized into categories such as <span class="inline-pill">Feelings</span>, <span class="inline-pill">Food &amp; Drink</span>, <span class="inline-pill">School</span>, and <span class="inline-pill">Activities</span>. Tapping a folder card smoothly navigates into the category deck while keeping the sentence composer bar persistent at the top.</p>
+
+<div class="fig-single">
+  <img src="screenshots/07_folder_view.png" alt="Folder View">
+  <figcaption>Figure 5.1: Navigating into subfolders and category decks ("More -&gt;")</figcaption>
+</div>
+
+<h2 id="ch6">Chapter 6: Appearance, Themes and Haptic Feedback</h2>
+
+<h3>6.1 Settings Drawer &amp; Live Color Customization</h3>
+<p>Access the Settings Drawer by tapping the top-right Menu button. Simple AAC v1.1.0 introduces redesigned visual Color Pickers equipped with real-time interactive preview canvases.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/16_settings_drawer.png" alt="Settings Drawer">
+    <figcaption>Figure 6.1: Settings Drawer with haptics toggle</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="gifs/color_picker_flow.gif" alt="Live Color Picker Workflow">
+    <figcaption>Figure 6.2: Live Color Picker demonstration</figcaption>
+  </figure>
+</div>
+
+<!-- PAGE 6 -->
+<div class="page-break"></div>
+<h3 class="page-start">6.2 Redesigned Color Pickers &amp; Color Vision Support</h3>
+<p>Customize the primary app color, global text color, and board background with real-time contrast previews:</p>
+
+<div class="fig-row-3">
+  <figure class="fig-col">
+    <img src="screenshots/17_color_picker_app_color.png" alt="Primary App Color Picker">
+    <figcaption>Figure 6.3: App Color Picker with mini-header</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/18_color_picker_text_color.png" alt="Global Text Color Picker">
+    <figcaption>Figure 6.4: Text Color Picker with 3-card preview</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/19_color_picker_board_background.png" alt="Board Background Color Picker">
+    <figcaption>Figure 6.5: Board Background Color preview</figcaption>
+  </figure>
+</div>
+
+<h3>6.3 Color Vision Support &amp; Haptic Feedback</h3>
+<p>For users with color vision deficiency, Simple AAC provides a certified <strong>Color-Blind Safe Mode</strong> exceeding WCAG AAA contrast standards. The <strong>Haptic Feedback</strong> switch delivers tactile reinforcement on every tap.</p>
+
+<div class="fig-single">
+  <img src="screenshots/20_appearance_and_color_vision.png" alt="Color Vision Support">
+  <figcaption>Figure 6.6: Color Vision Support and high-contrast settings</figcaption>
+</div>
+
+<!-- PAGE 7 -->
+<div class="page-break"></div>
+<h2 id="ch7" class="page-start">Chapter 7: Safety, Board Pinning and Child Lock</h2>
+<p>Accidental taps or exploration can inadvertently alter settings or delete cards. Tap the <strong>Pin Board</strong> button (top left) to set a 4-digit security PIN. When locked, the Settings Drawer and Edit Mode are completely disabled, allowing users to communicate safely without risking data alteration.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/15_pin_dialog.png" alt="PIN Dialog">
+    <figcaption>Figure 7.1: Setting up or unlocking 4-digit security PIN</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/15_pin_mode_locked.png" alt="Locked Board Mode">
+    <figcaption>Figure 7.2: Pinned board mode with disabled edit controls</figcaption>
+  </figure>
+</div>
+
+<h2 id="ch8">Chapter 8: Data Backup, Restore and Offline Privacy</h2>
+
+<h3>8.1 100% Strict Offline Privacy</h3>
+<p>Simple AAC operates entirely on-device. Personal photos, voice recordings, and communication logs are never transmitted to external servers.</p>
+
+<h3>8.2 Exporting &amp; Restoring Backups</h3>
+<ul>
+  <li><strong>Export Backup:</strong> Packages all custom cards, photos, recordings, and settings into a single ZIP archive saved directly to your device's <code>Downloads</code> folder.</li>
+  <li><strong>Import Restore:</strong> Safely unpacks and validates any previously exported Simple AAC ZIP archive, instantly restoring your personalized vocabulary.</li>
+</ul>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="screenshots/21_backup_export.png" alt="Backup and Storage">
+    <figcaption>Figure 8.1: Cards &amp; Storage section in Settings Drawer</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="screenshots/24_offline_speech_settings.png" alt="Offline Speech Settings">
+    <figcaption>Figure 8.2: Offline Speech (TTS) engine configuration</figcaption>
+  </figure>
+</div>
+
+<div class="callout">
+  <strong>Note on Scalability:</strong> Simple AAC utilizes an atomic file persistence architecture (<code>aac_cards_v1.json</code> with automated <code>.bak</code> redundancy). Backups are verified up to 1,000+ cards with full media integrity.
+</div>
+
+<hr class="divider">
+<p style="text-align: center; color: #64748b; font-size: 8.5pt; margin-top: 6px;">
+  <em>Simple AAC Sri Lanka &bull; Version 1.1.0 &bull; Empowering voices with dignity, independence, and reliability.</em>
+</p>
+
 </body>
 </html>
