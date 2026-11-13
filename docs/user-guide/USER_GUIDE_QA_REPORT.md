@@ -78,7 +78,7 @@ All media assets were captured directly from the physical Samsung Galaxy A34 har
 ## 3. Accessibility & Editorial Quality Audit
 
 1. **Alt Text Completeness:**
-   - Every figure in `Simple_AAC_User_Guide.md` and `Simple_AAC_User_Guide.html` carries descriptive, context-rich alternative text and an explicit italic caption.
+   - Every figure in `Simple_AAC_User_Guide.md`, `Simple_AAC_User_Guide_SI.md`, and their HTML counterparts carries descriptive, context-rich alternative text and an explicit italic caption.
    - Meets WCAG 2.2 Level AAA requirements for screen reader accessibility.
 
 2. **Contrast & Legibility:**
@@ -88,11 +88,12 @@ All media assets were captured directly from the physical Samsung Galaxy A34 har
 3. **Multilingual Authenticity:**
    - Sinhala Unicode rendering verified across vowels, diacritics, and conjuncts (`හෙලෝ`, `සතුටුයි`, `දුකයි`, `තරහයි`).
    - Tamil Unicode rendering verified (`வணக்கம்`, `மகிழ்ச்சி`).
+   - Dedicated Sinhala guide (`Simple_AAC_User_Guide_SI.md`, HTML & PDF) crafted specifically for Sri Lankan parents, educators, and speech therapists.
    - English typography rendered in crisp clean sans-serif.
 
 4. **PDF Compilation Integrity:**
-   - Compiled via Headless Chromium 128+ with print layout CSS rules (`size: A4`, `@media print`).
-   - Vector typography preserved throughout 27 pages without image clipping, orphaned headers, or broken figures.
+   - Both English (`Simple_AAC_User_Guide.pdf`) and Sinhala (`Simple_AAC_User_Guide_SI.pdf`) compiled via Headless Chromium 128+ with print layout CSS rules (`size: A4`, `@media print`).
+   - Vector typography preserved throughout 27 pages in each language edition without image clipping, orphaned headers, or broken figures.
 
 ---
 
