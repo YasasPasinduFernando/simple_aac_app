@@ -123,7 +123,45 @@ class CameraObjectHelper {
     if (!allowed || !context.mounted) return null;
 
     while (context.mounted) {
-      final picked = await _pickCameraPhoto(imageQuality: imageQuality);
+      final XFile? picked;
+      try {
+        picked = await _pickCameraPhoto(imageQuality: imageQuality);
+      } catch (e) {
+        debugPrint('[CameraObjectHelper] Camera pick failed: $e');
+        if (context.mounted) {
+          await showDialog<void>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              title: StyledDialogHeader(
+                icon: Icons.camera_alt_rounded,
+                title: 'Camera Launch Failed',
+                subtitle: 'Unable to open device camera',
+                accentColor: Theme.of(ctx).colorScheme.error,
+              ),
+              content: const Text(
+                'Could not launch the camera app. Please ensure camera permissions are allowed in App Settings.',
+                style: TextStyle(fontSize: 13, height: 1.4),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton.icon(
+                  icon: const Icon(Icons.settings_rounded, size: 18),
+                  label: const Text('Open Settings'),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    AppPermissionsHelper.openSettings();
+                  },
+                ),
+              ],
+            ),
+          );
+        }
+        return null;
+      }
       if (picked == null || !context.mounted) return null;
 
       final analysis = await analyzeImage(picked.path);

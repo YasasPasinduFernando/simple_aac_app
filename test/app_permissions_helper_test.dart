@@ -152,4 +152,80 @@ void main() {
     await tester.pumpAndSettle();
     await future;
   });
+
+  testWidgets('ensureCameraPermission shows settings dialog directly when called inside a dialog route',
+      (tester) async {
+    var settingsOpened = false;
+    AppPermissionsHelper.statusReader = (_) async => PermissionStatus.denied;
+    AppPermissionsHelper.permissionRequester = (_) async => PermissionStatus.denied;
+    AppPermissionsHelper.settingsOpener = () async {
+      settingsOpened = true;
+      return true;
+    };
+
+    late BuildContext dialogContext;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (ctx) => ElevatedButton(
+              onPressed: () {
+                showDialog<void>(
+                  context: ctx,
+                  builder: (dlgCtx) {
+                    dialogContext = dlgCtx;
+                    return const AlertDialog(title: Text('Edit Card Test'));
+                  },
+                );
+              },
+              child: const Text('Open Dialog'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open Dialog'));
+    await tester.pumpAndSettle();
+
+    final future = AppPermissionsHelper.ensureCameraPermission(dialogContext);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Camera Permission Needed'), findsOneWidget);
+    expect(find.text('Open Settings'), findsOneWidget);
+
+    await tester.tap(find.text('Open Settings'));
+    await tester.pumpAndSettle();
+
+    expect(await future, isFalse);
+    expect(settingsOpened, isTrue);
+  });
+
+  testWidgets('ensureVideoRecordingPermissions verifies both Camera and Microphone permissions',
+      (tester) async {
+    final requested = <Permission>[];
+    AppPermissionsHelper.statusReader = (_) async => PermissionStatus.denied;
+    AppPermissionsHelper.permissionRequester = (p) async {
+      requested.add(p);
+      return PermissionStatus.granted;
+    };
+
+    late BuildContext savedContext;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (ctx) {
+              savedContext = ctx;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      ),
+    );
+
+    final allowed = await AppPermissionsHelper.ensureVideoRecordingPermissions(savedContext);
+    expect(allowed, isTrue);
+    expect(requested, containsAll([Permission.camera, Permission.microphone]));
+  });
 }

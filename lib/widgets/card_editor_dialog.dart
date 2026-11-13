@@ -165,11 +165,34 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Camera unavailable or permission denied. Check App Permissions if needed.',
+      await showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          title: StyledDialogHeader(
+            icon: Icons.camera_alt_rounded,
+            title: 'Camera Unavailable',
+            subtitle: 'Could not open camera',
+            accentColor: Theme.of(ctx).colorScheme.error,
           ),
+          content: Text(
+            'Camera unavailable or permission denied ($e). Please check App Permissions.',
+            style: const TextStyle(fontSize: 13, height: 1.4),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Close'),
+            ),
+            FilledButton.icon(
+              icon: const Icon(Icons.settings_rounded, size: 18),
+              label: const Text('Open Settings'),
+              onPressed: () {
+                Navigator.pop(ctx);
+                AppPermissionsHelper.openSettings();
+              },
+            ),
+          ],
         ),
       );
     } finally {

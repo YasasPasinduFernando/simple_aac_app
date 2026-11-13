@@ -257,4 +257,48 @@ void main() {
     expect(enField.controller?.text, 'Apple');
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+      'CameraObjectHelper.captureAndVerify catches camera launch failure and presents settings guidance dialog',
+      (tester) async {
+    var settingsOpened = false;
+    AppPermissionsHelper.statusReader = (_) async => PermissionStatus.granted;
+    AppPermissionsHelper.settingsOpener = () async {
+      settingsOpened = true;
+      return true;
+    };
+    CameraObjectHelper.cameraPickerOverride = ({int imageQuality = 85}) async {
+      throw const FormatException('Simulated camera launch error');
+    };
+
+    late BuildContext savedContext;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (ctx) {
+              savedContext = ctx;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      ),
+    );
+
+    final future = CameraObjectHelper.captureAndVerify(
+      savedContext,
+      cardId: 'err_card',
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Camera Launch Failed'), findsOneWidget);
+    expect(find.text('Open Settings'), findsOneWidget);
+
+    await tester.tap(find.text('Open Settings'));
+    await tester.pumpAndSettle();
+
+    final outcome = await future;
+    expect(outcome, isNull);
+    expect(settingsOpened, isTrue);
+  });
 }

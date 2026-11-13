@@ -1,14 +1,14 @@
 # Simple AAC — November 14 Play Release Readiness Report
 
-**Document Date:** November 12, 2026  
+**Document Date:** November 13, 2026  
 **Target Release Date:** November 14, 2026  
 **Release Branch:** `release/play-2026-11-14`  
-**Latest Release Commit:** `92d8f0f` (`fix(ui): add close button to CardEditorDialog header and change image clear button to trash bin icon`)  
-**Previous Commits:** `aeb9887` (branding), `fc7afef` (backup hardening)  
+**Latest Release Commit:** `513e3f1` (`feat(ui): enhance settings drawer appearance and theme section with live color preview chips`)  
+**Previous Commits:** `96a1e57` (color picker preview logic), `57bca9e` (color picker redesign), `6027a0d` (header redesign), `da594db` (image overlay label default), `92d8f0f` (card editor close/trash), `aeb9887` (branding), `fc7afef` (backup hardening)  
 **Base RC Commit:** `185f207` (`feat(speech): select best offline Google voices with subtle pacing for RC`)  
 **Stable Rollback Baseline:** `0549334` (`tag: simple-aac-tts-stable-v1`, `stable/lightweight-multilingual-tts-v1`)  
 **Original Play v1.0.2 Baseline:** `e6fc156` (`release/play-v1.0.2`)  
-**Overall Verdict:** **READY FOR RELEASE CANDIDATE ACCEPTANCE** (Conditional on final post-recharge physical device smoke test; all automated functional QA, security audits, build verifications, and compliance checks passed 100%).
+**Overall Verdict:** **READY FOR RELEASE CANDIDATE ACCEPTANCE** (Conditional on final post-recharge physical device smoke test; all 82 automated functional QA tests, security audits, build verifications, and compliance checks passed 100%).
 
 ---
 
@@ -145,18 +145,38 @@ Verified via `aapt2 dump badging`:
 
 ## 6. Automated Test Suite Results
 
-All 61 automated tests across the codebase execute cleanly without failure:
+All 82 automated tests across the codebase execute cleanly without failure:
 
 ```
-00:10 +61: All tests passed!
+00:12 +82: All tests passed!
 ```
 
 ### Static Analysis
 `flutter analyze` reports:
 ```
 Analyzing simple_aac_play_release...
-No issues found! (ran in 5.5s)
+No issues found! (ran in 2.5s)
 ```
+
+---
+
+## 7. Camera & Video Recording Forensic Audit & Root-Cause Fix
+
+Following a report of Camera and Record Video launch failures on a physical Samsung Galaxy A34 after app data clear, a full forensic audit was conducted (see detailed report in `docs/qa/CAMERA_VIDEO_FORENSIC_AUDIT.md`):
+
+1. **Stale Device Build Identification:** Visual examination of user screen recordings revealed the physical device was running an older build (`SL AAC` header title prior to commit `6027a0d`).
+2. **Identification of `00:10` Overlay:** The `00:10` indicator near the top-right menu in the user screenshot was conclusively identified as Samsung One UI's native screen recorder floating toolbar, not an app defect.
+3. **Root Causes Isolated:**
+   - Missing `<queries>` entries for `IMAGE_CAPTURE` and `VIDEO_CAPTURE` in `AndroidManifest.xml` under Android 11+ package visibility rules.
+   - SnackBar error guidance posting to the underlying `Scaffold` behind the modal `CardEditorDialog` barrier, rendering error messages invisible to the user.
+   - Missing microphone permission check when initiating camera video recording.
+   - Lack of outer catch blocks to present actionable error dialogs when camera intents fail.
+4. **Resolution:**
+   - Explicit intent queries added to `AndroidManifest.xml`.
+   - `AppPermissionsHelper` upgraded with modal `PopupRoute` detection to show `_showOpenSettingsDialog` directly when inside dialogs.
+   - `ensureVideoRecordingPermissions` added to check both Camera and Microphone.
+   - `CameraObjectHelper` and `AnimatedMediaHelper` wrapped in try/catch blocks that present actionable "Open Settings" dialogs on failure.
+   - Full automated test coverage added (82 tests passing).
 
 ---
 

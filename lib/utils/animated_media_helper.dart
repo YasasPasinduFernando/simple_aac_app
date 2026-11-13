@@ -312,7 +312,7 @@ class AnimatedMediaHelper {
     required String cardId,
   }) async {
     final allowed = source == ImageSource.camera
-        ? await AppPermissionsHelper.ensureCameraPermission(context)
+        ? await AppPermissionsHelper.ensureVideoRecordingPermissions(context)
         : await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
     if (!allowed || !context.mounted) return null;
 
@@ -329,16 +329,55 @@ class AnimatedMediaHelper {
     }
 
     try {
-      final picked = videoPickerOverride != null
-          ? await videoPickerOverride!(source, maxDuration: maxVideoDuration)
-          : await _defaultPicker.pickVideo(
-              source: source,
-              maxDuration: maxVideoDuration,
-            );
+      final XFile? picked;
+      try {
+        picked = videoPickerOverride != null
+            ? await videoPickerOverride!(source, maxDuration: maxVideoDuration)
+            : await _defaultPicker.pickVideo(
+                source: source,
+                maxDuration: maxVideoDuration,
+              );
+      } catch (e) {
+        debugPrint('[AnimatedMediaHelper] video pick launch failed: $e');
+        if (context.mounted) {
+          await showDialog<void>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              title: StyledDialogHeader(
+                icon: Icons.videocam_rounded,
+                title: 'Video Capture Failed',
+                subtitle: 'Unable to launch video recording',
+                accentColor: Theme.of(ctx).colorScheme.error,
+              ),
+              content: const Text(
+                'Could not start video recording. Please ensure Camera and Microphone permissions are enabled in App Settings.',
+                style: TextStyle(fontSize: 13, height: 1.4),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton.icon(
+                  icon: const Icon(Icons.settings_rounded, size: 18),
+                  label: const Text('Open Settings'),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    AppPermissionsHelper.openSettings();
+                  },
+                ),
+              ],
+            ),
+          );
+        }
+        return null;
+      }
       if (picked == null || !context.mounted) return null;
+      final pickedFile = picked;
 
       var trimToLimit = false;
-      final probedMs = await _probeVideoDurationMs(picked.path);
+      final probedMs = await _probeVideoDurationMs(pickedFile.path);
       if (!context.mounted) return null;
       if (probedMs != null && probedMs > maxClipDurationMs) {
         final okTrim = await _confirmTrimLongVideo(
@@ -390,7 +429,7 @@ class AnimatedMediaHelper {
           ),
         );
         return _convertVideoToGif(
-          inputPath: picked.path,
+          inputPath: pickedFile.path,
           outputPath: outGifPath,
           trimToLimit: trim,
         );

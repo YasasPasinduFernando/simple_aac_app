@@ -18,6 +18,9 @@ class AppPermissionsHelper {
   @visibleForTesting
   static Future<bool> Function() settingsOpener = openAppSettings;
 
+  /// Public entry point to open app settings, respecting test overrides.
+  static Future<bool> openSettings() => settingsOpener();
+
   @visibleForTesting
   static Future<int> Function() sdkVersionReader = BackupService.getSdkVersion;
 
@@ -59,6 +62,14 @@ class AppPermissionsHelper {
     );
   }
 
+  /// Ensures both Camera and Microphone permissions are granted before video recording.
+  static Future<bool> ensureVideoRecordingPermissions(BuildContext context) async {
+    final cameraAllowed = await ensureCameraPermission(context);
+    if (!cameraAllowed || !context.mounted) return false;
+    final micAllowed = await ensureMicrophonePermission(context);
+    return micAllowed;
+  }
+
   /// Gallery and backup picks use the Android System Photo Picker / SAF on Android 10+
   /// (API 29+) and require zero storage permissions. Only legacy Android 9 (<= 28) needs it.
   static Future<bool> ensureLegacyStorageIfNeeded(BuildContext context) async {
@@ -94,7 +105,8 @@ class AppPermissionsHelper {
 
     if (!context.mounted) return false;
 
-    if (status.isPermanentlyDenied || status.isRestricted) {
+    final isInsideDialog = ModalRoute.of(context) is PopupRoute;
+    if (status.isPermanentlyDenied || status.isRestricted || isInsideDialog) {
       await _showOpenSettingsDialog(
         context,
         icon: icon,
