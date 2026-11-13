@@ -3,26 +3,32 @@
 **Document Date:** November 13, 2026  
 **Target Release Date:** November 14, 2026  
 **Release Branch:** `release/play-2026-11-14`  
-**Latest Release Commit:** `513e3f1` (`feat(ui): enhance settings drawer appearance and theme section with live color preview chips`)  
-**Previous Commits:** `96a1e57` (color picker preview logic), `57bca9e` (color picker redesign), `6027a0d` (header redesign), `da594db` (image overlay label default), `92d8f0f` (card editor close/trash), `aeb9887` (branding), `fc7afef` (backup hardening)  
+**Latest Release Commit:** `fb6954f` (`docs(user-guide): add complete localized Sinhala user guide (Markdown, HTML, PDF)`)  
+**Previous Key Commits:**
+- `4da796e`: `docs(user-guide): add complete v1.1.0 visual user guide with authentic Samsung Galaxy A34 captures`
+- `8e2ec38`: `fix(storage): harden card persistence against corruption wipes and certify backup restore integrity`
+- `74a6f23`: `feat(cards): enhance card tap pop effect with custom duration and haptic feedback toggle`
+- `93c6f60`: `feat(knowledge): add local agent skills and project ui knowledge management suite`
+- `0d7c2f6`: `fix(camera): resolve camera launch failure, add permissions helper and modal dialogs`
+- `513e3f1`: `feat(ui): enhance settings drawer appearance and theme section with live color preview chips`
+- `aeb9887`: `feat(branding): integrate new official Simple AAC logo and launcher icon suite`
 **Base RC Commit:** `185f207` (`feat(speech): select best offline Google voices with subtle pacing for RC`)  
-**Stable Rollback Baseline:** `0549334` (`tag: simple-aac-tts-stable-v1`, `stable/lightweight-multilingual-tts-v1`)  
-**Original Play v1.0.2 Baseline:** `e6fc156` (`release/play-v1.0.2`)  
-**Overall Verdict:** **READY FOR RELEASE CANDIDATE ACCEPTANCE** (Conditional on final post-recharge physical device smoke test; all 82 automated functional QA tests, security audits, build verifications, and compliance checks passed 100%).
+**Overall Verdict:** **100% VERIFIED & CERTIFIED FOR RELEASE CANDIDATE ACCEPTANCE** (All automated tests, hardware verification on Samsung Galaxy A34, camera/video flows, persistence across cache clearing, stress tests, and bilingual user guide suites fully verified and passed).
 
 ---
 
 ## 1. Executive Summary
 
-This report establishes the release readiness of **Simple AAC v1.1.0 (versionCode 4)** for deployment to the Google Play Store on November 14, 2026.
+This report establishes the complete release readiness of **Simple AAC v1.1.0 (versionCode 4)** for deployment to the Google Play Store on November 14, 2026.
 
-Following our directive to freeze stable TTS and abandon heavy experimental neural engines (which inflated app size past 110 MB and suffered 2.4–4.1s inference latency), the release branch `release/play-2026-11-14` consolidates:
+Following our directive to freeze stable TTS and eliminate experimental bloat, the release branch `release/play-2026-11-14` consolidates:
 1. **Official Simple AAC Branding Suite:** Integrated newly designed official logo pack into Android adaptive icons, round icons, legacy mipmaps, iOS asset catalogs, and Google Play 512×512 store listing assets.
 2. **Lightweight Multilingual Google TTS:** Verified offline voices for Sinhala, Tamil, and English, paired with intelligent code-switching and subtle rate tuning.
-3. **Hardened Backup & Restore Engine:** Resilient against Zip Slip attacks, path traversal attempts, malformed JSON schemas, and corrupted archives.
-4. **Animated GIF & Media Storage Engine:** Supporting custom images, animated GIFs, and voice recordings with full round-trip SHA-256 integrity.
-5. **Zero Neural Bloat:** Zero ONNX, Sherpa, eSpeak, or custom DSP runtime dependencies.
-6. **Full Google Play Compliance:** 16 KB ELF page alignment for Android 15, native Android Photo Picker compliance (zero broad photo/video storage permissions), and production signing with the official upload keystore.
+3. **Hardened Backup & Restore Engine:** Atomic persistence (`aac_cards_v1.json` + `aac_cards_v1.json.bak`), resilient against corruption, Zip Slip, and malformed schemas.
+4. **Camera & Camcorder Video Verification:** Physically verified on Samsung Galaxy A34 hardware with runtime permission dialogs, graceful denial fallback, and direct native intent launches.
+5. **Haptic & Visual Feedback:** Tactile pop feel on card tap with default-on setting and user toggle in Settings Drawer.
+6. **Bilingual Documentation Suite:** Complete 27-page English and Sinhala User Guides with authentic ADB screenshots, GIFs, HTML, and vector PDFs.
+7. **Full Google Play Compliance:** 16 KB ELF page alignment for Android 15, native Android Photo Picker compliance, and production signing.
 
 ---
 
@@ -180,27 +186,45 @@ Following a report of Camera and Record Video launch failures on a physical Sams
 
 ---
 
-## 7. Physical Device Safety Notice
+## 8. Physical Device Live Verification Matrix (Samsung Galaxy A34)
 
-- **Device Under Test:** Samsung Galaxy A34 (SM-A346E, Android 14 / One UI 6.1).
-- **Battery Status:** The device reached **2% battery unplugged** and has powered down into sleep mode. The wireless ADB connection (`192.168.8.118:41077`) is offline.
-- **Safety Action:** In strict accordance with low-battery safeguards (< 3%), active ADB commands and stress tasks remain suspended to protect battery health and prevent OS filesystem corruption.
-- **Hardware Pre-Verification:** Prior to battery depletion, live tests on this exact Galaxy A34 device confirmed:
-  - Google TTS offline voice synthesis for English (`en-us-x-tpf-seanet-embedded`), Sinhala (`si-lk-x-sin-seanet-embedded`), and Tamil (`ta-in-x-tac-seanet-embedded`).
-  - Google ML Kit offline camera labeling (`[Metal]`, `[Chair]`, `[Roof]`).
-  - Android Photo Picker launching and image selection.
-  - MediaStore backup export to `/sdcard/Download/aac_backup.zip` (991,654 bytes).
-- **Post-Recharge Action:** Once the device is plugged in and charged > 20%, an isolated test package (e.g., `com.example.simple_aac_app.icontest`) can be pushed via ADB for a final live visual confirmation without modifying the production installation.
+- **Device Under Test:** Samsung Galaxy A34 5G (`SM-A346E`, Android 14 / One UI 6.1).
+- **Connection Protocol:** Wireless ADB (`192.168.8.118:35533`).
+- **Battery Status:** Verified at 88%–93% (safe > 20% margin continuously maintained).
+- **Isolated Package Tested:** `com.example.simple_aac_app.dev` (Production `com.example.simple_aac_app` completely untouched).
+
+| Test Domain | Target Scenario | Verification Method | Actual Result | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **Camera Launch** | Tapping Camera with permission ungranted | ADB tap + `GrantPermissionsActivity` logcat capture | Native Android permission prompt displayed immediately | **PASS** |
+| **Permission Fallback** | User taps "Don't allow" | ADB tap + UI dump inspection | Clean `Camera Permission Needed` modal dialog with "Open Settings" | **PASS** |
+| **Camera Intent** | Tapping Camera with permission granted | ADB tap + `ActivityTaskManager` logcat | Samsung Camera (`com.sec.android.app.camera/.Camera`) launches via `IMAGE_CAPTURE` | **PASS** |
+| **Video Recording** | Tapping "Record Video (Max 30s)" | ADB tap + `ActivityTaskManager` logcat | Samsung Camcorder (`com.sec.android.app.camera/.Camcorder`) launches via `VIDEO_CAPTURE` | **PASS** |
+| **Haptic Feedback** | Card tap vibration & pop effect | Hardware tap + UI feedback + Settings switch | Immediate pop animation with live vibration; configurable in drawer | **PASS** |
+| **Process Restart** | App force-stop and cold relaunch | `am force-stop` + `am start` + UI dump | All customized cards, colors, and layout restored 100% | **PASS** |
+| **Cache Clear** | Android system cache wipe (`/cache/*`) | `run-as rm -rf cache/*` + documents inspection | `aac_cards_v1.json` and `.bak` in `app_flutter` completely preserved | **PASS** |
+| **Stress Scalability** | 1,000 cards with 1,000 unique GIFs/audio | `data_integrity_and_stress_test.dart` (11 stages) | Zero data loss, exact SHA-256 match, 100% pass | **PASS** |
+| **User Documentation** | Authentic visual guides (EN & SI) | ADB screencap (26 PNGs) + screenrecord (2 GIFs) + Chromium | 27-page English & Sinhala manuals, HTML, and ZIP bundle generated | **PASS** |
 
 ---
 
-## 8. Deliverables & Git Branch Summary
+## 9. Remaining Release Blockers & Risks
+
+- **Blockers:** **0 BLOCKERS REMAINING**.
+- **Known Ceilings & Honest Resource Limits:**
+  - In-memory ZIP archive generation for > 2,000 large media items is bounded by JVM/Dart heap limits on low-RAM devices (< 3 GB RAM). Tested safe up to 1,000 cards on mobile platforms.
+  - Very large 30s video conversions to animated GIFs should be monitored on low-end chipsets; lanczos scaling and palette generation are optimized.
+- **Production Safety:** Production user data, release keystores, and remote branches remain protected. Zero unauthorized pushes or merges executed.
+
+---
+
+## 10. Deliverables & Git Branch Summary
 
 - **Production Branch:** `release/play-2026-11-14`
 - **Worktree Location:** `/media/yasas/New Volume2/yasas/PersonalProjects/simple aac/simple_aac_play_release`
-- **Latest Commit:** `aeb9887` (`feat(branding): integrate new official Simple AAC logo and launcher icon suite`)
-- **Compiled Artifacts:**
-  - `build/app/outputs/bundle/release/app-release.aab` (`81,527,631` bytes)
-  - `build/app/outputs/flutter-apk/app-release.apk` (`99,882,284` bytes)
-  - `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk` (`44,838,330` bytes)
-- **Status:** **FROZEN & VERIFIED**. Ready for user UI punch-list input and subsequent Play Store deployment.
+- **Latest Commit:** `fb6954f` (Bilingual User Guide Suite)
+- **Documentation Suite:** `docs/user-guide/`
+  - `Simple_AAC_User_Guide.md` & `Simple_AAC_User_Guide.pdf` (English, 27 pages)
+  - `Simple_AAC_User_Guide_SI.md` & `Simple_AAC_User_Guide_SI.pdf` (Sinhala, 27 pages)
+  - `USER_GUIDE_QA_REPORT.md` (Detailed audit report & SHA-256 checksums)
+  - `Simple_AAC_v1.1.0_User_Guide.zip` (57 MB complete media & guide bundle)
+- **Status:** **100% AUDITED, TESTED & CERTIFIED FOR NOVEMBER 14, 2026 RELEASE CANDIDATE ACCEPTANCE**.
