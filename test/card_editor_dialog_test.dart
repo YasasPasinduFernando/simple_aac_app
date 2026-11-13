@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_aac_app/models/aac_card_model.dart';
 import 'package:simple_aac_app/services/network_policy_service.dart';
+import 'package:simple_aac_app/utils/camera_object_helper.dart';
 import 'package:simple_aac_app/widgets/card_editor_dialog.dart';
 import 'package:simple_aac_app/widgets/smart_image_search_dialog.dart';
 import 'package:simple_aac_app/widgets/styled_dialog_header.dart';
@@ -202,5 +203,158 @@ void main() {
     expect(find.byType(TextField), findsOneWidget);
     expect(find.text('Search'), findsOneWidget);
     expect(find.byType(SmartSearchIcon), findsOneWidget);
+  });
+
+  testWidgets('Tapping recognized ML Kit chip auto-fills English, Sinhala, and Tamil when fields are empty',
+      (tester) async {
+    final card = AACCard(
+      id: 'empty_card',
+      label: '',
+      labelSinhala: '',
+      labelTamil: '',
+      imagePath: 'assets/images/seed/apple.jpg',
+      colorValue: 0xFF90CAF9,
+      category: 'General',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardEditorDialog(
+            card: card,
+            isNew: false,
+            categories: const ['All', 'General'],
+            audioPlayer: _FakeAudioPlayer(),
+            initialCameraAnalysis: const CameraAnalysisResult(
+              hasObject: true,
+              isTooDarkOrBlank: false,
+              labels: ['Apple', 'Food'],
+              topConfidence: 0.95,
+              objectCount: 1,
+              analyzerAvailable: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Detected (offline) — tap to use word:'), findsOneWidget);
+    expect(find.text('Apple'), findsOneWidget);
+
+    // Tap the 'Apple' chip
+    await tester.tap(find.text('Apple'));
+    await tester.pumpAndSettle();
+
+    // Verify fields were auto-filled
+    expect(find.text('ඇපල්'), findsOneWidget);
+    expect(find.text('ஆப்பிள்'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Apple'), findsOneWidget);
+    expect(find.text('Auto-filled English, Sinhala & Tamil labels'), findsOneWidget);
+  });
+
+  testWidgets('Tapping recognized ML Kit chip prompts confirmation dialog when manual labels conflict and preserves on Keep Current',
+      (tester) async {
+    final card = AACCard(
+      id: 'custom_card',
+      label: 'My Snack',
+      labelSinhala: 'මගේ කෑම',
+      labelTamil: 'என் உணவு',
+      imagePath: 'assets/images/seed/apple.jpg',
+      colorValue: 0xFF90CAF9,
+      category: 'General',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardEditorDialog(
+            card: card,
+            isNew: false,
+            categories: const ['All', 'General'],
+            audioPlayer: _FakeAudioPlayer(),
+            initialCameraAnalysis: const CameraAnalysisResult(
+              hasObject: true,
+              isTooDarkOrBlank: false,
+              labels: ['Apple'],
+              topConfidence: 0.95,
+              objectCount: 1,
+              analyzerAvailable: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Tap the 'Apple' chip
+    await tester.tap(find.text('Apple'));
+    await tester.pumpAndSettle();
+
+    // Overwrite confirmation dialog should appear
+    expect(find.text('Update Card Labels?'), findsOneWidget);
+    expect(find.text('Keep Current'), findsOneWidget);
+    expect(find.text('Update Labels'), findsOneWidget);
+
+    // Tap Keep Current
+    await tester.tap(find.text('Keep Current'));
+    await tester.pumpAndSettle();
+
+    // Dialog dismissed and manual text preserved
+    expect(find.text('Update Card Labels?'), findsNothing);
+    expect(find.text('My Snack'), findsOneWidget);
+    expect(find.text('මගේ කෑම'), findsOneWidget);
+    expect(find.text('என் உணவு'), findsOneWidget);
+  });
+
+  testWidgets('Tapping recognized ML Kit chip updates labels when confirmed with Update Labels',
+      (tester) async {
+    final card = AACCard(
+      id: 'custom_card_update',
+      label: 'My Snack',
+      labelSinhala: 'මගේ කෑම',
+      labelTamil: 'என் உணவு',
+      imagePath: 'assets/images/seed/apple.jpg',
+      colorValue: 0xFF90CAF9,
+      category: 'General',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardEditorDialog(
+            card: card,
+            isNew: false,
+            categories: const ['All', 'General'],
+            audioPlayer: _FakeAudioPlayer(),
+            initialCameraAnalysis: const CameraAnalysisResult(
+              hasObject: true,
+              isTooDarkOrBlank: false,
+              labels: ['Apple'],
+              topConfidence: 0.95,
+              objectCount: 1,
+              analyzerAvailable: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Tap the 'Apple' chip
+    await tester.tap(find.text('Apple'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Update Card Labels?'), findsOneWidget);
+
+    // Tap Update Labels
+    await tester.tap(find.text('Update Labels'));
+    await tester.pumpAndSettle();
+
+    // Dialog dismissed and fields updated
+    expect(find.text('Update Card Labels?'), findsNothing);
+    expect(find.widgetWithText(TextField, 'Apple'), findsOneWidget);
+    expect(find.text('ඇපල්'), findsOneWidget);
+    expect(find.text('ஆப்பிள்'), findsOneWidget);
   });
 }

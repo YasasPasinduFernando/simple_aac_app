@@ -25,6 +25,7 @@ class CardEditorDialog extends StatefulWidget {
   final List<String> categories;
   final AudioPlayer audioPlayer;
   final VoidCallback? onPickImage;
+  final CameraAnalysisResult? initialCameraAnalysis;
 
   const CardEditorDialog({
     Key? key,
@@ -33,6 +34,7 @@ class CardEditorDialog extends StatefulWidget {
     required this.categories,
     required this.audioPlayer,
     this.onPickImage,
+    this.initialCameraAnalysis,
   }) : super(key: key);
 
   @override
@@ -64,6 +66,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   @override
   void initState() {
     super.initState();
+    _cameraAnalysis = widget.initialCameraAnalysis;
     _controllerEn = TextEditingController(text: widget.card.label);
     _controllerSi = TextEditingController(text: widget.card.labelSinhala ?? '');
     _controllerTa = TextEditingController(text: widget.card.labelTamil ?? '');
@@ -860,16 +863,193 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                   ),
                 ),
-                onPressed: () {
-                  setState(() {
-                    _controllerEn.text = label;
-                    _controllerEn.selection = TextSelection.fromPosition(
-                      TextPosition(offset: label.length),
-                    );
-                  });
-                },
+                onPressed: () => _applyRecognizedLabel(label),
               );
             }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _applyRecognizedLabel(String label) async {
+    final translation = MultilingualConceptService.lookupTranslations(label);
+    final targetEn = translation?.english ?? label;
+    final targetSi = translation?.sinhala;
+    final targetTa = translation?.tamil;
+
+    final currentEn = _controllerEn.text.trim();
+    final currentSi = _controllerSi.text.trim();
+    final currentTa = _controllerTa.text.trim();
+
+    // Check if non-empty fields would be overwritten by different text
+    final hasConflictingEn = currentEn.isNotEmpty &&
+        currentEn.toLowerCase() != targetEn.toLowerCase();
+    final hasConflictingSi = targetSi != null &&
+        currentSi.isNotEmpty &&
+        currentSi != targetSi;
+    final hasConflictingTa = targetTa != null &&
+        currentTa.isNotEmpty &&
+        currentTa != targetTa;
+
+    if (hasConflictingEn || hasConflictingSi || hasConflictingTa) {
+      final shouldUpdate = await _showOverwriteConfirmationDialog(
+        targetEn: targetEn,
+        targetSi: targetSi,
+        targetTa: targetTa,
+        hasConflictingEn: hasConflictingEn,
+        hasConflictingSi: hasConflictingSi,
+        hasConflictingTa: hasConflictingTa,
+      );
+      if (shouldUpdate != true || !mounted) {
+        return;
+      }
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _controllerEn.text = targetEn;
+      _controllerEn.selection = TextSelection.fromPosition(
+        TextPosition(offset: targetEn.length),
+      );
+
+      if (targetSi != null) {
+        _controllerSi.text = targetSi;
+        _controllerSi.selection = TextSelection.fromPosition(
+          TextPosition(offset: targetSi.length),
+        );
+      }
+
+      if (targetTa != null) {
+        _controllerTa.text = targetTa;
+        _controllerTa.selection = TextSelection.fromPosition(
+          TextPosition(offset: targetTa.length),
+        );
+      }
+    });
+
+    final hasTrilingual = targetSi != null && targetTa != null;
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          hasTrilingual
+              ? 'Auto-filled English, Sinhala & Tamil labels'
+              : 'Set English label: "$targetEn"',
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<bool?> _showOverwriteConfirmationDialog({
+    required String targetEn,
+    required String? targetSi,
+    required String? targetTa,
+    required bool hasConflictingEn,
+    required bool hasConflictingSi,
+    required bool hasConflictingTa,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        title: StyledDialogHeader(
+          icon: Icons.translate_rounded,
+          title: 'Update Card Labels?',
+          subtitle: 'Replace existing manual text',
+          accentColor: colorScheme.primary,
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'This card already has custom labels. Do you want to update them with the recognized word and translations?',
+                style: TextStyle(fontSize: 13, height: 1.4),
+              ),
+              const SizedBox(height: 14),
+              if (hasConflictingEn) ...[
+                _buildDiffRow('English', _controllerEn.text.trim(), targetEn, colorScheme),
+              ],
+              if (hasConflictingSi && targetSi != null) ...[
+                if (hasConflictingEn) const SizedBox(height: 8),
+                _buildDiffRow('Sinhala', _controllerSi.text.trim(), targetSi, colorScheme),
+              ],
+              if (hasConflictingTa && targetTa != null) ...[
+                if (hasConflictingEn || (hasConflictingSi && targetSi != null))
+                  const SizedBox(height: 8),
+                _buildDiffRow('Tamil', _controllerTa.text.trim(), targetTa, colorScheme),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Keep Current'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Update Labels'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDiffRow(
+    String lang,
+    String current,
+    String replacement,
+    ColorScheme colorScheme,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            lang,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  current.isEmpty ? '(empty)' : current,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.outline,
+                    decoration: TextDecoration.lineThrough,
+                  ),
+                ),
+              ),
+              Icon(Icons.arrow_forward_rounded, size: 14, color: colorScheme.primary),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  replacement,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

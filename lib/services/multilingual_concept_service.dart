@@ -449,4 +449,299 @@ class MultilingualConceptService {
   static bool isLatinScript(String text) {
     return RegExp(r'^[a-zA-Z0-9\s.,!?_-]+$').hasMatch(text.trim());
   }
+
+  // =========================================================================
+  // TRILINGUAL AAC VOCABULARY DICTIONARY (English • Sinhala • Tamil)
+  // Operates 100% offline with verified native AAC terms.
+  // =========================================================================
+
+  static const Map<String, AacTranslation> _trilingualVocabulary = {
+    // === Core Communication & Social ===
+    'hello': AacTranslation(english: 'Hello', sinhala: 'ආයුබෝවන්', tamil: 'வணக்கம்', category: 'General'),
+    'yes': AacTranslation(english: 'Yes', sinhala: 'ඔව්', tamil: 'ஆம்', category: 'General'),
+    'no': AacTranslation(english: 'No', sinhala: 'නැහැ', tamil: 'இல்லை', category: 'General'),
+    'good': AacTranslation(english: 'Good', sinhala: 'හොඳයි', tamil: 'நல்லது', category: 'General'),
+    'more': AacTranslation(english: 'More', sinhala: 'තව', tamil: 'மேலும்', category: 'General'),
+    'want': AacTranslation(english: 'Want', sinhala: 'ඕනේ', tamil: 'வேண்டும்', category: 'General'),
+    'stop': AacTranslation(english: 'Stop', sinhala: 'නවත්වන්න', tamil: 'நில்', category: 'General'),
+    'help': AacTranslation(english: 'Help', sinhala: 'උදව්', tamil: 'உதவி', category: 'General'),
+    'thank you': AacTranslation(english: 'Thank You', sinhala: 'ස්තූතියි', tamil: 'நன்றி', category: 'General'),
+    'please': AacTranslation(english: 'Please', sinhala: 'කරුණාකර', tamil: 'தயவுசெய்து', category: 'General'),
+    'finished': AacTranslation(english: 'Finished', sinhala: 'ඉවරයි', tamil: 'முடிந்தது', category: 'General'),
+
+    // === Food & Drinks ===
+    'water': AacTranslation(english: 'Water', sinhala: 'වතුර', tamil: 'தண்ணீர்', category: 'Food & Drink'),
+    'milk': AacTranslation(english: 'Milk', sinhala: 'කිරි', tamil: 'பால்', category: 'Food & Drink'),
+    'rice': AacTranslation(english: 'Rice', sinhala: 'බත්', tamil: 'சோறு', category: 'Food & Drink'),
+    'food': AacTranslation(english: 'Food', sinhala: 'කෑම', tamil: 'உணவு', category: 'Food & Drink'),
+    'bread': AacTranslation(english: 'Bread', sinhala: 'පාන්', tamil: 'ரொட்டி', category: 'Food & Drink'),
+    'apple': AacTranslation(english: 'Apple', sinhala: 'ඇපල්', tamil: 'ஆப்பிள்', category: 'Food & Drink'),
+    'banana': AacTranslation(english: 'Banana', sinhala: 'කෙසෙල්', tamil: 'வாழைப்பழம்', category: 'Food & Drink'),
+    'orange': AacTranslation(english: 'Orange', sinhala: 'දොඩම්', tamil: 'ஆரஞ்சு', category: 'Food & Drink'),
+    'mango': AacTranslation(english: 'Mango', sinhala: 'අඹ', tamil: 'மாம்பழம்', category: 'Food & Drink'),
+    'fruit': AacTranslation(english: 'Fruit', sinhala: 'පලතුරු', tamil: 'பழம்', category: 'Food & Drink'),
+    'egg': AacTranslation(english: 'Egg', sinhala: 'බිත්තරය', tamil: 'முட்டை', category: 'Food & Drink'),
+    'tea': AacTranslation(english: 'Tea', sinhala: 'තේ', tamil: 'தேநீர்', category: 'Food & Drink'),
+    'coffee': AacTranslation(english: 'Coffee', sinhala: 'කෝපි', tamil: 'காப்பி', category: 'Food & Drink'),
+    'biscuit': AacTranslation(english: 'Biscuit', sinhala: 'බිස්කට්', tamil: 'பிஸ்கட்', category: 'Food & Drink'),
+    'cake': AacTranslation(english: 'Cake', sinhala: 'කේක්', tamil: 'கேக்', category: 'Food & Drink'),
+    'fish': AacTranslation(english: 'Fish', sinhala: 'මාළු', tamil: 'மீன்', category: 'Food & Drink'),
+    'chicken': AacTranslation(english: 'Chicken', sinhala: 'කුකුල් මස්', tamil: 'கோழி இறைச்சி', category: 'Food & Drink'),
+    'vegetable': AacTranslation(english: 'Vegetable', sinhala: 'එළවළු', tamil: 'காய்கறி', category: 'Food & Drink'),
+    'potato': AacTranslation(english: 'Potato', sinhala: 'අල', tamil: 'உருளைக்கிழங்கு', category: 'Food & Drink'),
+    'carrot': AacTranslation(english: 'Carrot', sinhala: 'කැරට්', tamil: 'கேரட்', category: 'Food & Drink'),
+    'ice cream': AacTranslation(english: 'Ice Cream', sinhala: 'අයිස්ක්‍රීම්', tamil: 'ஐஸ்கிரீம்', category: 'Food & Drink'),
+    'beverage': AacTranslation(english: 'Beverage', sinhala: 'බීම', tamil: 'பானம்', category: 'Food & Drink'),
+    'juice': AacTranslation(english: 'Juice', sinhala: 'යුෂ', tamil: 'சாறு', category: 'Food & Drink'),
+    'soup': AacTranslation(english: 'Soup', sinhala: 'සුප්', tamil: 'சூப்', category: 'Food & Drink'),
+    'chocolate': AacTranslation(english: 'Chocolate', sinhala: 'චොකලට්', tamil: 'சாக்லேட்', category: 'Food & Drink'),
+    'cup': AacTranslation(english: 'Cup', sinhala: 'කෝප්පය', tamil: 'கோப்பை', category: 'Food & Drink'),
+    'mug': AacTranslation(english: 'Mug', sinhala: 'මග් එක', tamil: 'மக்', category: 'Food & Drink'),
+    'bottle': AacTranslation(english: 'Bottle', sinhala: 'බෝතලය', tamil: 'பாட்டில்', category: 'Food & Drink'),
+    'plate': AacTranslation(english: 'Plate', sinhala: 'පිඟාන', tamil: 'தட்டு', category: 'Food & Drink'),
+    'dish': AacTranslation(english: 'Dish', sinhala: 'පිඟාන', tamil: 'தட்டு', category: 'Food & Drink'),
+    'bowl': AacTranslation(english: 'Bowl', sinhala: 'බඳුන', tamil: 'கிண்ணம்', category: 'Food & Drink'),
+    'spoon': AacTranslation(english: 'Spoon', sinhala: 'හැන්ද', tamil: 'கரண்டி', category: 'Food & Drink'),
+    'fork': AacTranslation(english: 'Fork', sinhala: 'ගෑරුප්පුව', tamil: 'முட்கரண்டி', category: 'Food & Drink'),
+
+    // === Animals & Nature ===
+    'dog': AacTranslation(english: 'Dog', sinhala: 'බල්ලා', tamil: 'நாய்', category: 'Animals'),
+    'puppy': AacTranslation(english: 'Puppy', sinhala: 'බලු පැටියා', tamil: 'நாய்க்குட்டி', category: 'Animals'),
+    'cat': AacTranslation(english: 'Cat', sinhala: 'පූසා', tamil: 'பூனை', category: 'Animals'),
+    'kitten': AacTranslation(english: 'Kitten', sinhala: 'පූස් පැටියා', tamil: 'பூனைக்குட்டி', category: 'Animals'),
+    'bird': AacTranslation(english: 'Bird', sinhala: 'කුරුල්ලා', tamil: 'பறவை', category: 'Animals'),
+    'cow': AacTranslation(english: 'Cow', sinhala: 'හරකා', tamil: 'பசு', category: 'Animals'),
+    'elephant': AacTranslation(english: 'Elephant', sinhala: 'අලියා', tamil: 'யானை', category: 'Animals'),
+    'horse': AacTranslation(english: 'Horse', sinhala: 'අශ්වයා', tamil: 'குதிரை', category: 'Animals'),
+    'lion': AacTranslation(english: 'Lion', sinhala: 'සිංහයා', tamil: 'சிங்கம்', category: 'Animals'),
+    'tiger': AacTranslation(english: 'Tiger', sinhala: 'කොටියා', tamil: 'புலி', category: 'Animals'),
+    'monkey': AacTranslation(english: 'Monkey', sinhala: 'වඳුරා', tamil: 'குரங்கு', category: 'Animals'),
+    'rabbit': AacTranslation(english: 'Rabbit', sinhala: 'හාවා', tamil: 'முயல்', category: 'Animals'),
+    'duck': AacTranslation(english: 'Duck', sinhala: 'තාරාවා', tamil: 'வாத்து', category: 'Animals'),
+    'butterfly': AacTranslation(english: 'Butterfly', sinhala: 'සමනලයා', tamil: 'பட்டாம்பூச்சி', category: 'Animals'),
+    'animal': AacTranslation(english: 'Animal', sinhala: 'සතා', tamil: 'விலங்கு', category: 'Animals'),
+    'pet': AacTranslation(english: 'Pet', sinhala: 'සුරතලා', tamil: 'செல்லப்பிராணி', category: 'Animals'),
+    'tree': AacTranslation(english: 'Tree', sinhala: 'ගස', tamil: 'மரம்', category: 'Nature'),
+    'flower': AacTranslation(english: 'Flower', sinhala: 'මල', tamil: 'பூ', category: 'Nature'),
+    'plant': AacTranslation(english: 'Plant', sinhala: 'පැලය', tamil: 'செடி', category: 'Nature'),
+    'grass': AacTranslation(english: 'Grass', sinhala: 'තණකොළ', tamil: 'புல்', category: 'Nature'),
+    'sun': AacTranslation(english: 'Sun', sinhala: 'ඉර', tamil: 'சூரியன்', category: 'Nature'),
+    'moon': AacTranslation(english: 'Moon', sinhala: 'හඳ', tamil: 'நிலா', category: 'Nature'),
+    'star': AacTranslation(english: 'Star', sinhala: 'තරුව', tamil: 'நட்சத்திரம்', category: 'Nature'),
+    'rain': AacTranslation(english: 'Rain', sinhala: 'වැස්ස', tamil: 'மழை', category: 'Nature'),
+
+    // === Objects, Household & Learning ===
+    'ball': AacTranslation(english: 'Ball', sinhala: 'බෝලය', tamil: 'பந்து', category: 'Toys & Learning'),
+    'book': AacTranslation(english: 'Book', sinhala: 'පොත', tamil: 'புத்தகம்', category: 'Toys & Learning'),
+    'pen': AacTranslation(english: 'Pen', sinhala: 'පෑන', tamil: 'பேனா', category: 'Toys & Learning'),
+    'pencil': AacTranslation(english: 'Pencil', sinhala: 'පැන්සල', tamil: 'பென்சில்', category: 'Toys & Learning'),
+    'paper': AacTranslation(english: 'Paper', sinhala: 'කොළය', tamil: 'தாள்', category: 'Toys & Learning'),
+    'scissors': AacTranslation(english: 'Scissors', sinhala: 'කතුර', tamil: 'கத்தரிக்கோல்', category: 'Toys & Learning'),
+    'toy': AacTranslation(english: 'Toy', sinhala: 'සෙල්ලම්බඩු', tamil: 'விளையாட்டுப்பொருள்', category: 'Toys & Learning'),
+    'doll': AacTranslation(english: 'Doll', sinhala: 'බෝනික්කා', tamil: 'பொம்மை', category: 'Toys & Learning'),
+    'chair': AacTranslation(english: 'Chair', sinhala: 'පුටුව', tamil: 'நாற்காலி', category: 'Household'),
+    'table': AacTranslation(english: 'Table', sinhala: 'මේසය', tamil: 'மேசை', category: 'Household'),
+    'desk': AacTranslation(english: 'Desk', sinhala: 'මේසය', tamil: 'மேசை', category: 'Household'),
+    'bed': AacTranslation(english: 'Bed', sinhala: 'ඇඳ', tamil: 'படுக்கை', category: 'Household'),
+    'couch': AacTranslation(english: 'Couch', sinhala: 'සෝෆාව', tamil: 'சோபா', category: 'Household'),
+    'sofa': AacTranslation(english: 'Sofa', sinhala: 'සෝෆාව', tamil: 'சோபா', category: 'Household'),
+    'door': AacTranslation(english: 'Door', sinhala: 'දොර', tamil: 'கதவு', category: 'Household'),
+    'window': AacTranslation(english: 'Window', sinhala: 'ජනේලය', tamil: 'ஜன்னல்', category: 'Household'),
+    'clock': AacTranslation(english: 'Clock', sinhala: 'ඔරලෝසුව', tamil: 'கடிகாரம்', category: 'Household'),
+    'watch': AacTranslation(english: 'Watch', sinhala: 'අත් ඔරලෝසුව', tamil: 'கைக்கடிகாரம்', category: 'Household'),
+    'phone': AacTranslation(english: 'Phone', sinhala: 'දුරකථනය', tamil: 'தொலைபேசி', category: 'Electronics'),
+    'computer': AacTranslation(english: 'Computer', sinhala: 'පරිගණකය', tamil: 'கணினி', category: 'Electronics'),
+    'laptop': AacTranslation(english: 'Laptop', sinhala: 'ලැප්ටොප් පරිගණකය', tamil: 'மடிக்கணினி', category: 'Electronics'),
+    'television': AacTranslation(english: 'Television', sinhala: 'රූපවාහිනිය', tamil: 'தொலைக்காட்சி', category: 'Electronics'),
+    'camera': AacTranslation(english: 'Camera', sinhala: 'කැමරාව', tamil: 'கேமரா', category: 'Electronics'),
+    'lamp': AacTranslation(english: 'Lamp', sinhala: 'ලාම්පුව', tamil: 'விளக்கு', category: 'Household'),
+    'light': AacTranslation(english: 'Light', sinhala: 'එළිය', tamil: 'ஒளி', category: 'Household'),
+    'box': AacTranslation(english: 'Box', sinhala: 'පෙට්ටිය', tamil: 'பெட்டி', category: 'Household'),
+    'bag': AacTranslation(english: 'Bag', sinhala: 'බෑගය', tamil: 'பை', category: 'Personal'),
+    'backpack': AacTranslation(english: 'Backpack', sinhala: 'පසුම්බිය', tamil: 'முதுகுப்பை', category: 'Personal'),
+    'glasses': AacTranslation(english: 'Glasses', sinhala: 'කණ්ණාඩි', tamil: 'கண்ணாடிகள்', category: 'Personal'),
+    'umbrella': AacTranslation(english: 'Umbrella', sinhala: 'කුඩය', tamil: 'குடை', category: 'Personal'),
+    'key': AacTranslation(english: 'Key', sinhala: 'යතුර', tamil: 'சாவி', category: 'Personal'),
+    'mirror': AacTranslation(english: 'Mirror', sinhala: 'කැඩපත', tamil: 'கண்ணாடி', category: 'Household'),
+    'soap': AacTranslation(english: 'Soap', sinhala: 'සබන්', tamil: 'சோப்பு', category: 'Personal Care'),
+    'towel': AacTranslation(english: 'Towel', sinhala: 'තුවාය', tamil: 'துண்டு', category: 'Personal Care'),
+    'toothbrush': AacTranslation(english: 'Toothbrush', sinhala: 'දත් බුරුසුව', tamil: 'பல் துலக்கி', category: 'Personal Care'),
+
+    // === Clothing & Footwear ===
+    'clothing': AacTranslation(english: 'Clothing', sinhala: 'ඇඳුම්', tamil: 'ஆடைகள்', category: 'Clothing'),
+    'clothes': AacTranslation(english: 'Clothes', sinhala: 'ඇඳුම්', tamil: 'ஆடைகள்', category: 'Clothing'),
+    'shirt': AacTranslation(english: 'Shirt', sinhala: 'කමිසය', tamil: 'சட்டை', category: 'Clothing'),
+    't-shirt': AacTranslation(english: 'T-shirt', sinhala: 'ටී-ෂර්ට්', tamil: 'டி-சர்ட்', category: 'Clothing'),
+    'pants': AacTranslation(english: 'Pants', sinhala: 'කලිසම', tamil: 'கால்சட்டை', category: 'Clothing'),
+    'trousers': AacTranslation(english: 'Trousers', sinhala: 'කලිසම', tamil: 'கால்சட்டை', category: 'Clothing'),
+    'shorts': AacTranslation(english: 'Shorts', sinhala: 'කොට කලිසම', tamil: 'அரைக்கால் சட்டை', category: 'Clothing'),
+    'dress': AacTranslation(english: 'Dress', sinhala: 'ගවුම', tamil: 'கவுன்', category: 'Clothing'),
+    'frock': AacTranslation(english: 'Frock', sinhala: 'ගවුම', tamil: 'கவுன்', category: 'Clothing'),
+    'shoes': AacTranslation(english: 'Shoes', sinhala: 'සපත්තු', tamil: 'காலணிகள்', category: 'Footwear'),
+    'shoe': AacTranslation(english: 'Shoe', sinhala: 'සපත්තුව', tamil: 'காலணி', category: 'Footwear'),
+    'footwear': AacTranslation(english: 'Footwear', sinhala: 'සපත්තු', tamil: 'காலணிகள்', category: 'Footwear'),
+    'slippers': AacTranslation(english: 'Slippers', sinhala: 'සෙරෙප්පු', tamil: 'செருப்பு', category: 'Footwear'),
+    'sandals': AacTranslation(english: 'Sandals', sinhala: 'සෙරෙප්පු', tamil: 'செருப்பு', category: 'Footwear'),
+    'socks': AacTranslation(english: 'Socks', sinhala: 'මේස්', tamil: 'காலுறைகள்', category: 'Clothing'),
+    'hat': AacTranslation(english: 'Hat', sinhala: 'තොප්පිය', tamil: 'தொப்பி', category: 'Clothing'),
+    'cap': AacTranslation(english: 'Cap', sinhala: 'තොප්පිය', tamil: 'தொப்பி', category: 'Clothing'),
+
+    // === People & Family ===
+    'mother': AacTranslation(english: 'Mother', sinhala: 'අම්මා', tamil: 'அம்மா', category: 'People'),
+    'father': AacTranslation(english: 'Father', sinhala: 'තාත්තා', tamil: 'அப்பா', category: 'People'),
+    'baby': AacTranslation(english: 'Baby', sinhala: 'බබා', tamil: 'குழந்தை', category: 'People'),
+    'child': AacTranslation(english: 'Child', sinhala: 'ළමයා', tamil: 'குழந்தை', category: 'People'),
+    'boy': AacTranslation(english: 'Boy', sinhala: 'පිරිමි ළමයා', tamil: 'சிறுவன்', category: 'People'),
+    'girl': AacTranslation(english: 'Girl', sinhala: 'ගැහැණු ළමයා', tamil: 'சிறுமி', category: 'People'),
+    'person': AacTranslation(english: 'Person', sinhala: 'පුද්ගලයා', tamil: 'நபர்', category: 'People'),
+    'teacher': AacTranslation(english: 'Teacher', sinhala: 'ගුරුතුමී', tamil: 'ஆசிரியர்', category: 'People'),
+    'doctor': AacTranslation(english: 'Doctor', sinhala: 'දොස්තර', tamil: 'மருத்துவர்', category: 'People'),
+    'friend': AacTranslation(english: 'Friend', sinhala: 'යහළුවා', tamil: 'நண்பன்', category: 'People'),
+    'brother': AacTranslation(english: 'Brother', sinhala: 'සහෝදරයා', tamil: 'சகோதரன்', category: 'People'),
+    'sister': AacTranslation(english: 'Sister', sinhala: 'සහෝදරිය', tamil: 'சகோதரி', category: 'People'),
+
+    // === Body Parts ===
+    'hand': AacTranslation(english: 'Hand', sinhala: 'අත', tamil: 'கை', category: 'Body'),
+    'leg': AacTranslation(english: 'Leg', sinhala: 'කකුල', tamil: 'கால்', category: 'Body'),
+    'foot': AacTranslation(english: 'Foot', sinhala: 'පාදය', tamil: 'பாதம்', category: 'Body'),
+    'face': AacTranslation(english: 'Face', sinhala: 'මුහුණ', tamil: 'முகம்', category: 'Body'),
+    'eye': AacTranslation(english: 'Eye', sinhala: 'ඇස', tamil: 'கண்', category: 'Body'),
+    'ear': AacTranslation(english: 'Ear', sinhala: 'කන', tamil: 'காது', category: 'Body'),
+    'nose': AacTranslation(english: 'Nose', sinhala: 'නාසය', tamil: 'மூக்கு', category: 'Body'),
+    'mouth': AacTranslation(english: 'Mouth', sinhala: 'කට', tamil: 'வாய்', category: 'Body'),
+    'head': AacTranslation(english: 'Head', sinhala: 'හිස', tamil: 'தலை', category: 'Body'),
+
+    // === Actions & Verbs ===
+    'eat': AacTranslation(english: 'Eat', sinhala: 'කනවා', tamil: 'சாப்பிடு', category: 'Actions'),
+    'drink': AacTranslation(english: 'Drink', sinhala: 'බොනවා', tamil: 'குடி', category: 'Actions'),
+    'sleep': AacTranslation(english: 'Sleep', sinhala: 'නිදාගන්නවා', tamil: 'தூங்கு', category: 'Actions'),
+    'play': AacTranslation(english: 'Play', sinhala: 'සෙල්ලම් කරනවා', tamil: 'விளையாடு', category: 'Actions'),
+    'wash': AacTranslation(english: 'Wash', sinhala: 'හෝදනවා', tamil: 'கழுவு', category: 'Actions'),
+    'bath': AacTranslation(english: 'Bath', sinhala: 'නානවා', tamil: 'குளி', category: 'Actions'),
+    'walk': AacTranslation(english: 'Walk', sinhala: 'ඇවිදිනවා', tamil: 'நட', category: 'Actions'),
+    'run': AacTranslation(english: 'Run', sinhala: 'දුවනවා', tamil: 'ஓடு', category: 'Actions'),
+    'read': AacTranslation(english: 'Read', sinhala: 'කියවනවා', tamil: 'படி', category: 'Actions'),
+    'write': AacTranslation(english: 'Write', sinhala: 'ලියනවා', tamil: 'எழுது', category: 'Actions'),
+    'sit': AacTranslation(english: 'Sit', sinhala: 'වාඩිවෙනවා', tamil: 'உட்காரு', category: 'Actions'),
+    'stand': AacTranslation(english: 'Stand', sinhala: 'හිටගන්නවා', tamil: 'நில்', category: 'Actions'),
+    'go': AacTranslation(english: 'Go', sinhala: 'යනවා', tamil: 'போ', category: 'Actions'),
+    'come': AacTranslation(english: 'Come', sinhala: 'එනවා', tamil: 'வா', category: 'Actions'),
+
+    // === Feelings & Sensations ===
+    'happy': AacTranslation(english: 'Happy', sinhala: 'සතුටුයි', tamil: 'மகிழ்ச்சி', category: 'Feelings'),
+    'sad': AacTranslation(english: 'Sad', sinhala: 'දුකයි', tamil: 'வருத்தம்', category: 'Feelings'),
+    'angry': AacTranslation(english: 'Angry', sinhala: 'තරහයි', tamil: 'கோபம்', category: 'Feelings'),
+    'hungry': AacTranslation(english: 'Hungry', sinhala: 'බඩගිනියි', tamil: 'பசி', category: 'Feelings'),
+    'thirsty': AacTranslation(english: 'Thirsty', sinhala: 'තිබහයි', tamil: 'தாகம்', category: 'Feelings'),
+    'tired': AacTranslation(english: 'Tired', sinhala: 'මහන්සියි', tamil: 'களைப்பு', category: 'Feelings'),
+    'pain': AacTranslation(english: 'Pain', sinhala: 'රිදෙනවා', tamil: 'வலி', category: 'Feelings'),
+    'hurt': AacTranslation(english: 'Hurt', sinhala: 'රිදෙනවා', tamil: 'வலி', category: 'Feelings'),
+    'sick': AacTranslation(english: 'Sick', sinhala: 'අසනීපයි', tamil: 'நோய்', category: 'Feelings'),
+    'cold': AacTranslation(english: 'Cold', sinhala: 'සීතලයි', tamil: 'குளிர்', category: 'Feelings'),
+    'hot': AacTranslation(english: 'Hot', sinhala: 'රස්නෙයි', tamil: 'சூடு', category: 'Feelings'),
+
+    // === Places & Vehicles ===
+    'home': AacTranslation(english: 'Home', sinhala: 'ගෙදර', tamil: 'வீடு', category: 'Places'),
+    'house': AacTranslation(english: 'House', sinhala: 'නිවස', tamil: 'வீடு', category: 'Places'),
+    'school': AacTranslation(english: 'School', sinhala: 'පාසල', tamil: 'பள்ளி', category: 'Places'),
+    'hospital': AacTranslation(english: 'Hospital', sinhala: 'රෝහල', tamil: 'மருத்துவமனை', category: 'Places'),
+    'room': AacTranslation(english: 'Room', sinhala: 'කාමරය', tamil: 'அறை', category: 'Places'),
+    'car': AacTranslation(english: 'Car', sinhala: 'කාර් එක', tamil: 'கார்', category: 'Vehicles'),
+    'bus': AacTranslation(english: 'Bus', sinhala: 'බස් එක', tamil: 'பேருந்து', category: 'Vehicles'),
+    'bicycle': AacTranslation(english: 'Bicycle', sinhala: 'බයිසිකලය', tamil: 'மிதிவண்டி', category: 'Vehicles'),
+    'bike': AacTranslation(english: 'Bike', sinhala: 'බයිසිකලය', tamil: 'மிதிவண்டி', category: 'Vehicles'),
+    'train': AacTranslation(english: 'Train', sinhala: 'කෝච්චිය', tamil: 'ரயில்', category: 'Vehicles'),
+    'van': AacTranslation(english: 'Van', sinhala: 'වෑන් එක', tamil: 'வேன்', category: 'Vehicles'),
+    'tuk tuk': AacTranslation(english: 'Tuk Tuk', sinhala: 'ත්‍රිරෝද රථය', tamil: 'ஆட்டோ', category: 'Vehicles'),
+  };
+
+  static const Map<String, String> _vocabularyAliases = {
+    'mom': 'mother',
+    'mama': 'mother',
+    'dad': 'father',
+    'daddy': 'father',
+    'infant': 'baby',
+    'toddler': 'baby',
+    'mobile phone': 'phone',
+    'cell phone': 'phone',
+    'smartphone': 'phone',
+    'telephone': 'phone',
+    'dining table': 'table',
+    'seat': 'chair',
+    'armchair': 'chair',
+    'spectacles': 'glasses',
+    'eyeglasses': 'glasses',
+    'eyewear': 'glasses',
+    'sunglasses': 'glasses',
+    'automobile': 'car',
+    'passenger car': 'car',
+    'sneaker': 'shoes',
+    'sneakers': 'shoes',
+    'athletic shoe': 'shoes',
+    'jeans': 'pants',
+    'slacks': 'pants',
+    'beverage': 'drink',
+    'water bottle': 'bottle',
+    'coffee cup': 'cup',
+    'teacup': 'cup',
+    'dinner plate': 'plate',
+    'saucer': 'plate',
+    'tableware': 'plate',
+    'canine': 'dog',
+    'feline': 'cat',
+    'three wheeler': 'tuk tuk',
+    'auto rickshaw': 'tuk tuk',
+    'rickshaw': 'tuk tuk',
+  };
+
+  /// Safely normalizes input before dictionary lookup (case-insensitive, trims,
+  /// strips articles like 'a', 'an', 'the', and removes punctuation).
+  static String normalizeVocabularyLookup(String query) {
+    var s = query.trim().toLowerCase();
+    if (s.isEmpty) return '';
+    s = s.replaceFirst(RegExp(r'^(a|an|the)\s+'), '');
+    s = s.replaceAll(RegExp(r'[\(\)\.,!?;:"\-_]'), ' ').trim();
+    s = s.replaceAll(RegExp(r'\s+'), ' ');
+    return s;
+  }
+
+  /// Looks up verified trilingual AAC translations (English, Sinhala, Tamil) for [query].
+  /// Returns null if no verified translation exists, strictly preventing any guessed translations.
+  static AacTranslation? lookupTranslations(String query) {
+    final normalized = normalizeVocabularyLookup(query);
+    if (normalized.isEmpty) return null;
+
+    final canonical = _vocabularyAliases[normalized] ?? normalized;
+    final direct = _trilingualVocabulary[canonical];
+    if (direct != null) return direct;
+
+    // Handle common English regular plurals without modifying distinct words
+    if (canonical.endsWith('s') && canonical.length > 3) {
+      final singular = canonical.substring(0, canonical.length - 1);
+      final singularMatch = _vocabularyAliases[singular] ?? singular;
+      if (_trilingualVocabulary.containsKey(singularMatch)) {
+        return _trilingualVocabulary[singularMatch];
+      }
+    }
+
+    return null;
+  }
+
+  /// Read-only view of the verified trilingual AAC vocabulary.
+  static Map<String, AacTranslation> get trilingualVocabulary => _trilingualVocabulary;
+}
+
+/// Represents a verified trilingual AAC concept with English, Sinhala, and Tamil labels.
+class AacTranslation {
+  final String english;
+  final String sinhala;
+  final String tamil;
+  final String category;
+
+  const AacTranslation({
+    required this.english,
+    required this.sinhala,
+    required this.tamil,
+    required this.category,
+  });
 }

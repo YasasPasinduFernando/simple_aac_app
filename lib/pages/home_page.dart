@@ -15,6 +15,7 @@ import '../models/aac_card_model.dart';
 import '../models/tts_token.dart';
 import '../services/backup_service.dart';
 import '../services/card_storage_service.dart';
+import '../services/multilingual_concept_service.dart';
 import '../services/network_policy_service.dart';
 import '../services/speech_engine.dart';
 import '../widgets/card_editor_dialog.dart';
@@ -500,6 +501,15 @@ class _HomePageState extends State<HomePage> {
                     if (!mounted) return;
                     setState(() {
                       card.label = suggested;
+                      final translation = MultilingualConceptService.lookupTranslations(suggested);
+                      if (translation != null) {
+                        if (card.labelSinhala == null || card.labelSinhala!.trim().isEmpty) {
+                          card.labelSinhala = translation.sinhala;
+                        }
+                        if (card.labelTamil == null || card.labelTamil!.trim().isEmpty) {
+                          card.labelTamil = translation.tamil;
+                        }
+                      }
                     });
                     _saveCards();
                   },
