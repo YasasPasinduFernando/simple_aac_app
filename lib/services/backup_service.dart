@@ -225,15 +225,42 @@ class BackupService {
       if (_isAssetPath(relPath)) return relPath;
 
       final normalizedRel = relPath.replaceAll('\\', '/');
-      if (normalizedRel.startsWith('/') ||
-          normalizedRel.split('/').any((seg) => seg == '..')) {
+      String? relativeLookup;
+      if (normalizedRel.startsWith('/')) {
+        // Absolute path from another device or prior installation.
+        // Check if the file is present in the archive's files/ folder or root folder by its basename.
+        final base = _basename(normalizedRel);
+        if (await File('${backupDir.path}/files/$base').exists()) {
+          relativeLookup = 'files/$base';
+        } else if (await File('${backupDir.path}/$base').exists()) {
+          relativeLookup = base;
+        } else {
+          debugPrint(
+            '[BackupService] absolute path not found in backup archive: $relPath',
+          );
+          return null;
+        }
+      } else {
+        relativeLookup = normalizedRel;
+      }
+
+      if (relativeLookup.startsWith('/') ||
+          relativeLookup.split('/').any((seg) => seg == '..')) {
         debugPrint(
-          '[BackupService] blocked path traversal in media path: $relPath',
+          '[BackupService] blocked path traversal in media path: $relativeLookup',
         );
         return null;
       }
 
-      final sourceFile = File('${backupDir.path}/$normalizedRel');
+      var sourceFile = File('${backupDir.path}/$relativeLookup');
+      if (!await sourceFile.exists()) {
+        final base = _basename(relativeLookup);
+        final inFiles = File('${backupDir.path}/files/$base');
+        if (await inFiles.exists()) {
+          sourceFile = inFiles;
+        }
+      }
+
       final resolvedSource = sourceFile.absolute.path.replaceAll('\\', '/');
       if (resolvedSource != backupRoot &&
           !resolvedSource.startsWith('$backupRoot/')) {
@@ -253,13 +280,20 @@ class BackupService {
       var targetPath = destPath;
       var counter = 1;
       while (await File(targetPath).exists()) {
+        final existingFile = File(targetPath);
+        if (await existingFile.length() == await sourceFile.length()) {
+          targetPath = existingFile.path;
+          break;
+        }
         final dot = base.lastIndexOf('.');
         final name = dot == -1 ? base : base.substring(0, dot);
         final ext = dot == -1 ? '' : base.substring(dot);
         targetPath = '${mediaDir.path}/${name}_$counter$ext';
         counter++;
       }
-      await sourceFile.copy(targetPath);
+      if (!await File(targetPath).exists()) {
+        await sourceFile.copy(targetPath);
+      }
       debugPrint(
         '[BackupService] restored $mediaType file: source=${sourceFile.path}, '
         'target=$targetPath',

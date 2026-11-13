@@ -71,9 +71,11 @@ class CardStorageService {
     final docsDir = initResults[1] as Directory;
     final file = await _cardsFile(docsDir);
     final backupFile = await _cardsBackupFile(docsDir);
+    final tmpFile = File('${file.path}.tmp');
     final hasSeeded = prefs.getBool(_hasSeededDefaultsKey) ?? false;
     final seededVersion = prefs.getInt(_seededDefaultVersionKey);
 
+    // 1. Primary file read
     final primaryCards = await _readCardsFile(file, source: 'primary');
     if (primaryCards != null) {
       final needsMigration =
@@ -113,6 +115,7 @@ class CardStorageService {
       return cards;
     }
 
+    // 2. Backup file recovery
     final backupCards = await _readCardsFile(backupFile, source: 'backup');
     if (backupCards != null) {
       final defaults = resolvedDefaults();
@@ -129,6 +132,26 @@ class CardStorageService {
       return backupCards;
     }
 
+    // 3. Pending .tmp write-swap recovery
+    if (await tmpFile.exists() && (await tmpFile.length()) > 0) {
+      final tmpCards = await _readCardsFile(tmpFile, source: 'temp');
+      if (tmpCards != null) {
+        final defaults = resolvedDefaults();
+        _mergeMissingDefaults(tmpCards, defaults);
+        _normalizeSeedCatalog(tmpCards, defaults);
+        await _migrateMediaFilesToDocuments(tmpCards);
+        await _writeCardsFile(file, backupFile, tmpCards);
+        await _markSeeded(prefs);
+        await _syncLegacyCards(prefs, tmpCards);
+        debugPrint(
+          '[CardStorage] recovered ${tmpCards.length} top-level cards '
+          '(${countCards(tmpCards)} total) from pending .tmp file',
+        );
+        return tmpCards;
+      }
+    }
+
+    // 4. Legacy SharedPreferences recovery
     final legacyCards = _readLegacyPrefsCards(prefs);
     if (legacyCards != null) {
       final defaults = resolvedDefaults();
@@ -146,10 +169,64 @@ class CardStorageService {
       return legacyCards;
     }
 
+    // 5. Corrupt file detection, quarantine & salvage
+    final fileExisted = await file.exists();
+    final backupExisted = await backupFile.exists();
+    final tmpExisted = await tmpFile.exists();
+
+    if (fileExisted || backupExisted || tmpExisted) {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      debugPrint(
+        '[CardStorage] CRITICAL: Card store exists on disk but failed to parse. '
+        'Quarantining and attempting heuristic salvage...',
+      );
+      if (fileExisted) {
+        try {
+          await file.copy('${file.path}.corrupt_$timestamp');
+        } catch (_) {}
+      }
+      if (backupExisted) {
+        try {
+          await backupFile.copy('${backupFile.path}.corrupt_$timestamp');
+        } catch (_) {}
+      }
+
+      final salvaged =
+          (fileExisted ? await _salvageCardsFromCorruptFile(file) : null) ??
+              (backupExisted
+                  ? await _salvageCardsFromCorruptFile(backupFile)
+                  : null) ??
+              (tmpExisted ? await _salvageCardsFromCorruptFile(tmpFile) : null);
+
+      if (salvaged != null && salvaged.isNotEmpty) {
+        debugPrint(
+          '[CardStorage] successfully salvaged ${salvaged.length} top-level '
+          'cards from corrupted storage',
+        );
+        final defaults = resolvedDefaults();
+        _mergeMissingDefaults(salvaged, defaults);
+        _normalizeSeedCatalog(salvaged, defaults);
+        await _writeCardsFile(file, backupFile, salvaged);
+        await _markSeeded(prefs);
+        await _syncLegacyCards(prefs, salvaged);
+        return salvaged;
+      }
+
+      // If salvage could not recover cards, DO NOT wipe files with []!
+      // Provide defaults in memory for emergency communication so the user is not locked out,
+      // while preserving physical disk files for manual recovery.
+      debugPrint(
+        '[CardStorage] WARNING: Storage corrupted and unsalvageable. '
+        'Providing default cards in-memory without wiping corrupt files on disk',
+      );
+      return resolvedDefaults().map(_cloneCard).toList();
+    }
+
+    // 6. Clean state: files never existed
     if (hasSeeded) {
       debugPrint(
-        '[CardStorage] defaults were already seeded but no card store was '
-        'found; returning an empty list instead of reseeding defaults',
+        '[CardStorage] defaults were already seeded and no store exists on disk; '
+        'returning an empty list',
       );
       const emptyCards = <AACCard>[];
       await _writeCardsFile(file, backupFile, emptyCards);
@@ -206,6 +283,8 @@ class CardStorageService {
     return mediaDir;
   }
 
+  static int _mediaCounter = 0;
+
   static Future<String> persistMediaFile(
     String sourcePath, {
     required String cardId,
@@ -231,9 +310,15 @@ class CardStorageService {
     final safeId = _safeFileComponent(cardId);
     final extension =
         _extension(sourcePath, fallback: mediaType == 'images' ? '.jpg' : '');
-    final fileName =
-        '${mediaType}_${safeId}_${DateTime.now().millisecondsSinceEpoch}$extension';
-    final targetPath = _join(mediaDir.path, fileName);
+    final timestamp = DateTime.now().microsecondsSinceEpoch;
+    var fileName =
+        '${mediaType}_${safeId}_${timestamp}_${_mediaCounter++}$extension';
+    var targetPath = _join(mediaDir.path, fileName);
+    while (await File(targetPath).exists()) {
+      fileName =
+          '${mediaType}_${safeId}_${timestamp}_${_mediaCounter++}$extension';
+      targetPath = _join(mediaDir.path, fileName);
+    }
 
     await sourceFile.copy(targetPath);
     debugPrint(
@@ -571,7 +656,7 @@ class CardStorageService {
       final raw = await file.readAsString();
       if (raw.trim().isEmpty) {
         debugPrint('[CardStorage] $source card file is empty: ${file.path}');
-        return <AACCard>[];
+        return null;
       }
 
       final decoded = jsonDecode(raw);
@@ -631,9 +716,14 @@ class CardStorageService {
   ) async {
     await file.parent.create(recursive: true);
 
-    if (await file.exists()) {
-      await file.copy(backupFile.path);
-      debugPrint('[CardStorage] updated card backup: ${backupFile.path}');
+    // Only update backup from primary if primary file exists and has non-trivial content
+    if (await file.exists() && (await file.length()) > 10) {
+      try {
+        await file.copy(backupFile.path);
+        debugPrint('[CardStorage] updated card backup: ${backupFile.path}');
+      } catch (e) {
+        debugPrint('[CardStorage] warning: failed to update backup file: $e');
+      }
     }
 
     final tempFile = File('${file.path}.tmp');
@@ -644,10 +734,70 @@ class CardStorageService {
     };
 
     await tempFile.writeAsString(jsonEncode(payload), flush: true);
-    if (await file.exists()) {
+    if (!await tempFile.exists() || (await tempFile.length()) <= 0) {
+      throw const FileSystemException('Failed to write valid temp cards file');
+    }
+
+    if (Platform.isWindows && await file.exists()) {
       await file.delete();
     }
     await tempFile.rename(file.path);
+  }
+
+  static Future<List<AACCard>?> _salvageCardsFromCorruptFile(File file) async {
+    if (!await file.exists()) return null;
+    try {
+      final raw = await file.readAsString();
+      if (raw.trim().isEmpty) return null;
+
+      // 1. Try appending trailing closures for truncated JSON
+      for (final suffix in const [']}', '}]}', '"}]}', '"]}}', '}']) {
+        try {
+          final decoded = jsonDecode(raw + suffix);
+          if (decoded is Map && decoded['cards'] is List) {
+            final cards = (decoded['cards'] as List)
+                .whereType<Map>()
+                .map((c) => AACCard.fromJson(Map<String, dynamic>.from(c)))
+                .toList();
+            if (cards.isNotEmpty) {
+              debugPrint(
+                '[CardStorage] successfully salvaged ${cards.length} cards '
+                'from ${file.path} via suffix repair',
+              );
+              return cards;
+            }
+          }
+        } catch (_) {}
+      }
+
+      // 2. Try regex extraction of individual card objects: {"id":...}
+      final cardRegex = RegExp(r'\{[^{}]*"id"\s*:\s*"[^"]+"[^{}]*\}');
+      final matches = cardRegex.allMatches(raw);
+      final salvaged = <AACCard>[];
+      for (final match in matches) {
+        try {
+          final snippet = match.group(0);
+          if (snippet != null) {
+            final decoded = jsonDecode(snippet);
+            if (decoded is Map &&
+                decoded.containsKey('id') &&
+                decoded.containsKey('label')) {
+              salvaged.add(AACCard.fromJson(Map<String, dynamic>.from(decoded)));
+            }
+          }
+        } catch (_) {}
+      }
+      if (salvaged.isNotEmpty) {
+        debugPrint(
+          '[CardStorage] successfully salvaged ${salvaged.length} individual '
+          'cards from ${file.path} via regex recovery',
+        );
+        return salvaged;
+      }
+    } catch (e) {
+      debugPrint('[CardStorage] salvage attempt encountered error: $e');
+    }
+    return null;
   }
 
   static Future<void> _markSeeded(SharedPreferences prefs) async {

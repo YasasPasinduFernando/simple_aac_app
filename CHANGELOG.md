@@ -53,6 +53,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Preserved ultra-compact Play download size of **~25.17 MB**.
 
 ### Fixed
+- **Permanent Data Persistence & Storage Hardening:**
+  - Resolved critical defect where a single read failure or corrupted `aac_cards_v1.json` could silently wipe the user's primary file, backup file, and legacy SharedPreferences with an empty list (`[]`).
+  - Added multi-tier storage failover: Primary -> Backup (`.bak`) -> Pending (`.tmp`) -> Legacy SharedPreferences -> Quarantine (`.corrupt_<timestamp>`) -> Heuristic JSON salvage.
+  - Hardened 0-byte truncated file handling: 0-byte or whitespace-only files trigger immediate recovery from backup rather than returning an empty board.
+  - Implemented heuristic JSON recovery: salvages valid card records via suffix closure repair and regex object extraction from damaged storage files.
+  - Fixed cross-device restore path remapping: backup archives containing foreign absolute paths (e.g. `/data/user/0/...`) now automatically resolve against archive media and re-anchor into local app documents.
+  - Eliminated media persistence collisions: combined microsecond timestamps, atomic monotonic counters, and existence verification loops to ensure concurrent media imports never overwrite files.
 - **Camera and Video Launch Resilience (`f224f4e`):**
   - Added explicit Android 11+ package queries for `ACTION_IMAGE_CAPTURE` and `ACTION_VIDEO_CAPTURE` in `AndroidManifest.xml`.
   - Implemented dual-permission verification (Camera + Audio) with fallback modal error guidance.
