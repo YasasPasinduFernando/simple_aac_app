@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2026-11-14
 
+### Documentation
+- **Trilingual User Documentation Suite (English, Sinhala, Tamil):**
+  - Published complete, professionally localized user guides in both vector PDF (7 pages) and editable Microsoft Word DOCX formats (13–14 pages) under `docs/user-guide/`.
+  - Comprehensive 8-chapter coverage with 22 authentic ADB screenshots and 2 animated GIF walkthroughs across all three languages.
+  - Full Unicode font metrics validation for Latin (`Calibri`), Sinhala (`Noto Sans Sinhala`), and Tamil (`Noto Sans Tamil`), verifying complex conjunct shaping and diacritics.
+  - Consolidated QA certifications documented in `docs/user-guide/TRILINGUAL_DOCUMENT_QA_REPORT.md`.
+
 ### Added
 - **Tactile Card Interaction & Haptics (`e8e05a5`):**
   - Enhanced card pop animation scaling to 1.08 with organic spring curve (`Curves.easeOutBack`) and matching accent aura lighting.

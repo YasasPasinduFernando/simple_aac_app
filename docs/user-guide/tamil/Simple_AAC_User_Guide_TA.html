@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<title>Simple AAC இலங்கை — முழுமையான பயனர் வழிகாட்டி (v1.1.0)</title>
+
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 14mm 18mm 14mm 18mm;
+    @bottom-left {
+      content: "Simple AAC இலங்கை — முழுமையான பயனர் வழிகாட்டி (v1.1.0)";
+      font-size: 8pt;
+      font-family: "Noto Sans Tamil", sans-serif;
+      color: #64748b;
+    }
+    @bottom-right {
+      content: "பக்கம் " counter(page) " / " counter(pages);
+      font-size: 8pt;
+      font-family: "Noto Sans Tamil", sans-serif;
+      color: #64748b;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Noto Sans Tamil", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.48;
+    color: #1e293b;
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+    font-size: 9.3pt;
+    text-align: left;
+  }
+
+  .doc-header {
+    margin-bottom: 10px;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  h1 {
+    color: #01579b;
+    font-size: 20pt;
+    font-weight: 700;
+    margin: 0 0 2px 0;
+    line-height: 1.25;
+  }
+
+  .subtitle {
+    color: #475569;
+    font-size: 9.5pt;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1.5px solid #0288d1;
+    margin: 0 0 10px 0;
+  }
+
+  /* Table of Contents */
+  .toc-box {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 9px 14px;
+    margin-bottom: 12px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .toc-title {
+    font-size: 9.5pt;
+    font-weight: 700;
+    color: #0277bd;
+    margin: 0 0 6px 0;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 3px;
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px 24px;
+  }
+
+  .toc-item {
+    font-size: 8.5pt;
+    color: #334155;
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 1px 0;
+  }
+
+  .toc-num {
+    font-weight: 700;
+    color: #0284c7;
+    margin-right: 4px;
+  }
+
+  .toc-page {
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .dots {
+    flex: 1;
+    border-bottom: 1px dotted #cbd5e1;
+    margin: 0 4px;
+  }
+
+  /* Headings */
+  h2 {
+    color: #0277bd;
+    font-size: 13.5pt;
+    font-weight: 700;
+    margin: 10pt 0 3pt 0;
+    padding-bottom: 2px;
+    border-bottom: 1.2px solid #e2e8f0;
+    page-break-after: avoid;
+    break-after: avoid;
+    line-height: 1.25;
+  }
+
+  .page-start {
+    margin-top: 0;
+  }
+
+  h3 {
+    color: #0369a1;
+    font-size: 10.5pt;
+    font-weight: 600;
+    margin: 6pt 0 2pt 0;
+    page-break-after: avoid;
+    break-after: avoid;
+    line-height: 1.25;
+  }
+
+  p {
+    margin: 0 0 5pt 0;
+    color: #334155;
+    text-align: left;
+    orphans: 3;
+    widows: 3;
+  }
+
+  ul, ol {
+    margin: 0 0 5pt 0;
+    padding-left: 18px;
+  }
+
+  li {
+    margin-bottom: 2pt;
+    color: #334155;
+  }
+
+  strong { color: #0f172a; }
+  em { font-style: italic; color: inherit; display: inline; }
+
+  code {
+    background: #f1f5f9;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 8.5pt;
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    color: #0284c7;
+    border: 1px solid #e2e8f0;
+    display: inline;
+  }
+
+  /* Figures */
+  .fig-row {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin: 4pt 0 6pt 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .fig-col {
+    flex: 1;
+    max-width: 195px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+  }
+
+  .fig-col img {
+    width: 100%;
+    max-height: 190px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid #cbd5e1;
+    display: block;
+    background: #ffffff;
+  }
+
+  .fig-single {
+    text-align: center;
+    margin: 4pt 0 6pt 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .fig-single img {
+    max-width: 195px;
+    max-height: 190px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid #cbd5e1;
+    display: block;
+    background: #ffffff;
+  }
+
+  figcaption {
+    font-size: 8pt;
+    font-style: normal;
+    color: #64748b;
+    margin-top: 4px;
+    text-align: center;
+    line-height: 1.25;
+    display: block;
+  }
+
+  .fig-row-3 {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 4pt 0 6pt 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .fig-row-3 .fig-col {
+    flex: 1;
+    max-width: 165px;
+  }
+
+  .fig-row-3 img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: 1px solid #cbd5e1;
+    display: block;
+  }
+
+  .callout {
+    background: #f0f9ff;
+    border-left: 3px solid #0284c7;
+    border-radius: 0 5px 5px 0;
+    padding: 4px 8px;
+    margin: 5pt 0 7pt 0;
+    font-size: 8.5pt;
+    color: #0369a1;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+</style>
+
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<div class="doc-header">
+  <h1>Simple AAC இலங்கை — முழுமையான பயனர் வழிகாட்டி (v1.1.0)</h1>
+  <div class="subtitle">அன்றாட தொடர்பாடல், அட்டைகளைத் தனிப்பயனாக்குதல் மற்றும் அணுகல்தன்மைக்கான அதிகாரப்பூர்வ கையேடு</div>
+  <hr class="divider">
+</div>
+
+<div class="toc-box">
+  <div class="toc-title">பொருளடக்கம் (Table of Contents)</div>
+  <div class="toc-grid">
+    <a class="toc-item" href="#ch1"><span><span class="toc-num">1.</span>அத்தியாயம் 1 — Simple AAC பயன்படுத்தத் தொடங்குதல்</span><span class="dots"></span><span class="toc-page">பக்கம் 1</span></a>
+    <a class="toc-item" href="#ch2"><span><span class="toc-num">2.</span>அத்தியாயம் 2 — பேசுதல் மற்றும் வாக்கியம் அமைத்தல்</span><span class="dots"></span><span class="toc-page">பக்கம் 2</span></a>
+    <a class="toc-item" href="#ch3"><span><span class="toc-num">3.</span>அத்தியாயம் 3 — அட்டைகளைத் தனிப்பயனாக்குதல் &amp; மும்மொழி</span><span class="dots"></span><span class="toc-page">பக்கம் 3</span></a>
+    <a class="toc-item" href="#ch4"><span><span class="toc-num">4.</span>அத்தியாயம் 4 — இயங்குபடங்கள் (GIF) &amp; வீடியோ லூப்கள்</span><span class="dots"></span><span class="toc-page">பக்கம் 4</span></a>
+    <a class="toc-item" href="#ch5"><span><span class="toc-num">5.</span>அத்தியாயம் 5 — கோப்புறைகள் மற்றும் பிரிவுகளாக ஒழுங்கமைத்தல்</span><span class="dots"></span><span class="toc-page">பக்கம் 5</span></a>
+    <a class="toc-item" href="#ch6"><span><span class="toc-num">6.</span>அத்தியாயம் 6 — தோற்றம், நிறக் கருப்பொருள்கள் &amp; Haptics</span><span class="dots"></span><span class="toc-page">பக்கம் 5</span></a>
+    <a class="toc-item" href="#ch7"><span><span class="toc-num">7.</span>அத்தியாயம் 7 — பாதுகாப்பு, பலகைப் பூட்டு &amp; Child Lock</span><span class="dots"></span><span class="toc-page">பக்கம் 7</span></a>
+    <a class="toc-item" href="#ch8"><span><span class="toc-num">8.</span>அத்தியாயம் 8 — தரவு காப்புப்பிரதி, Restore &amp; Privacy</span><span class="dots"></span><span class="toc-page">பக்கம் 7</span></a>
+  </div>
+</div>
+
+<h2 id="ch1" class="page-start">அத்தியாயம் 1 — Simple AAC பயன்படுத்தத் தொடங்குதல்</h2>
+<p><strong>Simple AAC இலங்கை</strong> என்பது வாய்மொழி பேச முடியாத குழந்தைகள், ஆட்டிசம் (Autism Spectrum), பேச்சுத் தாமதம், அஃபாசியா (Aphasia) அல்லது பக்கவாதத்தால் பாதிக்கப்பட்ட நபர்களுக்காக பிரத்யேகமாக உருவாக்கப்பட்ட ஒரு மாற்று மற்றும் மேம்படுத்தப்பட்ட தொடர்பாடல் (AAC) தளமாகும். இது முற்றிலும் இணைய இணைப்பு இன்றியே (100% Offline) இயங்கக்கூடியதுடன், <strong>தமிழ், சிங்களம் மற்றும் ஆங்கிலம்</strong> ஆகிய மூன்று மொழிகளிலும் உடனடியாகப் பேசும் வசதியை வழங்குகிறது.</p>
+
+<h3>1.1 முதன்மைத் திரையின் அறிமுகம்</h3>
+<p>பயன்பாட்டைத் திறக்கும் போது, கண்களுக்கு இனிமையான மற்றும் தெளிவான இயல்புநிலை நீல நிறத் தோற்றம் (Blue Theme) தோன்றும். முதன்மைத் திரை மூன்று முக்கிய பகுதிகளாகப் பிரிக்கப்பட்டுள்ளது:</p>
+<ul>
+  <li><strong>மேல் பயன்பாட்டுப் பட்டை (Top Application Bar):</strong> இடதுபுறத்தில் <strong>Pin Board</strong> (பாதுகாப்புப் பூட்டு), நடுவில் <strong>Simple AAC</strong> தலைப்பு, மற்றும் வலதுபுறத்தில் <strong>Menu (Drawer)</strong> பொத்தான்.</li>
+  <li><strong>வாக்கிய அமைப்புப் பட்டை (Sentence Composer Bar):</strong> தெரிவு செய்யப்பட்ட அட்டைகள் வரிசையாகத் தோன்றி, உடனடியாகப் பேசும் மற்றும் திருத்தும் வசதிகளைக் (Delete, Clear, Speak) கொண்டுள்ளது.</li>
+  <li><strong>AAC அட்டை கட்டம் (AAC Card Grid):</strong> கை விரல் இயக்கம் சவாலானவர்களுக்கும் எளிதாகத் தொடும் வகையில் அமைக்கப்பட்ட உயர் மாறுபட்ட (High Contrast) காட்சி அட்டைகள்.</li>
+</ul>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="../screenshots/01_home_screen.png" alt="Simple AAC முதன்மைத் திரை">
+    <figcaption>படம் 1.1: நீல நிற தலைப்பு, வாக்கியப் பட்டை மற்றும் அட்டைகள் கொண்ட முதன்மைத் திரை</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="../screenshots/02_aac_cards_grid.png" alt="AAC அட்டைகள்">
+    <figcaption>படம் 1.2: உலகளாவிய குறியீடுகள் மற்றும் தெளிவான எழுத்துக்கள் கொண்ட AAC அட்டைகள்</figcaption>
+  </figure>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page-break"></div>
+
+<h2 id="ch2" class="page-start">அத்தியாயம் 2 — பேசுதல் மற்றும் வாக்கியம் அமைத்தல்</h2>
+
+<h3>2.1 தொட்டதும் பேசுதல் (Tap to Speak)</h3>
+<p>தொடர்பாடலைத் தொடங்குவது மிகவும் எளிது. Simple AAC உடனடி பல-உணர்வுப் பின்னூட்டத்தை (Multi-sensory feedback) வழங்குகிறது:</p>
+<ul>
+  <li><strong>உடனடிப் பேச்சு (Instant Speech):</strong> அமைப்புகளில் "Tap to Speak" இயக்கப்பட்டிருக்கும் போது, ஏதேனும் ஓர் அட்டையைத் தொட்டவுடன் அதன் பெயர் ஆஃப்லைன் TTS அல்லது பதிவு செய்யப்பட்ட சொந்தக் குரல் மூலம் உடனடியாகப் பேசப்படும்.</li>
+  <li><strong>தொடு அதிர்வு (Haptic Pop):</strong> ஓர் அட்டையைத் தொடும் போது மெல்லிய அதிர்வு (Haptic feedback) மற்றும் சிறிய காட்சி அசைவு தோன்றி, தெரிவு செய்யப்பட்டதை உறுதிப்படுத்தும்.</li>
+</ul>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="../gifs/card_tap_speak.gif" alt="அட்டையைத் தொட்டதும் குரல் ஒலித்தல்">
+    <figcaption>படம் 2.1: அட்டையைத் தொட்டதும் குரல் ஒலிக்கும் நேரடி மாதிரி (Animation)</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="../screenshots/03_speaking_card.png" alt="Hello அட்டை">
+    <figcaption>படம் 2.2: "Hello" அட்டையைத் தொட்டு வாக்கியப் பட்டையில் சேர்த்தல்</figcaption>
+  </figure>
+</div>
+
+<h3>2.2 பல சொற்களைக் கொண்ட வாக்கியங்களை அமைத்தல் (Sentence Composer)</h3>
+<p>பயனர்கள் பல அட்டைகளை அடுத்தடுத்துத் தொடுவதன் மூலம் முழுமையான எண்ணங்களை அல்லது வாக்கியங்களை உருவாக்கலாம் (உதாரணமாக: <em>"Hello"</em> + <em>"Happy"</em>). வாக்கியப் பட்டையில் மூன்று முக்கிய கட்டுப்பாடுகள் உள்ளன:</p>
+<ul>
+  <li><strong>Delete (பின்னோக்கி நீக்குதல்):</strong> கடைசியாகச் சேர்த்த அட்டையை மட்டும் நீக்கும்.</li>
+  <li><strong>Clear (அழித்தல்):</strong> முழு வாக்கியப் பட்டையையும் ஒரே தொடுதலில் அழிக்கும்.</li>
+  <li><strong>Speak Sentence (ஒலிபெருக்கி பொத்தான்):</strong> உருவாக்கப்பட்ட முழு வாக்கியத்தையும் இடமிருந்து வலமாக சரளமாகப் பேசும்.</li>
+</ul>
+
+<div class="fig-single">
+  <figure>
+    <img src="../screenshots/04_sentence_bar.png" alt="வாக்கிய அமைப்புப் பட்டை" style="max-width: 280px; max-height: 180px;">
+    <figcaption>படம் 2.3: வாக்கிய அமைப்புப் பட்டையில் பல சொற்கள் கொண்ட வாக்கியங்களை உருவாக்குதல்</figcaption>
+  </figure>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page-break"></div>
+
+<h2 id="ch3" class="page-start">அத்தியாயம் 3 — அட்டைகளைத் தனிப்பயனாக்குதல் மற்றும் மும்மொழி ஆதரவு</h2>
+<p>ஒவ்வொரு நபரின் தொடர்பாடல் தேவைகளும் தனித்துவமானவை. பராமரிப்பாளர்கள், பேச்சுப் பயிற்சியாளர்கள் மற்றும் ஆசிரியர்கள் ஒவ்வொரு அட்டையின் படம், லேபிள் மற்றும் ஒலியை முழுமையாக மாற்றியமைக்கலாம்.</p>
+
+<h3>3.1 திருத்தும் முறைமை (Edit Mode) மற்றும் அட்டை திருத்தி (Card Editor)</h3>
+<p>அட்டைகளைத் தனிப்பயனாக்க, <strong>Menu</strong> (மேல் வலதுபுறம்) &rarr; <strong>Enable Edit Mode</strong> என்பதைத் தேர்ந்தெடுக்கவும். அட்டைகளின் மீது சிவப்பு நிற குப்பைத்தொட்டி ஐகான்களும், மேலே <strong>Add New</strong> பொத்தானும் தோன்றும். ஏதேனும் ஓர் அட்டையைத் தொடுவதன் மூலம் Card Editor உரையாடல் பெட்டி திறக்கும்.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="../screenshots/05_edit_mode_active.png" alt="Edit Mode સක්‍රியයි">
+    <figcaption>படம் 3.1: Add New பொத்தானுடன் கூடிய Edit Mode</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="../screenshots/06_card_editor_dialog.png" alt="Card Editor சாளரம்">
+    <figcaption>படம் 3.2: அட்டை திருத்தும் கருவிப்பலகை (Card Editor)</figcaption>
+  </figure>
+</div>
+
+<h3>3.2 நேரடிப் புகைப்படங்கள் மற்றும் Smart Search மூலம் படங்கள் சேர்த்தல்</h3>
+<ul>
+  <li><strong>Camera:</strong> குழந்தை தினமும் பயன்படுத்தும் உண்மையான பொருட்கள் (தண்ணீர் போத்தல், விருப்பமான பொம்மை, குடும்ப உறுப்பினர்கள்) ஆகியவற்றை நேரடியாகப் படம் பிடிக்கவும். பயன்பாடு நிலையான Android அனுமதிகளைக் கேட்கும்.</li>
+  <li><strong>Gallery:</strong> சாதனத்தில் சேமிக்கப்பட்டுள்ள குடும்பப் புகைப்படங்கள் அல்லது சிகிச்சைக் குறியீடுகளைத் தேர்ந்தெடுக்கவும்.</li>
+  <li><strong>Smart Image Search:</strong> இணைய வசதி இருக்கும் போது, குழந்தைகளுக்குப் பொருத்தமான பாதுகாப்பான படத் தொகுப்பிலிருந்து படங்களைத் தேடிச் சேர்க்கலாம்.</li>
+</ul>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="../screenshots/08_camera_flow.png" alt="புகைப்படக் கருவி">
+    <figcaption>படம் 3.3: நேரடிப் புகைப்படக் கருவி மூலம் படம் பிடித்தல்</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="../screenshots/10_smart_image_search.png" alt="Smart Image Search">
+    <figcaption>படம் 3.4: பாதுகாப்பான ஸ்மார்ட் படத் தேடல் (Smart Image Search)</figcaption>
+  </figure>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page-break"></div>
+
+<h3 class="page-start">3.3 மும்மொழி ஆதரவு (தமிழ், சிங்களம், ஆங்கிலம்) மற்றும் சொந்தக் குரல் பதிவு</h3>
+<p>Simple AAC இலங்கையின் உத்தியோகபூர்வ மொழிகள் மூன்றிற்கும் ஒரே நேரத்தில் ஆதரவளிக்கிறது: <strong>ஆங்கிலம்</strong> (எ.கா: <em>Hello</em>), <strong>சிங்களம்</strong> (<em>හෙලෝ</em>, <em>සතුටුයි</em>, <em>වතුර</em>), மற்றும் <strong>தமிழ்</strong> (<em>வணக்கம்</em>, <em>மகிழ்ச்சி</em>, <em>தண்ணீர்</em>). செயற்கைக் குரலை விட பழக்கமான குடும்பத்தினரின் குரலை விரும்பும் குழந்தைகளுக்காக, பெற்றோர் அல்லது பராமரிப்பாளர்கள் தங்கள் சொந்தக் குரலிலேயே சொற்களைப் பதிவு செய்ய முடியும்.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="../screenshots/14_multilingual_labels.png" alt="மும்மொழி லேபிள்கள்">
+    <figcaption>படம் 3.5: தமிழ், சிங்களம், ஆங்கிலம் ஆகிய மும்மொழி லேபிள்கள்</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="../screenshots/13_custom_voice_recorder.png" alt="குரல் பதிவு">
+    <figcaption>படம் 3.6: உயர்தர சொந்தக் குரல் பதிவு செய்யும் சாளரம்</figcaption>
+  </figure>
+</div>
+
+<h2 id="ch4">அத்தியாயம் 4 — இயங்குபடங்கள் (GIFs) மற்றும் வீடியோ லூப்கள்</h2>
+<p>ஆட்டிசம் பாதித்த குழந்தைகளுக்கு நிலையான படங்களை விட ஓர் அசைவை (உதாரணமாக: <em>குதித்தல்</em>, <em>தண்ணீர் குடித்தல்</em>, அல்லது <em>கை கழுவுதல்</em>) நேரடி இயக்கமாகப் பார்ப்பது எளிதில் புரியும். Simple AAC மின்கலத்தை (Battery) அதிகம் பயன்படுத்தாத வகையில் தொடர்ச்சியாக இயங்கும் GIF படங்களை அட்டைகளில் சேர்க்கும் வசதியை வழங்குகிறது.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="../screenshots/11_animated_gifs.png" alt="Animated GIFs">
+    <figcaption>படம் 4.1: செயல்பாட்டு அட்டைகளுக்கான GIF இறக்குமதி</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="../screenshots/12_video_to_gif.png" alt="Video to GIF Converter">
+    <figcaption>படம் 4.2: 30 விநாடி வீடியோவை GIF ஆக மாற்றும் வசதி</figcaption>
+  </figure>
+</div>
+
+<p>பராமரிப்பாளர்கள் 30 விநாடிகள் வரையிலான குறுகிய வீடியோக்களைப் (உதாரணமாக: சைகை மொழி, அன்றாட நடைமுறைகள்) பதிவு செய்து, அவற்றை பயன்பாட்டிற்குள்ளேயே மென்மையான இயங்குபடங்களாக (GIF) மாற்றிக் கொள்ளலாம்.</p>
+
+<!-- PAGE 5 -->
+<div class="page-break"></div>
+
+<h2 id="ch5" class="page-start">அத்தியாயம் 5 — கோப்புறைகள் மற்றும் பிரிவுகளாக ஒழுங்கமைத்தல்</h2>
+<p>சொற்களின் எண்ணிக்கை அதிகரிக்கும் போது, அவற்றை <em>உணர்வுகள்</em>, <em>உணவு &amp; பானங்கள்</em>, <em>பள்ளி</em>, மற்றும் <em>செயல்பாடுகள்</em> போன்ற பிரிவுகளாகக் கோப்புறைகளில் ஒழுங்கமைக்கலாம். ஒரு கோப்புறை அட்டையைத் தொடும் போது, மேல் வாக்கியப் பட்டை மாறாமல் அப்படியே இருக்க, அந்தப் பிரிவின் அட்டைகளுக்குள் எளிதாகச் செல்ல முடியும்.</p>
+
+<div class="fig-single">
+  <figure>
+    <img src="../screenshots/07_folder_view.png" alt="கோப்புறைகள் மற்றும் பிரிவுகள்" style="max-width: 195px; max-height: 215px;">
+    <figcaption>படம் 5.1: "More ->" கோப்புறைக்குள் சென்று அட்டைகளைப் பார்த்தல்</figcaption>
+  </figure>
+</div>
+
+<h2 id="ch6">அத்தியாயம் 6 — தோற்றம், நிறக் கருப்பொருள்கள் மற்றும் தொடு அதிர்வு (Haptic Feedback)</h2>
+
+<h3>6.1 அமைப்புகள் பட்டி (Settings Drawer) மற்றும் நேரடி நிற முன்னோட்டம்</h3>
+<p>மேல் வலதுபுறத்தில் உள்ள Menu பொத்தானைத் தொட்டு அமைப்புகள் பட்டியைத் திறக்கலாம். Simple AAC v1.1.0 பதிப்பில் நிகழ்நேர முன்னோட்டம் காட்டும் மேம்படுத்தப்பட்ட Color Pickers அறிமுகப்படுத்தப்பட்டுள்ளது:</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="../screenshots/16_settings_drawer.png" alt="அமைப்புகள் பட்டி">
+    <figcaption>படம் 6.1: அமைப்புகள் பட்டி மற்றும் தோற்றத் தெரிவுகள்</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="../gifs/color_picker_flow.gif" alt="நேரடி நிற முன்னோட்டம்">
+    <figcaption>படம் 6.2: நேரடி நிற மாற்றங்கள் முன்னோட்டம் (Animation)</figcaption>
+  </figure>
+</div>
+
+<!-- PAGE 6 -->
+<div class="page-break"></div>
+
+<h3 class="page-start">6.2 மேம்படுத்தப்பட்ட நிறத் தெரிவிகள் (Redesigned Color Pickers)</h3>
+<p>முதன்மைப் பயன்பாட்டு நிறம், எழுத்துக்களின் நிறம், மற்றும் பலகையின் பின்னணி நிறம் ஆகியவற்றை நிகழ்நேர மாறுபட்ட விகித முன்னோட்டத்துடன் (Contrast preview) மாற்றியமைக்கலாம்:</p>
+
+<div class="fig-row-3">
+  <figure class="fig-col">
+    <img src="../screenshots/17_color_picker_app_color.png" alt="App Color">
+    <figcaption>படம் 6.3: முதன்மை நிறத்தைத் தேர்ந்தெடுத்தல்</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="../screenshots/18_color_picker_text_color.png" alt="Text Color">
+    <figcaption>படம் 6.4: எழுத்து நிறத்தைத் தேர்ந்தெடுத்தல்</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="../screenshots/19_color_picker_board_background.png" alt="Board Background">
+    <figcaption>படம் 6.5: பலகைப் பின்னணி நிறத்தைத் தேர்ந்தெடுத்தல்</figcaption>
+  </figure>
+</div>
+
+<h3>6.3 நிறக்குருடு ஆதரவு (Color-Blind Safe Mode) மற்றும் தொடு அதிர்வு</h3>
+<p>நிறங்களை அடையாளம் காண்பதில் சிரமம் உள்ளவர்களுக்காக (Color Blindness), WCAG AA வழிகாட்டுதல்களை பூர்த்தி செய்யும் <strong>Color-Blind Safe Mode</strong> வழங்கப்பட்டுள்ளது. மேலும், <strong>Haptic Feedback</strong> வசதி ஒவ்வொரு தொடுதலின் போதும் மெல்லிய அதிர்வை வழங்கி உறுதியளிக்கிறது.</p>
+
+<div class="fig-single">
+  <figure>
+    <img src="../screenshots/20_appearance_and_color_vision.png" alt="Color Vision Support" style="max-width: 195px; max-height: 215px;">
+    <figcaption>படம் 6.6: நிறக்குருடு ஆதரவு மற்றும் உயர் மாறுபட்ட அமைப்புகள்</figcaption>
+  </figure>
+</div>
+
+<!-- PAGE 7 -->
+<div class="page-break"></div>
+
+<h2 id="ch7" class="page-start">அத்தியாயம் 7 — பாதுகாப்பு, பலகைப் பூட்டு மற்றும் குழந்தைகள் பூட்டு</h2>
+
+<h3>7.1 PIN குறியீடு மூலம் பலகையைப் பூட்டுதல்</h3>
+<p>குழந்தைகள் தவறுதலாக அமைப்புகளை மாற்றுவதையோ அல்லது அட்டைகளை நீக்குவதையோ தடுக்க <strong>Pin Board</strong> பொத்தானைப் பயன்படுத்தவும். 4-இலக்க PIN குறியீட்டை அமைத்துப் பூட்டியவுடன், Settings Drawer மற்றும் Edit Mode ஆகியவை முடக்கப்பட்டு, பயமின்றி குழந்தையிடம் சாதனத்தை வழங்க முடியும்.</p>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="../screenshots/15_pin_dialog.png" alt="PIN சாளரம்">
+    <figcaption>படம் 7.1: 4-இலக்க பாதுகாப்பு PIN அமைத்தல்</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="../screenshots/15_pin_mode_locked.png" alt="பூட்டப்பட்ட பலகை">
+    <figcaption>படம் 7.2: பலகை பூட்டப்பட்ட நிலையில் திருத்தங்கள் முடங்குதல்</figcaption>
+  </figure>
+</div>
+
+<h2 id="ch8">அத்தியாயம் 8 — தரவு காப்புப்பிரதி (Backup), மீட்டமைத்தல் (Restore) மற்றும் ஆஃப்லைன் தனியுரிமை</h2>
+
+<h3>8.1 கடுமையான ஆஃப்லைன் தனியுரிமை மாதிரி (Strict Offline Privacy)</h3>
+<p>Simple AAC சாதனத்தில் மட்டுமே முழுமையாக இயங்குகிறது. பயனரின் தனிப்பட்ட புகைப்படங்கள், குரல் பதிவுகள் அல்லது தொடர்பாடல் பதிவுகள் எந்தவொரு வெளிப்புற சேவையகத்திற்கும் (Cloud) அனுப்பப்படுவதில்லை.</p>
+
+<h3>8.2 காப்புப்பிரதிகளை ஏற்றுமதி செய்தல் மற்றும் மீட்டமைத்தல் (Exporting &amp; Restoring Backups)</h3>
+<ul>
+  <li><strong>Export Backup:</strong> உங்கள் தனிப்பயன் அட்டைகள், புகைப்படங்கள், பதிவுகள் மற்றும் அமைப்புகளை ஒரே ZIP கோப்பாக சாதனத்தின் <code>Downloads</code> கோப்புறையில் சேமிக்கும்.</li>
+  <li><strong>Import Restore:</strong> முன்னர் ஏற்றுமதி செய்யப்பட்ட Simple AAC ZIP கோப்பைப் பாதுகாப்பாக சரிபார்த்து உடனடியாக மீட்டமைக்கும்.</li>
+</ul>
+
+<div class="fig-row">
+  <figure class="fig-col">
+    <img src="../screenshots/21_backup_export.png" alt="Cards & Storage">
+    <figcaption>படம் 8.1: Cards &amp; Storage அமைப்புகள் பகுதி</figcaption>
+  </figure>
+  <figure class="fig-col">
+    <img src="../screenshots/24_offline_speech_settings.png" alt="Offline Speech Settings">
+    <figcaption>படம் 8.2: ஆஃப்லைன் பேச்சு TTS எஞ்சின் அமைப்புகள்</figcaption>
+  </figure>
+</div>
+
+<div class="callout">
+  <strong>தரவு அணுமுறை நிலைத்தன்மை பற்றிய குறிப்பு (Note on Atomic Persistence):</strong> Simple AAC அணுமுறை கோப்பு சேமிப்பு அமைப்பைப் (<code>aac_cards_v1.json</code> மற்றும் தானியங்கி <code>.bak</code> காப்புப்பிரதி) பயன்படுத்துகிறது. 1,000 க்கும் மேற்பட்ட அட்டைகளைக் கொண்ட பெரிய தரவுத்தொகுப்புகளுக்கும் முழுமையான தரவு ஒருமைப்பாடு சோதிக்கப்பட்டு உறுதிப்படுத்தப்பட்டுள்ளது.
+</div>
+
+<p style="text-align: center; color: #64748b; font-size: 8pt; margin-top: 6px;">
+  <em>Simple AAC இலங்கை &bull; பதிப்பு 1.1.0 &bull; சுயமரியாதை, சுதந்திரம் மற்றும் நம்பகத்தன்மையுடன் குரல்களுக்கு வலுவூட்டுகிறது.</em>
+</p>
+
+</body>
+</html>
