@@ -57,3 +57,8 @@ docs/ethics/ruhuna_erc/data_management/*.docx
 docs/ethics/ruhuna_erc/protocol/04_AAC_ERC_Research_Protocol_DRAFT.docx
 docs/ethics/ruhuna_erc/qa/*.docx
 
+
+# User Guide Large Video and Archive Exports
+docs/user-guide/*.zip
+docs/user-guide/videos/
+
