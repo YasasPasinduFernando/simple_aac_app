@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -34,6 +35,15 @@ import '../utils/theme_accessibility.dart';
 import '../utils/ui_mode_helper.dart';
 
 class HomePage extends StatefulWidget {
+  @visibleForTesting
+  static Future<void> Function() hapticPerformer = HapticFeedback.mediumImpact;
+  @visibleForTesting
+  static Future<void> Function(String text)? speakPerformer;
+  @visibleForTesting
+  static bool enableTtsInit = true;
+  @visibleForTesting
+  static List<AACCard>? initialCardsForTesting;
+
   const HomePage({Key? key}) : super(key: key);
 
   @override
@@ -41,6 +51,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  Future<void>? _loadCardsFuture;
+  @visibleForTesting
+  Future<void>? get loadCardsFutureForTesting => _loadCardsFuture;
+
   final ImagePicker _picker = ImagePicker();
   final AudioPlayer _audioPlayer = AudioPlayer();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -80,6 +94,7 @@ class _HomePageState extends State<HomePage> {
   bool _hideTtsText = false;
   bool _useImageOverlayLabel = true;
   bool _applyTextColorToCards = false;
+  bool _enableHaptics = true;
   bool _isDarkMode = ThemeAccessibility.darkModeNotifier.value;
   bool _isColorBlindMode = false;
   SpeechCapabilityReport? _speechCapabilities;
@@ -92,15 +107,27 @@ class _HomePageState extends State<HomePage> {
   set useImageOverlayLabelForTesting(bool value) => _useImageOverlayLabel = value;
 
   @visibleForTesting
+  bool get enableHapticsForTesting => _enableHaptics;
+
+  @visibleForTesting
+  set enableHapticsForTesting(bool value) => _enableHaptics = value;
+
+  @visibleForTesting
   void resetSettingsForTesting() => _resetSettingsToDefaults();
 
   @override
   void initState() {
     super.initState();
-    _loadCards();
+    if (HomePage.initialCardsForTesting != null) {
+      cards = List.of(HomePage.initialCardsForTesting!);
+      _updateCategories();
+      return;
+    }
+    _loadCardsFuture = _loadCards();
   }
 
   Future<void> _initTts() async {
+    if (!HomePage.enableTtsInit) return;
     await SpeechEngine.instance.initialize();
     final report = await SpeechEngine.instance.probeCapabilities();
     if (mounted && report != null) {
@@ -135,6 +162,7 @@ class _HomePageState extends State<HomePage> {
     final nextHideTts = prefs.getBool('hideTtsText') ?? false;
     final nextOverlay = prefs.getBool('useImageOverlayLabel') ?? true;
     final nextApplyText = prefs.getBool('applyTextColorToCards') ?? false;
+    final nextHaptics = prefs.getBool('enableHaptics') ?? true;
     final nextDark =
         prefs.getBool(ThemeAccessibility.darkModePrefKey) ?? _isDarkMode;
     final nextColorBlind =
@@ -156,6 +184,7 @@ class _HomePageState extends State<HomePage> {
       _hideTtsText = nextHideTts;
       _useImageOverlayLabel = nextOverlay;
       _applyTextColorToCards = nextApplyText;
+      _enableHaptics = nextHaptics;
       _isDarkMode = nextDark;
       _isColorBlindMode = nextColorBlind;
       _updateCategories();
@@ -247,6 +276,7 @@ class _HomePageState extends State<HomePage> {
           prefs.setBool('hideTtsText', _hideTtsText),
           prefs.setBool('useImageOverlayLabel', _useImageOverlayLabel),
           prefs.setBool('applyTextColorToCards', _applyTextColorToCards),
+          prefs.setBool('enableHaptics', _enableHaptics),
           prefs.setBool(ThemeAccessibility.darkModePrefKey, _isDarkMode),
           prefs.setBool(
               ThemeAccessibility.colorBlindPrefKey, _isColorBlindMode),
@@ -263,6 +293,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _speak(String text, {bool waitForCompletion = false}) async {
+    if (HomePage.speakPerformer != null) {
+      await HomePage.speakPerformer!(text);
+      return;
+    }
     try {
       await _audioPlayer.stop();
       final result = await SpeechEngine.instance.speak(
@@ -332,12 +366,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _triggerWordTapAnimation(String cardId) {
+    if (_enableHaptics) {
+      unawaited(HomePage.hapticPerformer());
+    }
     _tapAnimTimer?.cancel();
     setState(() {
       highlightedCardId = null;
       _tapAnimatedCardId = cardId;
     });
-    _tapAnimTimer = Timer(const Duration(milliseconds: 160), () {
+    _tapAnimTimer = Timer(const Duration(milliseconds: 180), () {
       if (!mounted) return;
       setState(() {
         _tapAnimatedCardId = null;
@@ -1215,6 +1252,7 @@ class _HomePageState extends State<HomePage> {
       _hideTtsText = false;
       _useImageOverlayLabel = true;
       _applyTextColorToCards = false;
+      _enableHaptics = true;
       _isDarkMode = false;
       _isColorBlindMode = false;
       ThemeAccessibility.darkModeNotifier.value = false;
@@ -1370,6 +1408,7 @@ class _HomePageState extends State<HomePage> {
       'hideTtsText': _hideTtsText,
       'useImageOverlayLabel': _useImageOverlayLabel,
       'applyTextColorToCards': _applyTextColorToCards,
+      'enableHaptics': _enableHaptics,
       'darkMode': _isDarkMode,
       'colorBlindMode': _isColorBlindMode,
       'selectedCategory': selectedCategory,
@@ -1990,6 +2029,8 @@ class _HomePageState extends State<HomePage> {
           settings['useImageOverlayLabel'] as bool? ?? _useImageOverlayLabel;
       _applyTextColorToCards =
           settings['applyTextColorToCards'] as bool? ?? _applyTextColorToCards;
+      _enableHaptics =
+          settings['enableHaptics'] as bool? ?? _enableHaptics;
       _isDarkMode = settings['darkMode'] as bool? ?? _isDarkMode;
       _isColorBlindMode =
           settings['colorBlindMode'] as bool? ?? _isColorBlindMode;
@@ -2221,6 +2262,13 @@ class _HomePageState extends State<HomePage> {
                 headerColor: themePrimary,
                 headerTextColor: themeText,
                 hideTtsText: _hideTtsText,
+                enableHaptics: _enableHaptics,
+                onToggleHaptics: (enabled) {
+                  setState(() {
+                    _enableHaptics = enabled;
+                  });
+                  _saveCards();
+                },
                 useImageOverlayLabel: _useImageOverlayLabel,
                 applyTextColorToCards: _applyTextColorToCards,
                 isDarkMode: _isDarkMode,
@@ -2604,13 +2652,13 @@ class _HomePageState extends State<HomePage> {
           _editCard(card);
           return;
         }
+        _triggerWordTapAnimation(card.id);
         if (card.type == 'folder') {
           _showSubCards(card);
           unawaited(_speakOrPlayCard(card, displayLabel));
           return;
         }
 
-        _triggerWordTapAnimation(card.id);
         _appendToTtsInput(
           displayLabel,
           imagePath: card.imagePath,
@@ -2619,20 +2667,26 @@ class _HomePageState extends State<HomePage> {
         unawaited(_speakOrPlayCard(card, displayLabel));
       },
       child: AnimatedScale(
-        scale: isTapAnimated ? 1.04 : 1.0,
-        duration: const Duration(milliseconds: 140),
-        curve: Curves.easeOut,
+        scale: isTapAnimated ? 1.08 : 1.0,
+        duration: Duration(milliseconds: isTapAnimated ? 110 : 160),
+        curve: isTapAnimated ? Curves.easeOutBack : Curves.easeInOut,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: Duration(milliseconds: isTapAnimated ? 110 : 160),
           decoration: BoxDecoration(
             color: cardSurfaceColor,
             borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
             border: cardBorder,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(_isDarkMode ? 0.3 : 0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+                color: isTapAnimated
+                    ? (_isColorBlindMode
+                        ? Colors.black.withValues(alpha: _isDarkMode ? 0.55 : 0.28)
+                        : Color(card.colorValue)
+                            .withValues(alpha: _isDarkMode ? 0.60 : 0.40))
+                    : Colors.black.withValues(alpha: _isDarkMode ? 0.30 : 0.10),
+                blurRadius: isTapAnimated ? 18 : 8,
+                spreadRadius: isTapAnimated ? 2 : 0,
+                offset: isTapAnimated ? const Offset(0, 8) : const Offset(0, 4),
               ),
             ],
           ),

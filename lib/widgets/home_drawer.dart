@@ -46,6 +46,8 @@ class HomeDrawer extends StatelessWidget {
   final String speechStatusLabel;
   final VoidCallback? onShowOfflineSpeech;
   final VoidCallback onShowAbout;
+  final bool enableHaptics;
+  final ValueChanged<bool>? onToggleHaptics;
 
   const HomeDrawer({
     Key? key,
@@ -94,6 +96,8 @@ class HomeDrawer extends StatelessWidget {
     this.speechStatusLabel = 'Automatic offline voice',
     this.onShowOfflineSpeech,
     required this.onShowAbout,
+    this.enableHaptics = true,
+    this.onToggleHaptics,
   }) : super(key: key);
 
   @override
@@ -148,6 +152,15 @@ class HomeDrawer extends StatelessWidget {
                   value: hideTtsText,
                   onChanged: (_) => onToggleTtsText(),
                 ),
+                if (onToggleHaptics != null)
+                  _buildSwitchItem(
+                    context,
+                    icon: Icons.vibration_rounded,
+                    title: 'Haptic Feedback',
+                    subtitle: 'Vibration and pop feel when tapping cards',
+                    value: enableHaptics,
+                    onChanged: onToggleHaptics!,
+                  ),
                 _buildSwitchItem(
                   context,
                   icon: Icons.layers_rounded,
