@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:simple_aac_app/models/image_search_result.dart';
 import 'package:simple_aac_app/services/openverse_search_provider.dart';
 
 void main() {
@@ -319,6 +320,85 @@ void main() {
         isTrue,
       );
       expect(results.any((r) => r.title.contains('Hidden')), isFalse);
+    });
+
+    test('ImageSearchResult correctly distinguishes GIFs, photos, and symbols', () {
+      const gifItem = ImageSearchResult(
+        id: 'gif1',
+        title: 'Dancing Cat',
+        thumbnail: 'https://example.com/cat_thumb.gif',
+        imageUrl: 'https://example.com/cat.gif',
+        creator: 'Artist',
+        license: 'cc0',
+        mimeType: 'image/gif',
+      );
+      expect(gifItem.isGif, isTrue);
+      expect(gifItem.isPhoto, isFalse);
+      expect(gifItem.isSymbol, isFalse);
+
+      const photoItem = ImageSearchResult(
+        id: 'photo1',
+        title: 'Sleeping Dog',
+        thumbnail: 'https://example.com/dog_thumb.jpg',
+        imageUrl: 'https://example.com/dog.jpg',
+        creator: 'Photographer',
+        license: 'cc0',
+        mimeType: 'image/jpeg',
+      );
+      expect(photoItem.isGif, isFalse);
+      expect(photoItem.isPhoto, isTrue);
+      expect(photoItem.isSymbol, isFalse);
+
+      const symbolItem = ImageSearchResult(
+        id: 'arasaac_1234',
+        title: 'Water (AAC Symbol)',
+        thumbnail: 'https://static.arasaac.org/1234.png',
+        imageUrl: 'https://static.arasaac.org/1234.png',
+        creator: 'ARASAAC',
+        license: 'cc-by-nc-sa',
+      );
+      expect(symbolItem.isGif, isFalse);
+      expect(symbolItem.isPhoto, isFalse);
+      expect(symbolItem.isSymbol, isTrue);
+    });
+
+    test('Multi-source search returns animated GIFs from Commons GIF search', () async {
+      OpenverseSearchProvider.resetCooldown();
+      final client = MockClient((request) async {
+        final host = request.url.host;
+        final q = request.url.queryParameters['gsrsearch'] ?? '';
+
+        if (host == 'commons.wikimedia.org' && q.contains('filemime:image/gif')) {
+          return http.Response(
+            json.encode({
+              'query': {
+                'pages': {
+                  '901': {
+                    'pageid': 901,
+                    'index': 1,
+                    'title': 'File:Running_Cat.gif',
+                    'imageinfo': [
+                      {
+                        'mime': 'image/gif',
+                        'size': 512000,
+                        'url': 'https://upload.wikimedia.org/Running_Cat.gif',
+                        'thumburl': 'https://upload.wikimedia.org/Running_Cat.gif?thumb',
+                      }
+                    ],
+                  },
+                },
+              },
+            }),
+            200,
+          );
+        }
+        return http.Response('{"query": {"pages": {}}}', 200);
+      });
+
+      final provider = OpenverseSearchProvider(client, true);
+      final results = await provider.searchImages('cat');
+
+      expect(results.any((r) => r.isGif && r.imageUrl.contains('Running_Cat.gif')), isTrue);
     });
   });
 }

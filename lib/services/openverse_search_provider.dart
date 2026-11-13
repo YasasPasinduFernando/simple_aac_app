@@ -220,6 +220,7 @@ class OpenverseSearchProvider implements ImageSearchProvider {
       _searchWikipediaTopic('simple.wikipedia.org', searchTerm, baseScore: 38),
       _searchWikipediaTopic('en.wikipedia.org', searchTerm, baseScore: 30),
       _searchWikimediaCommons(searchTerm),
+      _searchCommonsGifs(searchTerm),
       _searchOpenverseRanked(searchTerm, pageSize),
     ];
 
@@ -558,7 +559,7 @@ class OpenverseSearchProvider implements ImageSearchProvider {
     final data = json.decode(utf8.decode(resp.bodyBytes));
     if (data is! Map<String, dynamic>) return const [];
 
-    const allowedMimes = {'image/jpeg', 'image/png', 'image/webp'};
+    const allowedMimes = {'image/jpeg', 'image/png', 'image/webp', 'image/gif'};
     final pages = _sortedWikiPages(data);
     final out = <_RankedResult>[];
 
@@ -595,11 +596,89 @@ class OpenverseSearchProvider implements ImageSearchProvider {
           thumbnail: thumbUrl,
           creator: 'Wikimedia Commons',
           license: 'cc0',
+          mimeType: mime,
         ),
       ));
     }
 
     return out;
+  }
+
+  Future<List<_RankedResult>> _searchCommonsGifs(String query) async {
+    final tokens = _extractTokens(query);
+    if (tokens.isEmpty) return const [];
+    final scoped = tokens.length == 1 ? 'intitle:${tokens.first}' : query;
+    final searchQuery =
+        '$scoped filemime:image/gif -intitle:diagram -intitle:map -intitle:chart';
+    final uri = Uri.parse(
+      'https://commons.wikimedia.org/w/api.php?action=query&generator=search'
+      '&gsrnamespace=6&gsrsearch=${Uri.encodeComponent(searchQuery)}&gsrlimit=12'
+      '&prop=imageinfo&iiprop=url|mime|size|thumburl&iiurlwidth=450&format=json',
+    );
+    try {
+      final resp = await _client
+          .get(uri, headers: mediaHeaders)
+          .timeout(const Duration(seconds: 4));
+
+      if (resp.statusCode == 429) throw const SearchRateLimitException();
+      if (resp.statusCode != 200) return const [];
+
+      final data = json.decode(utf8.decode(resp.bodyBytes));
+      if (data is! Map<String, dynamic>) return const [];
+
+      final pages = _sortedWikiPages(data);
+      final out = <_RankedResult>[];
+
+      for (final page in pages) {
+        final infoList = page['imageinfo'] as List<dynamic>?;
+        if (infoList == null || infoList.isEmpty) continue;
+        final info = infoList.first as Map<String, dynamic>? ?? {};
+
+        final mime = (info['mime'] as String? ?? '').toLowerCase();
+        final fullUrl = info['url'] as String? ?? '';
+        final thumbUrl = info['thumburl'] as String? ?? fullUrl;
+        final sizeBytes = (info['size'] as num?)?.toInt() ?? 0;
+
+        // Ensure real GIF and enforce safety size limit (<=15 MB).
+        final isActualGif = mime == 'image/gif' ||
+            fullUrl.toLowerCase().split('?').first.endsWith('.gif');
+        if (!isActualGif || sizeBytes > 15 * 1024 * 1024) {
+          continue;
+        }
+        if (fullUrl.isEmpty || thumbUrl.isEmpty) continue;
+
+        final cleanTitle = (page['title']?.toString() ?? '')
+            .replaceFirst(RegExp(r'^File:\s*', caseSensitive: false), '')
+            .replaceAll('_', ' ');
+        if (_isNoisyTitle(cleanTitle, query) || _isNoisyTopic(cleanTitle, '', query)) {
+          continue;
+        }
+
+        final idx = (page['index'] as num?)?.toInt() ?? 10;
+        final lowerTitle = cleanTitle.toLowerCase();
+        final tokenMatch = tokens.any((t) => lowerTitle.contains(t));
+        final score = 26 - idx * 2 + (tokenMatch ? 12 : 0);
+
+        out.add(_RankedResult(
+          score,
+          ImageSearchResult(
+            id: 'commons_gif_${page['pageid'] ?? idx}',
+            title: cleanTitle.isEmpty ? '$query (GIF)' : cleanTitle,
+            imageUrl: fullUrl,
+            thumbnail: thumbUrl,
+            creator: 'Wikimedia Commons',
+            license: 'cc0',
+            mimeType: 'image/gif',
+          ),
+        ));
+      }
+
+      return out;
+    } on OfflineModeException {
+      rethrow;
+    } catch (_) {
+      return const [];
+    }
   }
 
   Future<List<_RankedResult>> _searchOpenverseRanked(String query, int pageSize) async {
@@ -697,20 +776,25 @@ class OpenverseSearchProvider implements ImageSearchProvider {
     int pageSize,
   ) {
     final symbols = _dedupSorted(candidates.where((c) => c.item.isSymbol).toList());
-    final photos = _dedupSorted(candidates.where((c) => !c.item.isSymbol).toList());
+    final gifs = _dedupSorted(candidates.where((c) => c.item.isGif).toList());
+    final photos = _dedupSorted(candidates.where((c) => !c.item.isSymbol && !c.item.isGif).toList());
 
     final out = <ImageSearchResult>[];
     var pi = 0;
     var si = 0;
+    var gi = 0;
     final topPhotoStrong = photos.isNotEmpty && photos.first.score >= 42;
 
-    while ((pi < photos.length || si < symbols.length) && out.length < pageSize) {
+    while ((pi < photos.length || si < symbols.length || gi < gifs.length) &&
+        out.length < pageSize) {
       if (topPhotoStrong) {
-        if (pi < photos.length) out.add(photos[pi++].item);
-        if (si < symbols.length && out.length < pageSize) out.add(symbols[si++].item);
-      } else {
-        if (si < symbols.length) out.add(symbols[si++].item);
         if (pi < photos.length && out.length < pageSize) out.add(photos[pi++].item);
+        if (si < symbols.length && out.length < pageSize) out.add(symbols[si++].item);
+        if (gi < gifs.length && out.length < pageSize) out.add(gifs[gi++].item);
+      } else {
+        if (si < symbols.length && out.length < pageSize) out.add(symbols[si++].item);
+        if (pi < photos.length && out.length < pageSize) out.add(photos[pi++].item);
+        if (gi < gifs.length && out.length < pageSize) out.add(gifs[gi++].item);
       }
     }
 
@@ -790,6 +874,14 @@ class OpenverseSearchProvider implements ImageSearchProvider {
           'Image download failed with status ${response.statusCode}',
         );
       }
+      if (response.bodyBytes.isEmpty) {
+        throw const SearchServiceException('Downloaded file is empty.');
+      }
+      if (response.bodyBytes.length > 15 * 1024 * 1024) {
+        throw const SearchServiceException(
+          'Image file is too large (exceeds 15 MB limit). Please pick a smaller image or GIF.',
+        );
+      }
 
       final tempDir = await getTemporaryDirectory();
       final ext = _resolveExtension(response.headers['content-type'], imageUrl);
@@ -824,11 +916,14 @@ class OpenverseSearchProvider implements ImageSearchProvider {
 
   String _resolveExtension(String? contentType, String url) {
     if (contentType != null) {
-      if (contentType.contains('png')) return 'png';
-      if (contentType.contains('jpeg') || contentType.contains('jpg')) return 'jpg';
-      if (contentType.contains('webp')) return 'webp';
+      final ct = contentType.toLowerCase();
+      if (ct.contains('gif')) return 'gif';
+      if (ct.contains('png')) return 'png';
+      if (ct.contains('jpeg') || ct.contains('jpg')) return 'jpg';
+      if (ct.contains('webp')) return 'webp';
     }
-    final lowerUrl = url.toLowerCase();
+    final lowerUrl = url.toLowerCase().split('?').first;
+    if (lowerUrl.endsWith('.gif')) return 'gif';
     if (lowerUrl.endsWith('.png')) return 'png';
     if (lowerUrl.endsWith('.webp')) return 'webp';
     return 'jpg';

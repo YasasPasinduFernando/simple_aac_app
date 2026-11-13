@@ -22,7 +22,7 @@ class SmartImageSearchDialog extends StatefulWidget {
   State<SmartImageSearchDialog> createState() => _SmartImageSearchDialogState();
 }
 
-enum _ResultFilter { all, photos, symbols }
+enum _ResultFilter { all, photos, gifs, symbols }
 
 class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
   late final TextEditingController _searchController;
@@ -399,13 +399,19 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
               const SizedBox(width: 6),
               _buildFilterChip(
                 filter: _ResultFilter.photos,
-                label: 'Photos (${_results.where((r) => !r.isSymbol).length})',
+                label: 'Photos (${_results.where((r) => r.isPhoto).length})',
                 icon: Icons.photo_outlined,
               ),
               const SizedBox(width: 6),
               _buildFilterChip(
+                filter: _ResultFilter.gifs,
+                label: 'GIFs (${_results.where((r) => r.isGif).length})',
+                icon: Icons.gif_box_rounded,
+              ),
+              const SizedBox(width: 6),
+              _buildFilterChip(
                 filter: _ResultFilter.symbols,
-                label: 'AAC (${_results.where((r) => r.isSymbol).length})',
+                label: 'AAC Symbols (${_results.where((r) => r.isSymbol).length})',
                 icon: Icons.accessibility_new_rounded,
               ),
               const SizedBox(width: 6),
@@ -442,7 +448,8 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
             builder: (context) {
               final filtered = switch (_filter) {
                 _ResultFilter.all => _results,
-                _ResultFilter.photos => _results.where((r) => !r.isSymbol).toList(),
+                _ResultFilter.photos => _results.where((r) => r.isPhoto).toList(),
+                _ResultFilter.gifs => _results.where((r) => r.isGif).toList(),
                 _ResultFilter.symbols => _results.where((r) => r.isSymbol).toList(),
               };
               if (filtered.isEmpty) {
@@ -467,7 +474,9 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
                   final isFreeDomain = item.isPublicDomainOrCc0;
                   final badgeLabel = item.isSymbol
                       ? 'AAC'
-                      : (item.creator == 'Wikipedia' ? 'PHOTO' : item.license.toUpperCase());
+                      : (item.isGif
+                          ? 'GIF'
+                          : (item.creator == 'Wikipedia' ? 'PHOTO' : item.license.toUpperCase()));
                   return InkWell(
                     borderRadius: BorderRadius.circular(14),
                     onTap: () {
@@ -532,9 +541,11 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
                                     decoration: BoxDecoration(
                                       color: item.isSymbol
                                           ? Colors.lightBlueAccent
-                                          : (isFreeDomain
-                                              ? Colors.greenAccent
-                                              : Colors.amberAccent),
+                                          : (item.isGif
+                                              ? Colors.purpleAccent
+                                              : (isFreeDomain
+                                                  ? Colors.greenAccent
+                                                  : Colors.amberAccent)),
                                       shape: BoxShape.circle,
                                     ),
                                   ),
@@ -614,21 +625,27 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
                   });
                 },
               ),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Caregiver Confirmation',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
                     ),
                     Text(
-                      'Preview before saving offline',
+                      item.isGif
+                          ? 'Animated GIF loops forever • Works offline'
+                          : 'Preview before saving offline',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 11, color: Colors.grey),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: item.isGif ? Colors.purple.shade300 : Colors.grey,
+                        fontWeight: item.isGif ? FontWeight.w600 : FontWeight.normal,
+                      ),
                     ),
                   ],
                 ),
@@ -684,6 +701,29 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
                 const SizedBox(height: 6),
                 Row(
                   children: [
+                    if (item.isGif) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.withValues(alpha: 0.16),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Colors.purple.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        child: Text(
+                          'ANIMATED GIF',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Colors.purple.shade200
+                                : Colors.purple.shade800,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                    ],
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(

@@ -9,6 +9,7 @@ class ImageSearchResult {
   final String? licenseVersion;
   final String? licenseUrl;
   final String? foreignLandingUrl;
+  final String? mimeType;
 
   const ImageSearchResult({
     required this.id,
@@ -21,9 +22,19 @@ class ImageSearchResult {
     this.licenseVersion,
     this.licenseUrl,
     this.foreignLandingUrl,
+    this.mimeType,
   });
 
   bool get isSymbol => id.startsWith('arasaac_') || creator == 'ARASAAC';
+
+  bool get isGif {
+    if (mimeType?.toLowerCase() == 'image/gif') return true;
+    final lowerUrl = imageUrl.toLowerCase().split('?').first;
+    final lowerThumb = thumbnail.toLowerCase().split('?').first;
+    return lowerUrl.endsWith('.gif') || lowerThumb.endsWith('.gif');
+  }
+
+  bool get isPhoto => !isSymbol && !isGif;
 
   bool get isPublicDomainOrCc0 {
     final l = license.toLowerCase();
@@ -35,13 +46,14 @@ class ImageSearchResult {
       id: json['id']?.toString() ?? '',
       title: json['title']?.toString() ?? 'Untitled AAC Image',
       thumbnail: json['thumbnail']?.toString() ?? json['url']?.toString() ?? '',
-      imageUrl: json['url']?.toString() ?? '',
+      imageUrl: json['url']?.toString() ?? json['imageUrl']?.toString() ?? '',
       creator: json['creator']?.toString() ?? 'Anonymous',
-      creatorUrl: json['creator_url']?.toString(),
+      creatorUrl: json['creator_url']?.toString() ?? json['creatorUrl']?.toString(),
       license: json['license']?.toString().toLowerCase() ?? 'cc0',
-      licenseVersion: json['license_version']?.toString(),
-      licenseUrl: json['license_url']?.toString(),
-      foreignLandingUrl: json['foreign_landing_url']?.toString(),
+      licenseVersion: json['license_version']?.toString() ?? json['licenseVersion']?.toString(),
+      licenseUrl: json['license_url']?.toString() ?? json['licenseUrl']?.toString(),
+      foreignLandingUrl: json['foreign_landing_url']?.toString() ?? json['foreignLandingUrl']?.toString(),
+      mimeType: json['mime_type']?.toString() ?? json['mimeType']?.toString() ?? json['filetype']?.toString(),
     );
   }
 
@@ -56,5 +68,6 @@ class ImageSearchResult {
     'licenseVersion': licenseVersion,
     'licenseUrl': licenseUrl,
     'foreignLandingUrl': foreignLandingUrl,
+    'mimeType': mimeType,
   };
 }
