@@ -29,8 +29,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.simple_aac_app"
+        // Correct production Application ID matching published Google Play listing.
+        applicationId = "lk.yasas.simpleaac"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
