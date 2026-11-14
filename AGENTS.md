@@ -8,12 +8,14 @@ Welcome to the **Simple AAC** codebase. This document is the primary reference f
 
 **Simple AAC (Sri Lanka)** is an Augmentative and Alternative Communication (AAC) application designed for non-verbal individuals, children with speech delays, autistic communicators, and adults recovering from stroke or speech impairment.
 
-* **Target Version:** `v1.1.0` (versionCode `4`)
+* **Target Version:** `v1.1.0` (Build `8`, `versionCode = 8`)
+* **Production Package ID:** `lk.yasas.simpleaac`
+* **Isolated Dev Package ID:** `lk.yasas.simpleaac.dev`
 * **Target Release Date:** November 14, 2026
 * **Target Release Branch:** `release/play-2026-11-14`
 * **Release Worktree:** `/media/yasas/New Volume2/yasas/PersonalProjects/simple aac/simple_aac_play_release`
 * **Language Support:** Trilingual (Sinhala `si`, Tamil `ta`, English `en`)
-* **Platform:** Flutter 3.47+ / Dart 3.13+ targeting Android (Min SDK 21, Target SDK 34) and iOS.
+* **Platform:** Flutter 3.47+ / Dart 3.13+ targeting Android (Min SDK 24, Target SDK 36) and iOS.
 
 ---
 
@@ -95,6 +97,8 @@ git status
 
 ## 5. Documentation & Release Knowledge
 
+* **Play Store Signing & Identity Guide:** `docs/releases/PLAY_STORE_SIGNING_AND_IDENTITY_GUIDE.md`
+* **Release Management Skill:** `.agents/skills/release-management/SKILL.md`
 * **Design System Reference:** `docs/design/DESIGN_SYSTEM.md`
 * **November 14 Release Log:** `docs/releases/2026-11-14-v1.1.0.md`
 * **Release Readiness Report:** `NOV14_PLAY_RELEASE_READINESS_REPORT.md`
@@ -109,3 +113,5 @@ git status
 2. **Never Report Unexecuted Checks as Passed:** Always run the actual commands and inspect the output.
 3. **No Unapproved Push or Publish:** Never execute `git push`, merges to main, or Play Console deployments without explicit user confirmation.
 4. **Preserve User Data:** Never wipe user cards, voice recordings, or camera images during migrations or testing.
+5. **Strict Production Package ID (`lk.yasas.simpleaac`):** The production `applicationId` MUST ALWAYS be `lk.yasas.simpleaac`. Never revert to `com.example.simple_aac_app`. Keep `namespace = "com.example.simple_aac_app"` separate from `applicationId` in `build.gradle.kts`. Debug variants use `applicationIdSuffix = ".dev"` (`lk.yasas.simpleaac.dev`).
+6. **Official Upload Key Requirement:** Production releases MUST be signed with `/home/yasas/simple-aac-signing/simple-aac-upload.jks` (alias `simpleaacupload`, RSA 3072, SHA-256 fingerprint `81:18:50:33:8F:19:CB:0D:02:6E:99:76:3D:75:6F:23:BE:10:B1:C3:F0:B8:54:EA:09:70:EC:14:AD:CD:14:88`). Never commit `.jks`, passwords, or `key.properties` to Git.
