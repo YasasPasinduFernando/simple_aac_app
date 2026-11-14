@@ -357,4 +357,176 @@ void main() {
     expect(find.text('ඇපල්'), findsOneWidget);
     expect(find.text('ஆப்பிள்'), findsOneWidget);
   });
+
+  testWidgets(
+      'Full ML Kit camera-to-trilingual-auto-fill workflow: auto-fill, save, persist, reopen, overwrite guard (keep & update), and re-persist',
+      (tester) async {
+    // 1. Start with an empty card with camera detection labels
+    final initialCard = AACCard(
+      id: 'flow_card_1',
+      label: '',
+      labelSinhala: '',
+      labelTamil: '',
+      imagePath: 'assets/images/seed/apple.jpg',
+      colorValue: 0xFF90CAF9,
+      category: 'General',
+    );
+
+    CardEditorAction? resultAction;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () async {
+                resultAction = await showDialog<CardEditorAction>(
+                  context: context,
+                  builder: (_) => CardEditorDialog(
+                    card: initialCard,
+                    isNew: true,
+                    categories: const ['All', 'General'],
+                    audioPlayer: _FakeAudioPlayer(),
+                    initialCameraAnalysis: const CameraAnalysisResult(
+                      hasObject: true,
+                      isTooDarkOrBlank: false,
+                      labels: ['Apple', 'Water'],
+                      topConfidence: 0.98,
+                      objectCount: 2,
+                      analyzerAvailable: true,
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Open Dialog'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Open dialog
+    await tester.tap(find.text('Open Dialog'));
+    await tester.pumpAndSettle();
+
+    // Verify detection chips appear
+    expect(find.text('Apple'), findsOneWidget);
+    expect(find.text('Water'), findsOneWidget);
+
+    // Tap 'Apple' chip -> auto-fills English, Sinhala, Tamil
+    await tester.tap(find.text('Apple'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextField, 'Apple'), findsOneWidget);
+    expect(find.text('ඇපල්'), findsOneWidget);
+    expect(find.text('ஆப்பிள்'), findsOneWidget);
+
+    // Tap Save Card button
+    await tester.tap(find.text('Save Card'));
+    await tester.pumpAndSettle();
+
+    expect(resultAction, CardEditorAction.saved);
+    expect(initialCard.label, 'Apple');
+    expect(initialCard.labelSinhala, 'ඇපල්');
+    expect(initialCard.labelTamil, 'ஆப்பிள்');
+
+    // 2. Persist to JSON and reload (simulating app storage / restart)
+    final savedJson = initialCard.toJson();
+    final reloadedCard = AACCard.fromJson(savedJson);
+
+    expect(reloadedCard.label, 'Apple');
+    expect(reloadedCard.labelSinhala, 'ඇපල්');
+    expect(reloadedCard.labelTamil, 'ஆப்பிள்');
+
+    // 3. Reopen dialog with the reloaded card
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () async {
+                resultAction = await showDialog<CardEditorAction>(
+                  context: context,
+                  builder: (_) => CardEditorDialog(
+                    card: reloadedCard,
+                    isNew: false,
+                    categories: const ['All', 'General'],
+                    audioPlayer: _FakeAudioPlayer(),
+                    initialCameraAnalysis: const CameraAnalysisResult(
+                      hasObject: true,
+                      isTooDarkOrBlank: false,
+                      labels: ['Water'],
+                      topConfidence: 0.95,
+                      objectCount: 1,
+                      analyzerAvailable: true,
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Reopen Dialog'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Reopen Dialog'));
+    await tester.pumpAndSettle();
+
+    // Verify initial values in reopened dialog
+    expect(find.widgetWithText(TextField, 'Apple'), findsOneWidget);
+    expect(find.text('ඇපල්'), findsOneWidget);
+    expect(find.text('ஆப்பிள்'), findsOneWidget);
+
+    // Tap conflicting 'Water' chip
+    await tester.tap(find.text('Water'));
+    await tester.pumpAndSettle();
+
+    // Verify overwrite confirmation dialog appears with diffs
+    expect(find.text('Update Card Labels?'), findsOneWidget);
+    expect(find.text('Keep Current'), findsOneWidget);
+    expect(find.text('Update Labels'), findsOneWidget);
+
+    // User chooses 'Keep Current'
+    await tester.tap(find.text('Keep Current'));
+    await tester.pumpAndSettle();
+
+    // Verify values remain unchanged
+    expect(find.text('Update Card Labels?'), findsNothing);
+    expect(find.widgetWithText(TextField, 'Apple'), findsOneWidget);
+    expect(find.text('ඇපල්'), findsOneWidget);
+    expect(find.text('ஆப்பிள்'), findsOneWidget);
+
+    // Tap conflicting 'Water' chip again
+    await tester.tap(find.text('Water'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Update Card Labels?'), findsOneWidget);
+
+    // User chooses 'Update Labels'
+    await tester.tap(find.text('Update Labels'));
+    await tester.pumpAndSettle();
+
+    // Verify updated to Water, වතුර, தண்ணீர்
+    expect(find.text('Update Card Labels?'), findsNothing);
+    expect(find.widgetWithText(TextField, 'Water'), findsOneWidget);
+    expect(find.text('වතුර'), findsOneWidget);
+    expect(find.text('தண்ணீர்'), findsOneWidget);
+
+    // Save updated card
+    await tester.tap(find.text('Save Card'));
+    await tester.pumpAndSettle();
+
+    expect(resultAction, CardEditorAction.saved);
+    expect(reloadedCard.label, 'Water');
+    expect(reloadedCard.labelSinhala, 'වතුර');
+    expect(reloadedCard.labelTamil, 'தண்ணீர்');
+
+    // 4. Re-persist and verify final round-trip
+    final finalJson = reloadedCard.toJson();
+    final finalCard = AACCard.fromJson(finalJson);
+    expect(finalCard.label, 'Water');
+    expect(finalCard.labelSinhala, 'වතුර');
+    expect(finalCard.labelTamil, 'தண்ணீர்');
+  });
 }

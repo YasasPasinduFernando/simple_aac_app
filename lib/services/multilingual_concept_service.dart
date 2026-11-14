@@ -256,7 +256,6 @@ class MultilingualConceptService {
     'toilet': 'clean toilet bathroom',
     'bathroom': 'clean toilet bathroom',
     'වැසිකිලිය': 'clean toilet bathroom',
-    'කழிப்பறை': 'clean toilet bathroom',
     'கழிப்பறை': 'clean toilet bathroom',
     'கழிவறை': 'clean toilet bathroom',
     'bus': 'passenger bus',
