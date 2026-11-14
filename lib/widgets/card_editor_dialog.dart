@@ -892,36 +892,40 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         currentTa.isNotEmpty &&
         currentTa != targetTa;
 
+    final Set<String> languagesToUpdate;
+
     if (hasConflictingEn || hasConflictingSi || hasConflictingTa) {
-      final shouldUpdate = await _showOverwriteConfirmationDialog(
+      final selected = await _showOverwriteConfirmationDialog(
         targetEn: targetEn,
         targetSi: targetSi,
         targetTa: targetTa,
-        hasConflictingEn: hasConflictingEn,
-        hasConflictingSi: hasConflictingSi,
-        hasConflictingTa: hasConflictingTa,
       );
-      if (shouldUpdate != true || !mounted) {
+      if (selected == null || selected.isEmpty || !mounted) {
         return;
       }
+      languagesToUpdate = selected;
+    } else {
+      languagesToUpdate = const {'en', 'si', 'ta'};
     }
 
     if (!mounted) return;
 
     setState(() {
-      _controllerEn.text = targetEn;
-      _controllerEn.selection = TextSelection.fromPosition(
-        TextPosition(offset: targetEn.length),
-      );
+      if (languagesToUpdate.contains('en')) {
+        _controllerEn.text = targetEn;
+        _controllerEn.selection = TextSelection.fromPosition(
+          TextPosition(offset: targetEn.length),
+        );
+      }
 
-      if (targetSi != null) {
+      if (languagesToUpdate.contains('si') && targetSi != null) {
         _controllerSi.text = targetSi;
         _controllerSi.selection = TextSelection.fromPosition(
           TextPosition(offset: targetSi.length),
         );
       }
 
-      if (targetTa != null) {
+      if (languagesToUpdate.contains('ta') && targetTa != null) {
         _controllerTa.text = targetTa;
         _controllerTa.selection = TextSelection.fromPosition(
           TextPosition(offset: targetTa.length),
@@ -929,129 +933,361 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       }
     });
 
-    final hasTrilingual = targetSi != null && targetTa != null;
+    final updatedCount = languagesToUpdate.length;
+    final hasTrilingual = targetSi != null && targetTa != null && updatedCount == 3;
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           hasTrilingual
               ? 'Auto-filled English, Sinhala & Tamil labels'
-              : 'Set English label: "$targetEn"',
+              : (updatedCount == 1 && languagesToUpdate.contains('en') && targetSi == null
+                  ? 'Set English label: "$targetEn"'
+                  : 'Updated selected labels ($updatedCount)'),
         ),
         duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  Future<bool?> _showOverwriteConfirmationDialog({
+  Future<Set<String>?> _showOverwriteConfirmationDialog({
     required String targetEn,
     required String? targetSi,
     required String? targetTa,
-    required bool hasConflictingEn,
-    required bool hasConflictingSi,
-    required bool hasConflictingTa,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    return showDialog<bool>(
+    final currentEn = _controllerEn.text.trim();
+    final currentSi = _controllerSi.text.trim();
+    final currentTa = _controllerTa.text.trim();
+
+    final repSi = (targetSi != null && targetSi.isNotEmpty) ? targetSi : '(unavailable)';
+    final repTa = (targetTa != null && targetTa.isNotEmpty) ? targetTa : '(unavailable)';
+
+    return showDialog<Set<String>>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        title: StyledDialogHeader(
-          icon: Icons.translate_rounded,
-          title: 'Update Card Labels?',
-          subtitle: 'Replace existing manual text',
-          accentColor: colorScheme.primary,
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'This card already has custom labels. Do you want to update them with the recognized word and translations?',
-                style: TextStyle(fontSize: 13, height: 1.4),
+      builder: (ctx) {
+        final selectedLanguages = <String>{'en', 'si', 'ta'};
+
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            final allSelected = selectedLanguages.length == 3;
+            final selectedCount = selectedLanguages.length;
+
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
               ),
-              const SizedBox(height: 14),
-              if (hasConflictingEn) ...[
-                _buildDiffRow('English', _controllerEn.text.trim(), targetEn, colorScheme),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              titlePadding: const EdgeInsets.fromLTRB(18, 18, 18, 10),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 18),
+              actionsPadding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+              actionsOverflowButtonSpacing: 8,
+              actionsOverflowDirection: VerticalDirection.down,
+              title: StyledDialogHeader(
+                icon: Icons.translate_rounded,
+                title: 'Update card labels',
+                subtitle: 'Choose which labels to replace',
+                accentColor: colorScheme.primary,
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 6,
+                        children: [
+                          Text(
+                            selectedCount == 3
+                                ? 'All 3 selected'
+                                : '$selectedCount of 3 selected',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          InkWell(
+                            borderRadius: BorderRadius.circular(8),
+                            onTap: () {
+                              setDialogState(() {
+                                if (allSelected) {
+                                  selectedLanguages.clear();
+                                } else {
+                                  selectedLanguages.addAll(['en', 'si', 'ta']);
+                                }
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: Checkbox(
+                                      value: allSelected
+                                          ? true
+                                          : (selectedCount > 0 ? null : false),
+                                      tristate: true,
+                                      onChanged: (val) {
+                                        setDialogState(() {
+                                          if (val == true || !allSelected) {
+                                            selectedLanguages.addAll(['en', 'si', 'ta']);
+                                          } else {
+                                            selectedLanguages.clear();
+                                          }
+                                        });
+                                      },
+                                      activeColor: colorScheme.primary,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Select all',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: colorScheme.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildLanguageSelectionCard(
+                      langCode: 'en',
+                      langName: 'English',
+                      current: currentEn,
+                      replacement: targetEn,
+                      isSelected: selectedLanguages.contains('en'),
+                      onToggle: (checked) {
+                        setDialogState(() {
+                          if (checked) {
+                            selectedLanguages.add('en');
+                          } else {
+                            selectedLanguages.remove('en');
+                          }
+                        });
+                      },
+                      colorScheme: colorScheme,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildLanguageSelectionCard(
+                      langCode: 'si',
+                      langName: 'Sinhala',
+                      current: currentSi,
+                      replacement: repSi,
+                      isSelected: selectedLanguages.contains('si'),
+                      onToggle: (checked) {
+                        setDialogState(() {
+                          if (checked) {
+                            selectedLanguages.add('si');
+                          } else {
+                            selectedLanguages.remove('si');
+                          }
+                        });
+                      },
+                      colorScheme: colorScheme,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildLanguageSelectionCard(
+                      langCode: 'ta',
+                      langName: 'Tamil',
+                      current: currentTa,
+                      replacement: repTa,
+                      isSelected: selectedLanguages.contains('ta'),
+                      onToggle: (checked) {
+                        setDialogState(() {
+                          if (checked) {
+                            selectedLanguages.add('ta');
+                          } else {
+                            selectedLanguages.remove('ta');
+                          }
+                        });
+                      },
+                      colorScheme: colorScheme,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Uncheck a label to keep its current text',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(ctx, null),
+                        child: const Text('Keep current', maxLines: 1),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: selectedCount == 0
+                            ? null
+                            : () => Navigator.pop(ctx, Set<String>.from(selectedLanguages)),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                        ),
+                        child: Text(
+                          'Update selected ($selectedCount)',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
-              if (hasConflictingSi && targetSi != null) ...[
-                if (hasConflictingEn) const SizedBox(height: 8),
-                _buildDiffRow('Sinhala', _controllerSi.text.trim(), targetSi, colorScheme),
-              ],
-              if (hasConflictingTa && targetTa != null) ...[
-                if (hasConflictingEn || (hasConflictingSi && targetSi != null))
-                  const SizedBox(height: 8),
-                _buildDiffRow('Tamil', _controllerTa.text.trim(), targetTa, colorScheme),
-              ],
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Keep Current'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Update Labels'),
-          ),
-        ],
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
-  Widget _buildDiffRow(
-    String lang,
-    String current,
-    String replacement,
-    ColorScheme colorScheme,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colorScheme.outlineVariant),
+  Widget _buildLanguageSelectionCard({
+    required String langCode,
+    required String langName,
+    required String current,
+    required String replacement,
+    required bool isSelected,
+    required ValueChanged<bool> onToggle,
+    required ColorScheme colorScheme,
+  }) {
+    final hasDarkBg = Theme.of(context).brightness == Brightness.dark;
+    final selectedBg = hasDarkBg
+        ? colorScheme.primaryContainer.withValues(alpha: 0.25)
+        : const Color(0xFFF0F7FF);
+    final unselectedBg = hasDarkBg
+        ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+        : Colors.transparent;
+
+    final selectedBorder = colorScheme.primary.withValues(alpha: 0.4);
+    final unselectedBorder = colorScheme.outlineVariant.withValues(alpha: 0.7);
+
+    return Material(
+      color: isSelected ? selectedBg : unselectedBg,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isSelected ? selectedBorder : unselectedBorder,
+          width: isSelected ? 1.4 : 1.0,
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            lang,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Row(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => onToggle(!isSelected),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(
-                child: Text(
-                  current.isEmpty ? '(empty)' : current,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colorScheme.outline,
-                    decoration: TextDecoration.lineThrough,
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: Checkbox(
+                  value: isSelected,
+                  onChanged: (v) => onToggle(v ?? false),
+                  activeColor: colorScheme.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
                   ),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ),
-              Icon(Icons.arrow_forward_rounded, size: 14, color: colorScheme.primary),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
+              Container(
+                width: 1,
+                height: 32,
+                color: colorScheme.outlineVariant.withValues(alpha: 0.6),
+              ),
+              const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  replacement,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      langName,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: isSelected
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            current.isEmpty ? '(empty)' : current,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: isSelected
+                                  ? colorScheme.onSurfaceVariant
+                                  : colorScheme.outline,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 15,
+                            color: isSelected
+                                ? colorScheme.primary
+                                : colorScheme.outline,
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            replacement,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: isSelected
+                                  ? colorScheme.onSurface
+                                  : colorScheme.onSurface.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

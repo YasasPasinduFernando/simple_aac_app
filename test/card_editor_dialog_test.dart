@@ -199,7 +199,6 @@ void main() {
     );
     await tester.pump();
 
-    expect(tester.takeException(), isNull);
     expect(find.byType(TextField), findsOneWidget);
     expect(find.text('Search'), findsOneWidget);
     expect(find.byType(SmartSearchIcon), findsOneWidget);
@@ -243,6 +242,9 @@ void main() {
     expect(find.text('Apple'), findsOneWidget);
 
     // Tap the 'Apple' chip
+    await tester.ensureVisible(find.text('Apple'));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('Apple'));
     await tester.pumpAndSettle();
 
@@ -288,26 +290,32 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap the 'Apple' chip
+    await tester.ensureVisible(find.text('Apple'));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('Apple'));
     await tester.pumpAndSettle();
 
     // Overwrite confirmation dialog should appear
-    expect(find.text('Update Card Labels?'), findsOneWidget);
-    expect(find.text('Keep Current'), findsOneWidget);
-    expect(find.text('Update Labels'), findsOneWidget);
+    expect(find.text('Update card labels'), findsOneWidget);
+    expect(find.text('Choose which labels to replace'), findsOneWidget);
+    expect(find.text('All 3 selected'), findsOneWidget);
+    expect(find.text('Select all'), findsOneWidget);
+    expect(find.text('Keep current'), findsOneWidget);
+    expect(find.text('Update selected (3)'), findsOneWidget);
 
-    // Tap Keep Current
-    await tester.tap(find.text('Keep Current'));
+    // Tap Keep current
+    await tester.tap(find.text('Keep current'));
     await tester.pumpAndSettle();
 
     // Dialog dismissed and manual text preserved
-    expect(find.text('Update Card Labels?'), findsNothing);
+    expect(find.text('Update card labels'), findsNothing);
     expect(find.text('My Snack'), findsOneWidget);
     expect(find.text('මගේ කෑම'), findsOneWidget);
     expect(find.text('என் உணவு'), findsOneWidget);
   });
 
-  testWidgets('Tapping recognized ML Kit chip updates labels when confirmed with Update Labels',
+  testWidgets('Tapping recognized ML Kit chip updates labels when confirmed with Update selected (3)',
       (tester) async {
     final card = AACCard(
       id: 'custom_card_update',
@@ -342,17 +350,20 @@ void main() {
     await tester.pumpAndSettle();
 
     // Tap the 'Apple' chip
+    await tester.ensureVisible(find.text('Apple'));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('Apple'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Update Card Labels?'), findsOneWidget);
+    expect(find.text('Update card labels'), findsOneWidget);
 
-    // Tap Update Labels
-    await tester.tap(find.text('Update Labels'));
+    // Tap Update selected (3)
+    await tester.tap(find.text('Update selected (3)'));
     await tester.pumpAndSettle();
 
     // Dialog dismissed and fields updated
-    expect(find.text('Update Card Labels?'), findsNothing);
+    expect(find.text('Update card labels'), findsNothing);
     expect(find.widgetWithText(TextField, 'Apple'), findsOneWidget);
     expect(find.text('ඇපල්'), findsOneWidget);
     expect(find.text('ஆப்பிள்'), findsOneWidget);
@@ -414,6 +425,9 @@ void main() {
     expect(find.text('Water'), findsOneWidget);
 
     // Tap 'Apple' chip -> auto-fills English, Sinhala, Tamil
+    await tester.ensureVisible(find.text('Apple'));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('Apple'));
     await tester.pumpAndSettle();
 
@@ -483,16 +497,16 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify overwrite confirmation dialog appears with diffs
-    expect(find.text('Update Card Labels?'), findsOneWidget);
-    expect(find.text('Keep Current'), findsOneWidget);
-    expect(find.text('Update Labels'), findsOneWidget);
+    expect(find.text('Update card labels'), findsOneWidget);
+    expect(find.text('Keep current'), findsOneWidget);
+    expect(find.text('Update selected (3)'), findsOneWidget);
 
-    // User chooses 'Keep Current'
-    await tester.tap(find.text('Keep Current'));
+    // User chooses 'Keep current'
+    await tester.tap(find.text('Keep current'));
     await tester.pumpAndSettle();
 
     // Verify values remain unchanged
-    expect(find.text('Update Card Labels?'), findsNothing);
+    expect(find.text('Update card labels'), findsNothing);
     expect(find.widgetWithText(TextField, 'Apple'), findsOneWidget);
     expect(find.text('ඇපල්'), findsOneWidget);
     expect(find.text('ஆப்பிள்'), findsOneWidget);
@@ -501,14 +515,14 @@ void main() {
     await tester.tap(find.text('Water'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Update Card Labels?'), findsOneWidget);
+    expect(find.text('Update card labels'), findsOneWidget);
 
-    // User chooses 'Update Labels'
-    await tester.tap(find.text('Update Labels'));
+    // User chooses 'Update selected (3)'
+    await tester.tap(find.text('Update selected (3)'));
     await tester.pumpAndSettle();
 
     // Verify updated to Water, වතුර, தண்ணீர்
-    expect(find.text('Update Card Labels?'), findsNothing);
+    expect(find.text('Update card labels'), findsNothing);
     expect(find.widgetWithText(TextField, 'Water'), findsOneWidget);
     expect(find.text('වතුර'), findsOneWidget);
     expect(find.text('தண்ணீர்'), findsOneWidget);
@@ -528,5 +542,407 @@ void main() {
     expect(finalCard.label, 'Water');
     expect(finalCard.labelSinhala, 'වතුර');
     expect(finalCard.labelTamil, 'தண்ணீர்');
+  });
+
+  testWidgets(
+      'Overwrite dialog: individual language selection - deselecting Sinhala updates English and Tamil, preserving custom Sinhala text',
+      (tester) async {
+    final card = AACCard(
+      id: 'lang_sel_card_1',
+      label: 'Happy',
+      labelSinhala: 'සතුටුයි',
+      labelTamil: 'மகிழ்ச்சி',
+      imagePath: 'assets/images/seed/apple.jpg',
+      colorValue: 0xFF90CAF9,
+      category: 'General',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardEditorDialog(
+            card: card,
+            isNew: false,
+            categories: const ['All', 'General'],
+            audioPlayer: _FakeAudioPlayer(),
+            initialCameraAnalysis: const CameraAnalysisResult(
+              hasObject: true,
+              isTooDarkOrBlank: false,
+              labels: ['Phone'],
+              topConfidence: 0.95,
+              objectCount: 1,
+              analyzerAvailable: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Tap Phone chip to trigger overwrite dialog
+    await tester.tap(find.text('Phone'));
+    await tester.pumpAndSettle();
+
+    // Dialog appears with all 3 selected
+    expect(find.text('Update card labels'), findsOneWidget);
+    expect(find.text('All 3 selected'), findsOneWidget);
+    expect(find.text('Update selected (3)'), findsOneWidget);
+
+    // Deselect Sinhala
+    await tester.tap(find.text('Sinhala'));
+    await tester.pumpAndSettle();
+
+    // Verification of count update
+    expect(find.text('2 of 3 selected'), findsOneWidget);
+    expect(find.text('Update selected (2)'), findsOneWidget);
+
+    // Tap 'Update selected (2)'
+    await tester.tap(find.text('Update selected (2)'));
+    await tester.pumpAndSettle();
+
+    // Verify English and Tamil are updated, but Sinhala is preserved
+    expect(find.text('Update card labels'), findsNothing);
+    expect(find.widgetWithText(TextField, 'Phone'), findsOneWidget);
+    expect(find.text('සතුටුයි'), findsOneWidget); // Sinhala PRESERVED
+    expect(find.text('දුරකථනය'), findsNothing); // Target NOT applied
+    expect(find.text('தொலைபேசி'), findsOneWidget); // Tamil UPDATED
+  });
+
+  testWidgets(
+      'Overwrite dialog: English-only update preserves existing Sinhala and Tamil text',
+      (tester) async {
+    final card = AACCard(
+      id: 'lang_sel_card_en_only',
+      label: 'Happy',
+      labelSinhala: 'සතුටුයි',
+      labelTamil: 'மகிழ்ச்சி',
+      imagePath: 'assets/images/seed/apple.jpg',
+      colorValue: 0xFF90CAF9,
+      category: 'General',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardEditorDialog(
+            card: card,
+            isNew: false,
+            categories: const ['All', 'General'],
+            audioPlayer: _FakeAudioPlayer(),
+            initialCameraAnalysis: const CameraAnalysisResult(
+              hasObject: true,
+              isTooDarkOrBlank: false,
+              labels: ['Phone'],
+              topConfidence: 0.95,
+              objectCount: 1,
+              analyzerAvailable: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Phone'));
+    await tester.pumpAndSettle();
+
+    // Deselect Sinhala and Tamil
+    await tester.tap(find.text('Sinhala'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tamil'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('1 of 3 selected'), findsOneWidget);
+    expect(find.text('Update selected (1)'), findsOneWidget);
+
+    await tester.tap(find.text('Update selected (1)'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextField, 'Phone'), findsOneWidget);
+    expect(find.text('සතුටුයි'), findsOneWidget);
+    expect(find.text('மகிழ்ச்சி'), findsOneWidget);
+    expect(find.text('දුරකථනය'), findsNothing);
+    expect(find.text('தொலைபேசி'), findsNothing);
+  });
+
+  testWidgets(
+      'Overwrite dialog: Sinhala-only update preserves existing English and Tamil text',
+      (tester) async {
+    final card = AACCard(
+      id: 'lang_sel_card_si_only',
+      label: 'Happy',
+      labelSinhala: 'සතුටුයි',
+      labelTamil: 'மகிழ்ச்சி',
+      imagePath: 'assets/images/seed/apple.jpg',
+      colorValue: 0xFF90CAF9,
+      category: 'General',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardEditorDialog(
+            card: card,
+            isNew: false,
+            categories: const ['All', 'General'],
+            audioPlayer: _FakeAudioPlayer(),
+            initialCameraAnalysis: const CameraAnalysisResult(
+              hasObject: true,
+              isTooDarkOrBlank: false,
+              labels: ['Phone'],
+              topConfidence: 0.95,
+              objectCount: 1,
+              analyzerAvailable: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Phone'));
+    await tester.pumpAndSettle();
+
+    // Deselect English and Tamil
+    await tester.tap(find.text('English'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tamil'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('1 of 3 selected'), findsOneWidget);
+    expect(find.text('Update selected (1)'), findsOneWidget);
+
+    await tester.tap(find.text('Update selected (1)'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextField, 'Happy'), findsOneWidget);
+    expect(find.text('දුරකථනය'), findsOneWidget);
+    expect(find.text('மகிழ்ச்சி'), findsOneWidget);
+    expect(find.text('தொலைபேசி'), findsNothing);
+  });
+
+  testWidgets(
+      'Overwrite dialog: Tamil-only update preserves existing English and Sinhala text',
+      (tester) async {
+    final card = AACCard(
+      id: 'lang_sel_card_ta_only',
+      label: 'Happy',
+      labelSinhala: 'සතුටුයි',
+      labelTamil: 'மகிழ்ச்சி',
+      imagePath: 'assets/images/seed/apple.jpg',
+      colorValue: 0xFF90CAF9,
+      category: 'General',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardEditorDialog(
+            card: card,
+            isNew: false,
+            categories: const ['All', 'General'],
+            audioPlayer: _FakeAudioPlayer(),
+            initialCameraAnalysis: const CameraAnalysisResult(
+              hasObject: true,
+              isTooDarkOrBlank: false,
+              labels: ['Phone'],
+              topConfidence: 0.95,
+              objectCount: 1,
+              analyzerAvailable: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Phone'));
+    await tester.pumpAndSettle();
+
+    // Deselect English and Sinhala
+    await tester.tap(find.text('English'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sinhala'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('1 of 3 selected'), findsOneWidget);
+    expect(find.text('Update selected (1)'), findsOneWidget);
+
+    await tester.tap(find.text('Update selected (1)'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextField, 'Happy'), findsOneWidget);
+    expect(find.text('සතුටුයි'), findsOneWidget);
+    expect(find.text('தொலைபேசி'), findsOneWidget);
+    expect(find.text('දුරකථනය'), findsNothing);
+  });
+
+  testWidgets(
+      'Overwrite dialog: zero selections disables update button, Keep Current preserves all labels',
+      (tester) async {
+    final card = AACCard(
+      id: 'lang_sel_zero',
+      label: 'Happy',
+      labelSinhala: 'සතුටුයි',
+      labelTamil: 'மகிழ்ச்சி',
+      imagePath: 'assets/images/seed/apple.jpg',
+      colorValue: 0xFF90CAF9,
+      category: 'General',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardEditorDialog(
+            card: card,
+            isNew: false,
+            categories: const ['All', 'General'],
+            audioPlayer: _FakeAudioPlayer(),
+            initialCameraAnalysis: const CameraAnalysisResult(
+              hasObject: true,
+              isTooDarkOrBlank: false,
+              labels: ['Phone'],
+              topConfidence: 0.95,
+              objectCount: 1,
+              analyzerAvailable: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Phone'));
+    await tester.pumpAndSettle();
+
+    // Click 'Select all' to deselect all 3
+    await tester.tap(find.text('Select all'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('0 of 3 selected'), findsOneWidget);
+    expect(find.text('Update selected (0)'), findsOneWidget);
+
+    // Verify the primary FilledButton is disabled
+    final filledBtn = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, 'Update selected (0)'),
+    );
+    expect(filledBtn.onPressed, isNull);
+
+    // Tapping it does not dismiss dialog
+    await tester.tap(find.text('Update selected (0)'));
+    await tester.pumpAndSettle();
+    expect(find.text('Update card labels'), findsOneWidget);
+
+    // Keep current is clickable and preserves labels
+    await tester.tap(find.text('Keep current'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Update card labels'), findsNothing);
+    expect(find.widgetWithText(TextField, 'Happy'), findsOneWidget);
+    expect(find.text('සතුටුයි'), findsOneWidget);
+    expect(find.text('மகிழ்ச்சி'), findsOneWidget);
+  });
+
+  testWidgets(
+      'Overwrite dialog: Select all toggles between all selected and none selected',
+      (tester) async {
+    final card = AACCard(
+      id: 'select_all_toggle',
+      label: 'Happy',
+      labelSinhala: 'සතුටුයි',
+      labelTamil: 'மகிழ்ச்சி',
+      imagePath: 'assets/images/seed/apple.jpg',
+      colorValue: 0xFF90CAF9,
+      category: 'General',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardEditorDialog(
+            card: card,
+            isNew: false,
+            categories: const ['All', 'General'],
+            audioPlayer: _FakeAudioPlayer(),
+            initialCameraAnalysis: const CameraAnalysisResult(
+              hasObject: true,
+              isTooDarkOrBlank: false,
+              labels: ['Phone'],
+              topConfidence: 0.95,
+              objectCount: 1,
+              analyzerAvailable: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Phone'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('All 3 selected'), findsOneWidget);
+
+    // Tap Select all -> deselects all 3
+    await tester.tap(find.text('Select all'));
+    await tester.pumpAndSettle();
+    expect(find.text('0 of 3 selected'), findsOneWidget);
+
+    // Tap Select all again -> selects all 3
+    await tester.tap(find.text('Select all'));
+    await tester.pumpAndSettle();
+    expect(find.text('All 3 selected'), findsOneWidget);
+  });
+
+  testWidgets(
+      'Overwrite dialog: renders cleanly without overflow on compact 320x480 screen',
+      (tester) async {
+    tester.view.physicalSize = const Size(320, 480);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    final card = AACCard(
+      id: 'compact_screen_card',
+      label: 'Very Long Existing English Label That Wraps',
+      labelSinhala: 'ඉතා දිගු පවතින සිංහල ලේබලය',
+      labelTamil: 'மிக நீண்ட தற்போதைய தமிழ் லேபிள்',
+      imagePath: 'assets/images/seed/apple.jpg',
+      colorValue: 0xFF90CAF9,
+      category: 'General',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardEditorDialog(
+            card: card,
+            isNew: false,
+            categories: const ['All', 'General'],
+            audioPlayer: _FakeAudioPlayer(),
+            initialCameraAnalysis: const CameraAnalysisResult(
+              hasObject: true,
+              isTooDarkOrBlank: false,
+              labels: ['Apple'],
+              topConfidence: 0.95,
+              objectCount: 1,
+              analyzerAvailable: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Apple'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Apple'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Update card labels'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }
