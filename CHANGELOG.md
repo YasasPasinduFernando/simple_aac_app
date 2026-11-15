@@ -46,6 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Native biometrics (fingerprint/face) and device lock pattern/PIN protection with fallback PIN.
 - **Reactive Live Previews (`e59eca6`):**
   - Live preview panels for Grid Density, TTS Bar, and Visible Cards dialogs.
+- **Empty Category Support in Visible Cards Dialog (`3e45799`):**
+  - Allow Visible Cards dialog to open even when category has 0 cards, showing an empty state explaining cards can be created in Edit Mode first.
 
 ### Changed
 - **Toolchain & Build Optimization (`4ca787a`, `487d2bb`):**

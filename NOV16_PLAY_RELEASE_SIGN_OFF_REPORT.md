@@ -4,7 +4,7 @@
 **Target Release:** Simple AAC v1.1.1 (versionCode: 9)  
 **Target Release Channel:** Google Play Store (Production Track)  
 **Release Branch:** `feature/v1.1.1-settings-live-previews`  
-**Latest Release Commit:** `a1380a5` (`chore(release): bump version to 1.1.1+9 for Google Play Console release`)  
+**Latest Release Commit:** `3e45799` (`fix(dialog): allow VisibleCardsDialog to open on empty category with empty state message`)  
 **Package Identifier:** `lk.yasas.simpleaac`  
 **Overall Verdict:** **100% PRODUCTION SIGN-OFF APPROVED (ALL GATES PASSED)**
 
@@ -22,8 +22,8 @@ All features, bug fixes, UI/UX enhancements, and accessibility additions request
 
 | Artifact | File Name | Size (Bytes) | Size (MB) | SHA-256 Checksum | Channel / Use Case |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Play Store App Bundle (AAB)** | `app-release.aab` | **82,229,590** | **82.2 MB** | `83efc7cdbc0d8241a1d3fbbb29c94901dcdafad11cdb178270c7c89b8b051779` | **Google Play Console Upload** |
-| **Universal Release APK** | `app-release.apk` | **100,645,836** | **100.6 MB** | `dc9e9c31770d8cb3b6a554e27259fc5b7b8378bbaaf647ddb995e043a0a3aeb1` | Direct Device Testing / Sideload |
+| **Play Store App Bundle (AAB)** | `app-release.aab` | **82,238,262** | **82.2 MB** | `826fbd52bb9918781c429046e5fb76cd1af4d016baf0cdcebc4306c1fbfd221f` | **Google Play Console Upload** |
+| **Universal Release APK** | `app-release.apk` | **100,645,836** | **100.6 MB** | `d4174c11f9cb7889bb8068984e850705e4d404bcd72b3fb0312b9e3ff8795752` | Direct Device Testing / Sideload |
 
 * **AAB Absolute Path:** [`simple_aac_play_release/build/app/outputs/bundle/release/app-release.aab`](file:///media/yasas/New%20Volume2/yasas/PersonalProjects/simple%20aac/simple_aac_play_release/build/app/outputs/bundle/release/app-release.aab)
 * **APK Absolute Path:** [`simple_aac_play_release/build/app/outputs/flutter-apk/app-release.apk`](file:///media/yasas/New%20Volume2/yasas/PersonalProjects/simple%20aac/simple_aac_play_release/build/app/outputs/flutter-apk/app-release.apk)
@@ -84,6 +84,12 @@ All features, bug fixes, UI/UX enhancements, and accessibility additions request
 - Optimized R8 ProGuard keep rules preserving offline ML Kit vision reflection models.
 - Font tree-shaking active (98.5% reduction in Material Icons size).
 
+### 3.9 Empty Category Handling in Visible Cards Dialog
+- Eliminated the `total == 0` early return guard in `HomePage._showVisibleCountDialog()`, allowing the dialog to always open regardless of card count.
+- Added empty category empty-state UI in `VisibleCardsDialog`: displays friendly prompt (`"No cards found in \"<category>\" category"`) instructing caregivers to create cards in Edit Mode first.
+- Synchronized `VisibleCardsPreview` to show clean category-empty messaging.
+- Hides bulk selection buttons when card list is empty to prevent meaningless taps.
+
 ---
 
 ## 4. Verification & QA Quality Gates
@@ -91,7 +97,7 @@ All features, bug fixes, UI/UX enhancements, and accessibility additions request
 | Gate | Requirement | Actual Result | Status |
 | :--- | :--- | :--- | :--- |
 | **Dart Analyzer** | Zero warnings, zero errors | `flutter analyze --no-pub` → 0 issues | **PASS** |
-| **Automated Tests** | 100% test pass rate | `flutter test` → 198 / 198 tests passed | **PASS** |
+| **Automated Tests** | 100% test pass rate | `flutter test` → 200 / 200 tests passed | **PASS** |
 | **Data Integrity Stress** | 1,000 cards + 1,000 GIFs/audio SHA-256 match | Stage 2 certified in 39s | **PASS** |
 | **Physical Hardware** | Live execution on target device | Samsung Galaxy A34 5G (`SM_A346E`, Android 14) | **PASS** |
 | **Live Device ADB Install** | Clean update over wireless ADB | `Performing Streamed Install` → `Success` | **PASS** |
