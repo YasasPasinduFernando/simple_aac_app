@@ -25,6 +25,42 @@ class VisibleCardsPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final visibleList = cards.where((c) => selectedIds.contains(c.id)).toList();
 
+    if (cards.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.style_outlined,
+                size: 28,
+                color: isDarkMode ? Colors.white38 : Colors.grey.shade400,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'No cards in this category',
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.bold,
+                  color: isDarkMode ? Colors.white70 : Colors.grey.shade700,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Create cards first in Edit Mode to manage visibility',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isDarkMode ? Colors.white38 : Colors.grey.shade500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     if (visibleList.isEmpty) {
       return Center(
         child: Padding(

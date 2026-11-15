@@ -1429,13 +1429,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showVisibleCountDialog() {
-    final total = _getBaseDisplayedCards().length;
-    if (total == 0) return;
     final allCards = _getBaseDisplayedCards();
     showDialog(
       context: context,
       builder: (context) => VisibleCardsDialog(
         cards: allCards,
+        categoryName: selectedCategory,
         currentLanguage: currentLanguage,
         initialSelectedIds: _getVisibleSelection().toSet(),
         gridColumns: gridColumns,

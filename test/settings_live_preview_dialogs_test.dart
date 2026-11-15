@@ -267,6 +267,59 @@ void main() {
       expect(find.byIcon(Icons.visibility_off_rounded), findsOneWidget);
     });
 
+    testWidgets(
+        'VisibleCardsPreview renders No cards in this category when cards list is empty',
+        (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 360,
+              height: 200,
+              child: VisibleCardsPreview(
+                cards: [],
+                selectedIds: {},
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('No cards in this category'), findsOneWidget);
+      expect(find.text('Create cards first in Edit Mode to manage visibility'),
+          findsOneWidget);
+      expect(find.byIcon(Icons.style_outlined), findsOneWidget);
+    });
+
+    testWidgets(
+        'VisibleCardsDialog renders empty category message when opened with empty cards',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: VisibleCardsDialog(
+              cards: const [],
+              categoryName: 'School',
+              currentLanguage: 'en',
+              initialSelectedIds: const {},
+              onSubmit: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('0 cards'), findsOneWidget);
+      expect(find.text('No cards found in "School" category'), findsOneWidget);
+      expect(
+        find.text(
+            'Please create some cards in Edit Mode first to choose which ones to show on your board.'),
+        findsOneWidget,
+      );
+      // Select All and Clear All action buttons should be hidden when 0 cards exist
+      expect(find.text('Select all'), findsNothing);
+      expect(find.text('Clear all'), findsNothing);
+    });
+
     testWidgets('VisibleCardsDialog Select All, Clear All, and Done flow',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 2400);

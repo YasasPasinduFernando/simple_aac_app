@@ -10,6 +10,7 @@ import 'styled_dialog_header.dart';
 /// Selecting or deselecting cards updates the preview and count badge immediately before saving.
 class VisibleCardsDialog extends StatefulWidget {
   final List<AACCard> cards;
+  final String categoryName;
   final String currentLanguage;
   final Set<String> initialSelectedIds;
   final int gridColumns;
@@ -18,6 +19,7 @@ class VisibleCardsDialog extends StatefulWidget {
   const VisibleCardsDialog({
     Key? key,
     required this.cards,
+    this.categoryName = 'All',
     required this.currentLanguage,
     required this.initialSelectedIds,
     this.gridColumns = 2,
@@ -81,7 +83,9 @@ class _VisibleCardsDialogState extends State<VisibleCardsDialog> {
             ),
           ),
           child: Text(
-            '${selectedIds.length} of ${widget.cards.length} visible',
+            widget.cards.isEmpty
+                ? '0 cards'
+                : '${selectedIds.length} of ${widget.cards.length} visible',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -117,7 +121,61 @@ class _VisibleCardsDialogState extends State<VisibleCardsDialog> {
               ),
               const SizedBox(height: 10),
 
-              // Informational Safety Notice
+              if (widget.cards.isEmpty)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? const Color(0xFF1E2836)
+                        : colorScheme.surfaceContainerLowest,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        radius: 28,
+                        backgroundColor: isDark
+                            ? colorScheme.surfaceContainerHighest
+                            : colorScheme.primaryContainer
+                                .withValues(alpha: 0.45),
+                        child: Icon(
+                          Icons.style_outlined,
+                          size: 28,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        widget.categoryName == 'All'
+                            ? 'No cards found'
+                            : 'No cards found in "${widget.categoryName}" category',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Please create some cards in Edit Mode first to choose which ones to show on your board.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          height: 1.35,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else ...[
+                // Informational Safety Notice
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -326,22 +384,24 @@ class _VisibleCardsDialogState extends State<VisibleCardsDialog> {
                 ),
               ),
             ],
-          ),
+          ],
         ),
       ),
+    ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
-        TextButton(
-          onPressed: () {
-            setState(() {
-              selectedIds.clear();
-            });
-          },
-          child: const Text('Reset'),
-        ),
+        if (widget.cards.isNotEmpty)
+          TextButton(
+            onPressed: () {
+              setState(() {
+                selectedIds.clear();
+              });
+            },
+            child: const Text('Reset'),
+          ),
         FilledButton(
           onPressed: () {
             widget.onSubmit(selectedIds);
