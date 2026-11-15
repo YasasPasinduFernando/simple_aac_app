@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_aac_app/models/aac_card_model.dart';
 import 'package:simple_aac_app/utils/theme_accessibility.dart';
 import 'package:simple_aac_app/widgets/color_vision_dialog.dart';
 import 'package:simple_aac_app/widgets/home_drawer.dart';
+import 'package:simple_aac_app/widgets/professional_color_picker_dialog.dart';
+import 'package:simple_aac_app/widgets/visible_cards_dialog.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -202,6 +205,48 @@ void main() {
       expect(appliedColor, 'auto');
       expect(appliedBold, true);
     });
+
+    testWidgets('Reset button restores default settings in ColorVisionDialog', (tester) async {
+      bool? appliedEnabled;
+      String? appliedType;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ColorVisionDialog(
+              initialColorBlind: true,
+              initialType: 'deuteranomaly',
+              initialBorderWidth: 4.5,
+              initialBorderColor: 'yellow',
+              initialBoldText: false,
+              isDarkMode: false,
+              onApply: (enabled, type, width, color, bold) {
+                appliedEnabled = enabled;
+                appliedType = type;
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Tap Reset
+      await tester.ensureVisible(find.text('Reset'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Reset'));
+      await tester.pumpAndSettle();
+
+      // Tap Apply
+      await tester.ensureVisible(find.text('Apply'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Apply'));
+      await tester.pumpAndSettle();
+
+      // Should be restored to defaults
+      expect(appliedEnabled, false);
+      expect(appliedType, 'universal');
+    });
   });
 
   group('ColorVisionPreviewChip Widget Tests', () {
@@ -221,6 +266,82 @@ void main() {
 
       await tester.pumpAndSettle();
       expect(find.byType(ColorVisionPreviewChip), findsNWidgets(2));
+    });
+  });
+
+  group('Dialog Reset Buttons Verification', () {
+    testWidgets('ProfessionalColorPickerDialog Reset restores defaultColor', (tester) async {
+      Color? appliedColor;
+      const defaultCol = Color(0xFF0267C1);
+      const customCol = Color(0xFFFF0000);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ProfessionalColorPickerDialog(
+              title: 'App color',
+              subtitle: 'Pick a color',
+              initialColor: customCol,
+              defaultColor: defaultCol,
+              onApply: (c) => appliedColor = c,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Tap Reset
+      await tester.ensureVisible(find.text('Reset'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Reset'));
+      await tester.pumpAndSettle();
+
+      // Tap Apply
+      await tester.ensureVisible(find.text('Apply'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Apply'));
+      await tester.pumpAndSettle();
+
+      expect(appliedColor, defaultCol);
+    });
+
+    testWidgets('VisibleCardsDialog Reset clears selection to show all', (tester) async {
+      Set<String>? submitted;
+      final sampleCards = [
+        AACCard(id: 'c1', label: 'One', colorValue: 0xFFFFFFFF),
+        AACCard(id: 'c2', label: 'Two', colorValue: 0xFFFFFFFF),
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: VisibleCardsDialog(
+              cards: sampleCards,
+              currentLanguage: 'en',
+              initialSelectedIds: const {'c1'},
+              onSubmit: (ids) => submitted = ids,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Tap Reset
+      await tester.ensureVisible(find.text('Reset'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Reset'));
+      await tester.pumpAndSettle();
+
+      // Tap Done
+      await tester.ensureVisible(find.text('Done'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
+
+      // Cleared set means show all cards
+      expect(submitted, isEmpty);
     });
   });
 }

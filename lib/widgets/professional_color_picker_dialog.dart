@@ -15,6 +15,7 @@ class ProfessionalColorPickerDialog extends StatefulWidget {
   final String title;
   final String subtitle;
   final Color initialColor;
+  final Color? defaultColor;
   final ColorPickerPreviewType previewType;
   final ValueChanged<Color> onApply;
 
@@ -23,6 +24,7 @@ class ProfessionalColorPickerDialog extends StatefulWidget {
     required this.title,
     required this.subtitle,
     required this.initialColor,
+    this.defaultColor,
     this.previewType = ColorPickerPreviewType.appHeader,
     required this.onApply,
   }) : super(key: key);
@@ -1147,6 +1149,20 @@ class _ProfessionalColorPickerDialogState
           ),
           child: const Text('Cancel'),
         ),
+        if (widget.defaultColor != null)
+          TextButton(
+            onPressed: () {
+              _updateColor(widget.defaultColor!);
+            },
+            style: TextButton.styleFrom(
+              minimumSize: const Size(64, 44),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Reset'),
+          ),
         FilledButton.icon(
           onPressed: () {
             widget.onApply(_currentColor);

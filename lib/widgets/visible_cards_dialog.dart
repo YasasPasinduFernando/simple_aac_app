@@ -334,6 +334,14 @@ class _VisibleCardsDialogState extends State<VisibleCardsDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              selectedIds.clear();
+            });
+          },
+          child: const Text('Reset'),
+        ),
         FilledButton(
           onPressed: () {
             widget.onSubmit(selectedIds);

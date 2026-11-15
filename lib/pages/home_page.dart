@@ -923,6 +923,10 @@ class _HomePageState extends State<HomePage> {
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancel'),
             ),
+            TextButton(
+              onPressed: () => selectLang('en'),
+              child: const Text('Reset'),
+            ),
           ],
         );
       },
@@ -1260,6 +1264,12 @@ class _HomePageState extends State<HomePage> {
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  setLocalState(() => tempColumns = 2);
+                },
+                child: const Text('Reset'),
               ),
               FilledButton(
                 onPressed: () {
@@ -1730,6 +1740,10 @@ class _HomePageState extends State<HomePage> {
               onPressed: () => Navigator.pop(context),
               child: const Text('Cancel'),
             ),
+            TextButton(
+              onPressed: () => selectOrientation('portrait'),
+              child: const Text('Reset'),
+            ),
           ],
         );
       },
@@ -1740,6 +1754,7 @@ class _HomePageState extends State<HomePage> {
     required String title,
     String? subtitle,
     required Color initialColor,
+    Color? defaultColor,
     ColorPickerPreviewType previewType = ColorPickerPreviewType.appHeader,
     required ValueChanged<Color> onSelected,
   }) {
@@ -1749,6 +1764,7 @@ class _HomePageState extends State<HomePage> {
         title: title,
         subtitle: subtitle ?? 'Pick a color for Normal Mode',
         initialColor: initialColor,
+        defaultColor: defaultColor,
         previewType: previewType,
         onApply: onSelected,
       ),
@@ -1925,6 +1941,7 @@ class _HomePageState extends State<HomePage> {
       title: 'Card text color',
       subtitle: 'Pick a text color for cards',
       initialColor: Color(_cardTextColor),
+      defaultColor: const Color(0xFF111827),
       previewType: ColorPickerPreviewType.textPreview,
       onSelected: (color) {
         setState(() {
@@ -2848,6 +2865,7 @@ class _HomePageState extends State<HomePage> {
                         title: 'App color',
                         subtitle: 'Pick a color for Normal Mode',
                         initialColor: customPrimary,
+                        defaultColor: const Color(_defaultPrimaryColorValue),
                         previewType: ColorPickerPreviewType.appHeader,
                         onSelected: (color) {
                           setState(() {
@@ -2862,6 +2880,7 @@ class _HomePageState extends State<HomePage> {
                         title: 'Text color',
                         subtitle: 'Pick a color for Normal Mode',
                         initialColor: customText,
+                        defaultColor: Colors.white,
                         previewType: ColorPickerPreviewType.textPreview,
                         onSelected: (color) {
                           setState(() {
@@ -2877,6 +2896,7 @@ class _HomePageState extends State<HomePage> {
                         subtitle:
                             'Pick a color for the main content area (body)',
                         initialColor: customBackground,
+                        defaultColor: Colors.white,
                         previewType: ColorPickerPreviewType.backgroundPreview,
                         onSelected: (color) {
                           setState(() {

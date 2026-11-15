@@ -280,6 +280,18 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _enabled = false;
+              _type = 'universal';
+              _borderWidth = 2.5;
+              _borderColor = 'auto';
+              _boldText = true;
+            });
+          },
+          child: const Text('Reset'),
+        ),
         FilledButton(
           onPressed: () {
             widget.onApply(
