@@ -27,6 +27,7 @@ class HomeDrawer extends StatelessWidget {
   final ValueChanged<bool> onToggleOnline;
   final ValueChanged<bool> onToggleDarkMode;
   final ValueChanged<bool> onChangeColorBlindMode;
+  final VoidCallback? onOpenColorBlindSettings;
   final VoidCallback onSelectCategory;
   final VoidCallback onAddCategory;
   final VoidCallback onToggleEdit;
@@ -91,6 +92,7 @@ class HomeDrawer extends StatelessWidget {
     required this.onToggleOnline,
     required this.onToggleDarkMode,
     required this.onChangeColorBlindMode,
+    this.onOpenColorBlindSettings,
     required this.onSelectCategory,
     required this.onAddCategory,
     required this.onToggleEdit,
@@ -873,6 +875,24 @@ class HomeDrawer extends StatelessWidget {
     );
   }
 
+  String _getColorBlindSubtitle() {
+    final type = ThemeAccessibility.colorBlindType;
+    final widthStr = '${ThemeAccessibility.colorBlindBorderWidth.toStringAsFixed(1)}px';
+    switch (type) {
+      case 'deuteranomaly':
+        return 'Deuteranomaly (Red-Green) • $widthStr';
+      case 'protanomaly':
+        return 'Protanomaly (Red-Green) • $widthStr';
+      case 'tritanomaly':
+        return 'Tritanomaly (Blue-Yellow) • $widthStr';
+      case 'monochrome':
+        return 'Monochromacy (Grayscale) • $widthStr';
+      case 'universal':
+      default:
+        return 'Universal High-Contrast • $widthStr';
+    }
+  }
+
   Widget _buildColorAccessibilityCard(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -928,9 +948,18 @@ class HomeDrawer extends StatelessWidget {
           const SizedBox(height: 2),
           _ColorBlindRadioOption(
             title: 'Color-Blind Safe Mode',
-            subtitle: 'High-contrast color-safe palette',
+            subtitle: isColorBlindMode
+                ? _getColorBlindSubtitle()
+                : 'High-contrast color-safe palette',
             selected: isColorBlindMode,
-            onTap: () => onChangeColorBlindMode(true),
+            onTap: () {
+              if (!isColorBlindMode) {
+                onChangeColorBlindMode(true);
+              } else {
+                onOpenColorBlindSettings?.call();
+              }
+            },
+            onSettingsTap: onOpenColorBlindSettings,
             preview: ColorVisionPreviewChip(
               isColorBlind: true,
               isDarkMode: isDark,
@@ -1692,9 +1721,36 @@ class ColorVisionPreviewChip extends StatelessWidget {
     );
 
     final borderColor = isColorBlind
-        ? (isDarkMode ? Colors.white70 : const Color(0xFF1E293B))
+        ? ThemeAccessibility.resolveCardBorderColor(
+            isDarkMode: isDarkMode,
+            isColorBlindMode: true,
+          )
         : Colors.black.withValues(alpha: isDarkMode ? 0.35 : 0.16);
-    final borderWidth = isColorBlind ? 1.2 : 0.7;
+    final borderWidth = isColorBlind
+        ? (ThemeAccessibility.colorBlindBorderWidth * 0.6).clamp(0.8, 2.8)
+        : 0.7;
+
+    final textColor1 = ThemeAccessibility.resolveCardTextColor(
+      card1Bg,
+      isDarkMode: isDarkMode,
+      isColorBlindMode: isColorBlind,
+      applyCustomTextColor: false,
+      customTextColor: Colors.white,
+    );
+    final textColor2 = ThemeAccessibility.resolveCardTextColor(
+      card2Bg,
+      isDarkMode: isDarkMode,
+      isColorBlindMode: isColorBlind,
+      applyCustomTextColor: false,
+      customTextColor: Colors.white,
+    );
+    final textColor3 = ThemeAccessibility.resolveCardTextColor(
+      card3Bg,
+      isDarkMode: isDarkMode,
+      isColorBlindMode: isColorBlind,
+      applyCustomTextColor: false,
+      customTextColor: Colors.white,
+    );
 
     return Semantics(
       label: isColorBlind
@@ -1734,9 +1790,7 @@ class ColorVisionPreviewChip extends StatelessWidget {
                 child: CustomPaint(
                   size: const Size(9, 12),
                   painter: _MiniStickFigurePainter(
-                    color: isDarkMode && !isColorBlind
-                        ? Colors.white
-                        : const Color(0xFF111827),
+                    color: textColor1,
                   ),
                 ),
               ),
@@ -1748,9 +1802,7 @@ class ColorVisionPreviewChip extends StatelessWidget {
                 child: Icon(
                   Icons.local_cafe_rounded,
                   size: 9.5,
-                  color: isColorBlind
-                      ? const Color(0xFF111827)
-                      : (isDarkMode ? Colors.white : const Color(0xFF0D47A1)),
+                  color: textColor2,
                 ),
               ),
               // Tiny AAC Card 3: Pink / Vermilion with Apple
@@ -1761,9 +1813,7 @@ class ColorVisionPreviewChip extends StatelessWidget {
                 child: Icon(
                   Icons.apple_rounded,
                   size: 9.5,
-                  color: isColorBlind
-                      ? Colors.white
-                      : (isDarkMode ? Colors.white : const Color(0xFFB71C1C)),
+                  color: textColor3,
                 ),
               ),
             ],
@@ -1808,6 +1858,7 @@ class _ColorBlindRadioOption extends StatelessWidget {
   final String subtitle;
   final bool selected;
   final VoidCallback onTap;
+  final VoidCallback? onSettingsTap;
   final Widget? preview;
 
   const _ColorBlindRadioOption({
@@ -1815,6 +1866,7 @@ class _ColorBlindRadioOption extends StatelessWidget {
     required this.subtitle,
     required this.selected,
     required this.onTap,
+    this.onSettingsTap,
     this.preview,
   });
 
@@ -1878,6 +1930,8 @@ class _ColorBlindRadioOption extends StatelessWidget {
                       const SizedBox(height: 1),
                       Text(
                         subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 11,
                           color: colorScheme.onSurfaceVariant,
@@ -1887,8 +1941,23 @@ class _ColorBlindRadioOption extends StatelessWidget {
                   ),
                 ),
                 if (preview != null) ...[
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   preview!,
+                ],
+                if (onSettingsTap != null) ...[
+                  const SizedBox(width: 2),
+                  IconButton(
+                    icon: Icon(
+                      Icons.chevron_right_rounded,
+                      size: 20,
+                      color: selected ? primary : colorScheme.onSurfaceVariant,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                    splashRadius: 16,
+                    tooltip: 'Customize color vision & border options',
+                    onPressed: onSettingsTap,
+                  ),
                 ],
               ],
             ),

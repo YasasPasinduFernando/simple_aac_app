@@ -22,6 +22,7 @@ import '../services/network_policy_service.dart';
 import '../services/speech_engine.dart';
 import '../services/tutorial_service.dart';
 import '../widgets/card_editor_dialog.dart';
+import '../widgets/color_vision_dialog.dart';
 import '../widgets/professional_color_picker_dialog.dart';
 
 import '../widgets/edit_mode_bar.dart';
@@ -1754,6 +1755,32 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showColorVisionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => ColorVisionDialog(
+        initialColorBlind: _isColorBlindMode,
+        initialType: ThemeAccessibility.colorBlindType,
+        initialBorderWidth: ThemeAccessibility.colorBlindBorderWidth,
+        initialBorderColor: ThemeAccessibility.colorBlindBorderColor,
+        initialBoldText: ThemeAccessibility.colorBlindBoldText,
+        isDarkMode: _isDarkMode,
+        onApply: (enabled, type, borderWidth, borderColor, boldText) async {
+          setState(() {
+            _isColorBlindMode = enabled;
+          });
+          await ThemeAccessibility.saveColorBlindSettings(
+            type: type,
+            borderWidth: borderWidth,
+            borderColor: borderColor,
+            boldText: boldText,
+          );
+          await _saveCards();
+        },
+      ),
+    );
+  }
+
   void _showTtsBarSizeDialog() {
     double tempSize = _ttsBarSize;
     bool tempShowActions = _showTtsActions;
@@ -2787,6 +2814,7 @@ class _HomePageState extends State<HomePage> {
                       });
                       _saveCards();
                     },
+                    onOpenColorBlindSettings: _showColorVisionDialog,
                     onSelectCategory: _showCategoryDialog,
                     onAddCategory: _showAddCategoryDialog,
                     onToggleEdit: _toggleEditMode,
@@ -3152,8 +3180,13 @@ class _HomePageState extends State<HomePage> {
           )
         : _isColorBlindMode
             ? Border.all(
-                color: _isDarkMode ? Colors.white54 : Colors.black87,
-                width: 2,
+                color: ThemeAccessibility.resolveCardBorderColor(
+                  isDarkMode: _isDarkMode,
+                  isColorBlindMode: true,
+                ),
+                width: ThemeAccessibility.resolveCardBorderWidth(
+                  isColorBlindMode: true,
+                ),
               )
             : _isDarkMode
                 ? Border.all(color: Colors.white24, width: 1)
@@ -3267,16 +3300,23 @@ class _HomePageState extends State<HomePage> {
                             style: TextStyle(
                               color: cardTextColor,
                               fontSize: (isTablet ? 20 : 16) * _cardTextScale,
-                              fontWeight: FontWeight.bold,
-                              shadows: useLightShadow
-                                  ? const [
-                                      Shadow(
-                                        blurRadius: 3,
-                                        color: Colors.black26,
-                                        offset: Offset(0, 1),
-                                      ),
-                                    ]
-                                  : null,
+                              fontWeight: _isColorBlindMode && ThemeAccessibility.colorBlindBoldText
+                                  ? FontWeight.w900
+                                  : FontWeight.bold,
+                              shadows: (_isColorBlindMode && ThemeAccessibility.colorBlindBoldText)
+                                  ? ThemeAccessibility.resolveCardTextShadow(
+                                      cardSurface: cardSurfaceColor,
+                                      isColorBlindMode: _isColorBlindMode,
+                                    )
+                                  : (useLightShadow
+                                      ? const [
+                                          Shadow(
+                                            blurRadius: 3,
+                                            color: Colors.black26,
+                                            offset: Offset(0, 1),
+                                          ),
+                                        ]
+                                      : null),
                             ),
                             textAlign: TextAlign.center,
                             maxLines: 2,
@@ -3319,14 +3359,21 @@ class _HomePageState extends State<HomePage> {
                       style: TextStyle(
                         color: cardTextColor,
                         fontSize: (isTablet ? 20 : 16) * _cardTextScale,
-                        fontWeight: FontWeight.bold,
-                        shadows: const [
-                          Shadow(
-                            blurRadius: 6,
-                            color: Colors.black54,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
+                        fontWeight: _isColorBlindMode && ThemeAccessibility.colorBlindBoldText
+                            ? FontWeight.w900
+                            : FontWeight.bold,
+                        shadows: (_isColorBlindMode && ThemeAccessibility.colorBlindBoldText)
+                            ? ThemeAccessibility.resolveCardTextShadow(
+                                cardSurface: Colors.black54,
+                                isColorBlindMode: true,
+                              )
+                            : const [
+                                Shadow(
+                                  blurRadius: 6,
+                                  color: Colors.black54,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
                       ),
                     ),
                   ),
