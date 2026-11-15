@@ -210,7 +210,7 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
                 Positioned(
                   left: (targetRect.center.dx - 16)
                       .clamp(16.0, screenSize.width - 50.0),
-                  top: isAbove ? (targetRect.top - 38) : (targetRect.bottom + 6),
+                  top: isAbove ? (targetRect.top - 48) : (targetRect.bottom + 14),
                   child: IgnorePointer(
                     child: TutorialHandPointer(
                       animationValue: _pulseController.value,
@@ -226,12 +226,12 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
                 top: isAbove
                     ? null
                     : (targetRect != null
-                        ? (targetRect.bottom + 48)
-                            .clamp(16.0, screenSize.height - 220.0)
+                        ? (targetRect.bottom + 56)
+                            .clamp(16.0, screenSize.height - 240.0)
                         : 120),
                 bottom: isAbove
-                    ? ((screenSize.height - (targetRect?.top ?? 300) + 48))
-                        .clamp(16.0, screenSize.height - 220.0)
+                    ? ((screenSize.height - (targetRect?.top ?? 300) + 56))
+                        .clamp(16.0, screenSize.height - 240.0)
                     : null,
                 child: Align(
                   alignment: Alignment.center,

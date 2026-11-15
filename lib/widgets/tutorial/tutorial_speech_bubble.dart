@@ -68,8 +68,9 @@ class TutorialSpeechBubble extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header row
+              // Top meta row: Step badge on left, close icon on right
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -83,7 +84,7 @@ class TutorialSpeechBubble extends StatelessWidget {
                       children: [
                         const Icon(
                           Icons.touch_app_rounded,
-                          size: 14,
+                          size: 13,
                           color: Color(0xFF1565C0),
                         ),
                         const SizedBox(width: 4),
@@ -92,25 +93,12 @@ class TutorialSpeechBubble extends StatelessWidget {
                               ? TutorialStrings.getFinishLabel(language)
                               : 'Step $stepIndex of $totalSteps',
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 11.5,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1565C0),
                           ),
                         ),
                       ],
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1E293B),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   IconButton(
@@ -121,6 +109,18 @@ class TutorialSpeechBubble extends StatelessWidget {
                     onPressed: onSkip,
                   ),
                 ],
+              ),
+              const SizedBox(height: 6),
+              // Full-width step title - never truncated with ellipsis!
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15.5,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E293B),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
               // Description

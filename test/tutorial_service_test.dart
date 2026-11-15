@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_aac_app/models/tutorial_step.dart';
 import 'package:simple_aac_app/services/tutorial_service.dart';
 import 'package:simple_aac_app/utils/tutorial_strings.dart';
+import 'package:simple_aac_app/widgets/tutorial/tutorial_speech_bubble.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -154,6 +156,47 @@ void main() {
       service.resetAndReplayTour();
       expect(service.isTourActive, isTrue);
       expect(service.currentStepNotifier.value, TutorialStepType.openMenu);
+    });
+
+    testWidgets('TutorialSpeechBubble displays full step titles without ellipsis on narrow screen',
+        (tester) async {
+      await tester.binding.setSurfaceSize(const Size(320, 600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final testSteps = [
+        TutorialStepType.chooseMedia,
+        TutorialStepType.multilingualLabels,
+        TutorialStepType.voiceRecording,
+      ];
+
+      for (final step in testSteps) {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: TutorialSpeechBubble(
+                  stepType: step,
+                  language: 'en',
+                  stepIndex: 5,
+                  totalSteps: 9,
+                  isArrowUp: true,
+                  arrowHorizontalOffset: 48,
+                  onBack: () {},
+                  onNext: () {},
+                  onSkip: () {},
+                  allowsManualAdvance: true,
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final expectedTitle = TutorialStrings.getStepTitle(step, 'en');
+        // The full title must be found in the widget tree without any truncation '...'
+        expect(find.text(expectedTitle), findsOneWidget);
+        expect(expectedTitle.contains('...'), isFalse);
+      }
     });
   });
 }

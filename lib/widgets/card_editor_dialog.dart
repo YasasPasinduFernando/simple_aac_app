@@ -715,11 +715,11 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
             const SizedBox(height: 10),
           ],
           Column(
+            key: TutorialService.instance.getKey('card_editor_media_section'),
             mainAxisSize: MainAxisSize.min,
             children: [
               IntrinsicHeight(
                 child: Row(
-                  key: TutorialService.instance.getKey('card_editor_media_section'),
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                       Expanded(
@@ -1369,9 +1369,11 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   }
 
   Widget _buildLabelSection(BuildContext context) {
-    return Column(
+    return Container(
       key: TutorialService.instance.getKey('card_editor_labels_section'),
-      children: [
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Column(
+        children: [
         TextField(
           controller: _controllerEn,
           decoration: InputDecoration(
@@ -1408,12 +1410,14 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
           ),
         ),
       ],
+      ),
     );
   }
 
   Widget _buildAudioSection(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
+      key: TutorialService.instance.getKey('card_editor_voice_section'),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.25),
@@ -1439,7 +1443,6 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
           ),
           const SizedBox(height: 10),
           Row(
-            key: TutorialService.instance.getKey('card_editor_voice_section'),
             children: [
               Expanded(
                 child: FilledButton.icon(
