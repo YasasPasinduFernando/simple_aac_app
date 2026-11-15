@@ -224,6 +224,11 @@ void main() {
 
     expect(find.byType(ColorVisionPreviewChip), findsNWidgets(2));
 
+    final preview1 = tester.getTopLeft(find.byType(ColorVisionPreviewChip).at(0));
+    final preview2 = tester.getTopLeft(find.byType(ColorVisionPreviewChip).at(1));
+    expect(preview1.dx, equals(preview2.dx),
+        reason: 'Normal and Color-Blind preview chips must be precisely horizontally aligned');
+
     await tester.tap(find.text('Color-Blind Safe Mode'));
     await tester.pumpAndSettle();
     expect(selectedMode, isTrue);

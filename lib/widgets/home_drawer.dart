@@ -1668,7 +1668,7 @@ class _MiniStickFigurePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
-      ..strokeWidth = 1.0
+      ..strokeWidth = 1.2
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
@@ -1725,32 +1725,43 @@ class ColorVisionPreviewChip extends StatelessWidget {
             isDarkMode: isDarkMode,
             isColorBlindMode: true,
           )
-        : Colors.black.withValues(alpha: isDarkMode ? 0.35 : 0.16);
+        : Colors.black.withValues(alpha: isDarkMode ? 0.35 : 0.22);
     final borderWidth = isColorBlind
         ? (ThemeAccessibility.colorBlindBorderWidth * 0.6).clamp(0.8, 2.8)
-        : 0.7;
+        : 0.8;
 
-    final textColor1 = ThemeAccessibility.resolveCardTextColor(
-      card1Bg,
-      isDarkMode: isDarkMode,
-      isColorBlindMode: isColorBlind,
-      applyCustomTextColor: false,
-      customTextColor: Colors.white,
-    );
-    final textColor2 = ThemeAccessibility.resolveCardTextColor(
-      card2Bg,
-      isDarkMode: isDarkMode,
-      isColorBlindMode: isColorBlind,
-      applyCustomTextColor: false,
-      customTextColor: Colors.white,
-    );
-    final textColor3 = ThemeAccessibility.resolveCardTextColor(
-      card3Bg,
-      isDarkMode: isDarkMode,
-      isColorBlindMode: isColorBlind,
-      applyCustomTextColor: false,
-      customTextColor: Colors.white,
-    );
+    final Color textColor1;
+    final Color textColor2;
+    final Color textColor3;
+
+    if (isColorBlind) {
+      textColor1 = ThemeAccessibility.resolveCardTextColor(
+        card1Bg,
+        isDarkMode: isDarkMode,
+        isColorBlindMode: true,
+        applyCustomTextColor: false,
+        customTextColor: Colors.white,
+      );
+      textColor2 = ThemeAccessibility.resolveCardTextColor(
+        card2Bg,
+        isDarkMode: isDarkMode,
+        isColorBlindMode: true,
+        applyCustomTextColor: false,
+        customTextColor: Colors.white,
+      );
+      textColor3 = ThemeAccessibility.resolveCardTextColor(
+        card3Bg,
+        isDarkMode: isDarkMode,
+        isColorBlindMode: true,
+        applyCustomTextColor: false,
+        customTextColor: Colors.white,
+      );
+    } else {
+      // Normal AAC mode: authentic high-contrast icon colors on pastel cards (no washed-out fade)
+      textColor1 = isDarkMode ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B);
+      textColor2 = isDarkMode ? const Color(0xFF90CAF9) : const Color(0xFF0D47A1);
+      textColor3 = isDarkMode ? const Color(0xFFFF8A80) : const Color(0xFFB71C1C);
+    }
 
     return Semantics(
       label: isColorBlind
@@ -1964,6 +1975,8 @@ class _ColorBlindRadioOption extends StatelessWidget {
                     tooltip: 'Customize color vision & border options',
                     onPressed: onSettingsTap,
                   ),
+                ] else ...[
+                  const SizedBox(width: 30),
                 ],
               ],
             ),

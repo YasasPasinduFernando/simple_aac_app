@@ -307,7 +307,7 @@ void main() {
   });
 
   group('ColorVisionPreviewChip Widget Tests', () {
-    testWidgets('renders 3 preview tiles in normal and color-blind modes', (tester) async {
+    testWidgets('renders 3 preview tiles in normal and color-blind modes with high contrast icons', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -323,6 +323,15 @@ void main() {
 
       await tester.pumpAndSettle();
       expect(find.byType(ColorVisionPreviewChip), findsNWidgets(2));
+
+      // Verify normal mode icons are present with vivid authentic colors (not washed-out white)
+      expect(find.byIcon(Icons.local_cafe_rounded), findsNWidgets(2));
+      expect(find.byIcon(Icons.apple_rounded), findsNWidgets(2));
+
+      final normalCup = tester.widget<Icon>(find.byIcon(Icons.local_cafe_rounded).first);
+      final normalApple = tester.widget<Icon>(find.byIcon(Icons.apple_rounded).first);
+      expect(normalCup.color, equals(const Color(0xFF0D47A1)));
+      expect(normalApple.color, equals(const Color(0xFFB71C1C)));
     });
   });
 
