@@ -29,6 +29,9 @@ import '../widgets/landscape_menu.dart';
 import '../widgets/styled_dialog_header.dart';
 import '../widgets/tts_bar.dart';
 import '../widgets/visible_cards_dialog.dart';
+import '../widgets/preview/live_preview_panel.dart';
+import '../widgets/preview/tts_composer_preview.dart';
+import '../widgets/preview/grid_density_preview.dart';
 import '../widgets/tutorial/mini_guides_dialog.dart';
 import '../widgets/tutorial/tutorial_overlay.dart';
 import '../widgets/tutorial/welcome_tour_dialog.dart';
@@ -113,7 +116,8 @@ class _HomePageState extends State<HomePage> {
   bool get useImageOverlayLabelForTesting => _useImageOverlayLabel;
 
   @visibleForTesting
-  set useImageOverlayLabelForTesting(bool value) => _useImageOverlayLabel = value;
+  set useImageOverlayLabelForTesting(bool value) =>
+      _useImageOverlayLabel = value;
 
   @visibleForTesting
   bool get enableHapticsForTesting => _enableHaptics;
@@ -134,9 +138,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     TutorialService.instance.registerKey('app_bar_menu_button', _menuButtonKey);
-    TutorialService.instance.registerKey('drawer_resize_button', _drawerResizeKey);
-    TutorialService.instance.registerKey('drawer_edit_mode_toggle', _drawerEditModeKey);
-    TutorialService.instance.registerKey('edit_mode_add_new_button', _addNewCardKey);
+    TutorialService.instance
+        .registerKey('drawer_resize_button', _drawerResizeKey);
+    TutorialService.instance
+        .registerKey('drawer_edit_mode_toggle', _drawerEditModeKey);
+    TutorialService.instance
+        .registerKey('edit_mode_add_new_button', _addNewCardKey);
 
     if (HomePage.initialCardsForTesting != null) {
       cards = List.of(HomePage.initialCardsForTesting!);
@@ -177,7 +184,8 @@ class _HomePageState extends State<HomePage> {
       } else {
         results = await Future.wait<dynamic>([
           SharedPreferences.getInstance(),
-          CardStorageService.loadCards(defaultCardsBuilder: _createSeedImageCards),
+          CardStorageService.loadCards(
+              defaultCardsBuilder: _createSeedImageCards),
         ]);
       }
       if (!mounted) return;
@@ -196,50 +204,51 @@ class _HomePageState extends State<HomePage> {
       final nextBg = prefs.getInt('themeBackgroundColor') ?? Colors.white.value;
       final nextCardText =
           prefs.getInt('cardTextColor') ?? const Color(0xFF111827).value;
-    final nextTtsSize = prefs.getDouble('ttsBarSize') ?? 1.0;
-    final nextCardTextScale = prefs.getDouble('cardTextScale') ?? 1.0;
-    final nextDrawerExpanded = prefs.getBool('drawerFullScreen') ?? false;
-    final nextShowActions = prefs.getBool('showTtsActions') ?? true;
-    final nextHideTts = prefs.getBool('hideTtsText') ?? false;
-    final nextOverlay = prefs.getBool('useImageOverlayLabel') ?? true;
-    final nextApplyText = prefs.getBool('applyTextColorToCards') ?? false;
-    final nextHaptics = prefs.getBool('enableHaptics') ?? true;
-    final nextDark =
-        prefs.getBool(ThemeAccessibility.darkModePrefKey) ?? _isDarkMode;
-    final nextColorBlind =
-        prefs.getBool(ThemeAccessibility.colorBlindPrefKey) ?? false;
+      final nextTtsSize = prefs.getDouble('ttsBarSize') ?? 1.0;
+      final nextCardTextScale = prefs.getDouble('cardTextScale') ?? 1.0;
+      final nextDrawerExpanded = prefs.getBool('drawerFullScreen') ?? false;
+      final nextShowActions = prefs.getBool('showTtsActions') ?? true;
+      final nextHideTts = prefs.getBool('hideTtsText') ?? false;
+      final nextOverlay = prefs.getBool('useImageOverlayLabel') ?? true;
+      final nextApplyText = prefs.getBool('applyTextColorToCards') ?? false;
+      final nextHaptics = prefs.getBool('enableHaptics') ?? true;
+      final nextDark =
+          prefs.getBool(ThemeAccessibility.darkModePrefKey) ?? _isDarkMode;
+      final nextColorBlind =
+          prefs.getBool(ThemeAccessibility.colorBlindPrefKey) ?? false;
 
-    setState(() {
-      cards = loadedCards;
-      gridColumns = nextGridColumns;
-      _loadVisibleSelections(prefs);
-      showTtsInput = nextShowTtsInput;
-      orientationMode = nextOrientation;
-      fullScreen = nextFullScreen;
-      currentLanguage = nextLanguage;
-      _themePrimaryColor = nextPrimary;
-      _themeTextColor = nextText;
-      _themeBackgroundColor = nextBg;
-      _cardTextColor = nextCardText;
-      _ttsBarSize = nextTtsSize;
-      _cardTextScale = nextCardTextScale;
-      _isDrawerExpanded = nextDrawerExpanded;
-      _showTtsActions = nextShowActions;
-      _hideTtsText = nextHideTts;
-      _useImageOverlayLabel = nextOverlay;
-      _applyTextColorToCards = nextApplyText;
-      _enableHaptics = nextHaptics;
-      _isDarkMode = nextDark;
-      _isColorBlindMode = nextColorBlind;
-      _updateCategories();
-      _migrateVisibleCountIfNeeded(prefs);
-    });
+      setState(() {
+        cards = loadedCards;
+        gridColumns = nextGridColumns;
+        _loadVisibleSelections(prefs);
+        showTtsInput = nextShowTtsInput;
+        orientationMode = nextOrientation;
+        fullScreen = nextFullScreen;
+        currentLanguage = nextLanguage;
+        _themePrimaryColor = nextPrimary;
+        _themeTextColor = nextText;
+        _themeBackgroundColor = nextBg;
+        _cardTextColor = nextCardText;
+        _ttsBarSize = nextTtsSize;
+        _cardTextScale = nextCardTextScale;
+        _isDrawerExpanded = nextDrawerExpanded;
+        _showTtsActions = nextShowActions;
+        _hideTtsText = nextHideTts;
+        _useImageOverlayLabel = nextOverlay;
+        _applyTextColorToCards = nextApplyText;
+        _enableHaptics = nextHaptics;
+        _isDarkMode = nextDark;
+        _isColorBlindMode = nextColorBlind;
+        _updateCategories();
+        _migrateVisibleCountIfNeeded(prefs);
+      });
       if (ThemeAccessibility.darkModeNotifier.value != nextDark) {
         ThemeAccessibility.darkModeNotifier.value = nextDark;
       }
       UiModeHelper.applyOrientation(nextOrientation);
       UiModeHelper.applySystemUi(nextFullScreen);
-      debugPrint('[HomePage] cold loadCards completed in ${sw.elapsedMilliseconds}ms');
+      debugPrint(
+          '[HomePage] cold loadCards completed in ${sw.elapsedMilliseconds}ms');
 
       // Initialize TTS after first frame paints and loaded language/voice settings are known.
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -549,12 +558,16 @@ class _HomePageState extends State<HomePage> {
                     if (!mounted) return;
                     setState(() {
                       card.label = suggested;
-                      final translation = MultilingualConceptService.lookupTranslations(suggested);
+                      final translation =
+                          MultilingualConceptService.lookupTranslations(
+                              suggested);
                       if (translation != null) {
-                        if (card.labelSinhala == null || card.labelSinhala!.trim().isEmpty) {
+                        if (card.labelSinhala == null ||
+                            card.labelSinhala!.trim().isEmpty) {
                           card.labelSinhala = translation.sinhala;
                         }
-                        if (card.labelTamil == null || card.labelTamil!.trim().isEmpty) {
+                        if (card.labelTamil == null ||
+                            card.labelTamil!.trim().isEmpty) {
                           card.labelTamil = translation.tamil;
                         }
                       }
@@ -572,17 +585,20 @@ class _HomePageState extends State<HomePage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Camera photo could not be saved. Check permissions if needed.'),
+              content: Text(
+                  'Camera photo could not be saved. Check permissions if needed.'),
             ),
           );
         }
       }
     } else if (choice == 'gallery') {
-      final allowed = await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
+      final allowed =
+          await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
       if (!allowed || !mounted) return;
 
       try {
-        final image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+        final image = await _picker.pickImage(
+            source: ImageSource.gallery, imageQuality: 80);
         if (image != null) {
           final permanentPath = await CardStorageService.persistMediaFile(
             image.path,
@@ -604,7 +620,8 @@ class _HomePageState extends State<HomePage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Image could not be selected. Check permissions if needed.'),
+              content: Text(
+                  'Image could not be selected. Check permissions if needed.'),
             ),
           );
         }
@@ -748,7 +765,10 @@ class _HomePageState extends State<HomePage> {
         content: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.35),
+            color: Theme.of(context)
+                .colorScheme
+                .errorContainer
+                .withValues(alpha: 0.35),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
@@ -835,7 +855,8 @@ class _HomePageState extends State<HomePage> {
         }
 
         return AlertDialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           title: const StyledDialogHeader(
             icon: Icons.translate_rounded,
             title: 'Select Language',
@@ -907,8 +928,8 @@ class _HomePageState extends State<HomePage> {
           builder: (dialogContext, setDialogState) {
             Future<void> refreshProbe() async {
               setDialogState(() => probing = true);
-              final fresh =
-                  await SpeechEngine.instance.probeCapabilities(forceRefresh: true);
+              final fresh = await SpeechEngine.instance
+                  .probeCapabilities(forceRefresh: true);
               if (mounted) {
                 setState(() => _speechCapabilities = fresh);
               }
@@ -958,7 +979,8 @@ class _HomePageState extends State<HomePage> {
                         builder: (_) {
                           final status = report?.languages[code];
                           final offlineReady = status?.hasOfflineVoice ?? false;
-                          final available = status?.isLanguageAvailable ?? false;
+                          final available =
+                              status?.isLanguageAvailable ?? false;
                           final sub = status == null
                               ? 'Checking device speech engine...'
                               : (offlineReady
@@ -1040,7 +1062,8 @@ class _HomePageState extends State<HomePage> {
         ),
         content: ConstrainedBox(
           constraints: BoxConstraints(
-            maxHeight: (MediaQuery.of(context).size.height * 0.55).clamp(180.0, 460.0),
+            maxHeight:
+                (MediaQuery.of(context).size.height * 0.55).clamp(180.0, 460.0),
           ),
           child: SingleChildScrollView(
             child: Column(
@@ -1139,7 +1162,8 @@ class _HomePageState extends State<HomePage> {
         builder: (context, setLocalState) {
           final colorScheme = Theme.of(context).colorScheme;
           return AlertDialog(
-            insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            insetPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             title: const StyledDialogHeader(
               icon: Icons.grid_view_rounded,
               title: 'Select Grid Size',
@@ -1149,10 +1173,27 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  LivePreviewPanel(
+                    title: 'LIVE GRID PREVIEW',
+                    icon: Icons.remove_red_eye_rounded,
+                    minHeight: 120,
+                    maxHeight: 185,
+                    child: GridDensityPreview(
+                      columns: tempColumns,
+                      cards: _getBaseDisplayedCards(),
+                      language: currentLanguage,
+                      cardTextScale: _cardTextScale,
+                      cardTextColor: _cardTextColor,
+                      isDarkMode: _isDarkMode,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withValues(alpha: 0.45),
+                      color:
+                          colorScheme.primaryContainer.withValues(alpha: 0.45),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -1184,7 +1225,8 @@ class _HomePageState extends State<HomePage> {
                         icon: Icons.view_module_rounded,
                         badgeText: '${cols}x',
                         title: labels[index],
-                        subtitle: '$cols ${cols == 1 ? 'card' : 'cards'} per row',
+                        subtitle:
+                            '$cols ${cols == 1 ? 'card' : 'cards'} per row',
                         selected: tempColumns == cols,
                         onTap: () => setLocalState(() => tempColumns = cols),
                       );
@@ -1233,11 +1275,13 @@ class _HomePageState extends State<HomePage> {
               decoration: BoxDecoration(
                 color: Colors.orange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange.withValues(alpha: 0.28)),
+                border:
+                    Border.all(color: Colors.orange.withValues(alpha: 0.28)),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.tune_rounded, color: Colors.orange.shade700, size: 20),
+                  Icon(Icons.tune_rounded,
+                      color: Colors.orange.shade700, size: 20),
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
@@ -1258,7 +1302,8 @@ class _HomePageState extends State<HomePage> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.verified_user_rounded, color: Colors.green.shade700, size: 20),
+                  Icon(Icons.verified_user_rounded,
+                      color: Colors.green.shade700, size: 20),
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
@@ -1338,6 +1383,7 @@ class _HomePageState extends State<HomePage> {
         cards: allCards,
         currentLanguage: currentLanguage,
         initialSelectedIds: _getVisibleSelection().toSet(),
+        gridColumns: gridColumns,
         onSubmit: (selectedIds) {
           setState(() {
             visibleCardIdsByParent[_visibleSelectionKey()] = selectedIds;
@@ -1624,7 +1670,8 @@ class _HomePageState extends State<HomePage> {
         }
 
         return AlertDialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           title: const StyledDialogHeader(
             icon: Icons.screen_rotation_rounded,
             title: 'Screen Orientation',
@@ -1691,7 +1738,8 @@ class _HomePageState extends State<HomePage> {
         builder: (context, setLocalState) {
           final colorScheme = Theme.of(context).colorScheme;
           return AlertDialog(
-            insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            insetPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             title: const StyledDialogHeader(
               icon: Icons.format_size_rounded,
               title: 'TTS Bar Sizing',
@@ -1701,10 +1749,33 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  LivePreviewPanel(
+                    title: 'LIVE PREVIEW',
+                    icon: Icons.record_voice_over_rounded,
+                    minHeight: 80,
+                    maxHeight: 140,
+                    trailing: TtsComposerPreview.buildActionChips(
+                      showActions: tempShowActions,
+                      isDark: _isDarkMode,
+                    ),
+                    child: Center(
+                      child: TtsComposerPreview(
+                        sizeFactor: tempSize,
+                        showActions: tempShowActions,
+                        showText: !_hideTtsText,
+                        speakerColor: _isDarkMode
+                            ? colorScheme.primary
+                            : Color(_themePrimaryColor),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withValues(alpha: 0.45),
+                      color:
+                          colorScheme.primaryContainer.withValues(alpha: 0.45),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -1728,25 +1799,30 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                   const SizedBox(height: 6),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: colorScheme.outlineVariant),
-                    ),
-                    child: SwitchListTile(
-                      shape: RoundedRectangleBorder(
+                  Material(
+                    color: colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: colorScheme.outlineVariant),
                       ),
-                      secondary: const Icon(Icons.backspace_outlined, size: 20),
-                      title: const Text(
-                        'Show Delete / Clear',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      child: SwitchListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        secondary:
+                            const Icon(Icons.backspace_outlined, size: 20),
+                        title: const Text(
+                          'Show Delete / Clear',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                        value: tempShowActions,
+                        onChanged: (value) {
+                          setLocalState(() => tempShowActions = value);
+                        },
                       ),
-                      value: tempShowActions,
-                      onChanged: (value) {
-                        setLocalState(() => tempShowActions = value);
-                      },
                     ),
                   ),
                 ],
@@ -1759,12 +1835,10 @@ class _HomePageState extends State<HomePage> {
               ),
               TextButton(
                 onPressed: () {
-                  setState(() {
-                    _ttsBarSize = 1.0;
-                    _showTtsActions = true;
+                  setLocalState(() {
+                    tempSize = 1.0;
+                    tempShowActions = true;
                   });
-                  _saveCards();
-                  Navigator.pop(context);
                 },
                 child: const Text('Reset'),
               ),
@@ -1826,7 +1900,8 @@ class _HomePageState extends State<HomePage> {
               : (isDark ? Colors.white : const Color(0xFF111827));
 
           return AlertDialog(
-            insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            insetPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             title: const StyledDialogHeader(
               icon: Icons.format_size_rounded,
               title: 'Card Text Size',
@@ -1839,12 +1914,16 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Container(
                     height: 104,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                      color: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+                        color:
+                            colorScheme.outlineVariant.withValues(alpha: 0.7),
                         width: 1.0,
                       ),
                     ),
@@ -1888,9 +1967,11 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 14),
                   Center(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 6),
                       decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer.withValues(alpha: 0.45),
+                        color: colorScheme.primaryContainer
+                            .withValues(alpha: 0.45),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -2374,8 +2455,7 @@ class _HomePageState extends State<HomePage> {
           settings['useImageOverlayLabel'] as bool? ?? _useImageOverlayLabel;
       _applyTextColorToCards =
           settings['applyTextColorToCards'] as bool? ?? _applyTextColorToCards;
-      _enableHaptics =
-          settings['enableHaptics'] as bool? ?? _enableHaptics;
+      _enableHaptics = settings['enableHaptics'] as bool? ?? _enableHaptics;
       _isDarkMode = settings['darkMode'] as bool? ?? _isDarkMode;
       _isColorBlindMode =
           settings['colorBlindMode'] as bool? ?? _isColorBlindMode;
@@ -2458,7 +2538,8 @@ class _HomePageState extends State<HomePage> {
       builder: (context) {
         final colorScheme = Theme.of(context).colorScheme;
         return AlertDialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           title: const StyledDialogHeader(
             icon: Icons.forum_rounded,
             title: 'About Simple AAC',
@@ -2488,20 +2569,23 @@ class _HomePageState extends State<HomePage> {
                 ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(Icons.person_rounded, color: colorScheme.primary),
+                  leading:
+                      Icon(Icons.person_rounded, color: colorScheme.primary),
                   title: const Text('Yasas Pasindu Fernando'),
                   subtitle: const Text('Creator & Developer'),
                 ),
                 ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(Icons.email_rounded, color: colorScheme.primary),
+                  leading:
+                      Icon(Icons.email_rounded, color: colorScheme.primary),
                   title: const Text('yasaspasindufernando@gmail.com'),
                 ),
                 ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(Icons.phone_rounded, color: colorScheme.primary),
+                  leading:
+                      Icon(Icons.phone_rounded, color: colorScheme.primary),
                   title: const Text('+94 77 690 5654'),
                 ),
               ],
@@ -2602,244 +2686,253 @@ class _HomePageState extends State<HomePage> {
                     },
                     titleTextColor: themeText,
                   ),
-        endDrawer: isPinned
-            ? null
-            : HomeDrawer(
-                onClose: () => _scaffoldKey.currentState?.closeEndDrawer(),
-                selectedCategory: selectedCategory,
-                currentLanguageLabel: _getLanguageName(currentLanguage),
-                speechStatusLabel: _speechDrawerSubtitle(),
-                gridColumns: gridColumns,
-                visibleCardsLabel: _getVisibleCardsLabel(),
-                isEditMode: isEditMode,
-                showTtsInput: showTtsInput,
-                orientationLabel:
-                    orientationMode == 'landscape' ? 'Landscape' : 'Portrait',
-                fullScreen: fullScreen,
-                headerColor: themePrimary,
-                headerTextColor: themeText,
-                hideTtsText: _hideTtsText,
-                enableHaptics: _enableHaptics,
-                onToggleHaptics: (enabled) {
-                  setState(() {
-                    _enableHaptics = enabled;
-                  });
-                  _saveCards();
-                },
-                useImageOverlayLabel: _useImageOverlayLabel,
-                applyTextColorToCards: _applyTextColorToCards,
-                isDarkMode: _isDarkMode,
-                isColorBlindMode: _isColorBlindMode,
-                primaryColorSwatch: customPrimary,
-                textColorSwatch: customText,
-                backgroundColorSwatch: customBackground,
-                cardTextColorSwatch: Color(_cardTextColor),
-                isOnlineEnabled: NetworkPolicyService.instance.isOnlineEnabled,
-                onToggleOnline: (enabled) async {
-                  await NetworkPolicyService.instance.setOnlineEnabled(enabled);
-                  if (mounted) setState(() {});
-                },
-                onToggleDarkMode: (enabled) async {
-                  setState(() {
-                    _isDarkMode = enabled;
-                  });
-                  await ThemeAccessibility.setDarkMode(enabled);
-                  await _saveCards();
-                },
-                onChangeColorBlindMode: (enabled) {
-                  setState(() {
-                    _isColorBlindMode = enabled;
-                  });
-                  _saveCards();
-                },
-                onSelectCategory: _showCategoryDialog,
-                onAddCategory: _showAddCategoryDialog,
-                onToggleEdit: _toggleEditMode,
-                onToggleTtsInput: () {
-                  setState(() {
-                    showTtsInput = !showTtsInput;
-                  });
-                  _saveCards();
-                },
-                onToggleTtsText: () {
-                  setState(() {
-                    _hideTtsText = !_hideTtsText;
-                  });
-                  _saveCards();
-                },
-                onToggleCardImageLabel: () {
-                  setState(() {
-                    _useImageOverlayLabel = !_useImageOverlayLabel;
-                  });
-                  _saveCards();
-                },
-                onToggleApplyTextColorToCards: () {
-                  setState(() {
-                    _applyTextColorToCards = !_applyTextColorToCards;
-                  });
-                  _saveCards();
-                },
-                onChangeOrientation: _showOrientationDialog,
-                onPickPrimaryColor: () {
-                  _showThemeColorDialog(
-                    title: 'App color',
-                    subtitle: 'Pick a color for Normal Mode',
-                    initialColor: customPrimary,
-                    previewType: ColorPickerPreviewType.appHeader,
-                    onSelected: (color) {
+            endDrawer: isPinned
+                ? null
+                : HomeDrawer(
+                    onClose: () => _scaffoldKey.currentState?.closeEndDrawer(),
+                    selectedCategory: selectedCategory,
+                    currentLanguageLabel: _getLanguageName(currentLanguage),
+                    speechStatusLabel: _speechDrawerSubtitle(),
+                    gridColumns: gridColumns,
+                    visibleCardsLabel: _getVisibleCardsLabel(),
+                    isEditMode: isEditMode,
+                    showTtsInput: showTtsInput,
+                    orientationLabel: orientationMode == 'landscape'
+                        ? 'Landscape'
+                        : 'Portrait',
+                    fullScreen: fullScreen,
+                    headerColor: themePrimary,
+                    headerTextColor: themeText,
+                    hideTtsText: _hideTtsText,
+                    enableHaptics: _enableHaptics,
+                    onToggleHaptics: (enabled) {
                       setState(() {
-                        _themePrimaryColor = color.value;
+                        _enableHaptics = enabled;
                       });
                       _saveCards();
                     },
-                  );
-                },
-                onPickTextColor: () {
-                  _showThemeColorDialog(
-                    title: 'Text color',
-                    subtitle: 'Pick a color for Normal Mode',
-                    initialColor: customText,
-                    previewType: ColorPickerPreviewType.textPreview,
-                    onSelected: (color) {
+                    useImageOverlayLabel: _useImageOverlayLabel,
+                    applyTextColorToCards: _applyTextColorToCards,
+                    isDarkMode: _isDarkMode,
+                    isColorBlindMode: _isColorBlindMode,
+                    primaryColorSwatch: customPrimary,
+                    textColorSwatch: customText,
+                    backgroundColorSwatch: customBackground,
+                    cardTextColorSwatch: Color(_cardTextColor),
+                    isOnlineEnabled:
+                        NetworkPolicyService.instance.isOnlineEnabled,
+                    onToggleOnline: (enabled) async {
+                      await NetworkPolicyService.instance
+                          .setOnlineEnabled(enabled);
+                      if (mounted) setState(() {});
+                    },
+                    onToggleDarkMode: (enabled) async {
                       setState(() {
-                        _themeTextColor = color.value;
+                        _isDarkMode = enabled;
+                      });
+                      await ThemeAccessibility.setDarkMode(enabled);
+                      await _saveCards();
+                    },
+                    onChangeColorBlindMode: (enabled) {
+                      setState(() {
+                        _isColorBlindMode = enabled;
                       });
                       _saveCards();
                     },
-                  );
-                },
-                onPickBackgroundColor: () {
-                  _showThemeColorDialog(
-                    title: 'Background color',
-                    subtitle: 'Pick a color for the main content area (body)',
-                    initialColor: customBackground,
-                    previewType: ColorPickerPreviewType.backgroundPreview,
-                    onSelected: (color) {
+                    onSelectCategory: _showCategoryDialog,
+                    onAddCategory: _showAddCategoryDialog,
+                    onToggleEdit: _toggleEditMode,
+                    onToggleTtsInput: () {
                       setState(() {
-                        _themeBackgroundColor = color.value;
+                        showTtsInput = !showTtsInput;
                       });
                       _saveCards();
                     },
-                  );
-                },
-                onPickCardTextColor: _showCardTextColorDialog,
-                onShowTtsBarSize: _showTtsBarSizeDialog,
-                cardTextScaleLabel: _getCardTextScaleLabel(),
-                onShowCardTextSize: _showCardTextSizeDialog,
-                isExpanded: _isDrawerExpanded,
-                onToggleExpanded: (val) {
-                  setState(() {
-                    _isDrawerExpanded = val;
-                  });
-                  _saveCards();
-                },
-                onToggleFullScreen: () {
-                  setState(() {
-                    fullScreen = !fullScreen;
-                  });
-                  _saveCards();
-                  UiModeHelper.applySystemUi(fullScreen);
-                },
-                onShowLanguage: _showLanguageDialog,
-                onShowOfflineSpeech: _showOfflineSpeechDialog,
-                onShowGrid: _showGridOptions,
-                onShowVisibleCount: _showVisibleCountDialog,
-                onBackup: _backupWithPicker,
-                onRestore: _restoreWithPicker,
-                onResetSettings: _confirmResetSettings,
-                onManagePermissions: () async {
-                  Navigator.pop(context);
-                  await AppPermissionsHelper.requestAllAndShowStatus(context);
-                },
-                resizeButtonKey: _drawerResizeKey,
-                editModeKey: _drawerEditModeKey,
-                onReplayTutorial: () => TutorialService.instance.resetAndReplayTour(),
-                onShowMiniGuides: () => MiniGuidesDialog.show(context, language: currentLanguage),
-                onShowAbout: _showAbout,
-              ),
-        body: SafeArea(
-          child: isLandscape
-              ? Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        color: themeBackground,
-                        child: _buildMainContent(
-                          isTablet,
-                          themePrimary,
-                          themeText,
-                        ),
-                      ),
-                    ),
-                    LandscapeMenu(
-                      isPinned: isPinned,
-                      canGoBack: activeParentCard != null,
-                      baseColor: themePrimary,
-                      textColor: themeText,
-                      onTogglePin: () {
-                        setState(() {
-                          isPinned = !isPinned;
-                          if (isPinned) {
-                            fullScreen = true;
-                          }
-                        });
-                        UiModeHelper.applySystemUi(fullScreen);
-                      },
-                      onOpenMenu: () {
-                        if (_isDrawerExpanded) {
+                    onToggleTtsText: () {
+                      setState(() {
+                        _hideTtsText = !_hideTtsText;
+                      });
+                      _saveCards();
+                    },
+                    onToggleCardImageLabel: () {
+                      setState(() {
+                        _useImageOverlayLabel = !_useImageOverlayLabel;
+                      });
+                      _saveCards();
+                    },
+                    onToggleApplyTextColorToCards: () {
+                      setState(() {
+                        _applyTextColorToCards = !_applyTextColorToCards;
+                      });
+                      _saveCards();
+                    },
+                    onChangeOrientation: _showOrientationDialog,
+                    onPickPrimaryColor: () {
+                      _showThemeColorDialog(
+                        title: 'App color',
+                        subtitle: 'Pick a color for Normal Mode',
+                        initialColor: customPrimary,
+                        previewType: ColorPickerPreviewType.appHeader,
+                        onSelected: (color) {
                           setState(() {
-                            _isDrawerExpanded = false;
+                            _themePrimaryColor = color.value;
                           });
-                        }
-                        _scaffoldKey.currentState?.openEndDrawer();
-                      },
-                      onGoBack: () {
-                        setState(() {
-                          _resetTtsInput();
-                          activeParentCard = null;
-                        });
-                      },
-                      onHome: () {
-                        setState(() {
-                          selectedCategory = 'All';
-                          activeParentCard = null;
-                          searchQuery = '';
-                          _resetTtsInput();
-                        });
-                      },
-                      onUp: () {
-                        if (!_gridController.hasClients) return;
-                        final next = _gridController.offset - 300;
-                        _gridController.animateTo(
-                          next < 0 ? 0 : next,
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeOut,
-                        );
-                      },
-                      onDown: () {
-                        if (!_gridController.hasClients) return;
-                        final max = _gridController.position.maxScrollExtent;
-                        final next = _gridController.offset + 300;
-                        _gridController.animateTo(
-                          next > max ? max : next,
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeOut,
-                        );
-                      },
-                      onSearch: _showSearchDialog,
+                          _saveCards();
+                        },
+                      );
+                    },
+                    onPickTextColor: () {
+                      _showThemeColorDialog(
+                        title: 'Text color',
+                        subtitle: 'Pick a color for Normal Mode',
+                        initialColor: customText,
+                        previewType: ColorPickerPreviewType.textPreview,
+                        onSelected: (color) {
+                          setState(() {
+                            _themeTextColor = color.value;
+                          });
+                          _saveCards();
+                        },
+                      );
+                    },
+                    onPickBackgroundColor: () {
+                      _showThemeColorDialog(
+                        title: 'Background color',
+                        subtitle:
+                            'Pick a color for the main content area (body)',
+                        initialColor: customBackground,
+                        previewType: ColorPickerPreviewType.backgroundPreview,
+                        onSelected: (color) {
+                          setState(() {
+                            _themeBackgroundColor = color.value;
+                          });
+                          _saveCards();
+                        },
+                      );
+                    },
+                    onPickCardTextColor: _showCardTextColorDialog,
+                    onShowTtsBarSize: _showTtsBarSizeDialog,
+                    cardTextScaleLabel: _getCardTextScaleLabel(),
+                    onShowCardTextSize: _showCardTextSizeDialog,
+                    isExpanded: _isDrawerExpanded,
+                    onToggleExpanded: (val) {
+                      setState(() {
+                        _isDrawerExpanded = val;
+                      });
+                      _saveCards();
+                    },
+                    onToggleFullScreen: () {
+                      setState(() {
+                        fullScreen = !fullScreen;
+                      });
+                      _saveCards();
+                      UiModeHelper.applySystemUi(fullScreen);
+                    },
+                    onShowLanguage: _showLanguageDialog,
+                    onShowOfflineSpeech: _showOfflineSpeechDialog,
+                    onShowGrid: _showGridOptions,
+                    onShowVisibleCount: _showVisibleCountDialog,
+                    onBackup: _backupWithPicker,
+                    onRestore: _restoreWithPicker,
+                    onResetSettings: _confirmResetSettings,
+                    onManagePermissions: () async {
+                      Navigator.pop(context);
+                      await AppPermissionsHelper.requestAllAndShowStatus(
+                          context);
+                    },
+                    resizeButtonKey: _drawerResizeKey,
+                    editModeKey: _drawerEditModeKey,
+                    onReplayTutorial: () =>
+                        TutorialService.instance.resetAndReplayTour(),
+                    onShowMiniGuides: () => MiniGuidesDialog.show(context,
+                        language: currentLanguage),
+                    onShowAbout: _showAbout,
+                  ),
+            body: SafeArea(
+              child: isLandscape
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            color: themeBackground,
+                            child: _buildMainContent(
+                              isTablet,
+                              themePrimary,
+                              themeText,
+                            ),
+                          ),
+                        ),
+                        LandscapeMenu(
+                          isPinned: isPinned,
+                          canGoBack: activeParentCard != null,
+                          baseColor: themePrimary,
+                          textColor: themeText,
+                          onTogglePin: () {
+                            setState(() {
+                              isPinned = !isPinned;
+                              if (isPinned) {
+                                fullScreen = true;
+                              }
+                            });
+                            UiModeHelper.applySystemUi(fullScreen);
+                          },
+                          onOpenMenu: () {
+                            if (_isDrawerExpanded) {
+                              setState(() {
+                                _isDrawerExpanded = false;
+                              });
+                            }
+                            _scaffoldKey.currentState?.openEndDrawer();
+                          },
+                          onGoBack: () {
+                            setState(() {
+                              _resetTtsInput();
+                              activeParentCard = null;
+                            });
+                          },
+                          onHome: () {
+                            setState(() {
+                              selectedCategory = 'All';
+                              activeParentCard = null;
+                              searchQuery = '';
+                              _resetTtsInput();
+                            });
+                          },
+                          onUp: () {
+                            if (!_gridController.hasClients) return;
+                            final next = _gridController.offset - 300;
+                            _gridController.animateTo(
+                              next < 0 ? 0 : next,
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeOut,
+                            );
+                          },
+                          onDown: () {
+                            if (!_gridController.hasClients) return;
+                            final max =
+                                _gridController.position.maxScrollExtent;
+                            final next = _gridController.offset + 300;
+                            _gridController.animateTo(
+                              next > max ? max : next,
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeOut,
+                            );
+                          },
+                          onSearch: _showSearchDialog,
+                        ),
+                      ],
+                    )
+                  : Container(
+                      color: themeBackground,
+                      child:
+                          _buildMainContent(isTablet, themePrimary, themeText),
                     ),
-                  ],
-                )
-              : Container(
-                  color: themeBackground,
-                  child: _buildMainContent(isTablet, themePrimary, themeText),
-                ),
-        ),
+            ),
+          ),
+          TutorialOverlay(language: currentLanguage),
+        ],
       ),
-      TutorialOverlay(language: currentLanguage),
-    ],
-  ),
-);
+    );
   }
 
   Widget _buildMainContent(
@@ -2880,9 +2973,8 @@ class _HomePageState extends State<HomePage> {
             await _playTtsTokens();
           }
         },
-        speakerColor: _isDarkMode
-            ? Theme.of(context).colorScheme.primary
-            : themePrimary,
+        speakerColor:
+            _isDarkMode ? Theme.of(context).colorScheme.primary : themePrimary,
         sizeFactor: _ttsBarSize,
         showActions: _showTtsActions,
         showText: !_hideTtsText,
@@ -3063,7 +3155,8 @@ class _HomePageState extends State<HomePage> {
               BoxShadow(
                 color: isTapAnimated
                     ? (_isColorBlindMode
-                        ? Colors.black.withValues(alpha: _isDarkMode ? 0.55 : 0.28)
+                        ? Colors.black
+                            .withValues(alpha: _isDarkMode ? 0.55 : 0.28)
                         : Color(card.colorValue)
                             .withValues(alpha: _isDarkMode ? 0.60 : 0.40))
                     : Colors.black.withValues(alpha: _isDarkMode ? 0.30 : 0.10),
