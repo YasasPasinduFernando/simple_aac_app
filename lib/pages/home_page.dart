@@ -46,7 +46,6 @@ class HomePage extends StatefulWidget {
   static Future<void> Function(String text)? speakPerformer;
   @visibleForTesting
   static bool enableTtsInit = true;
-  @visibleForTesting
   static bool enableTutorialInit = false;
   @visibleForTesting
   static List<AACCard>? initialCardsForTesting;

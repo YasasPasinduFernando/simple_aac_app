@@ -194,7 +194,7 @@ void main() {
 
   testWidgets('Color Vision Support toggles mode cleanly on tap',
       (tester) async {
-    tester.view.physicalSize = const Size(384, 1000);
+    tester.view.physicalSize = const Size(400, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -219,8 +219,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('Color-Blind Safe Mode'), 200);
-    await tester.drag(find.byType(ListView), const Offset(0, -100));
+    await tester.scrollUntilVisible(find.text('Color-Blind Safe Mode'), 100);
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Color-Blind Safe Mode'));
@@ -603,8 +602,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('Color-Blind Safe Mode'), 200);
-    await tester.drag(find.byType(ListView), const Offset(0, -100));
+    await tester.scrollUntilVisible(find.text('Color-Blind Safe Mode'), 100);
     await tester.pumpAndSettle();
     expect(find.text('Color-Blind Safe Mode'), findsOneWidget);
 

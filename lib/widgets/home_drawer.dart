@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/tutorial_service.dart';
+import 'tutorial/mini_guides_dialog.dart';
 
 class HomeDrawer extends StatelessWidget {
   final String selectedCategory;
@@ -348,29 +349,38 @@ class HomeDrawer extends StatelessWidget {
                   ),
                 const SizedBox(height: 12),
 
-                _buildSectionHeader(context, 'Guides & About', Icons.info_outline_rounded),
-                if (onReplayTutorial != null)
-                  _buildDrawerItem(
-                    context,
-                    icon: Icons.school_rounded,
-                    title: 'Quick Tour',
-                    subtitle: 'Replay interactive app guide',
-                    onTap: () {
-                      _handleClose(context);
+                _buildSectionHeader(context, 'Help & Guides', Icons.help_outline_rounded),
+                _buildDrawerItem(
+                  context,
+                  icon: Icons.school_rounded,
+                  title: 'Interactive App Guide',
+                  subtitle: 'Replay step-by-step walkthrough anytime',
+                  onTap: () {
+                    _handleClose(context);
+                    if (onReplayTutorial != null) {
                       onReplayTutorial!();
-                    },
-                  ),
-                if (onShowMiniGuides != null)
-                  _buildDrawerItem(
-                    context,
-                    icon: Icons.help_outline_rounded,
-                    title: 'Feature Guides',
-                    subtitle: 'PIN, Backup, Permissions & Privacy',
-                    onTap: () {
-                      _handleClose(context);
+                    } else {
+                      TutorialService.instance.resetAndReplayTour();
+                    }
+                  },
+                ),
+                _buildDrawerItem(
+                  context,
+                  icon: Icons.menu_book_rounded,
+                  title: 'Feature Guides',
+                  subtitle: 'PIN, Backup, Permissions & Privacy',
+                  onTap: () {
+                    _handleClose(context);
+                    if (onShowMiniGuides != null) {
                       onShowMiniGuides!();
-                    },
-                  ),
+                    } else {
+                      MiniGuidesDialog.show(context, language: 'en');
+                    }
+                  },
+                ),
+                const SizedBox(height: 12),
+
+                _buildSectionHeader(context, 'About', Icons.info_outline_rounded),
                 _buildDrawerItem(
                   context,
                   icon: Icons.info_outline_rounded,

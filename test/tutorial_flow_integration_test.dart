@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_aac_app/models/tutorial_step.dart';
 import 'package:simple_aac_app/services/tutorial_service.dart';
+import 'package:simple_aac_app/widgets/home_drawer.dart';
 import 'package:simple_aac_app/widgets/tutorial/mini_guides_dialog.dart';
 import 'package:simple_aac_app/widgets/tutorial/welcome_tour_dialog.dart';
 
@@ -92,6 +93,80 @@ void main() {
       expect(find.text('உதவி வழிகாட்டிகள்'), findsOneWidget);
       expect(find.text('பாதுகாப்பு PIN (Caregiver PIN)'), findsOneWidget);
       expect(find.text('காப்புப்பிரதி மற்றும் மீட்டமை (Backup & Restore)'), findsOneWidget);
+    });
+
+    testWidgets('HomeDrawer presents Interactive App Guide before About and restarts guide on tap', (tester) async {
+      tester.view.physicalSize = const Size(400, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      var replayed = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: HomeDrawer(
+              selectedCategory: 'All',
+              currentLanguageLabel: 'English',
+              gridColumns: 2,
+              visibleCardsLabel: 'All cards',
+              isEditMode: false,
+              showTtsInput: true,
+              orientationLabel: 'Portrait',
+              fullScreen: true,
+              headerColor: Colors.blue,
+              headerTextColor: Colors.white,
+              hideTtsText: false,
+              useImageOverlayLabel: true,
+              applyTextColorToCards: false,
+              isDarkMode: false,
+              isColorBlindMode: false,
+              primaryColorSwatch: Colors.blue,
+              textColorSwatch: Colors.white,
+              backgroundColorSwatch: Colors.white,
+              isOnlineEnabled: false,
+              onToggleOnline: (_) {},
+              onToggleDarkMode: (_) {},
+              onChangeColorBlindMode: (_) {},
+              onSelectCategory: () {},
+              onAddCategory: () {},
+              onToggleEdit: () {},
+              onToggleTtsInput: () {},
+              onToggleTtsText: () {},
+              onToggleCardImageLabel: () {},
+              onToggleApplyTextColorToCards: () {},
+              onChangeOrientation: () {},
+              onPickPrimaryColor: () {},
+              onPickTextColor: () {},
+              onPickBackgroundColor: () {},
+              onShowTtsBarSize: () {},
+              onToggleFullScreen: () {},
+              onShowLanguage: () {},
+              onShowGrid: () {},
+              onShowVisibleCount: () {},
+              onBackup: () {},
+              onRestore: () {},
+              onResetSettings: () {},
+              onShowAbout: () {},
+              onReplayTutorial: () {
+                replayed = true;
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(find.text('About Simple AAC'), 150);
+      expect(find.text('Interactive App Guide'), findsOneWidget);
+      expect(find.text('Replay step-by-step walkthrough anytime'), findsOneWidget);
+      expect(find.text('About Simple AAC'), findsOneWidget);
+
+      await tester.tap(find.text('Interactive App Guide'));
+      await tester.pump();
+
+      expect(replayed, isTrue);
     });
   });
 }
