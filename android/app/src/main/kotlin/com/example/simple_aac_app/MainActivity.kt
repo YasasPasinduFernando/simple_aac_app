@@ -1,6 +1,9 @@
 package com.example.simple_aac_app
 
+import android.app.Activity
+import android.app.KeyguardManager
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -33,6 +36,9 @@ import kotlin.math.sqrt
 class MainActivity : FlutterActivity() {
     private val channelName = "aac_backup"
     private val visionChannelName = "aac_vision"
+    private val authChannelName = "aac_auth"
+    private val REQUEST_CODE_CONFIRM_CREDENTIAL = 9482
+    private var pendingAuthResult: MethodChannel.Result? = null
     private val visionExecutor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -109,6 +115,44 @@ class MainActivity : FlutterActivity() {
                     }
                 } else {
                     result.notImplemented()
+                }
+            }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, authChannelName)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "isDeviceSecure" -> {
+                        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+                        val isSecure = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            keyguardManager?.isDeviceSecure == true
+                        } else {
+                            keyguardManager?.isKeyguardSecure == true
+                        }
+                        result.success(isSecure)
+                    }
+                    "authenticate" -> {
+                        val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
+                        val isSecure = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            keyguardManager?.isDeviceSecure == true
+                        } else {
+                            keyguardManager?.isKeyguardSecure == true
+                        }
+                        if (!isSecure || keyguardManager == null) {
+                            result.success(mapOf("success" to false, "reason" to "no_device_lock"))
+                            return@setMethodCallHandler
+                        }
+                        val title = call.argument<String>("title") ?: "Caregiver Verification"
+                        val description = call.argument<String>("description") ?: "Confirm phone lock to continue"
+                        val intent = keyguardManager.createConfirmDeviceCredentialIntent(title, description)
+                        if (intent != null) {
+                            pendingAuthResult?.success(mapOf("success" to false, "reason" to "superseded"))
+                            pendingAuthResult = result
+                            startActivityForResult(intent, REQUEST_CODE_CONFIRM_CREDENTIAL)
+                        } else {
+                            result.success(mapOf("success" to false, "reason" to "not_available"))
+                        }
+                    }
+                    else -> result.notImplemented()
                 }
             }
 
@@ -404,6 +448,19 @@ class MainActivity : FlutterActivity() {
                 stream.write(bytes)
             }
             file.absolutePath
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_CONFIRM_CREDENTIAL) {
+            val pending = pendingAuthResult
+            pendingAuthResult = null
+            if (resultCode == Activity.RESULT_OK) {
+                pending?.success(mapOf("success" to true))
+            } else {
+                pending?.success(mapOf("success" to false, "reason" to "canceled"))
+            }
         }
     }
 }

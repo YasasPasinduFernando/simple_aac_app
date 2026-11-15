@@ -570,16 +570,14 @@ void main() {
     await tester.scrollUntilVisible(find.text('Show Sentence Bar'), 100);
     expect(find.text('Show Sentence Bar'), findsOneWidget);
     expect(find.text('Show the top bar for building and speaking sentences'), findsOneWidget);
+    await tester.tap(find.text('Show Sentence Bar'));
+    await tester.pump();
+    expect(ttsInputToggled, isTrue);
 
     await tester.scrollUntilVisible(find.text('Hide Text in Sentence Bar'), 100);
     expect(find.text('Hide Text in Sentence Bar'), findsOneWidget);
     expect(find.text('Show only card pictures in the sentence bar'), findsOneWidget);
-
-    await tester.tap(find.text('Show Sentence Bar'), warnIfMissed: false);
-    await tester.pump();
-    expect(ttsInputToggled, isTrue);
-
-    await tester.tap(find.text('Hide Text in Sentence Bar'), warnIfMissed: false);
+    await tester.tap(find.text('Hide Text in Sentence Bar'));
     await tester.pump();
     expect(ttsTextToggled, isTrue);
   });

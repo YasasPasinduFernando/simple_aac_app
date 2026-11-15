@@ -16,6 +16,7 @@ import '../models/tts_token.dart';
 import '../models/tutorial_step.dart';
 import '../services/backup_service.dart';
 import '../services/card_storage_service.dart';
+import '../services/caregiver_lock_service.dart';
 import '../services/multilingual_concept_service.dart';
 import '../services/network_policy_service.dart';
 import '../services/speech_engine.dart';
@@ -145,6 +146,8 @@ class _HomePageState extends State<HomePage> {
         .registerKey('drawer_edit_mode_toggle', _drawerEditModeKey);
     TutorialService.instance
         .registerKey('edit_mode_add_new_button', _addNewCardKey);
+
+    CaregiverLockService.instance.init();
 
     TutorialService.instance.onActionRequested = (step) {
       if (!mounted) return;
@@ -1603,8 +1606,16 @@ class _HomePageState extends State<HomePage> {
     current.add(cardId);
   }
 
-  void _toggleEditMode() {
-    Navigator.pop(context);
+  void _toggleEditMode() async {
+    if (!isEditMode && CaregiverLockService.instance.isEnabled) {
+      final allowed = await CaregiverLockService.instance.authenticate(
+        context,
+        title: 'Unlock Edit Mode',
+        reason: 'Confirm screen lock to edit words and cards',
+      );
+      if (!allowed || !mounted) return;
+    }
+    if (mounted) Navigator.pop(context);
     if (isEditMode) {
       _exitEditMode();
     } else {
@@ -2620,6 +2631,37 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _handleTogglePin() async {
+    if (isPinned && CaregiverLockService.instance.isEnabled) {
+      final allowed = await CaregiverLockService.instance.authenticate(
+        context,
+        title: 'Unlock Board',
+        reason: 'Confirm screen lock to unpin communication board',
+      );
+      if (!allowed || !mounted) return;
+    }
+    setState(() {
+      isPinned = !isPinned;
+      if (isPinned) {
+        fullScreen = true;
+      }
+    });
+    UiModeHelper.applySystemUi(fullScreen);
+  }
+
+  Future<void> _handleToggleCaregiverLock(bool enabled) async {
+    if (!enabled) {
+      final allowed = await CaregiverLockService.instance.authenticate(
+        context,
+        title: 'Disable Caregiver Lock',
+        reason: 'Confirm screen lock to disable caregiver protection',
+      );
+      if (!allowed || !mounted) return;
+    }
+    await CaregiverLockService.instance.setEnabled(enabled);
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -2681,15 +2723,7 @@ class _HomePageState extends State<HomePage> {
                     },
                     showPin: true,
                     isPinned: isPinned,
-                    onTogglePin: () {
-                      setState(() {
-                        isPinned = !isPinned;
-                        if (isPinned) {
-                          fullScreen = true;
-                        }
-                      });
-                      UiModeHelper.applySystemUi(fullScreen);
-                    },
+                    onTogglePin: _handleTogglePin,
                     isEditMode: isEditMode,
                     showMenu: !isPinned,
                     menuButtonKey: _menuButtonKey,
@@ -2721,6 +2755,9 @@ class _HomePageState extends State<HomePage> {
                     fullScreen: fullScreen,
                     headerColor: themePrimary,
                     headerTextColor: themeText,
+                    isCaregiverLockEnabled:
+                        CaregiverLockService.instance.isEnabled,
+                    onToggleCaregiverLock: _handleToggleCaregiverLock,
                     hideTtsText: _hideTtsText,
                     enableHaptics: _enableHaptics,
                     onToggleHaptics: (enabled) {
@@ -2886,15 +2923,7 @@ class _HomePageState extends State<HomePage> {
                           canGoBack: activeParentCard != null,
                           baseColor: themePrimary,
                           textColor: themeText,
-                          onTogglePin: () {
-                            setState(() {
-                              isPinned = !isPinned;
-                              if (isPinned) {
-                                fullScreen = true;
-                              }
-                            });
-                            UiModeHelper.applySystemUi(fullScreen);
-                          },
+                          onTogglePin: _handleTogglePin,
                           onOpenMenu: () {
                             if (_isDrawerExpanded) {
                               setState(() {

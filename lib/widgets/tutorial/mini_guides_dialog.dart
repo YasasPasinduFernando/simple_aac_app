@@ -66,6 +66,7 @@ class MiniGuidesDialog extends StatelessWidget {
               // Scrollable Guides List
               Expanded(
                 child: ListView(
+                  padding: const EdgeInsets.fromLTRB(0, 4, 0, 24),
                   children: [
                     _buildGuideCard(
                       icon: Icons.lock_outline_rounded,

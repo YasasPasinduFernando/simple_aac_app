@@ -62,6 +62,8 @@ class HomeDrawer extends StatelessWidget {
   final ValueChanged<bool>? onToggleExpanded;
   final VoidCallback? onClose;
   final bool? showGestureHint;
+  final bool isCaregiverLockEnabled;
+  final ValueChanged<bool>? onToggleCaregiverLock;
 
   const HomeDrawer({
     Key? key,
@@ -124,6 +126,8 @@ class HomeDrawer extends StatelessWidget {
     this.onToggleExpanded,
     this.onClose,
     this.showGestureHint,
+    this.isCaregiverLockEnabled = false,
+    this.onToggleCaregiverLock,
   }) : super(key: key);
 
   void _handleClose(BuildContext context) {
@@ -192,6 +196,16 @@ class HomeDrawer extends StatelessWidget {
                     TutorialService.instance.notifyEditModeEnabled();
                     onToggleEdit();
                   },
+                ),
+                _buildSwitchItem(
+                  context,
+                  icon: Icons.fingerprint_rounded,
+                  title: 'Caregiver Lock',
+                  subtitle: isCaregiverLockEnabled
+                      ? 'Lock active: Phone biometrics or PIN required'
+                      : 'Protect board & settings with phone fingerprint, face, pattern or PIN',
+                  value: isCaregiverLockEnabled,
+                  onChanged: (val) => onToggleCaregiverLock?.call(val),
                 ),
                 if (onShowOfflineSpeech != null)
                   _buildDrawerItem(

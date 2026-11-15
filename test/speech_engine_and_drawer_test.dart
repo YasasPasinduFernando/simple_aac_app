@@ -9,6 +9,11 @@ void main() {
 
   testWidgets('HomeDrawer shows Offline Speech without legacy 4-voice selector',
       (tester) async {
+    tester.view.physicalSize = const Size(600, 1000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     var opened = false;
     await tester.pumpWidget(
       MaterialApp(

@@ -348,24 +348,24 @@ class TutorialStrings {
   static String getPinGuideTitle(String lang) {
     switch (lang) {
       case 'si':
-        return 'ආරක්ෂක PIN අංකය (Caregiver PIN)';
+        return 'ආරක්ෂක අගුල (Caregiver Lock & Biometrics)';
       case 'ta':
-        return 'பாதுகாப்பு PIN (Caregiver PIN)';
+        return 'பாதுகாப்பு பூட்டு (Caregiver Lock)';
       case 'en':
       default:
-        return 'Caregiver PIN Protection';
+        return 'Caregiver Lock & Biometrics';
     }
   }
 
   static String getPinGuideDesc(String lang) {
     switch (lang) {
       case 'si':
-        return 'දරුවන් අතින් අහඹු ලෙස කාඩ්පත් වෙනස්වීම වැළැක්වීමට Settings හි Caregiver PIN සක්‍රිය කරන්න. එය සක්‍රිය කළ විට සංස්කරණ ප්‍රකාරයට පිවිසීමට අංක 4ක කේතයක් ඇතුළත් කළ යුතුය.';
+        return 'දරුවන් අතින් අහඹු ලෙස කාඩ්පත් වෙනස්වීම වැළැක්වීමට Settings හි Caregiver Lock සක්‍රිය කරන්න. දුරකථනයේ Fingerprint, Face unlock, Pattern හෝ PIN මඟින් ආරක්ෂිතව Edit Mode සහ Board Pin විවෘත කළ හැක.';
       case 'ta':
-        return 'குழந்தைகள் தற்செயலாக அமைப்புகளை மாற்றுவதைத் தடுக்க Caregiver PIN-ஐ இயக்கவும். இது திருத்தும் பயன்முறைக்கு 4 இலக்க குறியீட்டைக் கேட்கும்.';
+        return 'அமைப்புகளைப் பாதுகாக்க Settings-ல் Caregiver Lock-ஐ இயக்கவும். உங்கள் கைரேகை, முக அடையாளம், பேட்டர்ன் அல்லது PIN மூலம் எளிதாகத் திறக்கலாம்.';
       case 'en':
       default:
-        return 'Protect your board layout by enabling the Caregiver PIN in Settings. When enabled, a 4-digit PIN is required before unlocking edit mode.';
+        return 'Protect your board layout by enabling Caregiver Lock in Settings. Unlock edit mode and unpin the board securely using your phone\'s fingerprint, face unlock, pattern, or device PIN.';
     }
   }
 

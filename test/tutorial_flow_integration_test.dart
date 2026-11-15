@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_aac_app/models/tutorial_step.dart';
 import 'package:simple_aac_app/services/tutorial_service.dart';
+import 'package:simple_aac_app/utils/tutorial_strings.dart';
 import 'package:simple_aac_app/widgets/home_drawer.dart';
 import 'package:simple_aac_app/widgets/tutorial/mini_guides_dialog.dart';
 import 'package:simple_aac_app/widgets/tutorial/welcome_tour_dialog.dart';
@@ -72,7 +73,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Help & Feature Guides'), findsOneWidget);
-      expect(find.text('Caregiver PIN Protection'), findsOneWidget);
+      expect(find.text(TutorialStrings.getPinGuideTitle('en')), findsOneWidget);
       expect(find.text('Backup & Restore Data'), findsOneWidget);
       expect(find.text('Permissions & Privacy'), findsOneWidget);
 
@@ -91,7 +92,7 @@ void main() {
       );
 
       expect(find.text('உதவி வழிகாட்டிகள்'), findsOneWidget);
-      expect(find.text('பாதுகாப்பு PIN (Caregiver PIN)'), findsOneWidget);
+      expect(find.text(TutorialStrings.getPinGuideTitle('ta')), findsOneWidget);
       expect(find.text('காப்புப்பிரதி மற்றும் மீட்டமை (Backup & Restore)'), findsOneWidget);
     });
 
