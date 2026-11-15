@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../services/tutorial_service.dart';
 import 'tutorial/mini_guides_dialog.dart';
 
@@ -462,6 +461,7 @@ class HomeDrawer extends StatelessWidget {
                       maxWidth: constraints.maxWidth < 280 ? 280 : constraints.maxWidth,
                     ),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Left: Expand / Shrink Chevron Button
                         Semantics(
@@ -475,7 +475,6 @@ class HomeDrawer extends StatelessWidget {
                                 onTap: () {
                                   TutorialService.instance.notifyDrawerResized();
                                   onToggleExpanded?.call(!isExpanded);
-                                  DrawerGestureHintHelper.setDismissed();
                                 },
                                 borderRadius: BorderRadius.circular(12),
                                 child: Container(
@@ -538,7 +537,7 @@ class HomeDrawer extends StatelessWidget {
                                     horizontal: 8, vertical: 2.5),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withValues(alpha: 0.20),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: Colors.white.withValues(alpha: 0.32),
                                     width: 0.8,
@@ -558,7 +557,7 @@ class HomeDrawer extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Right: Dedicated Close (×) Button
+                        // Right: Dedicated Close (×) Button (matching squircle, top-aligned)
                         Semantics(
                           button: true,
                           label: 'Close Settings',
@@ -568,14 +567,14 @@ class HomeDrawer extends StatelessWidget {
                               color: Colors.transparent,
                               child: InkWell(
                                 onTap: () => _handleClose(context),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(12),
                                 child: Container(
                                   width: isVeryCompact ? 36 : 40,
                                   height: isVeryCompact ? 36 : 40,
                                   alignment: Alignment.center,
                                   decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
                                     color: Colors.white.withValues(alpha: 0.22),
+                                    borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
                                       color: Colors.white.withValues(alpha: 0.35),
                                       width: 1.0,
@@ -1785,38 +1784,25 @@ class _DrawerHeaderWavePainter extends CustomPainter {
       oldDelegate.waveColor != waveColor;
 }
 
-/// Helper service for managing and persisting the Settings Drawer first-time swipe hint.
+/// Helper service for managing the Settings Drawer swipe hint.
+/// Shows every time the app is re-opened, but can be dismissed per-session via the 'x' button.
 class DrawerGestureHintHelper {
-  static const String prefKey = 'settings_drawer_gesture_hint_dismissed_v111';
-  static bool? _inMemoryOverride;
+  static bool _sessionDismissed = false;
 
-  /// Returns true if the user has previously dismissed or demonstrated the swipe gesture.
+  /// Returns true if the user dismissed the swipe gesture guidance during this session.
+  /// Defaults to false so guidance reappears every time the app is re-opened.
   static Future<bool> isDismissed() async {
-    if (_inMemoryOverride != null) return _inMemoryOverride!;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getBool(prefKey) ?? false;
-    } catch (_) {
-      return false;
-    }
+    return _sessionDismissed;
   }
 
-  /// Marks the gesture hint as dismissed permanently.
+  /// Marks the gesture hint as dismissed for this session when the user taps 'x'.
   static Future<void> setDismissed() async {
-    _inMemoryOverride = true;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(prefKey, true);
-    } catch (_) {}
+    _sessionDismissed = true;
   }
 
-  /// Resets the dismissed flag (primarily for QA and automated test verification).
+  /// Resets the session dismissal flag (primarily for QA and automated test verification).
   static Future<void> reset() async {
-    _inMemoryOverride = false;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(prefKey);
-    } catch (_) {}
+    _sessionDismissed = false;
   }
 }
 
@@ -2048,22 +2034,18 @@ class _DrawerGestureHandlerState extends State<_DrawerGestureHandler> {
         if (_accumulatedDelta <= -40 && !widget.isExpanded) {
           _accumulatedDelta = 0.0;
           widget.onToggleExpanded?.call(true);
-          DrawerGestureHintHelper.setDismissed();
         } else if (_accumulatedDelta >= 40 && widget.isExpanded) {
           _accumulatedDelta = 0.0;
           widget.onToggleExpanded?.call(false);
-          DrawerGestureHintHelper.setDismissed();
         }
       },
       onHorizontalDragEnd: (details) {
         final velocity = details.primaryVelocity ?? 0.0;
         if ((velocity < -200 || _accumulatedDelta <= -30) && !widget.isExpanded) {
           widget.onToggleExpanded?.call(true);
-          DrawerGestureHintHelper.setDismissed();
         } else if (velocity > 200 || _accumulatedDelta >= 30) {
           if (widget.isExpanded) {
             widget.onToggleExpanded?.call(false);
-            DrawerGestureHintHelper.setDismissed();
           } else {
             widget.onClose();
           }

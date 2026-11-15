@@ -284,8 +284,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Scroll so Appearance & Theme is right in view
-    await tester.scrollUntilVisible(find.text('Dark Mode'), 200);
+    // Keep top header in full view
     await tester.pumpAndSettle();
 
     final lightBoundary =
@@ -315,7 +314,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('Dark Mode'), 200);
+    // Keep top header in full view
     await tester.pumpAndSettle();
 
     final darkBoundary =
