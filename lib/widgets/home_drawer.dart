@@ -383,7 +383,6 @@ class HomeDrawer extends StatelessWidget {
                   title: 'Feature Guides',
                   subtitle: 'PIN, Backup, Permissions & Privacy',
                   onTap: () {
-                    _handleClose(context);
                     if (onShowMiniGuides != null) {
                       onShowMiniGuides!();
                     } else {

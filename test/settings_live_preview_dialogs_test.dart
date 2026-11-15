@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:simple_aac_app/models/aac_card_model.dart';
 import 'package:simple_aac_app/pages/home_page.dart';
+import 'package:simple_aac_app/widgets/home_drawer.dart';
 import 'package:simple_aac_app/widgets/preview/grid_density_preview.dart';
 import 'package:simple_aac_app/widgets/preview/live_preview_panel.dart';
 import 'package:simple_aac_app/widgets/preview/tts_composer_preview.dart';
@@ -333,8 +334,15 @@ void main() {
       await tester.tap(ttsTile);
       await tester.pumpAndSettle();
 
-      // Verify Live Preview is present
-      expect(find.text('TTS Bar Sizing'), findsOneWidget);
+      // Verify Live Preview is present inside open dialog
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text('TTS Bar Sizing'),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('LIVE PREVIEW'), findsOneWidget);
       expect(find.text('I want'), findsOneWidget);
       expect(find.text('Water'), findsOneWidget);
@@ -349,13 +357,20 @@ void main() {
       // Reset button resets draft state only (dialog remains open)
       await tester.tap(find.text('Reset'));
       await tester.pumpAndSettle();
-      expect(find.text('TTS Bar Sizing'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text('TTS Bar Sizing'),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('Size: 100%'), findsOneWidget);
 
-      // Apply button persists and dismisses dialog
+      // Apply button persists and dismisses dialog (drawer remains open underneath)
       await tester.tap(find.text('Apply'));
       await tester.pumpAndSettle();
-      expect(find.text('TTS Bar Sizing'), findsNothing);
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(HomeDrawer), findsOneWidget);
     });
 
     testWidgets('Select Grid Size dialog live preview reflow, Cancel vs Apply',

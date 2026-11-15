@@ -872,7 +872,6 @@ class _HomePageState extends State<HomePage> {
           unawaited(_initTts());
           _saveCards();
           Navigator.pop(context);
-          Navigator.pop(context);
         }
 
         return AlertDialog(
@@ -938,7 +937,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showOfflineSpeechDialog() {
-    Navigator.pop(context);
     var report = _speechCapabilities;
     var probing = false;
 
@@ -1071,7 +1069,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showCategoryDialog() {
-    Navigator.pop(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1122,7 +1119,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showAddCategoryDialog() {
-    Navigator.pop(context);
     final controller = TextEditingController();
 
     showDialog(
@@ -1174,7 +1170,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showGridOptions() {
-    Navigator.pop(context);
     final labels = ['Extra Large', 'Large', 'Medium', 'Small', 'Extra Small'];
     int tempColumns = gridColumns.clamp(1, 5);
     showDialog(
@@ -1277,7 +1272,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _confirmResetSettings() {
-    Navigator.pop(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1394,7 +1388,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showVisibleCountDialog() {
-    Navigator.pop(context);
     final total = _getBaseDisplayedCards().length;
     if (total == 0) return;
     final allCards = _getBaseDisplayedCards();
@@ -1758,7 +1751,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showTtsBarSizeDialog() {
-    Navigator.pop(context);
     double tempSize = _ttsBarSize;
     bool tempShowActions = _showTtsActions;
     showDialog(
@@ -2171,7 +2163,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _backupWithPicker() async {
-    Navigator.pop(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -2226,7 +2217,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _restoreWithPicker() async {
-    Navigator.pop(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -2561,7 +2551,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showAbout() {
-    Navigator.pop(context);
     showDialog(
       context: context,
       builder: (context) {
@@ -2892,7 +2881,6 @@ class _HomePageState extends State<HomePage> {
                     onRestore: _restoreWithPicker,
                     onResetSettings: _confirmResetSettings,
                     onManagePermissions: () async {
-                      Navigator.pop(context);
                       await AppPermissionsHelper.requestAllAndShowStatus(
                           context);
                     },
