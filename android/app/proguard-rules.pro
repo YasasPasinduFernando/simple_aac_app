@@ -1,42 +1,69 @@
 # ProGuard & R8 Optimization Rules for Simple AAC Sri Lanka
+# Optimized for Android Gradle Plugin 9.0.1 and R8 full mode shrinking
 
 # Keep essential attributes for serialization, annotations, and reflection
 -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod,Exceptions
 
-# Flutter framework & engine
--keep class io.flutter.app.** { *; }
--keep class io.flutter.plugin.** { *; }
--keep class io.flutter.util.** { *; }
--keep class io.flutter.view.** { *; }
--keep class io.flutter.** { *; }
--keep class io.flutter.plugins.** { *; }
+# Flutter framework & engine JNI bridge
+# (Plugin registration is managed by GeneratedPluginRegistrant and flutter_proguard_rules.pro)
 -dontwarn io.flutter.embedding.**
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
 
-# Application native classes (MainActivity, VideoGifEncoder, VideoTooLongException)
--keep class com.example.simple_aac_app.** { *; }
--keepclassmembers class com.example.simple_aac_app.** { *; }
+# Application native classes
+-keep class com.example.simple_aac_app.MainActivity {
+    public *;
+}
+-keep class com.example.simple_aac_app.VideoGifEncoder {
+    public static <methods>;
+}
 
 # Google ML Kit (Offline Image Labeling & Object Detection)
--keep class com.google.mlkit.** { *; }
--keep interface com.google.mlkit.** { *; }
--keep class com.google.android.gms.vision.** { *; }
--keep class com.google.android.gms.tasks.** { *; }
--keep class com.google.android.gms.common.** { *; }
+# Preserves ComponentRegistrars, reflection constructors, and ML Kit vision client factories
+-keep class * implements com.google.firebase.components.ComponentRegistrar {
+    <init>();
+}
+-keep class com.google.mlkit.** {
+    <init>(...);
+    public *;
+}
+-keep interface com.google.mlkit.** {
+    *;
+}
 -dontwarn com.google.mlkit.**
 -dontwarn com.google.android.gms.**
 
 # Native Method Channel & Platform Plugins
-# Text-to-Speech (TTS Engine integration)
--keep class com.tundralabs.fluttertts.** { *; }
+# Text-to-Speech (TTS Engine integration & trilingual synthesis)
+-keep class com.tundralabs.fluttertts.FlutterTtsPlugin {
+    public *;
+}
 
 # Audio recording & playback
--keep class xyz.luan.audioplayers.** { *; }
--keep class com.llfbandit.record.** { *; }
+-keep class xyz.luan.audioplayers.AudioplayersPlugin {
+    public *;
+}
+-keep class com.llfbandit.record.RecordPlugin {
+    public *;
+}
 
-# Media & Storage providers (Image picker, file picker, share_plus, path_provider, shared_preferences, permission_handler)
--keep class io.flutter.plugins.imagepicker.** { *; }
--keep class com.mr.flutter.plugin.filepicker.** { *; }
--keep class dev.fluttercommunity.plus.share.** { *; }
--keep class io.flutter.plugins.pathprovider.** { *; }
--keep class io.flutter.plugins.sharedpreferences.** { *; }
--keep class com.baseflow.permissionhandler.** { *; }
+# Media, File & Storage platform plugins
+-keep class io.flutter.plugins.imagepicker.ImagePickerPlugin {
+    public *;
+}
+-keep class com.mr.flutter.plugin.filepicker.FilePickerPlugin {
+    public *;
+}
+-keep class dev.fluttercommunity.plus.share.SharePlusPlugin {
+    public *;
+}
+-keep class io.flutter.plugins.pathprovider.PathProviderPlugin {
+    public *;
+}
+-keep class io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin {
+    public *;
+}
+-keep class com.baseflow.permissionhandler.PermissionHandlerPlugin {
+    public *;
+}
