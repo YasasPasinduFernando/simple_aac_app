@@ -118,7 +118,8 @@ class _HomePageState extends State<HomePage> {
   double _ttsBarSize = 1.0;
   double _cardTextScale = 1.0;
   bool _isDrawerExpanded = false;
-  bool _showTtsActions = true;
+  bool _showTtsDelete = true;
+  bool _showTtsClear = true;
   bool _hideTtsText = false;
   bool _useImageOverlayLabel = true;
   bool _applyTextColorToCards = false;
@@ -248,6 +249,8 @@ class _HomePageState extends State<HomePage> {
       final nextCardTextScale = prefs.getDouble('cardTextScale') ?? 1.0;
       final nextDrawerExpanded = prefs.getBool('drawerFullScreen') ?? false;
       final nextShowActions = prefs.getBool('showTtsActions') ?? true;
+      final nextShowDelete = prefs.getBool('showTtsDelete') ?? nextShowActions;
+      final nextShowClear = prefs.getBool('showTtsClear') ?? nextShowActions;
       final nextHideTts = prefs.getBool('hideTtsText') ?? false;
       final nextOverlay = prefs.getBool('useImageOverlayLabel') ?? true;
       final nextApplyText = prefs.getBool('applyTextColorToCards') ?? false;
@@ -272,7 +275,8 @@ class _HomePageState extends State<HomePage> {
         _ttsBarSize = nextTtsSize;
         _cardTextScale = nextCardTextScale;
         _isDrawerExpanded = nextDrawerExpanded;
-        _showTtsActions = nextShowActions;
+        _showTtsDelete = nextShowDelete;
+        _showTtsClear = nextShowClear;
         _hideTtsText = nextHideTts;
         _useImageOverlayLabel = nextOverlay;
         _applyTextColorToCards = nextApplyText;
@@ -374,7 +378,9 @@ class _HomePageState extends State<HomePage> {
           prefs.setDouble('ttsBarSize', _ttsBarSize),
           prefs.setDouble('cardTextScale', _cardTextScale),
           prefs.setBool('drawerFullScreen', _isDrawerExpanded),
-          prefs.setBool('showTtsActions', _showTtsActions),
+          prefs.setBool('showTtsActions', _showTtsDelete || _showTtsClear),
+          prefs.setBool('showTtsDelete', _showTtsDelete),
+          prefs.setBool('showTtsClear', _showTtsClear),
           prefs.setBool('hideTtsText', _hideTtsText),
           prefs.setBool('useImageOverlayLabel', _useImageOverlayLabel),
           prefs.setBool('applyTextColorToCards', _applyTextColorToCards),
@@ -1404,7 +1410,8 @@ class _HomePageState extends State<HomePage> {
       _ttsBarSize = 1.0;
       _cardTextScale = 1.0;
       _isDrawerExpanded = false;
-      _showTtsActions = true;
+      _showTtsDelete = true;
+      _showTtsClear = true;
       _hideTtsText = false;
       _useImageOverlayLabel = true;
       _applyTextColorToCards = false;
@@ -1563,7 +1570,9 @@ class _HomePageState extends State<HomePage> {
       'ttsBarSize': _ttsBarSize,
       'cardTextScale': _cardTextScale,
       'drawerFullScreen': _isDrawerExpanded,
-      'showTtsActions': _showTtsActions,
+      'showTtsActions': _showTtsDelete || _showTtsClear,
+      'showTtsDelete': _showTtsDelete,
+      'showTtsClear': _showTtsClear,
       'hideTtsText': _hideTtsText,
       'useImageOverlayLabel': _useImageOverlayLabel,
       'applyTextColorToCards': _applyTextColorToCards,
@@ -1825,7 +1834,8 @@ class _HomePageState extends State<HomePage> {
 
   void _showTtsBarSizeDialog() {
     double tempSize = _ttsBarSize;
-    bool tempShowActions = _showTtsActions;
+    bool tempShowDelete = _showTtsDelete;
+    bool tempShowClear = _showTtsClear;
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -1835,9 +1845,9 @@ class _HomePageState extends State<HomePage> {
             insetPadding:
                 const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             title: const StyledDialogHeader(
-              icon: Icons.format_size_rounded,
-              title: 'TTS Bar Sizing',
-              subtitle: 'Adjust speech composer bar height',
+              icon: Icons.text_increase_rounded,
+              title: 'TTS Bar Settings',
+              subtitle: 'Configure size, Delete & Clear action buttons',
             ),
             content: SingleChildScrollView(
               child: Column(
@@ -1849,13 +1859,15 @@ class _HomePageState extends State<HomePage> {
                     minHeight: 80,
                     maxHeight: 140,
                     trailing: TtsComposerPreview.buildActionChips(
-                      showActions: tempShowActions,
+                      showDelete: tempShowDelete,
+                      showClear: tempShowClear,
                       isDark: _isDarkMode,
                     ),
                     child: Center(
                       child: TtsComposerPreview(
                         sizeFactor: tempSize,
-                        showActions: tempShowActions,
+                        showDelete: tempShowDelete,
+                        showClear: tempShowClear,
                         showText: !_hideTtsText,
                         speakerColor: _isDarkMode
                             ? colorScheme.primary
@@ -1901,21 +1913,59 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: colorScheme.outlineVariant),
                       ),
-                      child: SwitchListTile(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        secondary:
-                            const Icon(Icons.backspace_outlined, size: 20),
-                        title: const Text(
-                          'Show Delete / Clear',
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.w600),
-                        ),
-                        value: tempShowActions,
-                        onChanged: (value) {
-                          setLocalState(() => tempShowActions = value);
-                        },
+                      child: Column(
+                        children: [
+                          SwitchListTile(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(14)),
+                            ),
+                            secondary:
+                                const Icon(Icons.backspace_outlined, size: 20),
+                            title: const Text(
+                              'Show Delete Button',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                            subtitle: const Text(
+                              'Remove last tapped word card',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            value: tempShowDelete,
+                            onChanged: (value) {
+                              setLocalState(() => tempShowDelete = value);
+                            },
+                          ),
+                          Divider(
+                            height: 1,
+                            thickness: 1,
+                            indent: 16,
+                            endIndent: 16,
+                            color: colorScheme.outlineVariant
+                                .withValues(alpha: 0.5),
+                          ),
+                          SwitchListTile(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(
+                                  bottom: Radius.circular(14)),
+                            ),
+                            secondary:
+                                const Icon(Icons.clear_rounded, size: 20),
+                            title: const Text(
+                              'Show Clear Button',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                            subtitle: const Text(
+                              'Clear entire sentence bar',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            value: tempShowClear,
+                            onChanged: (value) {
+                              setLocalState(() => tempShowClear = value);
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -1931,7 +1981,8 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   setLocalState(() {
                     tempSize = 1.0;
-                    tempShowActions = true;
+                    tempShowDelete = true;
+                    tempShowClear = true;
                   });
                 },
                 child: const Text('Reset'),
@@ -1940,7 +1991,8 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   setState(() {
                     _ttsBarSize = tempSize;
-                    _showTtsActions = tempShowActions;
+                    _showTtsDelete = tempShowDelete;
+                    _showTtsClear = tempShowClear;
                   });
                   _saveCards();
                   Navigator.pop(context);
@@ -2542,7 +2594,12 @@ class _HomePageState extends State<HomePage> {
           (settings['cardTextScale'] as num?)?.toDouble() ?? _cardTextScale;
       _isDrawerExpanded =
           settings['drawerFullScreen'] as bool? ?? _isDrawerExpanded;
-      _showTtsActions = settings['showTtsActions'] as bool? ?? _showTtsActions;
+      final importedShowActions =
+          settings['showTtsActions'] as bool? ?? (_showTtsDelete || _showTtsClear);
+      _showTtsDelete =
+          settings['showTtsDelete'] as bool? ?? importedShowActions;
+      _showTtsClear =
+          settings['showTtsClear'] as bool? ?? importedShowActions;
       _hideTtsText = settings['hideTtsText'] as bool? ?? _hideTtsText;
       _useImageOverlayLabel =
           settings['useImageOverlayLabel'] as bool? ?? _useImageOverlayLabel;
@@ -3127,7 +3184,9 @@ class _HomePageState extends State<HomePage> {
         speakerColor:
             _isDarkMode ? Theme.of(context).colorScheme.primary : themePrimary,
         sizeFactor: _ttsBarSize,
-        showActions: _showTtsActions,
+        showActions: _showTtsDelete || _showTtsClear,
+        showDelete: _showTtsDelete,
+        showClear: _showTtsClear,
         showText: !_hideTtsText,
       );
     }

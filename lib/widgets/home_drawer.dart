@@ -309,8 +309,8 @@ class HomeDrawer extends StatelessWidget {
                 _buildDrawerItem(
                   context,
                   icon: Icons.text_increase_rounded,
-                  title: 'TTS Bar Sizing',
-                  subtitle: 'Adjust composer bar height',
+                  title: 'TTS Bar Settings',
+                  subtitle: 'Bar size, Delete & Clear buttons',
                   onTap: onShowTtsBarSize,
                 ),
                 const SizedBox(height: 12),

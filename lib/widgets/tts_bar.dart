@@ -12,6 +12,8 @@ class TtsBar extends StatelessWidget {
   final Color? speakerColor;
   final double sizeFactor;
   final bool showActions;
+  final bool showDelete;
+  final bool showClear;
   final bool showText;
 
   const TtsBar({
@@ -24,8 +26,12 @@ class TtsBar extends StatelessWidget {
     this.speakerColor,
     this.sizeFactor = 1.0,
     this.showActions = true,
+    bool? showDelete,
+    bool? showClear,
     this.showText = true,
-  }) : super(key: key);
+  })  : showDelete = showDelete ?? showActions,
+        showClear = showClear ?? showActions,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -131,28 +137,31 @@ class TtsBar extends StatelessWidget {
                   ),
           ),
           SizedBox(width: 6 * sizeFactor),
-          if (showActions)
+          if (showDelete || showClear)
             Row(
               children: [
-                _TtsActionPill(
-                  icon: Icons.backspace_outlined,
-                  label: 'Delete',
-                  sizeFactor: sizeFactor,
-                  enabled: hasTokens,
-                  backgroundColor: chipBg,
-                  borderColor: borderColor,
-                  onTap: onDelete,
-                ),
-                SizedBox(width: 4 * sizeFactor),
-                _TtsActionPill(
-                  icon: Icons.clear_rounded,
-                  label: 'Clear',
-                  sizeFactor: sizeFactor,
-                  enabled: hasTokens,
-                  backgroundColor: chipBg,
-                  borderColor: borderColor,
-                  onTap: onClear,
-                ),
+                if (showDelete) ...[
+                  _TtsActionPill(
+                    icon: Icons.backspace_outlined,
+                    label: 'Delete',
+                    sizeFactor: sizeFactor,
+                    enabled: hasTokens,
+                    backgroundColor: chipBg,
+                    borderColor: borderColor,
+                    onTap: onDelete,
+                  ),
+                  if (showClear) SizedBox(width: 4 * sizeFactor),
+                ],
+                if (showClear)
+                  _TtsActionPill(
+                    icon: Icons.clear_rounded,
+                    label: 'Clear',
+                    sizeFactor: sizeFactor,
+                    enabled: hasTokens,
+                    backgroundColor: chipBg,
+                    borderColor: borderColor,
+                    onTap: onClear,
+                  ),
               ],
             ),
           SizedBox(width: 6 * sizeFactor),

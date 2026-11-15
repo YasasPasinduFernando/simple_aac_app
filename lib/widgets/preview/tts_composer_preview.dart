@@ -6,16 +6,22 @@ import 'package:flutter/material.dart';
 class TtsComposerPreview extends StatelessWidget {
   final double sizeFactor;
   final bool showActions;
+  final bool showDelete;
+  final bool showClear;
   final bool showText;
   final Color? speakerColor;
 
   const TtsComposerPreview({
     Key? key,
     required this.sizeFactor,
-    required this.showActions,
+    this.showActions = true,
+    bool? showDelete,
+    bool? showClear,
     this.showText = true,
     this.speakerColor,
-  }) : super(key: key);
+  })  : showDelete = showDelete ?? showActions,
+        showClear = showClear ?? showActions,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -110,26 +116,30 @@ class TtsComposerPreview extends StatelessWidget {
           ),
           SizedBox(width: (4.0 * clampedFactor).clamp(3.0, 8.0)),
           // Delete and Clear actions (matches real TtsBar)
-          if (showActions) ...[
+          if (showDelete || showClear) ...[
             Flexible(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildSampleActionPill(
-                      icon: Icons.backspace_outlined,
-                      label: 'Delete',
-                      isDark: isDark,
-                      clampedFactor: clampedFactor,
-                    ),
-                    SizedBox(width: (4.0 * clampedFactor).clamp(3.0, 6.0)),
-                    _buildSampleActionPill(
-                      icon: Icons.clear_rounded,
-                      label: 'Clear',
-                      isDark: isDark,
-                      clampedFactor: clampedFactor,
-                    ),
+                    if (showDelete) ...[
+                      _buildSampleActionPill(
+                        icon: Icons.backspace_outlined,
+                        label: 'Delete',
+                        isDark: isDark,
+                        clampedFactor: clampedFactor,
+                      ),
+                      if (showClear)
+                        SizedBox(width: (4.0 * clampedFactor).clamp(3.0, 6.0)),
+                    ],
+                    if (showClear)
+                      _buildSampleActionPill(
+                        icon: Icons.clear_rounded,
+                        label: 'Clear',
+                        isDark: isDark,
+                        clampedFactor: clampedFactor,
+                      ),
                   ],
                 ),
               ),
@@ -258,24 +268,34 @@ class TtsComposerPreview extends StatelessWidget {
   }
 
   /// Compact header actions preview chip showing Delete and Clear when enabled.
-  static Widget buildActionChips(
-      {required bool showActions, required bool isDark}) {
-    if (!showActions) return const SizedBox.shrink();
+  static Widget buildActionChips({
+    bool? showActions,
+    bool? showDelete,
+    bool? showClear,
+    required bool isDark,
+  }) {
+    final effectiveDelete = showDelete ?? showActions ?? true;
+    final effectiveClear = showClear ?? showActions ?? true;
+
+    if (!effectiveDelete && !effectiveClear) return const SizedBox.shrink();
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildMiniChip(
-          icon: Icons.backspace_outlined,
-          label: 'Delete',
-          isDark: isDark,
-        ),
-        const SizedBox(width: 4),
-        _buildMiniChip(
-          icon: Icons.close_rounded,
-          label: 'Clear',
-          isDark: isDark,
-        ),
+        if (effectiveDelete) ...[
+          _buildMiniChip(
+            icon: Icons.backspace_outlined,
+            label: 'Delete',
+            isDark: isDark,
+          ),
+          if (effectiveClear) const SizedBox(width: 4),
+        ],
+        if (effectiveClear)
+          _buildMiniChip(
+            icon: Icons.close_rounded,
+            label: 'Clear',
+            isDark: isDark,
+          ),
       ],
     );
   }

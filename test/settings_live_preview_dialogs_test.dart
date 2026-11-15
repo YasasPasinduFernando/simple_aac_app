@@ -87,6 +87,41 @@ void main() {
       expect(find.text('Clear'), findsNothing);
     });
 
+    testWidgets('renders Delete and Clear independently based on showDelete and showClear',
+        (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: TtsComposerPreview(
+              sizeFactor: 1.0,
+              showDelete: true,
+              showClear: false,
+              showText: true,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Delete'), findsOneWidget);
+      expect(find.text('Clear'), findsNothing);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: TtsComposerPreview(
+              sizeFactor: 1.0,
+              showDelete: false,
+              showClear: true,
+              showText: true,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Delete'), findsNothing);
+      expect(find.text('Clear'), findsOneWidget);
+    });
+
     testWidgets('hides token text when showText is false', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
@@ -315,7 +350,7 @@ void main() {
 
   group('HomePage Dialog Integration Tests', () {
     testWidgets(
-        'TTS Bar Sizing dialog live preview, slider, Reset draft, and Apply',
+        'TTS Bar Settings dialog live preview, slider, independent Delete & Clear toggles, Reset draft, and Apply',
         (tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 2.0;
@@ -328,7 +363,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.menu_rounded));
       await tester.pumpAndSettle();
 
-      // Tap "TTS Bar Sizing" item in drawer
+      // Tap "TTS Bar Settings" item in drawer
       final ttsTile = find.byIcon(Icons.text_increase_rounded);
       await tester.scrollUntilVisible(ttsTile, 200);
       await tester.tap(ttsTile);
@@ -339,7 +374,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(AlertDialog),
-          matching: find.text('TTS Bar Sizing'),
+          matching: find.text('TTS Bar Settings'),
         ),
         findsOneWidget,
       );
@@ -347,20 +382,25 @@ void main() {
       expect(find.text('I want'), findsOneWidget);
       expect(find.text('Water'), findsOneWidget);
 
-      // Toggle "Show Delete / Clear"
-      final switchTile =
-          find.widgetWithText(SwitchListTile, 'Show Delete / Clear');
-      expect(switchTile, findsOneWidget);
-      await tester.tap(switchTile);
+      // Verify both independent switch tiles are present
+      final deleteSwitchTile =
+          find.widgetWithText(SwitchListTile, 'Show Delete Button');
+      final clearSwitchTile =
+          find.widgetWithText(SwitchListTile, 'Show Clear Button');
+      expect(deleteSwitchTile, findsOneWidget);
+      expect(clearSwitchTile, findsOneWidget);
+
+      // Toggle "Show Delete Button" off
+      await tester.tap(deleteSwitchTile);
       await tester.pumpAndSettle();
 
-      // Reset button resets draft state only (dialog remains open)
+      // Reset button resets draft state only (dialog remains open, both buttons back on)
       await tester.tap(find.text('Reset'));
       await tester.pumpAndSettle();
       expect(
         find.descendant(
           of: find.byType(AlertDialog),
-          matching: find.text('TTS Bar Sizing'),
+          matching: find.text('TTS Bar Settings'),
         ),
         findsOneWidget,
       );
