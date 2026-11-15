@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_aac_app/models/tutorial_step.dart';
+import 'package:simple_aac_app/pages/home_page.dart';
 import 'package:simple_aac_app/services/tutorial_service.dart';
 import 'package:simple_aac_app/utils/tutorial_strings.dart';
 import 'package:simple_aac_app/widgets/home_drawer.dart';
@@ -195,6 +196,64 @@ void main() {
       expect(TutorialService.instance.currentStepNotifier.value, isNull);
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getBool(TutorialService.prefCompleted), isTrue);
+    });
+
+    testWidgets('Tapping Next through drawer steps properly closes drawer and enters edit mode on Step 4', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomePage()));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Start tour
+      TutorialService.instance.startTour();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.openMenu);
+      expect(find.text('Open App Menu'), findsOneWidget);
+
+      // Tap Next on Step 1 (Open Menu)
+      final next1 = find.widgetWithText(FilledButton, 'Next');
+      expect(next1, findsOneWidget);
+      await tester.tap(next1);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // Should be on Step 2 (drawerExplore) and Drawer should be open!
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.drawerExplore);
+      expect(find.byType(HomeDrawer), findsOneWidget);
+
+      // Tap Next on Step 2 (drawerExplore)
+      final next2 = find.widgetWithText(FilledButton, 'Next');
+      expect(next2, findsOneWidget);
+      await tester.tap(next2);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // Should be on Step 3 (enableEditMode)
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.enableEditMode);
+
+      // Tap Next on Step 3 (enableEditMode)
+      final next3 = find.widgetWithText(FilledButton, 'Next');
+      expect(next3, findsOneWidget);
+      await tester.tap(next3);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // Should be on Step 4 (addNewCard)
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.addNewCard);
+      // Drawer MUST BE CLOSED!
+      expect(find.byType(HomeDrawer), findsNothing);
+
+      // Tap Back on Step 4 (addNewCard)
+      final back4 = find.widgetWithText(OutlinedButton, 'Back');
+      expect(back4, findsOneWidget);
+      await tester.tap(back4);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // Should be back on Step 3 (enableEditMode) and Drawer should be opened!
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.enableEditMode);
+      expect(find.byType(HomeDrawer), findsOneWidget);
     });
 
     test('Search tutorial hints return valid strings in EN, SI, TA', () {

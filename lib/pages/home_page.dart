@@ -171,14 +171,15 @@ class _HomePageState extends State<HomePage> {
         _scaffoldKey.currentState?.openEndDrawer();
       } else if (step == TutorialStepType.drawerExplore) {
         setState(() => _isDrawerExpanded = !_isDrawerExpanded);
-        TutorialService.instance.notifyDrawerResized();
         _saveCards();
       } else if (step == TutorialStepType.enableEditMode) {
-        _scaffoldKey.currentState?.closeEndDrawer();
-        _toggleEditMode();
+        _closeDrawerIfOpen();
+        if (!isEditMode) {
+          _enterEditMode();
+        }
       } else if (step == TutorialStepType.addNewCard) {
-        _scaffoldKey.currentState?.closeEndDrawer();
-        if (!isPinned) {
+        _closeDrawerIfOpen();
+        if (!isPinned && !isCardEditorOpen) {
           _createCard(parent: activeParentCard);
         }
       }
@@ -3479,14 +3480,51 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _closeDrawerIfOpen() {
+    if (_isDrawerExpanded) {
+      setState(() => _isDrawerExpanded = false);
+    }
+    _scaffoldKey.currentState?.closeEndDrawer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && (_scaffoldKey.currentState?.isEndDrawerOpen ?? false)) {
+        _scaffoldKey.currentState?.closeEndDrawer();
+      }
+    });
+  }
+
   void _handleTutorialStepChanged() {
     if (!mounted) return;
     final step = TutorialService.instance.currentStepNotifier.value;
-    if (step == TutorialStepType.addNewCard) {
-      _scaffoldKey.currentState?.closeEndDrawer();
-      if (!isEditMode) {
-        _enterEditMode();
-      }
+    if (step == null) return;
+
+    switch (step) {
+      case TutorialStepType.openMenu:
+        _closeDrawerIfOpen();
+        break;
+      case TutorialStepType.drawerExplore:
+        if (!(_scaffoldKey.currentState?.isEndDrawerOpen ?? false)) {
+          _scaffoldKey.currentState?.openEndDrawer();
+        }
+        break;
+      case TutorialStepType.enableEditMode:
+        if (!(_scaffoldKey.currentState?.isEndDrawerOpen ?? false)) {
+          _scaffoldKey.currentState?.openEndDrawer();
+        }
+        break;
+      case TutorialStepType.addNewCard:
+        _closeDrawerIfOpen();
+        if (!isEditMode) {
+          _enterEditMode();
+        }
+        break;
+      case TutorialStepType.chooseMedia:
+      case TutorialStepType.multilingualLabels:
+      case TutorialStepType.voiceRecording:
+      case TutorialStepType.saveCard:
+      case TutorialStepType.testNewCard:
+      case TutorialStepType.completed:
+        _closeDrawerIfOpen();
+        break;
     }
   }
 
