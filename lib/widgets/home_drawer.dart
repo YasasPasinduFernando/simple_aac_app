@@ -506,8 +506,8 @@ class HomeDrawer extends StatelessWidget {
                                   ),
                                   child: Icon(
                                     isExpanded
-                                        ? Icons.chevron_left_rounded
-                                        : Icons.chevron_right_rounded,
+                                        ? Icons.chevron_right_rounded
+                                        : Icons.chevron_left_rounded,
                                     color: Colors.white,
                                     size: isVeryCompact ? 20 : 24,
                                   ),

@@ -421,15 +421,17 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // In collapsed mode, button tooltip is "Expand Settings"
+    // In collapsed mode, button tooltip is "Expand Settings" and arrow points left (<) to expand
     final expandBtn = find.byTooltip('Expand Settings');
     expect(expandBtn, findsOneWidget);
+    expect(find.byIcon(Icons.chevron_left_rounded), findsOneWidget);
     await tester.tap(expandBtn);
     await tester.pumpAndSettle();
 
     expect(expanded, isTrue);
-    // In expanded mode, button tooltip is "Shrink Settings"
+    // In expanded mode, button tooltip is "Shrink Settings" and arrow points right (>) to shrink
     expect(find.byTooltip('Shrink Settings'), findsOneWidget);
+    expect(find.byIcon(Icons.chevron_right_rounded), findsWidgets);
   });
 
   testWidgets('HomeDrawer horizontal drag gestures toggle expand and collapse',
