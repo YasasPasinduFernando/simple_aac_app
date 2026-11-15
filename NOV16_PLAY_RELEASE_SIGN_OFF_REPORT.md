@@ -1,10 +1,10 @@
 # Simple AAC — November 16 Google Play Release Sign-Off Report
 
 **Document Date:** November 16, 2026  
-**Target Release:** Simple AAC v1.1.1 (versionCode: 9)  
+**Target Release:** Simple AAC v1.1.2 (versionCode: 10)  
 **Target Release Channel:** Google Play Store (Production Track)  
 **Release Branch:** `feature/v1.1.1-settings-live-previews`  
-**Latest Release Commit:** `3e45799` (`fix(dialog): allow VisibleCardsDialog to open on empty category with empty state message`)  
+**Latest Release Commit:** `95960c7` (`feat(release): bump version to 1.1.2+10 and ensure 100% settings roundtrip in backup & restore`)  
 **Package Identifier:** `lk.yasas.simpleaac`  
 **Overall Verdict:** **100% PRODUCTION SIGN-OFF APPROVED (ALL GATES PASSED)**
 
@@ -12,9 +12,9 @@
 
 ## 1. Executive Summary
 
-This formal Sign-Off Report certifies **Simple AAC v1.1.1 (Build 9)** as ready for production rollout to Google Play Console.
+This formal Sign-Off Report certifies **Simple AAC v1.1.2 (Build 10)** as ready for production rollout to Google Play Console.
 
-All features, bug fixes, UI/UX enhancements, and accessibility additions requested by the product team have been implemented, verified through automated unit, integration, and stress tests, and validated directly on physical Samsung Galaxy A34 5G hardware.
+All features, bug fixes, UI/UX enhancements, accessibility additions, and comprehensive 100% backup/restore settings round-trip requested by the product team have been implemented, verified through automated unit, integration, and stress tests, and validated directly on physical Samsung Galaxy A34 5G hardware.
 
 ---
 
@@ -22,16 +22,16 @@ All features, bug fixes, UI/UX enhancements, and accessibility additions request
 
 | Artifact | File Name | Size (Bytes) | Size (MB) | SHA-256 Checksum | Channel / Use Case |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Play Store App Bundle (AAB)** | `app-release.aab` | **82,238,262** | **82.2 MB** | `826fbd52bb9918781c429046e5fb76cd1af4d016baf0cdcebc4306c1fbfd221f` | **Google Play Console Upload** |
-| **Universal Release APK** | `app-release.apk` | **100,645,836** | **100.6 MB** | `d4174c11f9cb7889bb8068984e850705e4d404bcd72b3fb0312b9e3ff8795752` | Direct Device Testing / Sideload |
+| **Play Store App Bundle (AAB)** | `app-release.aab` | **82,242,483** | **82.2 MB** | `817aca3d74ded85aa9abb20cae9c61e290dca81f48e463cbbeceafdcf8d41880` | **Google Play Console Upload** |
+| **Universal Release APK** | `app-release.apk` | **100,645,840** | **100.6 MB** | `585d7b59583b2ebcad064d09ed71c64e33ee06e7306a80c194012ecdd6382e49` | Direct Device Testing / Sideload |
 
 * **AAB Absolute Path:** [`simple_aac_play_release/build/app/outputs/bundle/release/app-release.aab`](file:///media/yasas/New%20Volume2/yasas/PersonalProjects/simple%20aac/simple_aac_play_release/build/app/outputs/bundle/release/app-release.aab)
 * **APK Absolute Path:** [`simple_aac_play_release/build/app/outputs/flutter-apk/app-release.apk`](file:///media/yasas/New%20Volume2/yasas/PersonalProjects/simple%20aac/simple_aac_play_release/build/app/outputs/flutter-apk/app-release.apk)
 
 ### Manifest & Keystore Verification:
 - **Package ID:** `lk.yasas.simpleaac`
-- **versionCode:** `9` *(Incremented from production Build 8 to satisfy Google Play Console upload rules)*
-- **versionName:** `1.1.1`
+- **versionCode:** `10` *(Incremented from production Build 8 and staging Build 9)*
+- **versionName:** `1.1.2`
 - **minSdkVersion:** `24` (Android 7.0+)
 - **targetSdkVersion:** `36` (Android 15 ready)
 - **Signing Keystore:** Signed with official Google Play upload key (`android/key.properties`).
@@ -90,6 +90,12 @@ All features, bug fixes, UI/UX enhancements, and accessibility additions request
 - Synchronized `VisibleCardsPreview` to show clean category-empty messaging.
 - Hides bulk selection buttons when card list is empty to prevent meaningless taps.
 
+### 3.10 100% Comprehensive Settings & Media Backup/Restore Round-Trip
+- Included fine-grained Color Vision settings (`colorBlindType`, `colorBlindBorderWidth`, `colorBlindBorderColor`, `colorBlindBoldText`, `colorBlindFilterImages`) into `_buildBackupSettings()`.
+- Synchronized restoration via `ThemeAccessibility.saveColorBlindSettings()` and `ThemeAccessibility.setDarkMode()` ensuring complete UI accessibility persistence across devices.
+- Explicitly preserved `customCategories` in `settings.json`, ensuring user categories are never lost even when 0 cards currently belong to them.
+- Certified media preservation (images, GIFs, voices) with SHA-256 integrity verification.
+
 ---
 
 ## 4. Verification & QA Quality Gates
@@ -97,7 +103,8 @@ All features, bug fixes, UI/UX enhancements, and accessibility additions request
 | Gate | Requirement | Actual Result | Status |
 | :--- | :--- | :--- | :--- |
 | **Dart Analyzer** | Zero warnings, zero errors | `flutter analyze --no-pub` → 0 issues | **PASS** |
-| **Automated Tests** | 100% test pass rate | `flutter test` → 200 / 200 tests passed | **PASS** |
+| **Automated Tests** | 100% test pass rate | `flutter test` → 201 / 201 tests passed | **PASS** |
+| **Settings Roundtrip** | 100% settings restoration | Verified in `release_qa_backup_restore_test.dart` | **PASS** |
 | **Data Integrity Stress** | 1,000 cards + 1,000 GIFs/audio SHA-256 match | Stage 2 certified in 39s | **PASS** |
 | **Physical Hardware** | Live execution on target device | Samsung Galaxy A34 5G (`SM_A346E`, Android 14) | **PASS** |
 | **Live Device ADB Install** | Clean update over wireless ADB | `Performing Streamed Install` → `Success` | **PASS** |
@@ -113,7 +120,7 @@ All features, bug fixes, UI/UX enhancements, and accessibility additions request
 4. Click **Create new release**.
 5. Upload the App Bundle:
    - File: [`simple_aac_play_release/build/app/outputs/bundle/release/app-release.aab`](file:///media/yasas/New%20Volume2/yasas/PersonalProjects/simple%20aac/simple_aac_play_release/build/app/outputs/bundle/release/app-release.aab)
-6. Enter Release Name: `1.1.1 (9)`.
+6. Enter Release Name: `1.1.2 (10)`.
 7. Paste the localized Release Notes (provided in Section 6 below).
 8. Click **Save** and **Review release**.
 9. Complete rollout.

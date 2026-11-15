@@ -17,6 +17,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.2] - 2026-11-16
+
+### Added
+- **100% Comprehensive Settings & Media Backup/Restore Round-Trip (`95960c7`):**
+  - Enhanced `_buildBackupSettings()` and `_applyRestoredBackup()` to serialize and restore all Color Vision Deficiency settings (`colorBlindType`, `colorBlindBorderWidth`, `colorBlindBorderColor`, `colorBlindBoldText`, `colorBlindFilterImages`).
+  - Added immediate SharedPreferences persistence for Dark Mode and Color Blind settings on restore via `ThemeAccessibility`.
+  - Preserved `customCategories` in `settings.json`, guaranteeing newly created custom categories are never dropped upon backup restoration.
+- **Empty Category State for Visible Cards Dialog (`3e45799`):**
+  - Removed `total == 0` early return guard in `_showVisibleCountDialog()`, permitting the dialog to open when a selected category has zero cards.
+  - Displayed a friendly empty state card with guidance to create cards in Edit Mode first, and hid redundant bulk action buttons.
+
+### Changed
+- Bumped application version to `1.1.2+10` (`versionCode: 10`) for Google Play production release.
+
+---
+
 ## [1.1.1] - 2026-11-16
 
 ### Added
