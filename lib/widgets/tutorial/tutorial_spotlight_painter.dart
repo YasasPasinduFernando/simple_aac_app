@@ -14,7 +14,7 @@ class TutorialSpotlightPainter extends CustomPainter {
     this.scrimColor = const Color(0xB3000000), // 70% black
     this.pulseColor = const Color(0xFF2196F3),
     this.borderRadius = 14.0,
-    this.padding = 10.0,
+    this.padding = 4.0,
   });
 
   @override

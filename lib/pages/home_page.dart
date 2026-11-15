@@ -158,6 +158,8 @@ class _HomePageState extends State<HomePage> {
         .registerKey('drawer_edit_mode_toggle', _drawerEditModeKey);
     TutorialService.instance
         .registerKey('edit_mode_add_new_button', _addNewCardKey);
+    TutorialService.instance.currentStepNotifier
+        .addListener(_handleTutorialStepChanged);
 
     CaregiverLockService.instance.init();
 
@@ -170,8 +172,10 @@ class _HomePageState extends State<HomePage> {
         TutorialService.instance.notifyDrawerResized();
         _saveCards();
       } else if (step == TutorialStepType.enableEditMode) {
+        _scaffoldKey.currentState?.closeEndDrawer();
         _toggleEditMode();
       } else if (step == TutorialStepType.addNewCard) {
+        _scaffoldKey.currentState?.closeEndDrawer();
         if (!isPinned) {
           _createCard(parent: activeParentCard);
         }
@@ -1635,7 +1639,10 @@ class _HomePageState extends State<HomePage> {
       );
       if (!allowed || !mounted) return;
     }
-    if (mounted) Navigator.pop(context);
+    _scaffoldKey.currentState?.closeEndDrawer();
+    if (mounted && Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
     if (isEditMode) {
       _exitEditMode();
     } else {
@@ -3470,8 +3477,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _handleTutorialStepChanged() {
+    if (!mounted) return;
+    final step = TutorialService.instance.currentStepNotifier.value;
+    if (step == TutorialStepType.addNewCard) {
+      _scaffoldKey.currentState?.closeEndDrawer();
+      if (!isEditMode) {
+        _enterEditMode();
+      }
+    }
+  }
+
   @override
   void dispose() {
+    TutorialService.instance.currentStepNotifier
+        .removeListener(_handleTutorialStepChanged);
     _highlightTimer?.cancel();
     _tapAnimTimer?.cancel();
     unawaited(SpeechEngine.instance.stop());

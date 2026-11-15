@@ -440,6 +440,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         }
       },
       child: Stack(
+        fit: StackFit.expand,
         children: [
           AlertDialog(
             insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -541,7 +542,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
           ),
         ],
       ),
-      TutorialOverlay(language: widget.language),
+      TutorialOverlay(language: widget.language, isDialog: true),
     ],
   ),
 );
@@ -714,14 +715,24 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
             ),
             const SizedBox(height: 10),
           ],
-          Column(
+          Container(
             key: TutorialService.instance.getKey('card_editor_media_section'),
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                width: 1.0,
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
                       Expanded(
                         child: _MediaSourceTile(
                           iconWidget: SmartSearchIcon(
@@ -805,6 +816,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                 ),
               ],
             ),
+          ),
           ],
         ),
       );
@@ -1369,47 +1381,56 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   }
 
   Widget _buildLabelSection(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       key: TutorialService.instance.getKey('card_editor_labels_section'),
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.6),
+          width: 1.0,
+        ),
+      ),
       child: Column(
         children: [
-        TextField(
-          controller: _controllerEn,
-          decoration: InputDecoration(
-            labelText: 'English Label',
-            hintText: 'e.g., Cat, Water, Happy',
-            prefixIcon: const Icon(Icons.language_rounded, size: 20),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          TextField(
+            controller: _controllerEn,
+            decoration: InputDecoration(
+              labelText: 'English Label',
+              hintText: 'e.g., Cat, Water, Happy',
+              prefixIcon: const Icon(Icons.language_rounded, size: 20),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
           ),
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _controllerSi,
-          decoration: InputDecoration(
-            labelText: 'Sinhala Label (සිංහල)',
-            hintText: 'e.g., පූසා, වතුර, සතුටුයි',
-            prefixIcon: const Icon(Icons.translate_rounded, size: 20),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _controllerSi,
+            decoration: InputDecoration(
+              labelText: 'Sinhala Label (සිංහල)',
+              hintText: 'e.g., පූසා, වතුර, සතුටුයි',
+              prefixIcon: const Icon(Icons.translate_rounded, size: 20),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
           ),
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _controllerTa,
-          decoration: InputDecoration(
-            labelText: 'Tamil Label (தமிழ்)',
-            hintText: 'e.g., பூனை, தண்ணீர், மகிழ்ச்சி',
-            prefixIcon: const Icon(Icons.g_translate_rounded, size: 20),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _controllerTa,
+            decoration: InputDecoration(
+              labelText: 'Tamil Label (தமிழ்)',
+              hintText: 'e.g., பூனை, தண்ணீர், மகிழ்ச்சி',
+              prefixIcon: const Icon(Icons.g_translate_rounded, size: 20),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }

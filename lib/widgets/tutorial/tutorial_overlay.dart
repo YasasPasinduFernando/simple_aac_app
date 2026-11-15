@@ -8,10 +8,19 @@ import 'tutorial_spotlight_painter.dart';
 
 class TutorialOverlay extends StatelessWidget {
   final String language;
+  final bool isDialog;
+
+  static const Set<TutorialStepType> dialogSteps = {
+    TutorialStepType.chooseMedia,
+    TutorialStepType.multilingualLabels,
+    TutorialStepType.voiceRecording,
+    TutorialStepType.saveCard,
+  };
 
   const TutorialOverlay({
     Key? key,
     required this.language,
+    this.isDialog = false,
   }) : super(key: key);
 
   @override
@@ -22,9 +31,14 @@ class TutorialOverlay extends StatelessWidget {
         if (currentStep == null) {
           return const SizedBox.shrink();
         }
+        final isStepForDialog = dialogSteps.contains(currentStep);
+        if (isDialog != isStepForDialog) {
+          return const SizedBox.shrink();
+        }
         return _ActiveTutorialOverlay(
           currentStep: currentStep,
           language: language,
+          isDialog: isDialog,
         );
       },
     );
@@ -34,11 +48,13 @@ class TutorialOverlay extends StatelessWidget {
 class _ActiveTutorialOverlay extends StatefulWidget {
   final TutorialStepType currentStep;
   final String language;
+  final bool isDialog;
 
   const _ActiveTutorialOverlay({
     Key? key,
     required this.currentStep,
     required this.language,
+    this.isDialog = false,
   }) : super(key: key);
 
   @override
@@ -70,6 +86,12 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
   void _ensureTargetVisible() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      if (widget.currentStep == TutorialStepType.addNewCard) {
+        final scaffoldState = Scaffold.maybeOf(context);
+        if (scaffoldState != null && scaffoldState.isEndDrawerOpen) {
+          scaffoldState.closeEndDrawer();
+        }
+      }
       final keyName = _getKeyNameForStep(widget.currentStep);
       final targetKey = TutorialService.instance.getKey(keyName);
       final ctx = targetKey?.currentContext;
@@ -123,28 +145,34 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
 
   Rect? _measureTargetRect(GlobalKey? key) {
     if (key == null) return null;
-    final context = key.currentContext;
-    if (context == null || !context.mounted) return null;
-    final renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null ||
-        !renderBox.hasSize ||
-        !renderBox.attached ||
-        renderBox.size.isEmpty) {
+    final targetContext = key.currentContext;
+    if (targetContext == null || !targetContext.mounted) return null;
+    final targetRenderBox = targetContext.findRenderObject() as RenderBox?;
+    if (targetRenderBox == null ||
+        !targetRenderBox.hasSize ||
+        !targetRenderBox.attached ||
+        targetRenderBox.size.isEmpty) {
       return null;
     }
 
-    final offset = renderBox.localToGlobal(Offset.zero);
+    final globalOffset = targetRenderBox.localToGlobal(Offset.zero);
+    final overlayRenderBox = context.findRenderObject() as RenderBox?;
+    final localOffset = overlayRenderBox != null &&
+            overlayRenderBox.hasSize &&
+            overlayRenderBox.attached
+        ? overlayRenderBox.globalToLocal(globalOffset)
+        : globalOffset;
+
     return Rect.fromLTWH(
-      offset.dx,
-      offset.dy,
-      renderBox.size.width,
-      renderBox.size.height,
+      localOffset.dx,
+      localOffset.dy,
+      targetRenderBox.size.width,
+      targetRenderBox.size.height,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
     final stepIndex = TutorialService.instance.currentStepIndex;
     final totalSteps = TutorialService.instance.totalSteps;
     final allowsManual = _isManualAdvanceAllowed(widget.currentStep);
@@ -169,91 +197,109 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
       );
     }
 
-    return AnimatedBuilder(
-      animation: _pulseController,
-      builder: (context, _) {
-        final keyName = _getKeyNameForStep(widget.currentStep);
-        final targetKey = TutorialService.instance.getKey(keyName);
-        final targetRect = _measureTargetRect(targetKey);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final overlaySize = Size(constraints.maxWidth, constraints.maxHeight);
+        return AnimatedBuilder(
+          animation: _pulseController,
+          builder: (context, _) {
+            final keyName = _getKeyNameForStep(widget.currentStep);
+            final targetKey = TutorialService.instance.getKey(keyName);
+            final targetRect = _measureTargetRect(targetKey);
 
-        // Determine bubble layout above or below target
-        final bool isAbove;
-        if (targetRect != null) {
-          isAbove = targetRect.center.dy > (screenSize.height * 0.48);
-        } else {
-          isAbove = false;
-        }
+            // Determine bubble layout above or below target
+            final bool isAbove;
+            if (targetRect != null) {
+              isAbove = targetRect.center.dy > (overlaySize.height * 0.48);
+            } else {
+              isAbove = false;
+            }
 
-        final double arrowHorizontalOffset = targetRect != null
-            ? (targetRect.center.dx - 24.0).clamp(24.0, screenSize.width - 60.0)
-            : 48.0;
+            final double arrowHorizontalOffset = targetRect != null
+                ? (targetRect.center.dx - 24.0).clamp(24.0, overlaySize.width - 60.0)
+                : 48.0;
 
-        return _SpotlightHitTestBlocker(
-          targetRect: targetRect,
-          child: Stack(
-            children: [
-              // 1. Scrim with spotlight cutout and pulsing halo
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: CustomPaint(
-                    painter: TutorialSpotlightPainter(
-                      targetRect: targetRect,
-                      pulseProgress: _pulseController.value,
+            return _SpotlightHitTestBlocker(
+              targetRect: targetRect,
+              child: Stack(
+                children: [
+                  // 1. Scrim with spotlight cutout and pulsing halo
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: CustomPaint(
+                        painter: TutorialSpotlightPainter(
+                          targetRect: targetRect,
+                          pulseProgress: _pulseController.value,
+                          padding: 4.0,
+                          borderRadius: 14.0,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
 
-              // 2. Animated Hand Pointer
-              if (targetRect != null &&
-                  widget.currentStep != TutorialStepType.completed)
-                Positioned(
-                  left: (targetRect.center.dx - 16)
-                      .clamp(16.0, screenSize.width - 50.0),
-                  top: isAbove ? (targetRect.top - 48) : (targetRect.bottom + 14),
-                  child: IgnorePointer(
-                    child: TutorialHandPointer(
-                      animationValue: _pulseController.value,
-                      pointsDown: isAbove,
+                  // 2. Animated Hand Pointer
+                  if (targetRect != null &&
+                      widget.currentStep != TutorialStepType.completed)
+                    Positioned(
+                      left: (targetRect.center.dx - 16)
+                          .clamp(16.0, overlaySize.width - 50.0),
+                      top: isAbove ? (targetRect.top - 46) : (targetRect.bottom + 10),
+                      child: IgnorePointer(
+                        child: TutorialHandPointer(
+                          animationValue: _pulseController.value,
+                          pointsDown: isAbove,
+                        ),
+                      ),
+                    ),
+
+                  // 3. Speech Bubble Card
+                  Positioned(
+                    left: 14,
+                    right: 14,
+                    top: isAbove
+                        ? null
+                        : (targetRect != null
+                            ? (targetRect.bottom + 50)
+                                .clamp(10.0, (overlaySize.height - 230.0).clamp(10.0, overlaySize.height))
+                            : 100),
+                    bottom: isAbove
+                        ? ((overlaySize.height - (targetRect?.top ?? 300) + 50))
+                            .clamp(10.0, (overlaySize.height - 230.0).clamp(10.0, overlaySize.height))
+                        : null,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: TutorialSpeechBubble(
+                        stepType: widget.currentStep,
+                        language: widget.language,
+                        stepIndex: stepIndex,
+                        totalSteps: totalSteps,
+                        isArrowUp: !isAbove,
+                        arrowHorizontalOffset: arrowHorizontalOffset,
+                        allowsManualAdvance: allowsManual,
+                        onBack: () {
+                          if (widget.currentStep == TutorialStepType.chooseMedia &&
+                              widget.isDialog) {
+                            Navigator.of(context).maybePop();
+                          }
+                          TutorialService.instance.previousStep();
+                        },
+                        onNext: () {
+                          TutorialService.instance.requestAction(widget.currentStep);
+                          TutorialService.instance.nextStep();
+                        },
+                        onSkip: () {
+                          if (widget.isDialog) {
+                            Navigator.of(context).maybePop();
+                          }
+                          TutorialService.instance.skipTour();
+                        },
+                      ),
                     ),
                   ),
-                ),
-
-              // 3. Speech Bubble Card
-              Positioned(
-                left: 16,
-                right: 16,
-                top: isAbove
-                    ? null
-                    : (targetRect != null
-                        ? (targetRect.bottom + 56)
-                            .clamp(16.0, screenSize.height - 240.0)
-                        : 120),
-                bottom: isAbove
-                    ? ((screenSize.height - (targetRect?.top ?? 300) + 56))
-                        .clamp(16.0, screenSize.height - 240.0)
-                    : null,
-                child: Align(
-                  alignment: Alignment.center,
-                  child: TutorialSpeechBubble(
-                    stepType: widget.currentStep,
-                    language: widget.language,
-                    stepIndex: stepIndex,
-                    totalSteps: totalSteps,
-                    isArrowUp: !isAbove,
-                    arrowHorizontalOffset: arrowHorizontalOffset,
-                    allowsManualAdvance: allowsManual,
-                    onBack: () => TutorialService.instance.previousStep(),
-                    onNext: () {
-                      TutorialService.instance.requestAction(widget.currentStep);
-                      TutorialService.instance.nextStep();
-                    },
-                    onSkip: () => TutorialService.instance.skipTour(),
-                  ),
-                ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );

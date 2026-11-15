@@ -181,5 +181,40 @@ void main() {
       expect(find.byType(TutorialSpeechBubble), findsOneWidget);
       expect(find.byKey(key), findsOneWidget);
     });
+
+    testWidgets('Domain separation: isDialog overlay only renders during dialog steps', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: Stack(
+              children: [
+                TutorialOverlay(language: 'en', isDialog: false),
+                TutorialOverlay(language: 'en', isDialog: true),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      // 1. Home step: openMenu (Step 1)
+      TutorialService.instance.currentStepNotifier.value = TutorialStepType.openMenu;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      // Only 1 bubble should exist (from isDialog: false)
+      expect(find.byType(TutorialSpeechBubble), findsOneWidget);
+
+      // 2. Dialog step: chooseMedia (Step 5)
+      TutorialService.instance.currentStepNotifier.value = TutorialStepType.chooseMedia;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      // Only 1 bubble should exist (from isDialog: true)
+      expect(find.byType(TutorialSpeechBubble), findsOneWidget);
+
+      // 3. Step 4: addNewCard (Step 4 is Home step)
+      TutorialService.instance.currentStepNotifier.value = TutorialStepType.addNewCard;
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(find.byType(TutorialSpeechBubble), findsOneWidget);
+    });
   });
 }
