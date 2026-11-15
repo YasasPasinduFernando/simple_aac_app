@@ -1578,6 +1578,12 @@ class _HomePageState extends State<HomePage> {
       'enableHaptics': _enableHaptics,
       'darkMode': _isDarkMode,
       'colorBlindMode': _isColorBlindMode,
+      'colorBlindType': ThemeAccessibility.colorBlindType,
+      'colorBlindBorderWidth': ThemeAccessibility.colorBlindBorderWidth,
+      'colorBlindBorderColor': ThemeAccessibility.colorBlindBorderColor,
+      'colorBlindBoldText': ThemeAccessibility.colorBlindBoldText,
+      'colorBlindFilterImages': ThemeAccessibility.colorBlindFilterImages,
+      'customCategories': _customCategories.toList(),
       'selectedCategory': selectedCategory,
     };
   }
@@ -2608,6 +2614,37 @@ class _HomePageState extends State<HomePage> {
       _isDarkMode = settings['darkMode'] as bool? ?? _isDarkMode;
       _isColorBlindMode =
           settings['colorBlindMode'] as bool? ?? _isColorBlindMode;
+
+      if (settings.containsKey('customCategories') &&
+          settings['customCategories'] is List) {
+        _customCategories = (settings['customCategories'] as List)
+            .map((c) => c.toString())
+            .where((c) => c.isNotEmpty)
+            .toSet();
+      }
+
+      final cbType = settings['colorBlindType']?.toString() ??
+          ThemeAccessibility.colorBlindType;
+      final cbWidth = (settings['colorBlindBorderWidth'] as num?)?.toDouble() ??
+          ThemeAccessibility.colorBlindBorderWidth;
+      final cbColor = settings['colorBlindBorderColor']?.toString() ??
+          ThemeAccessibility.colorBlindBorderColor;
+      final cbBold = settings['colorBlindBoldText'] as bool? ??
+          ThemeAccessibility.colorBlindBoldText;
+      final cbFilter = settings['colorBlindFilterImages'] as bool? ??
+          ThemeAccessibility.colorBlindFilterImages;
+
+      ThemeAccessibility.colorBlindMode = _isColorBlindMode;
+      unawaited(ThemeAccessibility.saveColorBlindSettings(
+        enabled: _isColorBlindMode,
+        type: cbType,
+        borderWidth: cbWidth,
+        borderColor: cbColor,
+        boldText: cbBold,
+        filterImages: cbFilter,
+      ));
+      unawaited(ThemeAccessibility.setDarkMode(_isDarkMode));
+
       // Legacy 'ttsVoiceProfile' key in older backups is ignored intentionally.
       ThemeAccessibility.darkModeNotifier.value = _isDarkMode;
 

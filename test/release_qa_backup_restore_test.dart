@@ -394,5 +394,107 @@ void main() {
       final secondPath = payload2.cards[0].imagePath!;
       expect(File(secondPath).existsSync(), isTrue);
     });
+
+    test(
+        'Full v1.1.2 settings payload roundtrip: TTS buttons, custom categories, color vision support and cards',
+        () async {
+      final srcDir = Directory.systemTemp.createTempSync('settings_src_');
+      final dstDir = Directory.systemTemp.createTempSync('settings_dst_');
+      addTearDown(() {
+        if (srcDir.existsSync()) srcDir.deleteSync(recursive: true);
+        if (dstDir.existsSync()) dstDir.deleteSync(recursive: true);
+      });
+
+      CardStorageService.docsDirectoryOverride = () async => srcDir;
+      final img = File('${srcDir.path}/apple.jpg')
+        ..writeAsBytesSync(utf8.encode('APPLE_IMAGE_DATA'));
+      final pImg = await CardStorageService.persistMediaFile(
+        img.path,
+        cardId: 'c_apple',
+        mediaType: 'images',
+      );
+
+      final cards = <AACCard>[
+        AACCard(
+          id: 'c_apple',
+          label: 'Apple',
+          labelSinhala: 'ඇපල්',
+          labelTamil: 'ஆப்பிள்',
+          imagePath: pImg,
+          category: 'Food',
+          colorValue: 0xFFFF5722,
+        ),
+      ];
+
+      final fullSettings = {
+        'gridColumns': 3,
+        'visibleCardIdsByParent': {
+          'root': ['c_apple'],
+        },
+        'showTtsInput': true,
+        'orientationMode': 'portrait',
+        'fullScreen': true,
+        'language': 'si',
+        'themePrimaryColor': 0xFF1976D2,
+        'themeTextColor': 0xFFFFFFFF,
+        'themeBackgroundColor': 0xFFF5F5F5,
+        'cardTextColor': 0xFF212121,
+        'ttsBarSize': 1.6,
+        'cardTextScale': 1.25,
+        'drawerFullScreen': false,
+        'showTtsActions': true,
+        'showTtsDelete': true,
+        'showTtsClear': false,
+        'hideTtsText': false,
+        'useImageOverlayLabel': true,
+        'applyTextColorToCards': false,
+        'enableHaptics': true,
+        'darkMode': true,
+        'colorBlindMode': true,
+        'colorBlindType': 'protanomaly',
+        'colorBlindBorderWidth': 3.5,
+        'colorBlindBorderColor': 'yellow',
+        'colorBlindBoldText': true,
+        'colorBlindFilterImages': true,
+        'customCategories': ['School', 'Emotions', 'Daily Routine'],
+        'selectedCategory': 'Food',
+      };
+
+      final zipBytes = await BackupService.buildBackupZip(
+        cards,
+        settings: fullSettings,
+      );
+      expect(zipBytes, isNotNull);
+      expect(zipBytes!.isNotEmpty, isTrue);
+
+      // Restore
+      CardStorageService.docsDirectoryOverride = () async => dstDir;
+      final payload = await BackupService.restoreFromZipBytes(zipBytes);
+
+      expect(payload.cards.length, 1);
+      expect(payload.cards[0].label, 'Apple');
+      expect(payload.cards[0].labelSinhala, 'ඇපල්');
+      expect(payload.cards[0].labelTamil, 'ஆப்பிள்');
+      expect(payload.cards[0].imagePath, isNotNull);
+      expect(File(payload.cards[0].imagePath!).existsSync(), isTrue);
+
+      // Check settings roundtrip
+      final s = payload.settings;
+      expect(s['gridColumns'], 3);
+      expect(s['showTtsDelete'], true);
+      expect(s['showTtsClear'], false);
+      expect(s['ttsBarSize'], 1.6);
+      expect(s['language'], 'si');
+      expect(s['darkMode'], true);
+      expect(s['colorBlindMode'], true);
+      expect(s['colorBlindType'], 'protanomaly');
+      expect(s['colorBlindBorderWidth'], 3.5);
+      expect(s['colorBlindBorderColor'], 'yellow');
+      expect(s['colorBlindBoldText'], true);
+      expect(s['colorBlindFilterImages'], true);
+      expect(s['customCategories'], ['School', 'Emotions', 'Daily Routine']);
+      expect(s['selectedCategory'], 'Food');
+      expect(s['enableHaptics'], true);
+    });
   });
 }
