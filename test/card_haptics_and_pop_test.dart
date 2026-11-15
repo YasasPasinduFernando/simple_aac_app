@@ -264,4 +264,8 @@ void main() {
     expect(homeState.enableHapticsForTesting, isTrue,
         reason: 'Reset settings must restore enableHaptics to default true');
   });
+
+  test('defaultHapticPerformer executes strong haptic sequence without throwing', () async {
+    await expectLater(HomePage.defaultHapticPerformer(), completes);
+  });
 }

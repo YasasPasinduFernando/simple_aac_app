@@ -46,8 +46,19 @@ import '../utils/theme_accessibility.dart';
 import '../utils/ui_mode_helper.dart';
 
 class HomePage extends StatefulWidget {
+  /// Strong tactile haptic feedback: Combines heavyImpact (crisp click for linear actuators)
+  /// and vibrate (full physical pulse providing spin-up momentum for ERM/traditional motors).
+  static Future<void> defaultHapticPerformer() async {
+    try {
+      await HapticFeedback.heavyImpact();
+    } catch (_) {}
+    try {
+      await HapticFeedback.vibrate();
+    } catch (_) {}
+  }
+
   @visibleForTesting
-  static Future<void> Function() hapticPerformer = HapticFeedback.mediumImpact;
+  static Future<void> Function() hapticPerformer = defaultHapticPerformer;
   @visibleForTesting
   static Future<void> Function(String text)? speakPerformer;
   @visibleForTesting
