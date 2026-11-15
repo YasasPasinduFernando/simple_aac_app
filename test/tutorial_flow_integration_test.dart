@@ -6,6 +6,7 @@ import 'package:simple_aac_app/services/tutorial_service.dart';
 import 'package:simple_aac_app/utils/tutorial_strings.dart';
 import 'package:simple_aac_app/widgets/home_drawer.dart';
 import 'package:simple_aac_app/widgets/tutorial/mini_guides_dialog.dart';
+import 'package:simple_aac_app/widgets/tutorial/tutorial_overlay.dart';
 import 'package:simple_aac_app/widgets/tutorial/welcome_tour_dialog.dart';
 
 void main() {
@@ -168,6 +169,39 @@ void main() {
       await tester.pump();
 
       expect(replayed, isTrue);
+    });
+
+    testWidgets('Completed step renders centered celebration modal and terminates tour on Finish', (tester) async {
+      TutorialService.instance.startTour();
+      TutorialService.instance.currentStepNotifier.value = TutorialStepType.completed;
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: TutorialOverlay(language: 'en'),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('Awesome Job!'), findsOneWidget);
+      expect(find.text('Finish'), findsWidgets);
+
+      await tester.tap(find.text('Finish').last);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(TutorialService.instance.currentStepNotifier.value, isNull);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool(TutorialService.prefCompleted), isTrue);
+    });
+
+    test('Search tutorial hints return valid strings in EN, SI, TA', () {
+      for (final lang in ['en', 'si', 'ta']) {
+        expect(TutorialStrings.getSearchPickImageHint(lang).isNotEmpty, isTrue);
+        expect(TutorialStrings.getSearchSaveOfflineHint(lang).isNotEmpty, isTrue);
+      }
     });
   });
 }

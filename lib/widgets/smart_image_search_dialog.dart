@@ -6,16 +6,20 @@ import 'package:flutter/services.dart';
 import '../models/image_search_result.dart';
 import '../services/network_policy_service.dart';
 import '../services/openverse_search_provider.dart';
+import '../services/tutorial_service.dart';
+import '../utils/tutorial_strings.dart';
 import 'styled_dialog_header.dart';
 
 class SmartImageSearchDialog extends StatefulWidget {
   final String initialQuery;
   final String cardId;
+  final String language;
 
   const SmartImageSearchDialog({
     Key? key,
     required this.initialQuery,
     required this.cardId,
+    this.language = 'en',
   }) : super(key: key);
 
   @override
@@ -387,6 +391,33 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (TutorialService.instance.isTourActive) ...[
+          Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE3F2FD),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFF90CAF9)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.touch_app_rounded, size: 18, color: Color(0xFF1565C0)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    TutorialStrings.getSearchPickImageHint(widget.language),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1565C0),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -489,12 +520,48 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
                         // White canvas keeps black-line transparent ARASAAC PNGs crisp in Dark Mode.
                         color: item.isSymbol ? Colors.white : colorScheme.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: colorScheme.outlineVariant),
+                        border: (TutorialService.instance.isTourActive && index == 0)
+                            ? Border.all(color: const Color(0xFF1976D2), width: 2.5)
+                            : Border.all(color: colorScheme.outlineVariant),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
+                          if (TutorialService.instance.isTourActive && index == 0)
+                            Positioned(
+                              top: 4,
+                              right: 4,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1976D2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.touch_app,
+                                      size: 11,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 2),
+                                    Text(
+                                      'Pick',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           Padding(
                             padding: EdgeInsets.all(item.isSymbol ? 6 : 0),
                             child: Image.network(
@@ -614,6 +681,33 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (TutorialService.instance.isTourActive) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F5E9),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFA5D6A7)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.download_done_rounded, size: 18, color: Color(0xFF2E7D32)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      TutorialStrings.getSearchSaveOfflineHint(widget.language),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2E7D32),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           Row(
             children: [
               IconButton(
@@ -813,6 +907,10 @@ class _SmartImageSearchDialogState extends State<SmartImageSearchDialog> {
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     backgroundColor: Colors.green.shade600,
                     foregroundColor: Colors.white,
+                    side: TutorialService.instance.isTourActive
+                        ? const BorderSide(color: Color(0xFFC8E6C9), width: 2)
+                        : null,
+                    elevation: TutorialService.instance.isTourActive ? 4 : null,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

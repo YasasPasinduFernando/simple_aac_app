@@ -149,6 +149,26 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
     final totalSteps = TutorialService.instance.totalSteps;
     final allowsManual = _isManualAdvanceAllowed(widget.currentStep);
 
+    if (widget.currentStep == TutorialStepType.completed) {
+      return Container(
+        color: Colors.black.withOpacity(0.70),
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: TutorialSpeechBubble(
+          stepType: widget.currentStep,
+          language: widget.language,
+          stepIndex: totalSteps,
+          totalSteps: totalSteps,
+          isArrowUp: false,
+          arrowHorizontalOffset: 0,
+          allowsManualAdvance: false,
+          onBack: () => TutorialService.instance.previousStep(),
+          onNext: () => TutorialService.instance.finishTour(),
+          onSkip: () => TutorialService.instance.finishTour(),
+        ),
+      );
+    }
+
     return AnimatedBuilder(
       animation: _pulseController,
       builder: (context, _) {
@@ -188,9 +208,9 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
               if (targetRect != null &&
                   widget.currentStep != TutorialStepType.completed)
                 Positioned(
-                  left: (targetRect.center.dx - 26)
-                      .clamp(16.0, screenSize.width - 60.0),
-                  top: isAbove ? (targetRect.top - 46) : (targetRect.bottom + 8),
+                  left: (targetRect.center.dx - 16)
+                      .clamp(16.0, screenSize.width - 50.0),
+                  top: isAbove ? (targetRect.top - 38) : (targetRect.bottom + 6),
                   child: IgnorePointer(
                     child: TutorialHandPointer(
                       animationValue: _pulseController.value,
@@ -206,11 +226,11 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
                 top: isAbove
                     ? null
                     : (targetRect != null
-                        ? (targetRect.bottom + 32)
+                        ? (targetRect.bottom + 48)
                             .clamp(16.0, screenSize.height - 220.0)
                         : 120),
                 bottom: isAbove
-                    ? ((screenSize.height - (targetRect?.top ?? 300) + 32))
+                    ? ((screenSize.height - (targetRect?.top ?? 300) + 48))
                         .clamp(16.0, screenSize.height - 220.0)
                     : null,
                 child: Align(

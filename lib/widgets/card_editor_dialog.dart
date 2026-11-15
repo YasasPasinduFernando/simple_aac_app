@@ -274,6 +274,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         builder: (context) => SmartImageSearchDialog(
           initialQuery: query,
           cardId: widget.card.id,
+          language: widget.language,
         ),
       );
 
@@ -474,11 +475,11 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildImageSection(context),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 18),
                   _buildLabelSection(context),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 18),
                   _buildAudioSection(context),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 18),
                   _buildPropertiesSection(context),
                   if (!widget.isNew && widget.card.type == 'folder') ...[
                     const SizedBox(height: 12),
@@ -713,15 +714,14 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
             ),
             const SizedBox(height: 10),
           ],
-          Container(
-            key: TutorialService.instance.getKey('card_editor_media_section'),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IntrinsicHeight(
+                child: Row(
+                  key: TutorialService.instance.getKey('card_editor_media_section'),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                       Expanded(
                         child: _MediaSourceTile(
                           iconWidget: SmartSearchIcon(
@@ -805,10 +805,9 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
   }
 
   Widget _buildCameraDetectionBanner(
@@ -1415,7 +1414,6 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   Widget _buildAudioSection(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
-      key: TutorialService.instance.getKey('card_editor_voice_section'),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.25),
@@ -1441,6 +1439,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
           ),
           const SizedBox(height: 10),
           Row(
+            key: TutorialService.instance.getKey('card_editor_voice_section'),
             children: [
               Expanded(
                 child: FilledButton.icon(

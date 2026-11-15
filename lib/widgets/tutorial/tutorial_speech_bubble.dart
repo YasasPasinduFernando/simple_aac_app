@@ -38,7 +38,7 @@ class TutorialSpeechBubble extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (isArrowUp)
+        if (isArrowUp && !isFinalStep)
           Padding(
             padding: EdgeInsets.only(left: arrowHorizontalOffset.clamp(24.0, 280.0)),
             child: const CustomPaint(
@@ -212,7 +212,7 @@ class TutorialSpeechBubble extends StatelessWidget {
             ],
           ),
         ),
-        if (!isArrowUp)
+        if (!isArrowUp && !isFinalStep)
           Padding(
             padding: EdgeInsets.only(left: arrowHorizontalOffset.clamp(24.0, 280.0)),
             child: const CustomPaint(

@@ -60,7 +60,7 @@ void main() {
 
       expect(find.byType(TutorialSpeechBubble), findsOneWidget);
       expect(find.text('Open App Menu'), findsOneWidget);
-      expect(find.text('Step 1 of 8'), findsOneWidget);
+      expect(find.text('Step 1 of 9'), findsOneWidget);
     });
 
     testWidgets('Skip button in speech bubble terminates the tour', (tester) async {

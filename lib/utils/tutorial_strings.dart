@@ -101,6 +101,32 @@ class TutorialStrings {
     }
   }
 
+  // --- Smart Image Search Tutorial Hints ---
+
+  static String getSearchPickImageHint(String lang) {
+    switch (lang) {
+      case 'si':
+        return 'ඔබ කැමති පින්තූරය තෝරා ගැනීමට පහළ ඇති රූපයක් මත තට්ටු කරන්න!';
+      case 'ta':
+        return 'உங்கள் அட்டைக்கான படத்தை தேர்வு செய்ய கீழே உள்ள படத்தைத் தட்டவும்!';
+      case 'en':
+      default:
+        return 'Tap any AAC symbol or photo below to select it for your card!';
+    }
+  }
+
+  static String getSearchSaveOfflineHint(String lang) {
+    switch (lang) {
+      case 'si':
+        return 'මෙම පින්තූරය කාඩ්පතට එක් කිරීමට "Save Offline" ඔබන්න!';
+      case 'ta':
+        return 'இந்த படத்தை இணைக்க "Save Offline" பொத்தானைத் தட்டவும்!';
+      case 'en':
+      default:
+        return 'Tap "Save Offline" to attach this picture to your card!';
+    }
+  }
+
   // --- Step Titles & Descriptions ---
 
   static String getStepTitle(TutorialStepType type, String lang) {

@@ -50,16 +50,17 @@ class TutorialService {
     TutorialStepType.voiceRecording,
     TutorialStepType.saveCard,
     TutorialStepType.testNewCard,
+    TutorialStepType.completed,
   ];
 
-  int get totalSteps => 8; // Main card creation flow steps 1 to 8
+  int get totalSteps => 9; // 9 guided actionable steps
 
   int get currentStepIndex {
     final current = currentStepNotifier.value;
     if (current == null) return 0;
     final index = _stepsSequence.indexOf(current);
     if (index < 0) return 0;
-    return index + 1;
+    return (index + 1).clamp(1, totalSteps);
   }
 
   Future<void> init() async {
@@ -105,10 +106,15 @@ class TutorialService {
     }
   }
 
-  Future<void> completeTour() async {
-    currentStepNotifier.value = TutorialStepType.completed;
+  Future<void> finishTour() async {
+    isWelcomeVisibleNotifier.value = false;
+    currentStepNotifier.value = null;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(prefCompleted, true);
+  }
+
+  Future<void> completeTour() async {
+    await finishTour();
   }
 
   void resetAndReplayTour() {
@@ -163,7 +169,10 @@ class TutorialService {
 
   void notifyNewCardTapped(String cardId) {
     if (currentStepNotifier.value == TutorialStepType.testNewCard) {
-      completeTour();
+      currentStepNotifier.value = TutorialStepType.completed;
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setBool(prefCompleted, true);
+      });
     }
   }
 }

@@ -738,6 +738,10 @@ class _HomePageState extends State<HomePage> {
             cards.add(savedCard);
             _includeInVisibleSelection('__root__', savedCard.id);
           }
+          if (TutorialService.instance.currentStepNotifier.value ==
+              TutorialStepType.testNewCard) {
+            isEditMode = false;
+          }
         });
         _updateCategories();
         _saveCards();
@@ -3158,6 +3162,26 @@ class _HomePageState extends State<HomePage> {
     return GestureDetector(
       key: cardKey,
       onTap: () {
+        if (TutorialService.instance.currentStepNotifier.value ==
+            TutorialStepType.testNewCard) {
+          setState(() {
+            isEditMode = false;
+          });
+          _triggerWordTapAnimation(card.id);
+          if (card.type == 'folder') {
+            _showSubCards(card);
+            unawaited(_speakOrPlayCard(card, displayLabel));
+          } else {
+            _appendToTtsInput(
+              displayLabel,
+              imagePath: card.imagePath,
+              voicePath: card.voicePath,
+            );
+            unawaited(_speakOrPlayCard(card, displayLabel));
+          }
+          TutorialService.instance.notifyNewCardTapped(card.id);
+          return;
+        }
         TutorialService.instance.notifyNewCardTapped(card.id);
         if (isEditMode) {
           _editCard(card);

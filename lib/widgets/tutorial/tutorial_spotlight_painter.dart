@@ -14,7 +14,7 @@ class TutorialSpotlightPainter extends CustomPainter {
     this.scrimColor = const Color(0xB3000000), // 70% black
     this.pulseColor = const Color(0xFF2196F3),
     this.borderRadius = 12.0,
-    this.padding = 6.0,
+    this.padding = 4.0,
   });
 
   @override
@@ -64,13 +64,13 @@ class TutorialSpotlightPainter extends CustomPainter {
 
     // 3. Draw animated pulsing halo rings
     if (pulseProgress > 0) {
-      final pulseInflation = 6.0 + (pulseProgress * 14.0);
+      final pulseInflation = 4.0 + (pulseProgress * 8.0);
       final pulseOpacity = (1.0 - pulseProgress).clamp(0.0, 1.0) * 0.75;
 
       final pulsePaint = Paint()
         ..color = pulseColor.withOpacity(pulseOpacity)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3.0;
+        ..strokeWidth = 2.5;
 
       canvas.drawRRect(
         RRect.fromRectAndRadius(
