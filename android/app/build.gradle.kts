@@ -65,6 +65,12 @@ android {
             manifestPlaceholders["appName"] = "Simple AAC DEV"
         }
         release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             val releaseSigning = signingConfigs.getByName("release")
             if (releaseSigning.storeFile == null || !releaseSigning.storeFile!!.exists()) {
                 throw GradleException("Production release build requires a valid key.properties and keystore file. Release signing cannot fall back to debug.")
