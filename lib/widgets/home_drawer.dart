@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/tutorial_service.dart';
+import '../utils/theme_accessibility.dart';
 import 'tutorial/mini_guides_dialog.dart';
 
 class HomeDrawer extends StatelessWidget {
@@ -919,6 +920,10 @@ class HomeDrawer extends StatelessWidget {
             subtitle: 'Keep default & customized colors',
             selected: !isColorBlindMode,
             onTap: () => onChangeColorBlindMode(false),
+            preview: ColorVisionPreviewChip(
+              isColorBlind: false,
+              isDarkMode: isDark,
+            ),
           ),
           const SizedBox(height: 2),
           _ColorBlindRadioOption(
@@ -926,6 +931,10 @@ class HomeDrawer extends StatelessWidget {
             subtitle: 'High-contrast color-safe palette',
             selected: isColorBlindMode,
             onTap: () => onChangeColorBlindMode(true),
+            preview: ColorVisionPreviewChip(
+              isColorBlind: true,
+              isDarkMode: isDark,
+            ),
           ),
         ],
       ),
@@ -1652,17 +1661,161 @@ class _MiniStickFigurePainter extends CustomPainter {
       oldDelegate.color != color;
 }
 
+/// Miniature 3-card palette preview chip for Color Vision Support options.
+class ColorVisionPreviewChip extends StatelessWidget {
+  final bool isColorBlind;
+  final bool isDarkMode;
+
+  const ColorVisionPreviewChip({
+    super.key,
+    required this.isColorBlind,
+    required this.isDarkMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Resolves palette using the single source of truth in ThemeAccessibility
+    final card1Bg = ThemeAccessibility.resolveCardSurface(
+      const Color(0xFFFFF59D), // Yellow
+      isDarkMode: isDarkMode,
+      isColorBlindMode: isColorBlind,
+    );
+    final card2Bg = ThemeAccessibility.resolveCardSurface(
+      const Color(0xFFBBDEFB), // Blue
+      isDarkMode: isDarkMode,
+      isColorBlindMode: isColorBlind,
+    );
+    final card3Bg = ThemeAccessibility.resolveCardSurface(
+      const Color(0xFFFFCDD2), // Pink / Red
+      isDarkMode: isDarkMode,
+      isColorBlindMode: isColorBlind,
+    );
+
+    final borderColor = isColorBlind
+        ? (isDarkMode ? Colors.white70 : const Color(0xFF1E293B))
+        : Colors.black.withValues(alpha: isDarkMode ? 0.35 : 0.16);
+    final borderWidth = isColorBlind ? 1.2 : 0.7;
+
+    return Semantics(
+      label: isColorBlind
+          ? 'Color-blind safe preview palette'
+          : 'Normal colors preview palette',
+      child: Container(
+        width: 74,
+        height: 32,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3.5),
+        decoration: BoxDecoration(
+          color: isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.black.withValues(alpha: isDarkMode ? 0.35 : 0.12),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDarkMode ? 0.25 : 0.05),
+              blurRadius: 2,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        // Shield internal preview elements from external system font/text scaling
+        child: MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Tiny AAC Card 1: Yellow with Stick Figure
+              _buildMiniTile(
+                bg: card1Bg,
+                borderColor: borderColor,
+                borderWidth: borderWidth,
+                child: CustomPaint(
+                  size: const Size(9, 12),
+                  painter: _MiniStickFigurePainter(
+                    color: isDarkMode && !isColorBlind
+                        ? Colors.white
+                        : const Color(0xFF111827),
+                  ),
+                ),
+              ),
+              // Tiny AAC Card 2: Blue with Cup
+              _buildMiniTile(
+                bg: card2Bg,
+                borderColor: borderColor,
+                borderWidth: borderWidth,
+                child: Icon(
+                  Icons.local_cafe_rounded,
+                  size: 9.5,
+                  color: isColorBlind
+                      ? const Color(0xFF111827)
+                      : (isDarkMode ? Colors.white : const Color(0xFF0D47A1)),
+                ),
+              ),
+              // Tiny AAC Card 3: Pink / Vermilion with Apple
+              _buildMiniTile(
+                bg: card3Bg,
+                borderColor: borderColor,
+                borderWidth: borderWidth,
+                child: Icon(
+                  Icons.apple_rounded,
+                  size: 9.5,
+                  color: isColorBlind
+                      ? Colors.white
+                      : (isDarkMode ? Colors.white : const Color(0xFFB71C1C)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniTile({
+    required Color bg,
+    required Color borderColor,
+    required double borderWidth,
+    required Widget child,
+  }) {
+    return Container(
+      width: 18,
+      height: 23,
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(3.5),
+        border: Border.all(
+          color: borderColor,
+          width: borderWidth,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 1,
+            offset: const Offset(0, 0.5),
+          ),
+        ],
+      ),
+      alignment: Alignment.center,
+      child: child,
+    );
+  }
+}
+
 class _ColorBlindRadioOption extends StatelessWidget {
   final String title;
   final String subtitle;
   final bool selected;
   final VoidCallback onTap;
+  final Widget? preview;
 
   const _ColorBlindRadioOption({
     required this.title,
     required this.subtitle,
     required this.selected,
     required this.onTap,
+    this.preview,
   });
 
   @override
@@ -1682,14 +1835,14 @@ class _ColorBlindRadioOption extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(10),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   width: 20,
                   height: 20,
-                  margin: const EdgeInsets.only(top: 2, right: 10),
+                  margin: const EdgeInsets.only(right: 10),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
@@ -1733,6 +1886,10 @@ class _ColorBlindRadioOption extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (preview != null) ...[
+                  const SizedBox(width: 8),
+                  preview!,
+                ],
               ],
             ),
           ),

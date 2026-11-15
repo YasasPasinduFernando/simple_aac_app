@@ -222,6 +222,8 @@ void main() {
     await tester.scrollUntilVisible(find.text('Color-Blind Safe Mode'), 100);
     await tester.pumpAndSettle();
 
+    expect(find.byType(ColorVisionPreviewChip), findsNWidgets(2));
+
     await tester.tap(find.text('Color-Blind Safe Mode'));
     await tester.pumpAndSettle();
     expect(selectedMode, isTrue);
