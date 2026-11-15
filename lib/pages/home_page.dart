@@ -13,6 +13,7 @@ import 'package:share_plus/share_plus.dart';
 import '../data/default_seed_cards.dart';
 import '../models/aac_card_model.dart';
 import '../models/tts_token.dart';
+import '../models/tutorial_step.dart';
 import '../services/backup_service.dart';
 import '../services/card_storage_service.dart';
 import '../services/multilingual_concept_service.dart';
@@ -144,6 +145,23 @@ class _HomePageState extends State<HomePage> {
         .registerKey('drawer_edit_mode_toggle', _drawerEditModeKey);
     TutorialService.instance
         .registerKey('edit_mode_add_new_button', _addNewCardKey);
+
+    TutorialService.instance.onActionRequested = (step) {
+      if (!mounted) return;
+      if (step == TutorialStepType.openMenu) {
+        _scaffoldKey.currentState?.openEndDrawer();
+      } else if (step == TutorialStepType.drawerExplore) {
+        setState(() => _isDrawerExpanded = !_isDrawerExpanded);
+        TutorialService.instance.notifyDrawerResized();
+        _saveCards();
+      } else if (step == TutorialStepType.enableEditMode) {
+        _toggleEditMode();
+      } else if (step == TutorialStepType.addNewCard) {
+        if (!isPinned) {
+          _createCard(parent: activeParentCard);
+        }
+      }
+    };
 
     if (HomePage.initialCardsForTesting != null) {
       cards = List.of(HomePage.initialCardsForTesting!);
@@ -2819,6 +2837,7 @@ class _HomePageState extends State<HomePage> {
                       setState(() {
                         _isDrawerExpanded = val;
                       });
+                      TutorialService.instance.notifyDrawerResized();
                       _saveCards();
                     },
                     onToggleFullScreen: () {

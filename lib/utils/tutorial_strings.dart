@@ -233,12 +233,12 @@ class TutorialStrings {
       case TutorialStepType.drawerExplore:
         switch (lang) {
           case 'si':
-            return 'පහසුවෙන් බැලීමට ලාච්චුව වමට අදින්න (Swipe left), නැතහොත් ඉහළ ඊතලය ඔබන්න.';
+            return 'ලාච්චුව වඩාත් ඉඩ ඇතිව බැලීමට වමට අදින්න (Swipe left) හෝ ඉහළ ඇති ඊතලය ඔබන්න.';
           case 'ta':
             return 'முழுமையாகக் காண இடதுபுறமாக ஸ்வைப் செய்யவும் அல்லது மேல் அம்புக்குறியைத் தட்டவும்.';
           case 'en':
           default:
-            return 'Swipe left to expand the drawer for a spacious view, or swipe right to shrink it back.';
+            return 'Swipe left or tap the expand arrow in the header to expand the drawer for a spacious view.';
         }
 
       case TutorialStepType.enableEditMode:

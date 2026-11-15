@@ -56,6 +56,31 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
       vsync: this,
       duration: const Duration(milliseconds: 1400),
     )..repeat();
+    _ensureTargetVisible();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ActiveTutorialOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentStep != widget.currentStep) {
+      _ensureTargetVisible();
+    }
+  }
+
+  void _ensureTargetVisible() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final keyName = _getKeyNameForStep(widget.currentStep);
+      final targetKey = TutorialService.instance.getKey(keyName);
+      final ctx = targetKey?.currentContext;
+      if (ctx != null && ctx.mounted) {
+        Scrollable.ensureVisible(
+          ctx,
+          duration: const Duration(milliseconds: 300),
+          alignment: 0.5,
+        );
+      }
+    });
   }
 
   @override
@@ -91,23 +116,22 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
   }
 
   bool _isManualAdvanceAllowed(TutorialStepType step) {
-    switch (step) {
-      case TutorialStepType.chooseMedia:
-      case TutorialStepType.multilingualLabels:
-      case TutorialStepType.voiceRecording:
-      case TutorialStepType.drawerExplore:
-        return true;
-      default:
-        return false;
-    }
+    // Always permit manual navigation (Back/Next) so user can never get trapped,
+    // while action listeners also execute and live buttons remain clickable!
+    return true;
   }
 
   Rect? _measureTargetRect(GlobalKey? key) {
     if (key == null) return null;
     final context = key.currentContext;
-    if (context == null) return null;
+    if (context == null || !context.mounted) return null;
     final renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null || !renderBox.hasSize) return null;
+    if (renderBox == null ||
+        !renderBox.hasSize ||
+        !renderBox.attached ||
+        renderBox.size.isEmpty) {
+      return null;
+    }
 
     final offset = renderBox.localToGlobal(Offset.zero);
     return Rect.fromLTWH(
@@ -121,50 +145,52 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final keyName = _getKeyNameForStep(widget.currentStep);
-    final targetKey = TutorialService.instance.getKey(keyName);
-    final targetRect = _measureTargetRect(targetKey);
-
     final stepIndex = TutorialService.instance.currentStepIndex;
     final totalSteps = TutorialService.instance.totalSteps;
     final allowsManual = _isManualAdvanceAllowed(widget.currentStep);
 
-    // Determine bubble layout above or below target
-    final bool isAbove;
-    if (targetRect != null) {
-      isAbove = targetRect.center.dy > (screenSize.height * 0.48);
-    } else {
-      isAbove = false;
-    }
+    return AnimatedBuilder(
+      animation: _pulseController,
+      builder: (context, _) {
+        final keyName = _getKeyNameForStep(widget.currentStep);
+        final targetKey = TutorialService.instance.getKey(keyName);
+        final targetRect = _measureTargetRect(targetKey);
 
-    final double arrowHorizontalOffset = targetRect != null
-        ? (targetRect.center.dx - 24.0).clamp(24.0, screenSize.width - 60.0)
-        : 48.0;
+        // Determine bubble layout above or below target
+        final bool isAbove;
+        if (targetRect != null) {
+          isAbove = targetRect.center.dy > (screenSize.height * 0.48);
+        } else {
+          isAbove = false;
+        }
 
-    return _SpotlightHitTestBlocker(
-      targetRect: targetRect,
-      child: AnimatedBuilder(
-        animation: _pulseController,
-        builder: (context, child) {
-          return Stack(
+        final double arrowHorizontalOffset = targetRect != null
+            ? (targetRect.center.dx - 24.0).clamp(24.0, screenSize.width - 60.0)
+            : 48.0;
+
+        return _SpotlightHitTestBlocker(
+          targetRect: targetRect,
+          child: Stack(
             children: [
               // 1. Scrim with spotlight cutout and pulsing halo
               Positioned.fill(
-                child: CustomPaint(
-                  painter: TutorialSpotlightPainter(
-                    targetRect: targetRect,
-                    pulseProgress: _pulseController.value,
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: TutorialSpotlightPainter(
+                      targetRect: targetRect,
+                      pulseProgress: _pulseController.value,
+                    ),
                   ),
                 ),
               ),
 
               // 2. Animated Hand Pointer
-              if (targetRect != null && widget.currentStep != TutorialStepType.completed)
+              if (targetRect != null &&
+                  widget.currentStep != TutorialStepType.completed)
                 Positioned(
-                  left: (targetRect.center.dx - 26).clamp(16.0, screenSize.width - 60.0),
-                  top: isAbove
-                      ? (targetRect.top - 46)
-                      : (targetRect.bottom + 8),
+                  left: (targetRect.center.dx - 26)
+                      .clamp(16.0, screenSize.width - 60.0),
+                  top: isAbove ? (targetRect.top - 46) : (targetRect.bottom + 8),
                   child: IgnorePointer(
                     child: TutorialHandPointer(
                       animationValue: _pulseController.value,
@@ -177,8 +203,16 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
               Positioned(
                 left: 16,
                 right: 16,
-                top: isAbove ? null : (targetRect != null ? (targetRect.bottom + 48) : 120),
-                bottom: isAbove ? (screenSize.height - (targetRect?.top ?? 300) + 48) : null,
+                top: isAbove
+                    ? null
+                    : (targetRect != null
+                        ? (targetRect.bottom + 32)
+                            .clamp(16.0, screenSize.height - 220.0)
+                        : 120),
+                bottom: isAbove
+                    ? ((screenSize.height - (targetRect?.top ?? 300) + 32))
+                        .clamp(16.0, screenSize.height - 220.0)
+                    : null,
                 child: Align(
                   alignment: Alignment.center,
                   child: TutorialSpeechBubble(
@@ -190,15 +224,18 @@ class _ActiveTutorialOverlayState extends State<_ActiveTutorialOverlay>
                     arrowHorizontalOffset: arrowHorizontalOffset,
                     allowsManualAdvance: allowsManual,
                     onBack: () => TutorialService.instance.previousStep(),
-                    onNext: () => TutorialService.instance.nextStep(),
+                    onNext: () {
+                      TutorialService.instance.requestAction(widget.currentStep);
+                      TutorialService.instance.nextStep();
+                    },
                     onSkip: () => TutorialService.instance.skipTour(),
                   ),
                 ),
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -236,7 +273,7 @@ class _RenderSpotlightHitTestBlocker extends RenderProxyBox {
   @override
   bool hitTest(BoxHitTestResult result, {required Offset position}) {
     // If inside target rect, pass through to underlying widgets behind this overlay!
-    if (targetRect != null && targetRect!.inflate(6).contains(position)) {
+    if (targetRect != null && targetRect!.inflate(10).contains(position)) {
       return false;
     }
 

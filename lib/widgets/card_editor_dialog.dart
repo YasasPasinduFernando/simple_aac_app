@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:record/record.dart';
 
 import '../models/aac_card_model.dart';
+import '../models/tutorial_step.dart';
 import '../services/card_storage_service.dart';
 import '../services/multilingual_concept_service.dart';
 import '../services/network_policy_service.dart';
@@ -72,6 +73,8 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   final GlobalKey _cardVoiceKey = GlobalKey();
   final GlobalKey _cardSaveKey = GlobalKey();
 
+  void Function(TutorialStepType)? _previousTutorialAction;
+
   @override
   void initState() {
     super.initState();
@@ -79,6 +82,19 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     TutorialService.instance.registerKey('card_editor_labels_section', _cardLabelsKey);
     TutorialService.instance.registerKey('card_editor_voice_section', _cardVoiceKey);
     TutorialService.instance.registerKey('card_editor_save_button', _cardSaveKey);
+
+    _previousTutorialAction = TutorialService.instance.onActionRequested;
+    TutorialService.instance.onActionRequested = (step) {
+      if (!mounted) return;
+      if (step == TutorialStepType.saveCard) {
+        if (!_isClosing) {
+          _isClosing = true;
+          _stopAll().then((_) {
+            if (mounted) _saveCard();
+          });
+        }
+      }
+    };
 
     _cameraAnalysis = widget.initialCameraAnalysis;
     _controllerEn = TextEditingController(text: widget.card.label);
@@ -121,6 +137,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
 
   @override
   void dispose() {
+    TutorialService.instance.onActionRequested = _previousTutorialAction;
     _recordTimer?.cancel();
     _completeSub?.cancel();
     _recorder.dispose();
@@ -502,7 +519,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            key: TutorialService.instance.getKey('card_editor_save_button'),
+            key: _cardSaveKey,
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
               shape: RoundedRectangleBorder(

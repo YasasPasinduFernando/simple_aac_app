@@ -10,6 +10,7 @@ class TutorialService {
   static TutorialService get instance => _instance ??= TutorialService._();
 
   static void resetForTesting() {
+    _instance?.onActionRequested = null;
     _instance = null;
   }
 
@@ -21,6 +22,11 @@ class TutorialService {
       ValueNotifier<bool>(false);
 
   String? targetNewCardId;
+  void Function(TutorialStepType step)? onActionRequested;
+
+  void requestAction(TutorialStepType step) {
+    onActionRequested?.call(step);
+  }
 
   final Map<String, GlobalKey> _targetKeys = {};
 

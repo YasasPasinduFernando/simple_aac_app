@@ -2033,18 +2033,22 @@ class _DrawerGestureHandlerState extends State<_DrawerGestureHandler> {
         _accumulatedDelta += details.primaryDelta ?? 0.0;
         if (_accumulatedDelta <= -40 && !widget.isExpanded) {
           _accumulatedDelta = 0.0;
+          TutorialService.instance.notifyDrawerResized();
           widget.onToggleExpanded?.call(true);
         } else if (_accumulatedDelta >= 40 && widget.isExpanded) {
           _accumulatedDelta = 0.0;
+          TutorialService.instance.notifyDrawerResized();
           widget.onToggleExpanded?.call(false);
         }
       },
       onHorizontalDragEnd: (details) {
         final velocity = details.primaryVelocity ?? 0.0;
         if ((velocity < -200 || _accumulatedDelta <= -30) && !widget.isExpanded) {
+          TutorialService.instance.notifyDrawerResized();
           widget.onToggleExpanded?.call(true);
         } else if (velocity > 200 || _accumulatedDelta >= 30) {
           if (widget.isExpanded) {
+            TutorialService.instance.notifyDrawerResized();
             widget.onToggleExpanded?.call(false);
           } else {
             widget.onClose();
