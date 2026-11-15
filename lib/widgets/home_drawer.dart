@@ -211,7 +211,7 @@ class HomeDrawer extends StatelessWidget {
                   _buildDrawerItem(
                     context,
                     icon: Icons.record_voice_over_rounded,
-                    title: 'Offline Speech',
+                    title: 'Offline Speech Test',
                     subtitle: speechStatusLabel,
                     onTap: onShowOfflineSpeech!,
                   ),

@@ -126,8 +126,8 @@ void main() {
 
     expect(tester.takeException(), isNull);
 
-    await tester.scrollUntilVisible(find.text('Offline Speech'), 200);
-    expect(find.text('Offline Speech'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Offline Speech Test'), 200);
+    expect(find.text('Offline Speech Test'), findsOneWidget);
     expect(find.textContaining('Automatic offline voice'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('Dark Mode'), 200);

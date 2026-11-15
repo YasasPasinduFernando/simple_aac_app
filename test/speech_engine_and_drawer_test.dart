@@ -69,14 +69,14 @@ void main() {
     );
 
     await tester.scrollUntilVisible(
-      find.text('Offline Speech'),
+      find.text('Offline Speech Test'),
       120,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(find.text('Offline Speech'), findsOneWidget);
+    expect(find.text('Offline Speech Test'), findsOneWidget);
     expect(find.text('Voice Profile'), findsNothing);
 
-    await tester.tap(find.text('Offline Speech'));
+    await tester.tap(find.text('Offline Speech Test'));
     await tester.pump();
     expect(opened, isTrue);
   });

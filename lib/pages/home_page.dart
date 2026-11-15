@@ -979,8 +979,8 @@ class _HomePageState extends State<HomePage> {
               ),
               title: const StyledDialogHeader(
                 icon: Icons.record_voice_over_rounded,
-                title: 'Offline Speech',
-                subtitle: 'Automatic multilingual speech engine',
+                title: 'Offline Speech Test',
+                subtitle: 'Test voice output & verify offline speech engine',
               ),
               content: SingleChildScrollView(
                 child: Column(
@@ -1011,7 +1011,7 @@ class _HomePageState extends State<HomePage> {
                                       : 'Language pack not installed ($locale)'));
                           return DialogOptionTile(
                             icon: offlineReady || available
-                                ? Icons.check_circle_rounded
+                                ? Icons.volume_up_rounded
                                 : Icons.download_for_offline_outlined,
                             title: name,
                             subtitle: sub,
@@ -1056,7 +1056,7 @@ class _HomePageState extends State<HomePage> {
                     unawaited(_speak(sample));
                   },
                   icon: const Icon(Icons.volume_up_rounded, size: 18),
-                  label: const Text('Test'),
+                  label: const Text('Test Voice'),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(dialogContext),
