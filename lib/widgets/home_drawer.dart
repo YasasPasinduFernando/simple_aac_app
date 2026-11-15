@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/tutorial_service.dart';
 
 class HomeDrawer extends StatelessWidget {
   final String selectedCategory;
@@ -51,6 +52,10 @@ class HomeDrawer extends StatelessWidget {
   final String speechStatusLabel;
   final VoidCallback? onShowOfflineSpeech;
   final VoidCallback onShowAbout;
+  final VoidCallback? onReplayTutorial;
+  final VoidCallback? onShowMiniGuides;
+  final Key? resizeButtonKey;
+  final Key? editModeKey;
   final bool enableHaptics;
   final ValueChanged<bool>? onToggleHaptics;
   final bool isExpanded;
@@ -109,6 +114,10 @@ class HomeDrawer extends StatelessWidget {
     this.speechStatusLabel = 'Automatic offline voice',
     this.onShowOfflineSpeech,
     required this.onShowAbout,
+    this.onReplayTutorial,
+    this.onShowMiniGuides,
+    this.resizeButtonKey,
+    this.editModeKey,
     this.enableHaptics = true,
     this.onToggleHaptics,
     this.isExpanded = false,
@@ -173,12 +182,16 @@ class HomeDrawer extends StatelessWidget {
                 _buildSectionHeader(context, 'Communication & Speech', Icons.record_voice_over_rounded),
                 _buildDrawerItem(
                   context,
+                  itemKey: editModeKey,
                   icon: Icons.edit_rounded,
                   title: isEditMode ? 'Exit Edit Mode' : 'Enable Edit Mode',
                   subtitle: isEditMode ? 'Currently editing cards' : 'Tap to customize board',
                   active: isEditMode,
                   activeColor: theme.colorScheme.primaryContainer,
-                  onTap: onToggleEdit,
+                  onTap: () {
+                    TutorialService.instance.notifyEditModeEnabled();
+                    onToggleEdit();
+                  },
                 ),
                 if (onShowOfflineSpeech != null)
                   _buildDrawerItem(
@@ -335,7 +348,29 @@ class HomeDrawer extends StatelessWidget {
                   ),
                 const SizedBox(height: 12),
 
-                _buildSectionHeader(context, 'About', Icons.info_outline_rounded),
+                _buildSectionHeader(context, 'Guides & About', Icons.info_outline_rounded),
+                if (onReplayTutorial != null)
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.school_rounded,
+                    title: 'Quick Tour',
+                    subtitle: 'Replay interactive app guide',
+                    onTap: () {
+                      _handleClose(context);
+                      onReplayTutorial!();
+                    },
+                  ),
+                if (onShowMiniGuides != null)
+                  _buildDrawerItem(
+                    context,
+                    icon: Icons.help_outline_rounded,
+                    title: 'Feature Guides',
+                    subtitle: 'PIN, Backup, Permissions & Privacy',
+                    onTap: () {
+                      _handleClose(context);
+                      onShowMiniGuides!();
+                    },
+                  ),
                 _buildDrawerItem(
                   context,
                   icon: Icons.info_outline_rounded,
@@ -428,11 +463,13 @@ class HomeDrawer extends StatelessWidget {
                               color: Colors.transparent,
                               child: InkWell(
                                 onTap: () {
+                                  TutorialService.instance.notifyDrawerResized();
                                   onToggleExpanded?.call(!isExpanded);
                                   DrawerGestureHintHelper.setDismissed();
                                 },
                                 borderRadius: BorderRadius.circular(12),
                                 child: Container(
+                                  key: resizeButtonKey,
                                   width: isVeryCompact ? 36 : 40,
                                   height: isVeryCompact ? 36 : 40,
                                   alignment: Alignment.center,
@@ -962,6 +999,7 @@ class HomeDrawer extends StatelessWidget {
 
   Widget _buildDrawerItem(
     BuildContext context, {
+    Key? itemKey,
     required IconData icon,
     required String title,
     String? subtitle,
@@ -981,6 +1019,7 @@ class HomeDrawer extends StatelessWidget {
         : (isDark ? const Color(0xFF2A3447) : const Color(0xFFE2E8F0));
 
     return Container(
+      key: itemKey,
       margin: const EdgeInsets.symmetric(vertical: 3),
       decoration: BoxDecoration(
         color: cardBg,

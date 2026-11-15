@@ -13,6 +13,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color backgroundColor;
   final Widget? titleWidget;
   final Color? titleTextColor;
+  final GlobalKey? menuButtonKey;
 
   const HomeAppBar({
     Key? key,
@@ -28,6 +29,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.backgroundColor,
     this.titleWidget,
     this.titleTextColor,
+    this.menuButtonKey,
   }) : super(key: key);
 
   @override
@@ -137,6 +139,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: _AppBarIconButton(
+                      key: menuButtonKey,
                       icon: Icons.menu_rounded,
                       color: fgColor,
                       tooltip: 'Menu',
@@ -218,11 +221,12 @@ class _AppBarIconButton extends StatelessWidget {
   final VoidCallback? onPressed;
 
   const _AppBarIconButton({
+    Key? key,
     required this.icon,
     required this.color,
     required this.tooltip,
     required this.onPressed,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

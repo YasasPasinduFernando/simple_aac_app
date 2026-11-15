@@ -18,6 +18,7 @@ import '../services/card_storage_service.dart';
 import '../services/multilingual_concept_service.dart';
 import '../services/network_policy_service.dart';
 import '../services/speech_engine.dart';
+import '../services/tutorial_service.dart';
 import '../widgets/card_editor_dialog.dart';
 import '../widgets/professional_color_picker_dialog.dart';
 
@@ -28,6 +29,9 @@ import '../widgets/landscape_menu.dart';
 import '../widgets/styled_dialog_header.dart';
 import '../widgets/tts_bar.dart';
 import '../widgets/visible_cards_dialog.dart';
+import '../widgets/tutorial/mini_guides_dialog.dart';
+import '../widgets/tutorial/tutorial_overlay.dart';
+import '../widgets/tutorial/welcome_tour_dialog.dart';
 import '../utils/animated_media_helper.dart';
 import '../utils/app_permissions_helper.dart';
 import '../utils/camera_object_helper.dart';
@@ -42,6 +46,8 @@ class HomePage extends StatefulWidget {
   static Future<void> Function(String text)? speakPerformer;
   @visibleForTesting
   static bool enableTtsInit = true;
+  @visibleForTesting
+  static bool enableTutorialInit = false;
   @visibleForTesting
   static List<AACCard>? initialCardsForTesting;
 
@@ -119,14 +125,34 @@ class _HomePageState extends State<HomePage> {
   @visibleForTesting
   void resetSettingsForTesting() => _resetSettingsToDefaults();
 
+  final GlobalKey _menuButtonKey = GlobalKey();
+  final GlobalKey _drawerResizeKey = GlobalKey();
+  final GlobalKey _drawerEditModeKey = GlobalKey();
+  final GlobalKey _addNewCardKey = GlobalKey();
+  final Map<String, GlobalKey> _cardKeys = {};
+
   @override
   void initState() {
     super.initState();
+    TutorialService.instance.registerKey('app_bar_menu_button', _menuButtonKey);
+    TutorialService.instance.registerKey('drawer_resize_button', _drawerResizeKey);
+    TutorialService.instance.registerKey('drawer_edit_mode_toggle', _drawerEditModeKey);
+    TutorialService.instance.registerKey('edit_mode_add_new_button', _addNewCardKey);
+
     if (HomePage.initialCardsForTesting != null) {
       cards = List.of(HomePage.initialCardsForTesting!);
       _updateCategories();
     }
     _loadCardsFuture = _loadCards();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!HomePage.enableTutorialInit) return;
+      if (HomePage.initialCardsForTesting != null) return;
+      await TutorialService.instance.init();
+      if (mounted && TutorialService.instance.isWelcomeVisibleNotifier.value) {
+        unawaited(WelcomeTourDialog.show(context, language: currentLanguage));
+      }
+    });
   }
 
   Future<void> _initTts() async {
@@ -614,6 +640,7 @@ class _HomePageState extends State<HomePage> {
         isNew: isNew,
         categories: allCategories.toList(),
         audioPlayer: _audioPlayer,
+        language: currentLanguage,
         onPickImage: () {
           Navigator.pop(context);
           _pickImage(card);
@@ -2532,46 +2559,50 @@ class _HomePageState extends State<HomePage> {
         }
         return true;
       },
-      child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: themeBackground,
-        appBar: isLandscape
-            ? null
-            : HomeAppBar(
-                title: activeParentCard == null
-                    ? 'Simple AAC'
-                    : activeParentCard!.getLabel(currentLanguage),
-                backgroundColor: themePrimary,
-                showBack: activeParentCard != null && !isPinned,
-                onBack: () {
-                  setState(() {
-                    _resetTtsInput();
-                    activeParentCard = null;
-                  });
-                },
-                showPin: true,
-                isPinned: isPinned,
-                onTogglePin: () {
-                  setState(() {
-                    isPinned = !isPinned;
-                    if (isPinned) {
-                      fullScreen = true;
-                    }
-                  });
-                  UiModeHelper.applySystemUi(fullScreen);
-                },
-                isEditMode: isEditMode,
-                showMenu: !isPinned,
-                onOpenMenu: () {
-                  if (_isDrawerExpanded) {
-                    setState(() {
-                      _isDrawerExpanded = false;
-                    });
-                  }
-                  _scaffoldKey.currentState?.openEndDrawer();
-                },
-                titleTextColor: themeText,
-              ),
+      child: Stack(
+        children: [
+          Scaffold(
+            key: _scaffoldKey,
+            backgroundColor: themeBackground,
+            appBar: isLandscape
+                ? null
+                : HomeAppBar(
+                    title: activeParentCard == null
+                        ? 'Simple AAC'
+                        : activeParentCard!.getLabel(currentLanguage),
+                    backgroundColor: themePrimary,
+                    showBack: activeParentCard != null && !isPinned,
+                    onBack: () {
+                      setState(() {
+                        _resetTtsInput();
+                        activeParentCard = null;
+                      });
+                    },
+                    showPin: true,
+                    isPinned: isPinned,
+                    onTogglePin: () {
+                      setState(() {
+                        isPinned = !isPinned;
+                        if (isPinned) {
+                          fullScreen = true;
+                        }
+                      });
+                      UiModeHelper.applySystemUi(fullScreen);
+                    },
+                    isEditMode: isEditMode,
+                    showMenu: !isPinned,
+                    menuButtonKey: _menuButtonKey,
+                    onOpenMenu: () {
+                      TutorialService.instance.notifyMenuOpened();
+                      if (_isDrawerExpanded) {
+                        setState(() {
+                          _isDrawerExpanded = false;
+                        });
+                      }
+                      _scaffoldKey.currentState?.openEndDrawer();
+                    },
+                    titleTextColor: themeText,
+                  ),
         endDrawer: isPinned
             ? null
             : HomeDrawer(
@@ -2721,6 +2752,10 @@ class _HomePageState extends State<HomePage> {
                   Navigator.pop(context);
                   await AppPermissionsHelper.requestAllAndShowStatus(context);
                 },
+                resizeButtonKey: _drawerResizeKey,
+                editModeKey: _drawerEditModeKey,
+                onReplayTutorial: () => TutorialService.instance.resetAndReplayTour(),
+                onShowMiniGuides: () => MiniGuidesDialog.show(context, language: currentLanguage),
                 onShowAbout: _showAbout,
               ),
         body: SafeArea(
@@ -2802,7 +2837,10 @@ class _HomePageState extends State<HomePage> {
                 ),
         ),
       ),
-    );
+      TutorialOverlay(language: currentLanguage),
+    ],
+  ),
+);
   }
 
   Widget _buildMainContent(
@@ -2820,6 +2858,7 @@ class _HomePageState extends State<HomePage> {
     if (isEditMode) {
       topBanner = EditModeBar(
         key: const ValueKey('edit_mode_bar'),
+        addKey: _addNewCardKey,
         onDone: _exitEditMode,
         onUndo: _undoEditChanges,
         baseColor: themePrimary,
@@ -2948,6 +2987,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCardWidget(AACCard card, bool isTablet) {
+    final cardKey = _cardKeys.putIfAbsent(card.id, () => GlobalKey());
+    TutorialService.instance.registerKey('aac_card_${card.id}', cardKey);
+    final displayed = _getDisplayedCards();
+    if (displayed.isNotEmpty && card.id == displayed.first.id) {
+      TutorialService.instance.registerKey('aac_first_card', cardKey);
+    }
+
     final displayLabel = card.getLabel(currentLanguage);
     final isTapAnimated = _tapAnimatedCardId == card.id;
     final useImageOverlay = _useImageOverlayLabel && card.imagePath != null;
@@ -2983,7 +3029,9 @@ class _HomePageState extends State<HomePage> {
                 : null;
 
     return GestureDetector(
+      key: cardKey,
       onTap: () {
+        TutorialService.instance.notifyNewCardTapped(card.id);
         if (isEditMode) {
           _editCard(card);
           return;

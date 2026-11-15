@@ -6,6 +6,7 @@ class EditModeBar extends StatelessWidget {
   final VoidCallback onAdd;
   final Color baseColor;
   final Color textColor;
+  final Key? addKey;
 
   const EditModeBar({
     Key? key,
@@ -14,6 +15,7 @@ class EditModeBar extends StatelessWidget {
     required this.onAdd,
     required this.baseColor,
     required this.textColor,
+    this.addKey,
   }) : super(key: key);
 
   @override
@@ -58,6 +60,7 @@ class EditModeBar extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           _EditBarButton(
+            key: addKey,
             icon: Icons.add_rounded,
             label: 'Add New',
             onTap: onAdd,
@@ -80,13 +83,14 @@ class _EditBarButton extends StatelessWidget {
   final Color? borderColor;
 
   const _EditBarButton({
+    Key? key,
     required this.icon,
     required this.label,
     required this.onTap,
     required this.backgroundColor,
     required this.foregroundColor,
     this.borderColor,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

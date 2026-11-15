@@ -10,12 +10,14 @@ import '../models/aac_card_model.dart';
 import '../services/card_storage_service.dart';
 import '../services/multilingual_concept_service.dart';
 import '../services/network_policy_service.dart';
+import '../services/tutorial_service.dart';
 import '../utils/animated_media_helper.dart';
 import '../utils/app_permissions_helper.dart';
 import '../utils/camera_object_helper.dart';
 import '../utils/card_image.dart';
 import 'smart_image_search_dialog.dart';
 import 'styled_dialog_header.dart';
+import 'tutorial/tutorial_overlay.dart';
 
 enum CardEditorAction { saved, addSubCard }
 
@@ -26,6 +28,7 @@ class CardEditorDialog extends StatefulWidget {
   final AudioPlayer audioPlayer;
   final VoidCallback? onPickImage;
   final CameraAnalysisResult? initialCameraAnalysis;
+  final String language;
 
   const CardEditorDialog({
     Key? key,
@@ -35,6 +38,7 @@ class CardEditorDialog extends StatefulWidget {
     required this.audioPlayer,
     this.onPickImage,
     this.initialCameraAnalysis,
+    this.language = 'en',
   }) : super(key: key);
 
   @override
@@ -63,9 +67,19 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   String _detectedConcept = '';
   CameraAnalysisResult? _cameraAnalysis;
 
+  final GlobalKey _cardMediaKey = GlobalKey();
+  final GlobalKey _cardLabelsKey = GlobalKey();
+  final GlobalKey _cardVoiceKey = GlobalKey();
+  final GlobalKey _cardSaveKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
+    TutorialService.instance.registerKey('card_editor_media_section', _cardMediaKey);
+    TutorialService.instance.registerKey('card_editor_labels_section', _cardLabelsKey);
+    TutorialService.instance.registerKey('card_editor_voice_section', _cardVoiceKey);
+    TutorialService.instance.registerKey('card_editor_save_button', _cardSaveKey);
+
     _cameraAnalysis = widget.initialCameraAnalysis;
     _controllerEn = TextEditingController(text: widget.card.label);
     _controllerSi = TextEditingController(text: widget.card.labelSinhala ?? '');
@@ -77,6 +91,10 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     _controllerSi.addListener(_updateConcept);
     _controllerTa.addListener(_updateConcept);
     _updateConcept();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      TutorialService.instance.notifyCardEditorOpened();
+    });
   }
 
   void _updateConcept() {
@@ -138,6 +156,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         widget.card.imagePath = permanentPath;
         _cameraAnalysis = null;
       });
+      TutorialService.instance.notifyMediaSelected();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -166,6 +185,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         widget.card.imagePath = outcome.imagePath;
         _cameraAnalysis = outcome.analysis;
       });
+      TutorialService.instance.notifyMediaSelected();
     } catch (e) {
       if (!mounted) return;
       await showDialog<void>(
@@ -216,6 +236,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         widget.card.imagePath = savedPath;
         _cameraAnalysis = null;
       });
+      TutorialService.instance.notifyMediaSelected();
     } finally {
       _isMediaBusy = false;
     }
@@ -244,6 +265,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
           widget.card.imagePath = resultPath;
           _cameraAnalysis = null;
         });
+        TutorialService.instance.notifyMediaSelected();
       }
     } finally {
       _isMediaBusy = false;
@@ -375,6 +397,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     if (widget.card.type == 'word') {
       widget.card.subCards.clear();
     }
+    TutorialService.instance.notifyCardSaved(widget.card.id);
     Navigator.pop(context, CardEditorAction.saved);
   }
 
@@ -398,13 +421,15 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
           Navigator.pop(context);
         }
       },
-      child: AlertDialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        actionsPadding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-        title: StyledDialogHeader(
+      child: Stack(
+        children: [
+          AlertDialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            actionsPadding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+            title: StyledDialogHeader(
           icon: widget.isNew
               ? Icons.add_photo_alternate_rounded
               : Icons.edit_rounded,
@@ -477,6 +502,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
             child: const Text('Cancel'),
           ),
           FilledButton(
+            key: TutorialService.instance.getKey('card_editor_save_button'),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
               shape: RoundedRectangleBorder(
@@ -497,7 +523,10 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
           ),
         ],
       ),
-    );
+      TutorialOverlay(language: widget.language),
+    ],
+  ),
+);
   }
 
   Widget _buildImageSection(BuildContext context) {
@@ -667,89 +696,97 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
             ),
             const SizedBox(height: 10),
           ],
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+          Container(
+            key: TutorialService.instance.getKey('card_editor_media_section'),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: _MediaSourceTile(
-                    iconWidget: SmartSearchIcon(
-                      size: 22,
-                      color: isOnline ? colorScheme.primary : colorScheme.outline,
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: _MediaSourceTile(
+                          iconWidget: SmartSearchIcon(
+                            size: 22,
+                            color: isOnline ? colorScheme.primary : colorScheme.outline,
+                          ),
+                          label: isOnline ? 'Smart Search' : 'Web (Offline)',
+                          accentColor: isOnline ? colorScheme.primary : colorScheme.outline,
+                          isMuted: !isOnline,
+                          onTap: _openSmartSearch,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _MediaSourceTile(
+                          icon: Icons.photo_library_rounded,
+                          label: 'Gallery',
+                          accentColor: colorScheme.secondary,
+                          onTap: _pickFromGallery,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _MediaSourceTile(
+                          icon: Icons.camera_alt_rounded,
+                          label: 'Camera',
+                          accentColor: colorScheme.tertiary,
+                          onTap: _pickFromCamera,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Material(
+                  color: colorScheme.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: _pickAnimatedClip,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: colorScheme.primary.withValues(alpha: 0.28),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.gif_box_rounded,
+                            size: 20,
+                            color: colorScheme.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'GIF / Short Video (Max 30s)',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            size: 18,
+                            color: colorScheme.primary,
+                          ),
+                        ],
+                      ),
                     ),
-                    label: isOnline ? 'Smart Search' : 'Web (Offline)',
-                    accentColor: isOnline ? colorScheme.primary : colorScheme.outline,
-                    isMuted: !isOnline,
-                    onTap: _openSmartSearch,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _MediaSourceTile(
-                    icon: Icons.photo_library_rounded,
-                    label: 'Gallery',
-                    accentColor: colorScheme.secondary,
-                    onTap: _pickFromGallery,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _MediaSourceTile(
-                    icon: Icons.camera_alt_rounded,
-                    label: 'Camera',
-                    accentColor: colorScheme.tertiary,
-                    onTap: _pickFromCamera,
                   ),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Material(
-            color: colorScheme.primary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: _pickAnimatedClip,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: colorScheme.primary.withValues(alpha: 0.28),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.gif_box_rounded,
-                      size: 20,
-                      color: colorScheme.primary,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'GIF / Short Video (Max 30s)',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      size: 18,
-                      color: colorScheme.primary,
-                    ),
-                  ],
-                ),
-              ),
             ),
           ),
         ],
@@ -1317,6 +1354,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
 
   Widget _buildLabelSection(BuildContext context) {
     return Column(
+      key: TutorialService.instance.getKey('card_editor_labels_section'),
       children: [
         TextField(
           controller: _controllerEn,
@@ -1360,6 +1398,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   Widget _buildAudioSection(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
+      key: TutorialService.instance.getKey('card_editor_voice_section'),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.25),
