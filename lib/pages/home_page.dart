@@ -21,6 +21,7 @@ import '../services/multilingual_concept_service.dart';
 import '../services/network_policy_service.dart';
 import '../services/speech_engine.dart';
 import '../services/tutorial_service.dart';
+import '../widgets/add_category_dialog.dart';
 import '../widgets/card_editor_dialog.dart';
 import '../widgets/color_vision_dialog.dart';
 import '../widgets/professional_color_picker_dialog.dart';
@@ -90,6 +91,7 @@ class _HomePageState extends State<HomePage> {
   bool showTtsInput = true;
   String selectedCategory = 'All';
   Set<String> allCategories = {'General'};
+  Set<String> _customCategories = {};
   AACCard? activeParentCard;
   bool isEditMode = false;
   bool isCardEditorOpen = false;
@@ -277,6 +279,8 @@ class _HomePageState extends State<HomePage> {
         _isDarkMode = nextDark;
         _isColorBlindMode = nextColorBlind;
         ThemeAccessibility.colorBlindMode = nextColorBlind;
+        _customCategories =
+            (prefs.getStringList('customCategories') ?? []).toSet();
         _updateCategories();
         _migrateVisibleCountIfNeeded(prefs);
       });
@@ -343,6 +347,7 @@ class _HomePageState extends State<HomePage> {
         allCategories.add(subCard.category);
       }
     }
+    allCategories.addAll(_customCategories);
   }
 
   Future<void> _saveCards() async {
@@ -376,6 +381,8 @@ class _HomePageState extends State<HomePage> {
           prefs.setBool(ThemeAccessibility.darkModePrefKey, _isDarkMode),
           prefs.setBool(
               ThemeAccessibility.colorBlindPrefKey, _isColorBlindMode),
+          prefs.setStringList(
+              'customCategories', _customCategories.toList()),
         ]);
       }),
     ]);
@@ -1144,54 +1151,49 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showAddCategoryDialog() {
-    final controller = TextEditingController();
-
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        title: const StyledDialogHeader(
-          icon: Icons.create_new_folder_rounded,
-          title: 'Add New Category',
-          subtitle: 'Group related AAC cards together',
-        ),
-        content: SingleChildScrollView(
-          child: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              labelText: 'Category Name',
-              hintText: 'e.g., Food, School, Emotions',
-              prefixIcon: const Icon(Icons.label_outline_rounded),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            autofocus: true,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          FilledButton.icon(
-            icon: const Icon(Icons.add_rounded, size: 18),
-            label: const Text('Add'),
-            onPressed: () {
-              final clean = controller.text.trim();
-              if (clean.isNotEmpty) {
-                setState(() {
-                  allCategories.add(clean);
-                });
-                _saveCards();
-                Navigator.pop(context);
-                _showMessage('Category "$clean" added!');
+      builder: (context) => AddCategoryDialog(
+        availableCards: cards,
+        existingCategories: allCategories,
+        currentLanguage: currentLanguage,
+        onAddCategory: (cleanName, selectedCardIds, colorValue, icon) async {
+          setState(() {
+            allCategories.add(cleanName);
+            _customCategories.add(cleanName);
+            if (selectedCardIds.isNotEmpty) {
+              for (var card in cards) {
+                if (selectedCardIds.contains(card.id)) {
+                  card.category = cleanName;
+                }
+                for (var subCard in card.subCards) {
+                  if (selectedCardIds.contains(subCard.id)) {
+                    subCard.category = cleanName;
+                  }
+                }
               }
-            },
-          ),
-        ],
+              final rootVisible = visibleCardIdsByParent['__root__'];
+              if (rootVisible != null && rootVisible.isNotEmpty) {
+                rootVisible.addAll(selectedCardIds);
+              }
+            }
+            selectedCategory = cleanName;
+            activeParentCard = null;
+            _resetTtsInput();
+          });
+
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setStringList(
+              'customCategories', _customCategories.toList());
+
+          await _saveCards();
+
+          _showMessage(selectedCardIds.isEmpty
+              ? 'Category "$cleanName" created!'
+              : 'Category "$cleanName" created with ${selectedCardIds.length} cards!');
+        },
       ),
-    ).whenComplete(controller.dispose);
+    );
   }
 
   void _showGridOptions() {
