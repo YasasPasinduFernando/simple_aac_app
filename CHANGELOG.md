@@ -17,6 +17,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1] - 2026-11-16
+
+### Added
+- **TTS Bar Settings & Independent Action Controls (`77de384`):**
+  - Renamed "TTS Bar Sizing" dialog and drawer item to "TTS Bar Settings".
+  - Introduced separate, independent switch toggles for "Show Delete Button" and "Show Clear Button" (both default enabled).
+  - Integrated real-time Live Preview reflecting size scaling and independent button visibility.
+- **Child-Safe Press-and-Hold Unpin Protection (`afc95de`):**
+  - Board unpinning now strictly requires a 700ms press-and-hold with haptic vibration feedback.
+  - Prevents unintended unpinning from accidental taps by children and learners.
+- **Interactive First-Run App Guide & Onboarding Tour (`20755a7`, `472202b`, `bee2caa`):**
+  - 9-step trilingual interactive onboarding walkthrough with hole-punch spotlighting (`HighlightPainter`).
+  - Automatic drawer close on Step 4 next-advance and back-navigation.
+  - Permanent "Interactive App Guide" replay option in Settings Drawer.
+- **Color Vision Deficiency Support & Card Adaptation (`1e41e00`, `e40bb74`, `63a3558`):**
+  - Real color-blind safe palettes (Protanopia, Deuteranopia, Tritanopia, Monochromacy).
+  - Real-time image color filtering adapting photo cards and illustrations for color-blind users.
+  - High-contrast card border ring customizer (1–10px thickness, auto-contrast or custom colors).
+  - High-contrast mini palette preview chips in Settings Drawer.
+- **Interactive Add Category Modal (`fdc6e9c`):**
+  - Live category badge preview with quick preset chips (Food, School, Feelings), icon selector, color accent picker, and card assignment checklist.
+- **Direct Runtime Permission Requests (`a221078`):**
+  - Native Android runtime dialogs for Camera and Microphone triggered on first use without forcing user to system settings.
+- **Tactile Haptic Feedback (`02a1763`):**
+  - Strong heavy-impact tactile feedback and custom vibration pulse on card taps.
+- **Caregiver Lock Security (`71c6fe8`):**
+  - Native biometrics (fingerprint/face) and device lock pattern/PIN protection with fallback PIN.
+- **Reactive Live Previews (`e59eca6`):**
+  - Live preview panels for Grid Density, TTS Bar, and Visible Cards dialogs.
+
+### Changed
+- **Toolchain & Build Optimization (`4ca787a`, `487d2bb`):**
+  - Upgraded to Android Gradle Plugin 9.0.1 and Gradle 9.1.0.
+  - Enabled optimized R8 full-mode shrinking with ProGuard keep rules for offline ML Kit models.
+  - Bumped version to `1.1.1+9` for Google Play Console release.
+
+---
+
 ## [1.1.0] - 2026-11-14
 
 ### Documentation
