@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 
+import 'theme_accessibility.dart';
+
 bool isAssetImagePath(String? path) {
   return path != null && path.startsWith('assets/');
 }
@@ -19,31 +21,43 @@ Widget buildCardImage(
   double? height,
   int? cacheWidth = 480,
   ImageErrorWidgetBuilder? errorBuilder,
+  ColorFilter? colorFilter,
+  bool autoApplyColorBlindFilter = true,
 }) {
   // ResizeImage flattens animated GIFs to frame 0, so preserve native codec for .gif files.
   final effectiveCacheWidth = isGifImagePath(imagePath) ? null : cacheWidth;
 
-  if (isAssetImagePath(imagePath)) {
-    return Image.asset(
-      imagePath,
-      fit: fit,
-      width: width,
-      height: height,
-      cacheWidth: effectiveCacheWidth,
-      filterQuality: FilterQuality.medium,
-      gaplessPlayback: true,
-      errorBuilder: errorBuilder,
+  final Widget image = isAssetImagePath(imagePath)
+      ? Image.asset(
+          imagePath,
+          fit: fit,
+          width: width,
+          height: height,
+          cacheWidth: effectiveCacheWidth,
+          filterQuality: FilterQuality.medium,
+          gaplessPlayback: true,
+          errorBuilder: errorBuilder,
+        )
+      : Image.file(
+          File(imagePath),
+          fit: fit,
+          width: width,
+          height: height,
+          cacheWidth: effectiveCacheWidth,
+          filterQuality: FilterQuality.medium,
+          gaplessPlayback: true,
+          errorBuilder: errorBuilder,
+        );
+
+  final effectiveFilter = colorFilter ??
+      (autoApplyColorBlindFilter ? ThemeAccessibility.resolveCardImageFilter() : null);
+
+  if (effectiveFilter != null) {
+    return ColorFiltered(
+      colorFilter: effectiveFilter,
+      child: image,
     );
   }
 
-  return Image.file(
-    File(imagePath),
-    fit: fit,
-    width: width,
-    height: height,
-    cacheWidth: effectiveCacheWidth,
-    filterQuality: FilterQuality.medium,
-    gaplessPlayback: true,
-    errorBuilder: errorBuilder,
-  );
+  return image;
 }

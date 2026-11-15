@@ -13,6 +13,7 @@ class ColorVisionDialog extends StatefulWidget {
   final double initialBorderWidth;
   final String initialBorderColor;
   final bool initialBoldText;
+  final bool initialFilterImages;
   final bool isDarkMode;
   final void Function(
     bool enabled,
@@ -20,6 +21,7 @@ class ColorVisionDialog extends StatefulWidget {
     double borderWidth,
     String borderColor,
     bool boldText,
+    bool filterImages,
   ) onApply;
 
   const ColorVisionDialog({
@@ -29,6 +31,7 @@ class ColorVisionDialog extends StatefulWidget {
     required this.initialBorderWidth,
     required this.initialBorderColor,
     required this.initialBoldText,
+    this.initialFilterImages = true,
     required this.isDarkMode,
     required this.onApply,
   });
@@ -43,6 +46,7 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
   late double _borderWidth;
   late String _borderColor;
   late bool _boldText;
+  late bool _filterImages;
 
   @override
   void initState() {
@@ -52,6 +56,7 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
     _borderWidth = widget.initialBorderWidth.clamp(1.0, 5.0);
     _borderColor = widget.initialBorderColor;
     _boldText = widget.initialBoldText;
+    _filterImages = widget.initialFilterImages;
   }
 
   static const List<_ColorBlindPreset> _presets = [
@@ -271,6 +276,28 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
                     ? (val) => setState(() => _boldText = val)
                     : null,
               ),
+              const SizedBox(height: 10),
+
+              // 7. Adapt Card Pictures (Images) to Vision Deficiency
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                secondary: Icon(
+                  Icons.photo_filter_rounded,
+                  color: _enabled && _filterImages ? colorScheme.primary : colorScheme.outline,
+                ),
+                title: const Text(
+                  'Adapt Card Pictures to Vision Mode',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  'Applies color deficiency matrix to card photos and illustrations so picture details remain clear',
+                  style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
+                ),
+                value: _filterImages,
+                onChanged: _enabled
+                    ? (val) => setState(() => _filterImages = val)
+                    : null,
+              ),
             ],
           ),
         ),
@@ -288,6 +315,7 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
               _borderWidth = 2.5;
               _borderColor = 'auto';
               _boldText = true;
+              _filterImages = true;
             });
           },
           child: const Text('Reset'),
@@ -300,6 +328,7 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
               _borderWidth,
               _borderColor,
               _boldText,
+              _filterImages,
             );
             Navigator.pop(context);
           },
@@ -316,18 +345,27 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
         label: 'Hello',
         baseColor: Color(0xFFFFF59D), // Yellow
         icon: Icons.accessibility_new_rounded,
+        imagePath: 'assets/images/seed/hello.png',
       ),
       const _SampleCardData(
-        label: 'Water',
+        label: 'Play',
         baseColor: Color(0xFFBBDEFB), // Blue
-        icon: Icons.local_cafe_rounded,
+        icon: Icons.sports_esports_rounded,
+        imagePath: 'assets/images/seed/play.png',
       ),
       const _SampleCardData(
-        label: 'Apple',
+        label: 'Happy',
         baseColor: Color(0xFFFFCDD2), // Pink / Red
-        icon: Icons.apple_rounded,
+        icon: Icons.sentiment_very_satisfied_rounded,
+        imagePath: 'assets/images/seed/happy.png',
       ),
     ];
+
+    final imageFilter = ThemeAccessibility.resolveCardImageFilter(
+      isColorBlindMode: _enabled,
+      type: _type,
+      filterImages: _filterImages,
+    );
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -360,6 +398,34 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
           isBold: _boldText,
         );
 
+        Widget cardMedia = data.imagePath != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: Image.asset(
+                  data.imagePath!,
+                  width: 36,
+                  height: 36,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Icon(
+                    data.icon,
+                    size: 26,
+                    color: textColor,
+                  ),
+                ),
+              )
+            : Icon(
+                data.icon,
+                size: 26,
+                color: textColor,
+              );
+
+        if (imageFilter != null && _filterImages) {
+          cardMedia = ColorFiltered(
+            colorFilter: imageFilter,
+            child: cardMedia,
+          );
+        }
+
         return Expanded(
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -382,11 +448,7 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  data.icon,
-                  size: 26,
-                  color: textColor,
-                ),
+                cardMedia,
                 const SizedBox(height: 4),
                 Text(
                   data.label,
@@ -438,10 +500,12 @@ class _SampleCardData {
   final String label;
   final Color baseColor;
   final IconData icon;
+  final String? imagePath;
 
   const _SampleCardData({
     required this.label,
     required this.baseColor,
     required this.icon,
+    this.imagePath,
   });
 }

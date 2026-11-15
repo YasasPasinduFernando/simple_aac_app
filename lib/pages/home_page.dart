@@ -272,6 +272,7 @@ class _HomePageState extends State<HomePage> {
         _enableHaptics = nextHaptics;
         _isDarkMode = nextDark;
         _isColorBlindMode = nextColorBlind;
+        ThemeAccessibility.colorBlindMode = nextColorBlind;
         _updateCategories();
         _migrateVisibleCountIfNeeded(prefs);
       });
@@ -1791,16 +1792,20 @@ class _HomePageState extends State<HomePage> {
         initialBorderWidth: ThemeAccessibility.colorBlindBorderWidth,
         initialBorderColor: ThemeAccessibility.colorBlindBorderColor,
         initialBoldText: ThemeAccessibility.colorBlindBoldText,
+        initialFilterImages: ThemeAccessibility.colorBlindFilterImages,
         isDarkMode: _isDarkMode,
-        onApply: (enabled, type, borderWidth, borderColor, boldText) async {
+        onApply: (enabled, type, borderWidth, borderColor, boldText, filterImages) async {
           setState(() {
             _isColorBlindMode = enabled;
           });
+          ThemeAccessibility.colorBlindMode = enabled;
           await ThemeAccessibility.saveColorBlindSettings(
+            enabled: enabled,
             type: type,
             borderWidth: borderWidth,
             borderColor: borderColor,
             boldText: boldText,
+            filterImages: filterImages,
           );
           await _saveCards();
         },
@@ -2840,6 +2845,7 @@ class _HomePageState extends State<HomePage> {
                       setState(() {
                         _isColorBlindMode = enabled;
                       });
+                      ThemeAccessibility.colorBlindMode = enabled;
                       _saveCards();
                     },
                     onOpenColorBlindSettings: _showColorVisionDialog,
@@ -3202,6 +3208,9 @@ class _HomePageState extends State<HomePage> {
             customTextColor: Color(_cardTextColor),
           );
     final useLightShadow = cardTextColor.computeLuminance() > 0.5;
+    final cardImageFilter = ThemeAccessibility.resolveCardImageFilter(
+      isColorBlindMode: _isColorBlindMode,
+    );
     final cardBorder = highlightedCardId == card.id
         ? Border.all(
             color: _isColorBlindMode
@@ -3305,6 +3314,7 @@ class _HomePageState extends State<HomePage> {
                                 card.imagePath!,
                                 fit: BoxFit.cover,
                                 width: double.infinity,
+                                colorFilter: cardImageFilter,
                                 errorBuilder: (context, error, stackTrace) {
                                   return const Center(
                                     child: Icon(Icons.broken_image,
@@ -3366,6 +3376,7 @@ class _HomePageState extends State<HomePage> {
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,
+                    colorFilter: cardImageFilter,
                     errorBuilder: (context, error, stackTrace) {
                       return const Center(
                         child: Icon(Icons.broken_image,

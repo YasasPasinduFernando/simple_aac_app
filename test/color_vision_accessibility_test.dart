@@ -141,6 +141,52 @@ void main() {
       );
       expect(noShadows, isNull);
     });
+
+    test('resolveCardImageFilter returns correct matrix filters', () {
+      // Disabled mode returns null
+      expect(
+        ThemeAccessibility.resolveCardImageFilter(isColorBlindMode: false),
+        isNull,
+      );
+      expect(
+        ThemeAccessibility.resolveCardImageFilter(
+          isColorBlindMode: true,
+          filterImages: false,
+        ),
+        isNull,
+      );
+
+      // Active mode returns distinct ColorFilter.matrix per type
+      final uniFilter = ThemeAccessibility.resolveCardImageFilter(
+        isColorBlindMode: true,
+        type: 'universal',
+      );
+      expect(uniFilter, isNotNull);
+
+      final deutFilter = ThemeAccessibility.resolveCardImageFilter(
+        isColorBlindMode: true,
+        type: 'deuteranomaly',
+      );
+      expect(deutFilter, isNotNull);
+
+      final protFilter = ThemeAccessibility.resolveCardImageFilter(
+        isColorBlindMode: true,
+        type: 'protanomaly',
+      );
+      expect(protFilter, isNotNull);
+
+      final tritFilter = ThemeAccessibility.resolveCardImageFilter(
+        isColorBlindMode: true,
+        type: 'tritanomaly',
+      );
+      expect(tritFilter, isNotNull);
+
+      final monoFilter = ThemeAccessibility.resolveCardImageFilter(
+        isColorBlindMode: true,
+        type: 'monochrome',
+      );
+      expect(monoFilter, isNotNull);
+    });
   });
 
   group('ColorVisionDialog Widget Tests', () {
@@ -150,6 +196,7 @@ void main() {
       double? appliedWidth;
       String? appliedColor;
       bool? appliedBold;
+      bool? appliedFilterImages;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -160,13 +207,15 @@ void main() {
               initialBorderWidth: 2.5,
               initialBorderColor: 'auto',
               initialBoldText: true,
+              initialFilterImages: true,
               isDarkMode: false,
-              onApply: (enabled, type, width, color, bold) {
+              onApply: (enabled, type, width, color, bold, filterImages) {
                 appliedEnabled = enabled;
                 appliedType = type;
                 appliedWidth = width;
                 appliedColor = color;
                 appliedBold = bold;
+                appliedFilterImages = filterImages;
               },
             ),
           ),
@@ -179,13 +228,16 @@ void main() {
       expect(find.text('Color Vision Support'), findsOneWidget);
       expect(find.text('LIVE CARD PREVIEW'), findsOneWidget);
       expect(find.text('Hello'), findsOneWidget);
-      expect(find.text('Water'), findsOneWidget);
-      expect(find.text('Apple'), findsOneWidget);
+      expect(find.text('Play'), findsOneWidget);
+      expect(find.text('Happy'), findsOneWidget);
 
       // Verify presets are displayed
       expect(find.text('Deuteranomaly (Red-Green)'), findsOneWidget);
       expect(find.text('Protanomaly (Red-Green)'), findsOneWidget);
       expect(find.text('Tritanomaly (Blue-Yellow)'), findsOneWidget);
+
+      // Verify new Adapt Card Pictures switch is present
+      expect(find.text('Adapt Card Pictures to Vision Mode'), findsOneWidget);
 
       // Scroll into view and select Deuteranomaly
       await tester.ensureVisible(find.text('Deuteranomaly (Red-Green)'));
@@ -204,11 +256,13 @@ void main() {
       expect(appliedWidth, 2.5);
       expect(appliedColor, 'auto');
       expect(appliedBold, true);
+      expect(appliedFilterImages, true);
     });
 
     testWidgets('Reset button restores default settings in ColorVisionDialog', (tester) async {
       bool? appliedEnabled;
       String? appliedType;
+      bool? appliedFilterImages;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -219,10 +273,12 @@ void main() {
               initialBorderWidth: 4.5,
               initialBorderColor: 'yellow',
               initialBoldText: false,
+              initialFilterImages: false,
               isDarkMode: false,
-              onApply: (enabled, type, width, color, bold) {
+              onApply: (enabled, type, width, color, bold, filterImages) {
                 appliedEnabled = enabled;
                 appliedType = type;
+                appliedFilterImages = filterImages;
               },
             ),
           ),
@@ -246,6 +302,7 @@ void main() {
       // Should be restored to defaults
       expect(appliedEnabled, false);
       expect(appliedType, 'universal');
+      expect(appliedFilterImages, true);
     });
   });
 

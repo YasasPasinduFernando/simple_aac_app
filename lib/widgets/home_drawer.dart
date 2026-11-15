@@ -1787,6 +1787,9 @@ class ColorVisionPreviewChip extends StatelessWidget {
                 bg: card1Bg,
                 borderColor: borderColor,
                 borderWidth: borderWidth,
+                filter: isColorBlind
+                    ? ThemeAccessibility.resolveCardImageFilter(isColorBlindMode: true)
+                    : null,
                 child: CustomPaint(
                   size: const Size(9, 12),
                   painter: _MiniStickFigurePainter(
@@ -1799,6 +1802,9 @@ class ColorVisionPreviewChip extends StatelessWidget {
                 bg: card2Bg,
                 borderColor: borderColor,
                 borderWidth: borderWidth,
+                filter: isColorBlind
+                    ? ThemeAccessibility.resolveCardImageFilter(isColorBlindMode: true)
+                    : null,
                 child: Icon(
                   Icons.local_cafe_rounded,
                   size: 9.5,
@@ -1810,6 +1816,9 @@ class ColorVisionPreviewChip extends StatelessWidget {
                 bg: card3Bg,
                 borderColor: borderColor,
                 borderWidth: borderWidth,
+                filter: isColorBlind
+                    ? ThemeAccessibility.resolveCardImageFilter(isColorBlindMode: true)
+                    : null,
                 child: Icon(
                   Icons.apple_rounded,
                   size: 9.5,
@@ -1828,10 +1837,15 @@ class ColorVisionPreviewChip extends StatelessWidget {
     required Color borderColor,
     required double borderWidth,
     required Widget child,
+    ColorFilter? filter,
   }) {
+    final effectiveChild = filter != null
+        ? ColorFiltered(colorFilter: filter, child: child)
+        : child;
     return Container(
       width: 18,
       height: 23,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(3.5),
@@ -1839,16 +1853,8 @@ class ColorVisionPreviewChip extends StatelessWidget {
           color: borderColor,
           width: borderWidth,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 1,
-            offset: const Offset(0, 0.5),
-          ),
-        ],
       ),
-      alignment: Alignment.center,
-      child: child,
+      child: effectiveChild,
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/aac_card_model.dart';
 import '../utils/card_image.dart';
+import '../utils/theme_accessibility.dart';
 
 class AACCardWidget extends StatelessWidget {
   final AACCard card;
@@ -17,13 +18,46 @@ class AACCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isColorBlind = ThemeAccessibility.colorBlindMode;
+    final isDark = ThemeAccessibility.darkModeNotifier.value;
+    final surfaceColor = ThemeAccessibility.resolveCardSurface(
+      Color(card.colorValue),
+      isDarkMode: isDark,
+      isColorBlindMode: isColorBlind,
+    );
+    final borderColor = ThemeAccessibility.resolveCardBorderColor(
+      isDarkMode: isDark,
+      isColorBlindMode: isColorBlind,
+    );
+    final borderWidth = ThemeAccessibility.resolveCardBorderWidth(
+      isColorBlindMode: isColorBlind,
+    );
+    final textColor = ThemeAccessibility.resolveCardTextColor(
+      surfaceColor,
+      isDarkMode: isDark,
+      isColorBlindMode: isColorBlind,
+      applyCustomTextColor: false,
+      customTextColor: Colors.white,
+    );
+    final textShadows = ThemeAccessibility.resolveCardTextShadow(
+      cardSurface: surfaceColor,
+      isColorBlindMode: isColorBlind,
+      isBold: ThemeAccessibility.colorBlindBoldText,
+    );
+
     return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
       child: Container(
         decoration: BoxDecoration(
-          color: Color(card.colorValue),
+          color: surfaceColor,
           borderRadius: BorderRadius.circular(16),
+          border: isColorBlind
+              ? Border.all(color: borderColor, width: borderWidth)
+              : Border.all(
+                  color: isDark ? Colors.white24 : Colors.transparent,
+                  width: 1.0,
+                ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -79,10 +113,13 @@ class AACCardWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
                   card.label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    fontWeight: isColorBlind && ThemeAccessibility.colorBlindBoldText
+                        ? FontWeight.w900
+                        : FontWeight.bold,
+                    color: textColor,
+                    shadows: textShadows,
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 2,

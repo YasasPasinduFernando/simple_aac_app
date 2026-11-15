@@ -10,11 +10,14 @@ class ThemeAccessibility {
   static const String colorBlindBorderWidthPrefKey = 'colorBlindBorderWidth';
   static const String colorBlindBorderColorPrefKey = 'colorBlindBorderColor';
   static const String colorBlindBoldTextPrefKey = 'colorBlindBoldText';
+  static const String colorBlindFilterImagesPrefKey = 'colorBlindFilterImages';
 
+  static bool colorBlindMode = false;
   static String colorBlindType = 'universal'; // universal, deuteranomaly, protanomaly, tritanomaly, monochrome
   static double colorBlindBorderWidth = 2.5;
   static String colorBlindBorderColor = 'auto'; // auto, black, blue, yellow, white
   static bool colorBlindBoldText = true;
+  static bool colorBlindFilterImages = true;
 
   static final ValueNotifier<bool> darkModeNotifier = ValueNotifier<bool>(false);
 
@@ -28,27 +31,37 @@ class ThemeAccessibility {
 
   static Future<void> initColorBlindSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    colorBlindMode = prefs.getBool(colorBlindPrefKey) ?? false;
     colorBlindType = prefs.getString(colorBlindTypePrefKey) ?? 'universal';
     colorBlindBorderWidth = prefs.getDouble(colorBlindBorderWidthPrefKey) ?? 2.5;
     colorBlindBorderColor = prefs.getString(colorBlindBorderColorPrefKey) ?? 'auto';
     colorBlindBoldText = prefs.getBool(colorBlindBoldTextPrefKey) ?? true;
+    colorBlindFilterImages = prefs.getBool(colorBlindFilterImagesPrefKey) ?? true;
   }
 
   static Future<void> saveColorBlindSettings({
+    bool? enabled,
     required String type,
     required double borderWidth,
     required String borderColor,
     required bool boldText,
+    bool filterImages = true,
   }) async {
+    if (enabled != null) colorBlindMode = enabled;
     colorBlindType = type;
     colorBlindBorderWidth = borderWidth;
     colorBlindBorderColor = borderColor;
     colorBlindBoldText = boldText;
+    colorBlindFilterImages = filterImages;
     final prefs = await SharedPreferences.getInstance();
+    if (enabled != null) {
+      await prefs.setBool(colorBlindPrefKey, enabled);
+    }
     await prefs.setString(colorBlindTypePrefKey, type);
     await prefs.setDouble(colorBlindBorderWidthPrefKey, borderWidth);
     await prefs.setString(colorBlindBorderColorPrefKey, borderColor);
     await prefs.setBool(colorBlindBoldTextPrefKey, boldText);
+    await prefs.setBool(colorBlindFilterImagesPrefKey, filterImages);
   }
 
   static Future<void> setDarkMode(bool enabled) async {
@@ -279,5 +292,82 @@ class ThemeAccessibility {
       return const Color(0xFF0072B2); // Deep blue
     }
     return const Color(0xFFCC79A7); // Reddish purple
+  }
+
+  // =========================================================================
+  // Color-Blind Deficiency Image Matrices (4x5 Row-Major GPU Matrices)
+  // Preserves full alpha and 1.0 white point sum while transforming RGB hues.
+  // =========================================================================
+
+  /// Universal High-Contrast matrix: Enhances saturation & channel separation
+  /// without skewing neutral whites/grays.
+  static const List<double> universalMatrix = <double>[
+    1.15, -0.075, -0.075, 0, 0,
+   -0.075,  1.15, -0.075, 0, 0,
+   -0.075, -0.075,  1.15, 0, 0,
+    0,      0,      0,    1, 0,
+  ];
+
+  /// Deuteranomaly (Green-weak): Shifts green wavelengths towards cyan and
+  /// boosts separation against warm vermilion hues.
+  static const List<double> deuteranomalyMatrix = <double>[
+    0.800, 0.200, 0.000, 0, 0,
+    0.258, 0.742, 0.000, 0, 0,
+    0.000, 0.142, 0.858, 0, 0,
+    0.000, 0.000, 0.000, 1, 0,
+  ];
+
+  /// Protanomaly (Red-weak): Brightens dark muddy red tones into vibrant amber
+  /// and enhances contrast with cool tones.
+  static const List<double> protanomalyMatrix = <double>[
+    0.817, 0.183, 0.000, 0, 0,
+    0.333, 0.667, 0.000, 0, 0,
+    0.000, 0.125, 0.875, 0, 0,
+    0.000, 0.000, 0.000, 1, 0,
+  ];
+
+  /// Tritanomaly (Blue-weak): Maximizes distinction between blue and yellow/pink.
+  static const List<double> tritanomalyMatrix = <double>[
+    0.967, 0.033, 0.000, 0, 0,
+    0.000, 0.733, 0.267, 0, 0,
+    0.000, 0.183, 0.817, 0, 0,
+    0.000, 0.000, 0.000, 1, 0,
+  ];
+
+  /// Monochromacy (Grayscale): High-contrast ITU-R BT.709 luminance conversion.
+  static const List<double> monochromeMatrix = <double>[
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0,      0,      0,      1, 0,
+  ];
+
+  /// Resolves the real-time GPU [ColorFilter] for card photos & illustrations.
+  /// Returns `null` when Color-Blind Safe Mode is disabled or image filtering
+  /// is toggled off (zero overhead, raw asset rendering).
+  static ColorFilter? resolveCardImageFilter({
+    bool? isColorBlindMode,
+    String? type,
+    bool? filterImages,
+  }) {
+    final enabled = isColorBlindMode ?? colorBlindMode;
+    final apply = filterImages ?? colorBlindFilterImages;
+    if (!enabled || !apply) {
+      return null;
+    }
+    final effectiveType = type ?? colorBlindType;
+    switch (effectiveType) {
+      case 'deuteranomaly':
+        return const ColorFilter.matrix(deuteranomalyMatrix);
+      case 'protanomaly':
+        return const ColorFilter.matrix(protanomalyMatrix);
+      case 'tritanomaly':
+        return const ColorFilter.matrix(tritanomalyMatrix);
+      case 'monochrome':
+        return const ColorFilter.matrix(monochromeMatrix);
+      case 'universal':
+      default:
+        return const ColorFilter.matrix(universalMatrix);
+    }
   }
 }
