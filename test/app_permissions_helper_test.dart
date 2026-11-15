@@ -50,6 +50,7 @@ void main() {
       (tester) async {
     var settingsOpened = false;
     AppPermissionsHelper.statusReader = (_) async => PermissionStatus.permanentlyDenied;
+    AppPermissionsHelper.permissionRequester = (_) async => PermissionStatus.permanentlyDenied;
     AppPermissionsHelper.settingsOpener = () async {
       settingsOpened = true;
       return true;
@@ -227,5 +228,103 @@ void main() {
     final allowed = await AppPermissionsHelper.ensureVideoRecordingPermissions(savedContext);
     expect(allowed, isTrue);
     expect(requested, containsAll([Permission.camera, Permission.microphone]));
+  });
+
+  testWidgets('requestAllAndShowStatus displays Allow buttons on rows and interactive Allow Permissions action',
+      (tester) async {
+    final requested = <Permission>[];
+    AppPermissionsHelper.sdkVersionReader = () async => 34;
+    AppPermissionsHelper.statusReader = (_) async => PermissionStatus.denied;
+    // Simulate first prompt denied, but subsequent prompt allows
+    AppPermissionsHelper.permissionRequester = (p) async {
+      requested.add(p);
+      return PermissionStatus.denied;
+    };
+
+    late BuildContext savedContext;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (ctx) {
+              savedContext = ctx;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      ),
+    );
+
+    final future = AppPermissionsHelper.requestAllAndShowStatus(savedContext);
+    await tester.pumpAndSettle();
+
+    expect(find.text('App Permissions'), findsOneWidget);
+    expect(find.text('Allow Permissions'), findsOneWidget);
+    // Camera and Microphone each have an "Allow" button
+    expect(find.text('Allow'), findsNWidgets(2));
+
+    // Now change requester to return granted on user tap
+    AppPermissionsHelper.permissionRequester = (p) async {
+      requested.add(p);
+      return PermissionStatus.granted;
+    };
+
+    // Tap the first "Allow" button (Camera)
+    await tester.tap(find.text('Allow').first);
+    await tester.pumpAndSettle();
+
+    // Now only 1 "Allow" button remains (Microphone) and Camera became Granted
+    expect(find.text('Allow'), findsNWidgets(1));
+    expect(find.text('Granted'), findsOneWidget);
+
+    // Tap "Allow Permissions" at the bottom to grant the rest
+    await tester.tap(find.text('Allow Permissions'));
+    await tester.pumpAndSettle();
+
+    // All are granted now! Dialog header updates and Done button appears
+    expect(find.text('All Permissions Granted'), findsOneWidget);
+    expect(find.text('Done'), findsOneWidget);
+
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+    await future;
+  });
+
+  testWidgets('requestAllAndShowStatus provides Settings button when permissions are permanently blocked',
+      (tester) async {
+    var settingsOpened = false;
+    AppPermissionsHelper.sdkVersionReader = () async => 34;
+    AppPermissionsHelper.statusReader = (_) async => PermissionStatus.permanentlyDenied;
+    AppPermissionsHelper.permissionRequester = (_) async => PermissionStatus.permanentlyDenied;
+    AppPermissionsHelper.settingsOpener = () async {
+      settingsOpened = true;
+      return true;
+    };
+
+    late BuildContext savedContext;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (ctx) {
+              savedContext = ctx;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      ),
+    );
+
+    final future = AppPermissionsHelper.requestAllAndShowStatus(savedContext);
+    await tester.pumpAndSettle();
+
+    expect(find.text('App Permissions'), findsOneWidget);
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Allow Permissions'), findsOneWidget);
+
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    expect(settingsOpened, isTrue);
+    await future;
   });
 }
