@@ -6,6 +6,8 @@ class LandscapeMenu extends StatelessWidget {
   final Color? baseColor;
   final Color? textColor;
   final VoidCallback onTogglePin;
+  final VoidCallback? onUnpinLongPress;
+  final VoidCallback? onPinTapWhenPinned;
   final VoidCallback onOpenMenu;
   final VoidCallback onGoBack;
   final VoidCallback onHome;
@@ -20,6 +22,8 @@ class LandscapeMenu extends StatelessWidget {
     this.baseColor,
     this.textColor,
     required this.onTogglePin,
+    this.onUnpinLongPress,
+    this.onPinTapWhenPinned,
     required this.onOpenMenu,
     required this.onGoBack,
     required this.onHome,
@@ -45,8 +49,9 @@ class LandscapeMenu extends StatelessWidget {
               children: [
                 _MenuButton(
                   icon: isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                  label: 'Pin',
-                  onTap: onTogglePin,
+                  label: isPinned ? 'Pinned' : 'Pin',
+                  onTap: isPinned ? onPinTapWhenPinned : onTogglePin,
+                  onLongPress: isPinned ? onUnpinLongPress : null,
                   color: resolvedBaseColor,
                   textColor: resolvedTextColor,
                 ),
@@ -108,6 +113,7 @@ class _MenuButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final Color color;
   final Color textColor;
 
@@ -115,6 +121,7 @@ class _MenuButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.onLongPress,
     required this.color,
     required this.textColor,
   });
@@ -127,6 +134,7 @@ class _MenuButton extends StatelessWidget {
         width: 84,
         child: ElevatedButton(
           onPressed: onTap,
+          onLongPress: onLongPress,
           style: ElevatedButton.styleFrom(
             backgroundColor: color,
             elevation: onTap == null ? 0 : 1,

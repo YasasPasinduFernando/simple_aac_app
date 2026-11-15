@@ -2712,6 +2712,36 @@ class _HomePageState extends State<HomePage> {
     UiModeHelper.applySystemUi(fullScreen);
   }
 
+  void _showPressAndHoldToUnpinNotice() {
+    try {
+      HapticFeedback.selectionClick();
+    } catch (_) {}
+    final message = currentLanguage == 'si'
+        ? 'Unpin කිරීමට ඔබාගෙන සිටින්න'
+        : currentLanguage == 'ta'
+            ? 'அன்பின் செய்ய அழுத்திப் பிடிக்கவும்'
+            : 'Press and hold to unpin';
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(fontWeight: FontWeight.w600),
+          textAlign: TextAlign.center,
+        ),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        width: 260,
+      ),
+    );
+  }
+
+  Future<void> _handleUnpinLongPress() async {
+    await HomePage.hapticPerformer();
+    await _handleTogglePin();
+  }
+
   Future<void> _handleToggleCaregiverLock(bool enabled) async {
     if (!enabled) {
       final allowed = await CaregiverLockService.instance.authenticate(
@@ -2787,6 +2817,8 @@ class _HomePageState extends State<HomePage> {
                     showPin: true,
                     isPinned: isPinned,
                     onTogglePin: _handleTogglePin,
+                    onUnpinLongPress: _handleUnpinLongPress,
+                    onPinTapWhenPinned: _showPressAndHoldToUnpinNotice,
                     isEditMode: isEditMode,
                     showMenu: !isPinned,
                     menuButtonKey: _menuButtonKey,
@@ -2993,6 +3025,8 @@ class _HomePageState extends State<HomePage> {
                           baseColor: themePrimary,
                           textColor: themeText,
                           onTogglePin: _handleTogglePin,
+                          onUnpinLongPress: _handleUnpinLongPress,
+                          onPinTapWhenPinned: _showPressAndHoldToUnpinNotice,
                           onOpenMenu: () {
                             if (_isDrawerExpanded) {
                               setState(() {

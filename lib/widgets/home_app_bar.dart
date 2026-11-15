@@ -7,6 +7,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showPin;
   final bool isPinned;
   final VoidCallback? onTogglePin;
+  final VoidCallback? onUnpinLongPress;
+  final VoidCallback? onPinTapWhenPinned;
   final bool isEditMode;
   final bool showMenu;
   final VoidCallback onOpenMenu;
@@ -23,6 +25,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.showPin,
     required this.isPinned,
     required this.onTogglePin,
+    this.onUnpinLongPress,
+    this.onPinTapWhenPinned,
     required this.isEditMode,
     required this.showMenu,
     required this.onOpenMenu,
@@ -89,8 +93,11 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                     _AppBarIconButton(
                       icon: isPinned ? Icons.push_pin : Icons.push_pin_outlined,
                       color: fgColor,
-                      tooltip: isPinned ? 'Unlock board' : 'Pin board',
-                      onPressed: onTogglePin,
+                      tooltip: isPinned
+                          ? 'Press and hold to unpin board'
+                          : 'Pin board',
+                      onPressed: isPinned ? onPinTapWhenPinned : onTogglePin,
+                      onLongPress: isPinned ? onUnpinLongPress : null,
                     ),
                   if (showBack)
                     _AppBarIconButton(
@@ -219,6 +226,7 @@ class _AppBarIconButton extends StatelessWidget {
   final Color color;
   final String tooltip;
   final VoidCallback? onPressed;
+  final VoidCallback? onLongPress;
 
   const _AppBarIconButton({
     Key? key,
@@ -226,6 +234,7 @@ class _AppBarIconButton extends StatelessWidget {
     required this.color,
     required this.tooltip,
     required this.onPressed,
+    this.onLongPress,
   }) : super(key: key);
 
   @override
@@ -245,13 +254,16 @@ class _AppBarIconButton extends StatelessWidget {
               width: 1.0,
             ),
           ),
-          child: IconButton(
-            tooltip: tooltip,
-            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-            padding: EdgeInsets.zero,
-            splashRadius: 24,
-            icon: Icon(icon, size: 23, color: color),
-            onPressed: onPressed,
+          child: Tooltip(
+            message: tooltip,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: onPressed,
+              onLongPress: onLongPress,
+              child: Center(
+                child: Icon(icon, size: 23, color: color),
+              ),
+            ),
           ),
         ),
       ),
