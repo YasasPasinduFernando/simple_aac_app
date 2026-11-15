@@ -256,6 +256,92 @@ void main() {
       expect(find.byType(HomeDrawer), findsOneWidget);
     });
 
+    testWidgets('Full 10-step guided next-button walkthrough keeps drawer closed from step 4 through step 10 celebration', (tester) async {
+      await tester.pumpWidget(const MaterialApp(home: HomePage()));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      TutorialService.instance.startTour();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Step 1: openMenu
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.openMenu);
+      await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // Step 2: drawerExplore (Drawer open)
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.drawerExplore);
+      expect(find.byType(HomeDrawer), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // Step 3: enableEditMode (Drawer open)
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.enableEditMode);
+      expect(find.byType(HomeDrawer), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // Step 4: addNewCard (Drawer closed)
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.addNewCard);
+      expect(find.byType(HomeDrawer), findsNothing);
+
+      // Step 5: chooseMedia
+      await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.chooseMedia);
+      expect(find.byType(HomeDrawer), findsNothing);
+
+      // Step 6: multilingualLabels
+      await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.multilingualLabels);
+      expect(find.byType(HomeDrawer), findsNothing);
+
+      // Step 7: voiceRecording
+      await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.voiceRecording);
+      expect(find.byType(HomeDrawer), findsNothing);
+
+      // Step 8: saveCard
+      await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.saveCard);
+      expect(find.byType(HomeDrawer), findsNothing);
+
+      // Step 9: testNewCard
+      await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.testNewCard);
+      expect(find.byType(HomeDrawer), findsNothing);
+
+      // Step 10: completed (Celebration modal)
+      await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(TutorialService.instance.currentStepNotifier.value, TutorialStepType.completed);
+      expect(find.byType(HomeDrawer), findsNothing);
+
+      // Tap Finish on Step 10
+      final finishBtn = find.widgetWithText(FilledButton, 'Finish');
+      expect(finishBtn, findsOneWidget);
+      await tester.tap(finishBtn);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(TutorialService.instance.currentStepNotifier.value, isNull);
+      expect(find.byType(HomeDrawer), findsNothing);
+    });
+
     test('Search tutorial hints return valid strings in EN, SI, TA', () {
       for (final lang in ['en', 'si', 'ta']) {
         expect(TutorialStrings.getSearchPickImageHint(lang).isNotEmpty, isTrue);

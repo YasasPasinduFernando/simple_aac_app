@@ -2965,8 +2965,10 @@ class _HomePageState extends State<HomePage> {
                     },
                     resizeButtonKey: _drawerResizeKey,
                     editModeKey: _drawerEditModeKey,
-                    onReplayTutorial: () =>
-                        TutorialService.instance.resetAndReplayTour(),
+                    onReplayTutorial: () {
+                      _closeDrawerIfOpen();
+                      TutorialService.instance.resetAndReplayTour();
+                    },
                     onShowMiniGuides: () => MiniGuidesDialog.show(context,
                         language: currentLanguage),
                     onShowAbout: _showAbout,
@@ -3495,7 +3497,10 @@ class _HomePageState extends State<HomePage> {
   void _handleTutorialStepChanged() {
     if (!mounted) return;
     final step = TutorialService.instance.currentStepNotifier.value;
-    if (step == null) return;
+    if (step == null) {
+      _closeDrawerIfOpen();
+      return;
+    }
 
     switch (step) {
       case TutorialStepType.openMenu:
