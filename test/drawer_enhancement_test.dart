@@ -3,6 +3,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_aac_app/pages/home_page.dart';
 import 'package:simple_aac_app/widgets/home_drawer.dart';
 
 void main() {
@@ -14,11 +16,17 @@ void main() {
     Color primaryColorSwatch = const Color(0xFF0267C1),
     Color textColorSwatch = const Color(0xFF111827),
     Color backgroundColorSwatch = const Color(0xFFFFF9E6),
+    Color cardTextColorSwatch = const Color(0xFF111827),
     bool isDarkMode = false,
     bool isColorBlindMode = false,
     VoidCallback? onPickPrimaryColor,
     VoidCallback? onPickTextColor,
     VoidCallback? onPickBackgroundColor,
+    VoidCallback? onPickCardTextColor,
+    String cardTextScaleLabel = 'Standard (100%)',
+    VoidCallback? onShowCardTextSize,
+    bool isExpanded = false,
+    ValueChanged<bool>? onToggleExpanded,
     ValueChanged<bool>? onToggleDarkMode,
     ValueChanged<bool>? onChangeColorBlindMode,
   }) {
@@ -52,6 +60,7 @@ void main() {
           primaryColorSwatch: primaryColorSwatch,
           textColorSwatch: textColorSwatch,
           backgroundColorSwatch: backgroundColorSwatch,
+          cardTextColorSwatch: cardTextColorSwatch,
           isOnlineEnabled: true,
           onToggleOnline: (_) {},
           onToggleDarkMode: onToggleDarkMode ?? (_) {},
@@ -67,15 +76,20 @@ void main() {
           onPickPrimaryColor: onPickPrimaryColor ?? () {},
           onPickTextColor: onPickTextColor ?? () {},
           onPickBackgroundColor: onPickBackgroundColor ?? () {},
+          onPickCardTextColor: onPickCardTextColor ?? () {},
           onShowTtsBarSize: () {},
           onToggleFullScreen: () {},
           onShowLanguage: () {},
           onShowGrid: () {},
           onShowVisibleCount: () {},
+          cardTextScaleLabel: cardTextScaleLabel,
+          onShowCardTextSize: onShowCardTextSize,
           onBackup: () {},
           onRestore: () {},
           onResetSettings: () {},
           onShowAbout: () {},
+          isExpanded: isExpanded,
+          onToggleExpanded: onToggleExpanded,
         ),
       ),
     );
@@ -100,7 +114,7 @@ void main() {
 
   testWidgets('Appearance & Theme section renders live previews and triggers color callbacks',
       (tester) async {
-    tester.view.physicalSize = const Size(384, 800);
+    tester.view.physicalSize = const Size(400, 1800);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -108,21 +122,26 @@ void main() {
     var tappedPrimary = false;
     var tappedText = false;
     var tappedBackground = false;
+    var tappedCardText = false;
 
     await tester.pumpWidget(
       buildTestDrawer(
         primaryColorSwatch: const Color(0xFF0267C1),
         textColorSwatch: const Color(0xFFE91E63),
         backgroundColorSwatch: const Color(0xFFFFF9E6),
+        cardTextColorSwatch: const Color(0xFF111827),
         onPickPrimaryColor: () => tappedPrimary = true,
         onPickTextColor: () => tappedText = true,
         onPickBackgroundColor: () => tappedBackground = true,
+        onPickCardTextColor: () => tappedCardText = true,
       ),
     );
     await tester.pumpAndSettle();
 
-    // Scroll down to Dark Mode
-    await tester.scrollUntilVisible(find.text('Dark Mode'), 200);
+    // Scroll down to Appearance & Theme section
+    await tester.drag(find.byType(ListView), const Offset(0, -650));
+    await tester.pumpAndSettle();
+
     expect(find.text('Dark Mode'), findsOneWidget);
     expect(find.text('Switch on for full dark theme'), findsOneWidget);
 
@@ -149,8 +168,16 @@ void main() {
     await tester.pump();
     expect(tappedBackground, isTrue);
 
-    // Verify Color Vision Support
-    await tester.scrollUntilVisible(find.text('Color Vision Support'), 150);
+    // Verify Card Text Color row
+    expect(find.text('Card Text Color'), findsOneWidget);
+    expect(find.text('Color of text on AAC cards'), findsOneWidget);
+    await tester.tap(find.text('Card Text Color'));
+    await tester.pump();
+    expect(tappedCardText, isTrue);
+
+    // Scroll further down to Color Vision Support
+    await tester.drag(find.byType(ListView), const Offset(0, -250));
+    await tester.pumpAndSettle();
     expect(find.text('Color Vision Support'), findsOneWidget);
     expect(find.text('Normal (Custom Colors)'), findsOneWidget);
     expect(find.text('Color-Blind Safe Mode'), findsOneWidget);
@@ -292,5 +319,137 @@ void main() {
       File('${outDir.path}/drawer_rendered_dark.png')
           .writeAsBytesSync(byteData!.buffer.asUint8List());
     });
+  });
+
+  testWidgets('Toggling switch options in HomePage endDrawer does not close the drawer',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    HomePage.enableTtsInit = false;
+    HomePage.speakPerformer = (_) async {};
+
+    tester.view.physicalSize = const Size(400, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(() {
+      HomePage.enableTtsInit = true;
+      HomePage.speakPerformer = null;
+    });
+
+    await tester.pumpWidget(const MaterialApp(home: HomePage()));
+    await tester.pumpAndSettle();
+
+    // Open endDrawer
+    final scaffoldState = tester.state<ScaffoldState>(find.byType(Scaffold));
+    scaffoldState.openEndDrawer();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HomeDrawer), findsOneWidget);
+
+    // Tap 'Text on Card Image'
+    await tester.scrollUntilVisible(find.text('Text on Card Image'), 100);
+    await tester.tap(find.text('Text on Card Image'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    // Drawer must remain open!
+    expect(find.byType(HomeDrawer), findsOneWidget);
+
+    // Tap 'Custom Card Text Color'
+    await tester.scrollUntilVisible(find.text('Custom Card Text Color'), 100);
+    await tester.tap(find.text('Custom Card Text Color'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+
+    // Drawer must still remain open!
+    expect(find.byType(HomeDrawer), findsOneWidget);
+  });
+
+  testWidgets('Layout & Display section renders Card Text Size and triggers callback',
+      (tester) async {
+    tester.view.physicalSize = const Size(384, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    bool tappedCardTextSize = false;
+
+    await tester.pumpWidget(
+      buildTestDrawer(
+        cardTextScaleLabel: 'Standard (100%)',
+        onShowCardTextSize: () => tappedCardTextSize = true,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(find.text('Card Text Size'), 100);
+    expect(find.text('Card Text Size'), findsOneWidget);
+    expect(find.text('Standard (100%)'), findsOneWidget);
+
+    await tester.tap(find.text('Card Text Size'), warnIfMissed: false);
+    await tester.pump();
+    expect(tappedCardTextSize, isTrue);
+  });
+
+  testWidgets('HomeDrawer expand button toggles between collapsed and expanded state',
+      (tester) async {
+    tester.view.physicalSize = const Size(384, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    bool expanded = false;
+
+    await tester.pumpWidget(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return buildTestDrawer(
+            isExpanded: expanded,
+            onToggleExpanded: (val) => setState(() => expanded = val),
+          );
+        },
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // In collapsed mode, button tooltip is "Expand to full screen"
+    final expandBtn = find.byTooltip('Expand to full screen');
+    expect(expandBtn, findsOneWidget);
+    await tester.tap(expandBtn);
+    await tester.pumpAndSettle();
+
+    expect(expanded, isTrue);
+    // In expanded mode, button tooltip is "Collapse drawer"
+    expect(find.byTooltip('Collapse drawer'), findsOneWidget);
+  });
+
+  testWidgets('HomeDrawer horizontal drag gestures toggle expand and collapse',
+      (tester) async {
+    tester.view.physicalSize = const Size(384, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    bool expanded = false;
+
+    await tester.pumpWidget(
+      StatefulBuilder(
+        builder: (context, setState) {
+          return buildTestDrawer(
+            isExpanded: expanded,
+            onToggleExpanded: (val) => setState(() => expanded = val),
+          );
+        },
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Drag left to expand
+    await tester.drag(find.text('Simple AAC'), const Offset(-60, 0));
+    await tester.pumpAndSettle();
+    expect(expanded, isTrue);
+
+    // Drag right to collapse
+    await tester.drag(find.text('Simple AAC'), const Offset(60, 0));
+    await tester.pumpAndSettle();
+    expect(expanded, isFalse);
   });
 }

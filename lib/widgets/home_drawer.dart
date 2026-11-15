@@ -19,6 +19,7 @@ class HomeDrawer extends StatelessWidget {
   final Color primaryColorSwatch;
   final Color textColorSwatch;
   final Color backgroundColorSwatch;
+  final Color cardTextColorSwatch;
   final bool isOnlineEnabled;
   final ValueChanged<bool> onToggleOnline;
   final ValueChanged<bool> onToggleDarkMode;
@@ -34,11 +35,14 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onPickPrimaryColor;
   final VoidCallback onPickTextColor;
   final VoidCallback onPickBackgroundColor;
+  final VoidCallback? onPickCardTextColor;
   final VoidCallback onShowTtsBarSize;
   final VoidCallback onToggleFullScreen;
   final VoidCallback onShowLanguage;
   final VoidCallback onShowGrid;
   final VoidCallback onShowVisibleCount;
+  final String cardTextScaleLabel;
+  final VoidCallback? onShowCardTextSize;
   final VoidCallback onBackup;
   final VoidCallback onRestore;
   final VoidCallback onResetSettings;
@@ -48,6 +52,8 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onShowAbout;
   final bool enableHaptics;
   final ValueChanged<bool>? onToggleHaptics;
+  final bool isExpanded;
+  final ValueChanged<bool>? onToggleExpanded;
 
   const HomeDrawer({
     Key? key,
@@ -69,6 +75,7 @@ class HomeDrawer extends StatelessWidget {
     required this.primaryColorSwatch,
     required this.textColorSwatch,
     required this.backgroundColorSwatch,
+    this.cardTextColorSwatch = const Color(0xFF111827),
     required this.isOnlineEnabled,
     required this.onToggleOnline,
     required this.onToggleDarkMode,
@@ -84,11 +91,14 @@ class HomeDrawer extends StatelessWidget {
     required this.onPickPrimaryColor,
     required this.onPickTextColor,
     required this.onPickBackgroundColor,
+    this.onPickCardTextColor,
     required this.onShowTtsBarSize,
     required this.onToggleFullScreen,
     required this.onShowLanguage,
     required this.onShowGrid,
     required this.onShowVisibleCount,
+    this.cardTextScaleLabel = 'Standard (100%)',
+    this.onShowCardTextSize,
     required this.onBackup,
     required this.onRestore,
     required this.onResetSettings,
@@ -98,21 +108,38 @@ class HomeDrawer extends StatelessWidget {
     required this.onShowAbout,
     this.enableHaptics = true,
     this.onToggleHaptics,
+    this.isExpanded = false,
+    this.onToggleExpanded,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final drawerWidth = (MediaQuery.of(context).size.width * 0.82).clamp(280.0, 360.0);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final standardWidth = (screenWidth * 0.82).clamp(280.0, 360.0);
+    final drawerWidth = isExpanded ? screenWidth : standardWidth;
 
-    return Drawer(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 240),
+      curve: Curves.easeOutCubic,
       width: drawerWidth,
-      child: Column(
-        children: [
-          _buildHeader(context),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Drawer(
+        width: drawerWidth,
+        child: GestureDetector(
+          onHorizontalDragUpdate: (details) {
+            final delta = details.primaryDelta ?? 0;
+            if (delta < -8 && !isExpanded) {
+              onToggleExpanded?.call(true);
+            } else if (delta > 8 && isExpanded) {
+              onToggleExpanded?.call(false);
+            }
+          },
+          child: Column(
+            children: [
+              _buildHeader(context),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               children: [
                 _buildSectionHeader(context, 'Connectivity & Privacy', Icons.wifi_protected_setup_rounded),
                 _buildOnlineSwitch(context),
@@ -128,14 +155,6 @@ class HomeDrawer extends StatelessWidget {
                   activeColor: theme.colorScheme.primaryContainer,
                   onTap: onToggleEdit,
                 ),
-                _buildSwitchItem(
-                  context,
-                  icon: Icons.volume_up_rounded,
-                  title: 'Tap to Speak',
-                  subtitle: 'Speak card label immediately on tap',
-                  value: showTtsInput,
-                  onChanged: (_) => onToggleTtsInput(),
-                ),
                 if (onShowOfflineSpeech != null)
                   _buildDrawerItem(
                     context,
@@ -146,12 +165,21 @@ class HomeDrawer extends StatelessWidget {
                   ),
                 _buildSwitchItem(
                   context,
-                  icon: Icons.text_fields_rounded,
-                  title: 'Hide TTS Bar',
-                  subtitle: 'Hide the speech composer bar',
-                  value: hideTtsText,
-                  onChanged: (_) => onToggleTtsText(),
+                  icon: Icons.view_headline_rounded,
+                  title: 'Speech Composer Bar',
+                  subtitle: 'Show top bar to compose sentences',
+                  value: showTtsInput,
+                  onChanged: (_) => onToggleTtsInput(),
                 ),
+                if (showTtsInput)
+                  _buildSwitchItem(
+                    context,
+                    icon: Icons.text_fields_rounded,
+                    title: 'Hide Text in Speech Bar',
+                    subtitle: 'Show only card images in composer chips',
+                    value: hideTtsText,
+                    onChanged: (_) => onToggleTtsText(),
+                  ),
                 if (onToggleHaptics != null)
                   _buildSwitchItem(
                     context,
@@ -173,7 +201,7 @@ class HomeDrawer extends StatelessWidget {
                   context,
                   icon: Icons.format_color_text_rounded,
                   title: 'Custom Card Text Color',
-                  subtitle: 'Apply theme text color to all cards',
+                  subtitle: 'Apply custom color to all card labels',
                   value: applyTextColorToCards,
                   onChanged: (_) => onToggleApplyTextColorToCards(),
                 ),
@@ -215,6 +243,13 @@ class HomeDrawer extends StatelessWidget {
                   subtitle: 'Hide Android system bars',
                   value: fullScreen,
                   onChanged: (_) => onToggleFullScreen(),
+                ),
+                _buildDrawerItem(
+                  context,
+                  icon: Icons.format_size_rounded,
+                  title: 'Card Text Size',
+                  subtitle: cardTextScaleLabel,
+                  onTap: onShowCardTextSize ?? () {},
                 ),
                 _buildDrawerItem(
                   context,
@@ -289,7 +324,9 @@ class HomeDrawer extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ),
+  ),
+);
   }
 
   Widget _buildHeader(BuildContext context) {
@@ -341,6 +378,44 @@ class HomeDrawer extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
+                        // Expand/Shrink Chevron Button
+                        Semantics(
+                          button: true,
+                          label: isExpanded
+                              ? 'Shrink settings to side panel'
+                              : 'Expand settings to full screen',
+                          child: Tooltip(
+                            message: isExpanded
+                                ? 'Collapse drawer'
+                                : 'Expand to full screen',
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () => onToggleExpanded?.call(!isExpanded),
+                                borderRadius: BorderRadius.circular(10),
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  margin: const EdgeInsets.only(right: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.20),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.white.withValues(alpha: 0.35),
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    isExpanded
+                                        ? Icons.chevron_right_rounded
+                                        : Icons.chevron_left_rounded,
+                                    color: Colors.white,
+                                    size: isVeryCompact ? 18 : 20,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                         // Branded squircle communication icon
                         Container(
                           width: isVeryCompact ? 38 : 42,
@@ -575,7 +650,20 @@ class HomeDrawer extends StatelessWidget {
             onTap: onPickTextColor,
           ),
 
-          // Row 4: Board Background Color with 3 AAC Cards Canvas Preview
+          // Row 4: Card Text Color with Mini AAC Cards Preview
+          _buildColorPickerRow(
+            context,
+            icon: Icons.format_color_text_rounded,
+            title: 'Card Text Color',
+            subtitle: isDarkMode ? 'Saved for Normal Mode' : 'Color of text on AAC cards',
+            previewChip: _CardTextColorPreviewChip(
+              color: cardTextColorSwatch,
+              isDarkMode: isDark,
+            ),
+            onTap: onPickCardTextColor ?? () {},
+          ),
+
+          // Row 5: Board Background Color with 3 AAC Cards Canvas Preview
           _buildColorPickerRow(
             context,
             icon: Icons.layers_rounded,
@@ -1202,6 +1290,119 @@ class _TextColorPreviewChip extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Card text color preview chip displaying sample miniature AAC cards with the text color applied
+class _CardTextColorPreviewChip extends StatelessWidget {
+  final Color color;
+  final bool isDarkMode;
+
+  const _CardTextColorPreviewChip({
+    required this.color,
+    required this.isDarkMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Card text color preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
+      child: Container(
+        width: 96,
+        height: 38,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+        decoration: BoxDecoration(
+          color: isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.black.withValues(alpha: 0.16),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDarkMode ? 0.3 : 0.06),
+              blurRadius: 3,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _MiniCardWithText(
+                cardBg: const Color(0xFFFFF59D),
+                textColor: color,
+                label: 'Hello',
+                icon: Icons.waving_hand_rounded,
+              ),
+              _MiniCardWithText(
+                cardBg: const Color(0xFFBBDEFB),
+                textColor: color,
+                label: 'Eat',
+                icon: Icons.restaurant_rounded,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MiniCardWithText extends StatelessWidget {
+  final Color cardBg;
+  final Color textColor;
+  final String label;
+  final IconData icon;
+
+  const _MiniCardWithText({
+    required this.cardBg,
+    required this.textColor,
+    required this.label,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 38,
+      height: 30,
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: Colors.black.withValues(alpha: 0.18),
+          width: 0.7,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 1,
+            offset: const Offset(0, 0.5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 12, color: Colors.black87),
+          const SizedBox(height: 1),
+          Text(
+            label,
+            maxLines: 1,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 7.5,
+              fontWeight: FontWeight.bold,
+              height: 1.0,
+            ),
+          ),
+        ],
       ),
     );
   }

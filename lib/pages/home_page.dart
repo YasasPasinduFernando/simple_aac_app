@@ -90,7 +90,10 @@ class _HomePageState extends State<HomePage> {
   int _themePrimaryColor = _defaultPrimaryColorValue;
   int _themeTextColor = Colors.white.value;
   int _themeBackgroundColor = Colors.white.value;
+  int _cardTextColor = const Color(0xFF111827).value;
   double _ttsBarSize = 1.0;
+  double _cardTextScale = 1.0;
+  bool _isDrawerExpanded = false;
   bool _showTtsActions = true;
   bool _hideTtsText = false;
   bool _useImageOverlayLabel = true;
@@ -158,7 +161,11 @@ class _HomePageState extends State<HomePage> {
         prefs.getInt('themePrimaryColor') ?? _defaultPrimaryColorValue;
     final nextText = prefs.getInt('themeTextColor') ?? Colors.white.value;
     final nextBg = prefs.getInt('themeBackgroundColor') ?? Colors.white.value;
+    final nextCardText =
+        prefs.getInt('cardTextColor') ?? const Color(0xFF111827).value;
     final nextTtsSize = prefs.getDouble('ttsBarSize') ?? 1.0;
+    final nextCardTextScale = prefs.getDouble('cardTextScale') ?? 1.0;
+    final nextDrawerExpanded = prefs.getBool('drawerFullScreen') ?? false;
     final nextShowActions = prefs.getBool('showTtsActions') ?? true;
     final nextHideTts = prefs.getBool('hideTtsText') ?? false;
     final nextOverlay = prefs.getBool('useImageOverlayLabel') ?? true;
@@ -180,7 +187,10 @@ class _HomePageState extends State<HomePage> {
       _themePrimaryColor = nextPrimary;
       _themeTextColor = nextText;
       _themeBackgroundColor = nextBg;
+      _cardTextColor = nextCardText;
       _ttsBarSize = nextTtsSize;
+      _cardTextScale = nextCardTextScale;
+      _isDrawerExpanded = nextDrawerExpanded;
       _showTtsActions = nextShowActions;
       _hideTtsText = nextHideTts;
       _useImageOverlayLabel = nextOverlay;
@@ -272,7 +282,10 @@ class _HomePageState extends State<HomePage> {
           prefs.setInt('themePrimaryColor', _themePrimaryColor),
           prefs.setInt('themeTextColor', _themeTextColor),
           prefs.setInt('themeBackgroundColor', _themeBackgroundColor),
+          prefs.setInt('cardTextColor', _cardTextColor),
           prefs.setDouble('ttsBarSize', _ttsBarSize),
+          prefs.setDouble('cardTextScale', _cardTextScale),
+          prefs.setBool('drawerFullScreen', _isDrawerExpanded),
           prefs.setBool('showTtsActions', _showTtsActions),
           prefs.setBool('hideTtsText', _hideTtsText),
           prefs.setBool('useImageOverlayLabel', _useImageOverlayLabel),
@@ -1257,7 +1270,10 @@ class _HomePageState extends State<HomePage> {
       _themePrimaryColor = _defaultPrimaryColorValue;
       _themeTextColor = Colors.white.value;
       _themeBackgroundColor = Colors.white.value;
+      _cardTextColor = const Color(0xFF111827).value;
       _ttsBarSize = 1.0;
+      _cardTextScale = 1.0;
+      _isDrawerExpanded = false;
       _showTtsActions = true;
       _hideTtsText = false;
       _useImageOverlayLabel = true;
@@ -1413,7 +1429,10 @@ class _HomePageState extends State<HomePage> {
       'themePrimaryColor': _themePrimaryColor,
       'themeTextColor': _themeTextColor,
       'themeBackgroundColor': _themeBackgroundColor,
+      'cardTextColor': _cardTextColor,
       'ttsBarSize': _ttsBarSize,
+      'cardTextScale': _cardTextScale,
+      'drawerFullScreen': _isDrawerExpanded,
       'showTtsActions': _showTtsActions,
       'hideTtsText': _hideTtsText,
       'useImageOverlayLabel': _useImageOverlayLabel,
@@ -1731,6 +1750,269 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  String _getCardTextScaleLabel() {
+    if ((_cardTextScale - 0.85).abs() < 0.04) return 'Compact (85%)';
+    if ((_cardTextScale - 1.0).abs() < 0.04) return 'Standard (100%)';
+    if ((_cardTextScale - 1.15).abs() < 0.04) return 'Large (115%)';
+    if ((_cardTextScale - 1.30).abs() < 0.04) return 'Extra Large (130%)';
+    return '${(_cardTextScale * 100).round()}%';
+  }
+
+  void _showCardTextColorDialog() {
+    _showThemeColorDialog(
+      title: 'Card text color',
+      subtitle: 'Pick a text color for cards',
+      initialColor: Color(_cardTextColor),
+      previewType: ColorPickerPreviewType.textPreview,
+      onSelected: (color) {
+        setState(() {
+          _cardTextColor = color.value;
+          _applyTextColorToCards = true;
+        });
+        _saveCards();
+      },
+    );
+  }
+
+  void _showCardTextSizeDialog() {
+    double tempScale = _cardTextScale;
+    final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setLocalState) {
+          final colorScheme = Theme.of(context).colorScheme;
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+
+          final sampleTextColor = _applyTextColorToCards
+              ? Color(_cardTextColor)
+              : (isDark ? Colors.white : const Color(0xFF111827));
+
+          return AlertDialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            title: const StyledDialogHeader(
+              icon: Icons.format_size_rounded,
+              title: 'Card Text Size',
+              subtitle: 'Scale card label text size',
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    height: 104,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _buildScalePreviewCard(
+                            label: 'Hello',
+                            icon: Icons.waving_hand_rounded,
+                            cardBg: const Color(0xFFFFF59D),
+                            textColor: sampleTextColor,
+                            scale: tempScale,
+                            isTablet: isTablet,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _buildScalePreviewCard(
+                            label: 'Eat',
+                            icon: Icons.restaurant_rounded,
+                            cardBg: const Color(0xFFBBDEFB),
+                            textColor: sampleTextColor,
+                            scale: tempScale,
+                            isTablet: isTablet,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer.withValues(alpha: 0.45),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'Size: ${(tempScale * 100).round()}%',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      _buildSizePresetChip(
+                        label: '85%',
+                        value: 0.85,
+                        current: tempScale,
+                        onTap: (v) => setLocalState(() => tempScale = v),
+                      ),
+                      _buildSizePresetChip(
+                        label: '100%',
+                        value: 1.0,
+                        current: tempScale,
+                        onTap: (v) => setLocalState(() => tempScale = v),
+                      ),
+                      _buildSizePresetChip(
+                        label: '115%',
+                        value: 1.15,
+                        current: tempScale,
+                        onTap: (v) => setLocalState(() => tempScale = v),
+                      ),
+                      _buildSizePresetChip(
+                        label: '130%',
+                        value: 1.30,
+                        current: tempScale,
+                        onTap: (v) => setLocalState(() => tempScale = v),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Slider(
+                    value: tempScale,
+                    min: 0.80,
+                    max: 1.35,
+                    divisions: 11,
+                    label: '${(tempScale * 100).round()}%',
+                    onChanged: (value) {
+                      setLocalState(() => tempScale = value);
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Card labels scale smoothly and fit automatically without overflowing or distorting cards.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _cardTextScale = 1.0;
+                  });
+                  _saveCards();
+                  Navigator.pop(context);
+                },
+                child: const Text('Reset'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  setState(() {
+                    _cardTextScale = tempScale;
+                  });
+                  _saveCards();
+                  Navigator.pop(context);
+                },
+                child: const Text('Apply'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSizePresetChip({
+    required String label,
+    required double value,
+    required double current,
+    required ValueChanged<double> onTap,
+  }) {
+    final isSelected = (current - value).abs() < 0.04;
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (_) => onTap(value),
+      visualDensity: VisualDensity.compact,
+      labelStyle: TextStyle(
+        fontSize: 12,
+        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+      ),
+    );
+  }
+
+  Widget _buildScalePreviewCard({
+    required String label,
+    required IconData icon,
+    required Color cardBg,
+    required Color textColor,
+    required double scale,
+    required bool isTablet,
+  }) {
+    final baseFontSize = (isTablet ? 14.0 : 12.0) * scale;
+    return Container(
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.black.withValues(alpha: 0.15),
+          width: 0.8,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 24, color: Colors.black87),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: baseFontSize,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _backupWithPicker() async {
     Navigator.pop(context);
     showDialog(
@@ -2032,7 +2314,13 @@ class _HomePageState extends State<HomePage> {
       _themeBackgroundColor =
           (settings['themeBackgroundColor'] as num?)?.toInt() ??
               _themeBackgroundColor;
+      _cardTextColor =
+          (settings['cardTextColor'] as num?)?.toInt() ?? _cardTextColor;
       _ttsBarSize = (settings['ttsBarSize'] as num?)?.toDouble() ?? _ttsBarSize;
+      _cardTextScale =
+          (settings['cardTextScale'] as num?)?.toDouble() ?? _cardTextScale;
+      _isDrawerExpanded =
+          settings['drawerFullScreen'] as bool? ?? _isDrawerExpanded;
       _showTtsActions = settings['showTtsActions'] as bool? ?? _showTtsActions;
       _hideTtsText = settings['hideTtsText'] as bool? ?? _hideTtsText;
       _useImageOverlayLabel =
@@ -2286,6 +2574,7 @@ class _HomePageState extends State<HomePage> {
                 primaryColorSwatch: customPrimary,
                 textColorSwatch: customText,
                 backgroundColorSwatch: customBackground,
+                cardTextColorSwatch: Color(_cardTextColor),
                 isOnlineEnabled: NetworkPolicyService.instance.isOnlineEnabled,
                 onToggleOnline: (enabled) async {
                   await NetworkPolicyService.instance.setOnlineEnabled(enabled);
@@ -2308,28 +2597,24 @@ class _HomePageState extends State<HomePage> {
                 onAddCategory: _showAddCategoryDialog,
                 onToggleEdit: _toggleEditMode,
                 onToggleTtsInput: () {
-                  Navigator.pop(context);
                   setState(() {
                     showTtsInput = !showTtsInput;
                   });
                   _saveCards();
                 },
                 onToggleTtsText: () {
-                  Navigator.pop(context);
                   setState(() {
                     _hideTtsText = !_hideTtsText;
                   });
                   _saveCards();
                 },
                 onToggleCardImageLabel: () {
-                  Navigator.pop(context);
                   setState(() {
                     _useImageOverlayLabel = !_useImageOverlayLabel;
                   });
                   _saveCards();
                 },
                 onToggleApplyTextColorToCards: () {
-                  Navigator.pop(context);
                   setState(() {
                     _applyTextColorToCards = !_applyTextColorToCards;
                   });
@@ -2337,7 +2622,6 @@ class _HomePageState extends State<HomePage> {
                 },
                 onChangeOrientation: _showOrientationDialog,
                 onPickPrimaryColor: () {
-                  Navigator.pop(context);
                   _showThemeColorDialog(
                     title: 'App color',
                     subtitle: 'Pick a color for Normal Mode',
@@ -2352,7 +2636,6 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
                 onPickTextColor: () {
-                  Navigator.pop(context);
                   _showThemeColorDialog(
                     title: 'Text color',
                     subtitle: 'Pick a color for Normal Mode',
@@ -2367,7 +2650,6 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
                 onPickBackgroundColor: () {
-                  Navigator.pop(context);
                   _showThemeColorDialog(
                     title: 'Background color',
                     subtitle: 'Pick a color for the main content area (body)',
@@ -2381,9 +2663,18 @@ class _HomePageState extends State<HomePage> {
                     },
                   );
                 },
+                onPickCardTextColor: _showCardTextColorDialog,
                 onShowTtsBarSize: _showTtsBarSizeDialog,
+                cardTextScaleLabel: _getCardTextScaleLabel(),
+                onShowCardTextSize: _showCardTextSizeDialog,
+                isExpanded: _isDrawerExpanded,
+                onToggleExpanded: (val) {
+                  setState(() {
+                    _isDrawerExpanded = val;
+                  });
+                  _saveCards();
+                },
                 onToggleFullScreen: () {
-                  Navigator.pop(context);
                   setState(() {
                     fullScreen = !fullScreen;
                   });
@@ -2631,13 +2922,13 @@ class _HomePageState extends State<HomePage> {
       isColorBlindMode: _isColorBlindMode,
     );
     final cardTextColor = useImageOverlay
-        ? (_applyTextColorToCards ? Color(_themeTextColor) : Colors.white)
+        ? (_applyTextColorToCards ? Color(_cardTextColor) : Colors.white)
         : ThemeAccessibility.resolveCardTextColor(
             cardSurfaceColor,
             isDarkMode: _isDarkMode,
             isColorBlindMode: _isColorBlindMode,
             applyCustomTextColor: _applyTextColorToCards,
-            customTextColor: Color(_themeTextColor),
+            customTextColor: Color(_cardTextColor),
           );
     final useLightShadow = cardTextColor.computeLuminance() > 0.5;
     final cardBorder = highlightedCardId == card.id
@@ -2733,25 +3024,29 @@ class _HomePageState extends State<HomePage> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         alignment: Alignment.center,
-                        child: Text(
-                          displayLabel,
-                          style: TextStyle(
-                            color: cardTextColor,
-                            fontSize: isTablet ? 20 : 16,
-                            fontWeight: FontWeight.bold,
-                            shadows: useLightShadow
-                                ? const [
-                                    Shadow(
-                                      blurRadius: 3,
-                                      color: Colors.black26,
-                                      offset: Offset(0, 1),
-                                    ),
-                                  ]
-                                : null,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                          child: Text(
+                            displayLabel,
+                            style: TextStyle(
+                              color: cardTextColor,
+                              fontSize: (isTablet ? 20 : 16) * _cardTextScale,
+                              fontWeight: FontWeight.bold,
+                              shadows: useLightShadow
+                                  ? const [
+                                      Shadow(
+                                        blurRadius: 3,
+                                        color: Colors.black26,
+                                        offset: Offset(0, 1),
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
@@ -2775,25 +3070,29 @@ class _HomePageState extends State<HomePage> {
                 ),
               if (useImageOverlay)
                 Positioned(
-                  left: 10,
-                  right: 10,
-                  bottom: 10,
-                  child: Text(
-                    displayLabel,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: cardTextColor,
-                      fontSize: isTablet ? 20 : 16,
-                      fontWeight: FontWeight.bold,
-                      shadows: const [
-                        Shadow(
-                          blurRadius: 6,
-                          color: Colors.black54,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
+                  left: 8,
+                  right: 8,
+                  bottom: 8,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.center,
+                    child: Text(
+                      displayLabel,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: cardTextColor,
+                        fontSize: (isTablet ? 20 : 16) * _cardTextScale,
+                        fontWeight: FontWeight.bold,
+                        shadows: const [
+                          Shadow(
+                            blurRadius: 6,
+                            color: Colors.black54,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
