@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_aac_app/models/aac_card_model.dart';
 import 'package:simple_aac_app/pages/home_page.dart';
+import 'package:simple_aac_app/services/card_storage_service.dart';
 import 'package:simple_aac_app/widgets/home_drawer.dart';
 
 void main() {
@@ -23,12 +25,14 @@ void main() {
     VoidCallback? onPickTextColor,
     VoidCallback? onPickBackgroundColor,
     VoidCallback? onPickCardTextColor,
-    String cardTextScaleLabel = 'Standard (100%)',
+    String cardTextScaleLabel = 'Medium (100%)',
     VoidCallback? onShowCardTextSize,
     bool isExpanded = false,
     ValueChanged<bool>? onToggleExpanded,
     ValueChanged<bool>? onToggleDarkMode,
     ValueChanged<bool>? onChangeColorBlindMode,
+    VoidCallback? onToggleTtsInput,
+    VoidCallback? onToggleTtsText,
   }) {
     final themeData = brightness == Brightness.dark
         ? ThemeData.dark(useMaterial3: true)
@@ -68,8 +72,8 @@ void main() {
           onSelectCategory: () {},
           onAddCategory: () {},
           onToggleEdit: () {},
-          onToggleTtsInput: () {},
-          onToggleTtsText: () {},
+          onToggleTtsInput: onToggleTtsInput ?? () {},
+          onToggleTtsText: onToggleTtsText ?? () {},
           onToggleCardImageLabel: () {},
           onToggleApplyTextColorToCards: () {},
           onChangeOrientation: () {},
@@ -374,7 +378,7 @@ void main() {
 
     await tester.pumpWidget(
       buildTestDrawer(
-        cardTextScaleLabel: 'Standard (100%)',
+        cardTextScaleLabel: 'Medium (100%)',
         onShowCardTextSize: () => tappedCardTextSize = true,
       ),
     );
@@ -382,7 +386,7 @@ void main() {
 
     await tester.scrollUntilVisible(find.text('Card Text Size'), 100);
     expect(find.text('Card Text Size'), findsOneWidget);
-    expect(find.text('Standard (100%)'), findsOneWidget);
+    expect(find.text('Medium (100%)'), findsOneWidget);
 
     await tester.tap(find.text('Card Text Size'), warnIfMissed: false);
     await tester.pump();
@@ -451,5 +455,189 @@ void main() {
     await tester.drag(find.text('Simple AAC'), const Offset(60, 0));
     await tester.pumpAndSettle();
     expect(expanded, isFalse);
+  });
+
+  testWidgets('Sentence Bar and Token Text switches display correct titles and subtitles',
+      (tester) async {
+    tester.view.physicalSize = const Size(384, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    bool ttsInputToggled = false;
+    bool ttsTextToggled = false;
+
+    await tester.pumpWidget(
+      buildTestDrawer(
+        onToggleTtsInput: () => ttsInputToggled = true,
+        onToggleTtsText: () => ttsTextToggled = true,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(find.text('Show Sentence Bar'), 100);
+    expect(find.text('Show Sentence Bar'), findsOneWidget);
+    expect(find.text('Show the top bar for building and speaking sentences'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('Hide Text in Sentence Bar'), 100);
+    expect(find.text('Hide Text in Sentence Bar'), findsOneWidget);
+    expect(find.text('Show only card pictures in the sentence bar'), findsOneWidget);
+
+    await tester.tap(find.text('Show Sentence Bar'), warnIfMissed: false);
+    await tester.pump();
+    expect(ttsInputToggled, isTrue);
+
+    await tester.tap(find.text('Hide Text in Sentence Bar'), warnIfMissed: false);
+    await tester.pump();
+    expect(ttsTextToggled, isTrue);
+  });
+
+  testWidgets('Selecting Color Vision Support radio button in drawer does not close drawer',
+      (tester) async {
+    tester.view.physicalSize = const Size(400, 1800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    bool colorBlindSelected = false;
+
+    await tester.pumpWidget(
+      buildTestDrawer(
+        isColorBlindMode: false,
+        onChangeColorBlindMode: (val) => colorBlindSelected = val,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(find.text('Color-Blind Safe Mode'), 200);
+    await tester.drag(find.byType(ListView), const Offset(0, -100));
+    await tester.pumpAndSettle();
+    expect(find.text('Color-Blind Safe Mode'), findsOneWidget);
+
+    await tester.tap(find.text('Color-Blind Safe Mode'));
+    await tester.pumpAndSettle();
+
+    expect(colorBlindSelected, isTrue);
+    expect(find.byType(HomeDrawer), findsOneWidget);
+  });
+
+  testWidgets('Settings persistence round-trip loads cardTextColor, cardTextScale, and drawerFullScreen',
+      (tester) async {
+    final tempDir = Directory.systemTemp.createTempSync('aac_pref_test_');
+    addTearDown(() {
+      CardStorageService.resetTestHooks();
+      if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+    });
+    CardStorageService.docsDirectoryOverride = () async => tempDir;
+
+    SharedPreferences.setMockInitialValues({
+      'cardTextColor': 0xFF9C27B0,
+      'cardTextScale': 1.15,
+      'drawerFullScreen': true,
+    });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('cardTextColor', 0xFF9C27B0);
+    await prefs.setDouble('cardTextScale', 1.15);
+    await prefs.setBool('drawerFullScreen', true);
+
+    HomePage.initialCardsForTesting = const [];
+    HomePage.enableTtsInit = false;
+    HomePage.speakPerformer = (_) async {};
+    addTearDown(() {
+      HomePage.initialCardsForTesting = null;
+      HomePage.enableTtsInit = true;
+      HomePage.speakPerformer = null;
+    });
+
+    tester.view.physicalSize = const Size(400, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const MaterialApp(home: HomePage()));
+    await tester.pumpAndSettle();
+
+    final scaffoldState = tester.state<ScaffoldState>(find.byType(Scaffold));
+    scaffoldState.openEndDrawer();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HomeDrawer), findsOneWidget);
+    final drawerWidget = tester.widget<HomeDrawer>(find.byType(HomeDrawer));
+    expect(drawerWidget.cardTextColorSwatch, const Color(0xFF9C27B0));
+    expect(drawerWidget.cardTextScaleLabel, 'Large (115%)');
+    expect(drawerWidget.isExpanded, isTrue);
+  });
+
+  testWidgets('Trilingual AAC card text (English, Sinhala, Tamil) scales and wraps cleanly across presets without overflow',
+      (tester) async {
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final card = AACCard(
+      id: 'test_trilingual_1',
+      label: 'Supermarket Shopping Cart',
+      labelSinhala: 'සුපිරි වෙළඳසැල් කරත්තය',
+      labelTamil: 'பல்பொருள் அங்காடி வண்டி',
+      colorValue: 0xFFFFF59D,
+      type: 'word',
+      category: 'Needs',
+    );
+
+    for (final scale in [0.85, 1.0, 1.15, 1.30]) {
+      for (final lang in ['en', 'si', 'ta']) {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 140,
+                  height: 140,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Color(card.colorValue),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        const Expanded(
+                          flex: 3,
+                          child: Icon(Icons.shopping_cart, size: 40),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            alignment: Alignment.center,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.center,
+                              child: Text(
+                                card.getLabel(lang),
+                                style: TextStyle(
+                                  color: const Color(0xFF111827),
+                                  fontSize: 16.0 * scale,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        expect(find.text(card.getLabel(lang)), findsOneWidget);
+      }
+    }
   });
 }

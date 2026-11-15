@@ -125,7 +125,6 @@ class _HomePageState extends State<HomePage> {
     if (HomePage.initialCardsForTesting != null) {
       cards = List.of(HomePage.initialCardsForTesting!);
       _updateCategories();
-      return;
     }
     _loadCardsFuture = _loadCards();
   }
@@ -142,27 +141,36 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadCards() async {
-    final sw = Stopwatch()..start();
-    final results = await Future.wait<dynamic>([
-      SharedPreferences.getInstance(),
-      CardStorageService.loadCards(defaultCardsBuilder: _createSeedImageCards),
-    ]);
-    if (!mounted) return;
+    try {
+      final sw = Stopwatch()..start();
+      final List<dynamic> results;
+      if (HomePage.initialCardsForTesting != null) {
+        results = [
+          await SharedPreferences.getInstance(),
+          List<AACCard>.of(HomePage.initialCardsForTesting!),
+        ];
+      } else {
+        results = await Future.wait<dynamic>([
+          SharedPreferences.getInstance(),
+          CardStorageService.loadCards(defaultCardsBuilder: _createSeedImageCards),
+        ]);
+      }
+      if (!mounted) return;
 
-    final prefs = results[0] as SharedPreferences;
-    final loadedCards = results[1] as List<AACCard>;
+      final prefs = results[0] as SharedPreferences;
+      final loadedCards = results[1] as List<AACCard>;
 
-    final nextGridColumns = prefs.getInt('gridColumns') ?? 2;
-    final nextShowTtsInput = prefs.getBool('showTtsInput') ?? true;
-    final nextOrientation = prefs.getString('orientationMode') ?? 'portrait';
-    final nextFullScreen = prefs.getBool('fullScreen') ?? true;
-    final nextLanguage = prefs.getString('language') ?? 'en';
-    final nextPrimary =
-        prefs.getInt('themePrimaryColor') ?? _defaultPrimaryColorValue;
-    final nextText = prefs.getInt('themeTextColor') ?? Colors.white.value;
-    final nextBg = prefs.getInt('themeBackgroundColor') ?? Colors.white.value;
-    final nextCardText =
-        prefs.getInt('cardTextColor') ?? const Color(0xFF111827).value;
+      final nextGridColumns = prefs.getInt('gridColumns') ?? 2;
+      final nextShowTtsInput = prefs.getBool('showTtsInput') ?? true;
+      final nextOrientation = prefs.getString('orientationMode') ?? 'portrait';
+      final nextFullScreen = prefs.getBool('fullScreen') ?? true;
+      final nextLanguage = prefs.getString('language') ?? 'en';
+      final nextPrimary =
+          prefs.getInt('themePrimaryColor') ?? _defaultPrimaryColorValue;
+      final nextText = prefs.getInt('themeTextColor') ?? Colors.white.value;
+      final nextBg = prefs.getInt('themeBackgroundColor') ?? Colors.white.value;
+      final nextCardText =
+          prefs.getInt('cardTextColor') ?? const Color(0xFF111827).value;
     final nextTtsSize = prefs.getDouble('ttsBarSize') ?? 1.0;
     final nextCardTextScale = prefs.getDouble('cardTextScale') ?? 1.0;
     final nextDrawerExpanded = prefs.getBool('drawerFullScreen') ?? false;
@@ -201,18 +209,20 @@ class _HomePageState extends State<HomePage> {
       _updateCategories();
       _migrateVisibleCountIfNeeded(prefs);
     });
+      if (ThemeAccessibility.darkModeNotifier.value != nextDark) {
+        ThemeAccessibility.darkModeNotifier.value = nextDark;
+      }
+      UiModeHelper.applyOrientation(nextOrientation);
+      UiModeHelper.applySystemUi(nextFullScreen);
+      debugPrint('[HomePage] cold loadCards completed in ${sw.elapsedMilliseconds}ms');
 
-    if (ThemeAccessibility.darkModeNotifier.value != nextDark) {
-      ThemeAccessibility.darkModeNotifier.value = nextDark;
+      // Initialize TTS after first frame paints and loaded language/voice settings are known.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_initTts());
+      });
+    } catch (e, st) {
+      debugPrint('[_loadCards] ERROR: $e\n$st');
     }
-    UiModeHelper.applyOrientation(nextOrientation);
-    UiModeHelper.applySystemUi(nextFullScreen);
-    debugPrint('[HomePage] cold loadCards completed in ${sw.elapsedMilliseconds}ms');
-
-    // Initialize TTS after first frame paints and loaded language/voice settings are known.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) unawaited(_initTts());
-    });
   }
 
   List<AACCard> _createSeedImageCards() {
@@ -1751,8 +1761,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   String _getCardTextScaleLabel() {
-    if ((_cardTextScale - 0.85).abs() < 0.04) return 'Compact (85%)';
-    if ((_cardTextScale - 1.0).abs() < 0.04) return 'Standard (100%)';
+    if ((_cardTextScale - 0.85).abs() < 0.04) return 'Small (85%)';
+    if ((_cardTextScale - 1.0).abs() < 0.04) return 'Medium (100%)';
     if ((_cardTextScale - 1.15).abs() < 0.04) return 'Large (115%)';
     if ((_cardTextScale - 1.30).abs() < 0.04) return 'Extra Large (130%)';
     return '${(_cardTextScale * 100).round()}%';
@@ -1824,12 +1834,23 @@ class _HomePageState extends State<HomePage> {
                             isTablet: isTablet,
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: _buildScalePreviewCard(
-                            label: 'Eat',
+                            label: 'කන්න',
                             icon: Icons.restaurant_rounded,
                             cardBg: const Color(0xFFBBDEFB),
+                            textColor: sampleTextColor,
+                            scale: tempScale,
+                            isTablet: isTablet,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildScalePreviewCard(
+                            label: 'வணக்கம்',
+                            icon: Icons.chat_bubble_rounded,
+                            cardBg: const Color(0xFFC8E6C9),
                             textColor: sampleTextColor,
                             scale: tempScale,
                             isTablet: isTablet,
@@ -1863,25 +1884,25 @@ class _HomePageState extends State<HomePage> {
                     runSpacing: 6,
                     children: [
                       _buildSizePresetChip(
-                        label: '85%',
+                        label: 'Small',
                         value: 0.85,
                         current: tempScale,
                         onTap: (v) => setLocalState(() => tempScale = v),
                       ),
                       _buildSizePresetChip(
-                        label: '100%',
+                        label: 'Medium',
                         value: 1.0,
                         current: tempScale,
                         onTap: (v) => setLocalState(() => tempScale = v),
                       ),
                       _buildSizePresetChip(
-                        label: '115%',
+                        label: 'Large',
                         value: 1.15,
                         current: tempScale,
                         onTap: (v) => setLocalState(() => tempScale = v),
                       ),
                       _buildSizePresetChip(
-                        label: '130%',
+                        label: 'Extra Large',
                         value: 1.30,
                         current: tempScale,
                         onTap: (v) => setLocalState(() => tempScale = v),
