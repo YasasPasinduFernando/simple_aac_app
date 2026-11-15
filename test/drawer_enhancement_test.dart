@@ -29,6 +29,8 @@ void main() {
     VoidCallback? onShowCardTextSize,
     bool isExpanded = false,
     ValueChanged<bool>? onToggleExpanded,
+    VoidCallback? onClose,
+    bool? showGestureHint,
     ValueChanged<bool>? onToggleDarkMode,
     ValueChanged<bool>? onChangeColorBlindMode,
     VoidCallback? onToggleTtsInput,
@@ -94,12 +96,14 @@ void main() {
           onShowAbout: () {},
           isExpanded: isExpanded,
           onToggleExpanded: onToggleExpanded,
+          onClose: onClose,
+          showGestureHint: showGestureHint,
         ),
       ),
     );
   }
 
-  testWidgets('HomeDrawer header renders branded icon, title, country and version pill',
+  testWidgets('HomeDrawer header renders title, subtitle, v1.1.1 version pill and close button without chat bubble',
       (tester) async {
     tester.view.physicalSize = const Size(384, 800);
     tester.view.devicePixelRatio = 1.0;
@@ -109,10 +113,11 @@ void main() {
     await tester.pumpWidget(buildTestDrawer());
     await tester.pumpAndSettle();
 
-    expect(find.text('Simple AAC'), findsWidgets);
-    expect(find.text('Sri Lanka'), findsOneWidget);
-    expect(find.text('v1.1.0'), findsOneWidget);
-    expect(find.byIcon(Icons.chat_bubble_rounded), findsWidgets);
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Simple AAC Sri Lanka'), findsOneWidget);
+    expect(find.text('v1.1.1'), findsOneWidget);
+    expect(find.byIcon(Icons.close_rounded), findsWidgets);
+    expect(find.byIcon(Icons.chat_bubble_rounded), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -369,7 +374,7 @@ void main() {
 
   testWidgets('Layout & Display section renders Card Text Size and triggers callback',
       (tester) async {
-    tester.view.physicalSize = const Size(384, 800);
+    tester.view.physicalSize = const Size(384, 1200);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -385,10 +390,12 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.scrollUntilVisible(find.text('Card Text Size'), 100);
+    await tester.pumpAndSettle();
+
     expect(find.text('Card Text Size'), findsOneWidget);
     expect(find.text('Medium (100%)'), findsOneWidget);
 
-    await tester.tap(find.text('Card Text Size'), warnIfMissed: false);
+    await tester.tap(find.text('Card Text Size'));
     await tester.pump();
     expect(tappedCardTextSize, isTrue);
   });
@@ -414,15 +421,15 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // In collapsed mode, button tooltip is "Expand to full screen"
-    final expandBtn = find.byTooltip('Expand to full screen');
+    // In collapsed mode, button tooltip is "Expand Settings"
+    final expandBtn = find.byTooltip('Expand Settings');
     expect(expandBtn, findsOneWidget);
     await tester.tap(expandBtn);
     await tester.pumpAndSettle();
 
     expect(expanded, isTrue);
-    // In expanded mode, button tooltip is "Collapse drawer"
-    expect(find.byTooltip('Collapse drawer'), findsOneWidget);
+    // In expanded mode, button tooltip is "Shrink Settings"
+    expect(find.byTooltip('Shrink Settings'), findsOneWidget);
   });
 
   testWidgets('HomeDrawer horizontal drag gestures toggle expand and collapse',
@@ -447,14 +454,101 @@ void main() {
     await tester.pumpAndSettle();
 
     // Drag left to expand
-    await tester.drag(find.text('Simple AAC'), const Offset(-60, 0));
+    await tester.drag(find.text('Settings'), const Offset(-60, 0));
     await tester.pumpAndSettle();
     expect(expanded, isTrue);
 
     // Drag right to collapse
-    await tester.drag(find.text('Simple AAC'), const Offset(60, 0));
+    await tester.drag(find.text('Settings'), const Offset(60, 0));
     await tester.pumpAndSettle();
     expect(expanded, isFalse);
+  });
+
+  testWidgets('HomeDrawer dedicated close button triggers onClose callback in compact and expanded modes',
+      (tester) async {
+    tester.view.physicalSize = const Size(384, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    int closeCallCount = 0;
+
+    await tester.pumpWidget(
+      buildTestDrawer(
+        isExpanded: false,
+        onClose: () => closeCallCount++,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Tap close button in compact mode
+    final closeBtn = find.byTooltip('Close Settings');
+    expect(closeBtn, findsOneWidget);
+    await tester.tap(closeBtn);
+    await tester.pumpAndSettle();
+    expect(closeCallCount, 1);
+
+    // Pump expanded mode
+    await tester.pumpWidget(
+      buildTestDrawer(
+        isExpanded: true,
+        onClose: () => closeCallCount++,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Close Settings'));
+    await tester.pumpAndSettle();
+    expect(closeCallCount, 2);
+  });
+
+  testWidgets('HomeDrawer drag right when compact triggers onClose callback',
+      (tester) async {
+    tester.view.physicalSize = const Size(384, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    bool closed = false;
+
+    await tester.pumpWidget(
+      buildTestDrawer(
+        isExpanded: false,
+        onClose: () => closed = true,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Drag right in compact mode on header
+    await tester.drag(find.text('Settings'), const Offset(60, 0));
+    await tester.pumpAndSettle();
+    expect(closed, isTrue);
+  });
+
+  testWidgets('Gesture hint bar renders instructions and dismiss button hides hint',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(384, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      buildTestDrawer(
+        isExpanded: false,
+        showGestureHint: true,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Swipe left to expand'), findsOneWidget);
+    final dismissBtn = find.byTooltip('Dismiss hint');
+    expect(dismissBtn, findsOneWidget);
+
+    await tester.tap(dismissBtn);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Swipe left to expand'), findsNothing);
   });
 
   testWidgets('Sentence Bar and Token Text switches display correct titles and subtitles',

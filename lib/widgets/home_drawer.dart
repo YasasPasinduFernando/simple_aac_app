@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeDrawer extends StatelessWidget {
   final String selectedCategory;
@@ -54,6 +55,8 @@ class HomeDrawer extends StatelessWidget {
   final ValueChanged<bool>? onToggleHaptics;
   final bool isExpanded;
   final ValueChanged<bool>? onToggleExpanded;
+  final VoidCallback? onClose;
+  final bool? showGestureHint;
 
   const HomeDrawer({
     Key? key,
@@ -110,7 +113,22 @@ class HomeDrawer extends StatelessWidget {
     this.onToggleHaptics,
     this.isExpanded = false,
     this.onToggleExpanded,
+    this.onClose,
+    this.showGestureHint,
   }) : super(key: key);
+
+  void _handleClose(BuildContext context) {
+    if (onClose != null) {
+      onClose!();
+      return;
+    }
+    final scaffold = Scaffold.maybeOf(context);
+    if (scaffold != null && scaffold.isEndDrawerOpen) {
+      scaffold.closeEndDrawer();
+    } else {
+      Navigator.of(context).maybePop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,22 +143,29 @@ class HomeDrawer extends StatelessWidget {
       width: drawerWidth,
       child: Drawer(
         width: drawerWidth,
-        child: GestureDetector(
-          onHorizontalDragUpdate: (details) {
-            final delta = details.primaryDelta ?? 0;
-            if (delta < -8 && !isExpanded) {
-              onToggleExpanded?.call(true);
-            } else if (delta > 8 && isExpanded) {
-              onToggleExpanded?.call(false);
-            }
-          },
-          child: Column(
-            children: [
-              _buildHeader(context),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Stack(
+          children: [
+            Column(
               children: [
+                _DrawerGestureHandler(
+                  isExpanded: isExpanded,
+                  onToggleExpanded: onToggleExpanded,
+                  onClose: () => _handleClose(context),
+                  child: _buildHeader(context),
+                ),
+                _DrawerGestureHandler(
+                  isExpanded: isExpanded,
+                  onToggleExpanded: onToggleExpanded,
+                  onClose: () => _handleClose(context),
+                  child: _DrawerGestureHintBar(
+                    isExpanded: isExpanded,
+                    forceShow: showGestureHint,
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                children: [
                 _buildSectionHeader(context, 'Connectivity & Privacy', Icons.wifi_protected_setup_rounded),
                 _buildOnlineSwitch(context),
                 const SizedBox(height: 12),
@@ -324,8 +349,23 @@ class HomeDrawer extends StatelessWidget {
           ),
         ],
       ),
-    ),
+      // Left edge swipe gesture handle strip (24dp) for compact mode below header
+      if (!isExpanded)
+        Positioned(
+          left: 0,
+          top: 130,
+          bottom: 0,
+          width: 24,
+          child: _DrawerGestureHandler(
+            isExpanded: isExpanded,
+            onToggleExpanded: onToggleExpanded,
+            onClose: () => _handleClose(context),
+            child: const SizedBox.expand(),
+          ),
+        ),
+    ],
   ),
+),
 );
   }
 
@@ -360,10 +400,10 @@ class HomeDrawer extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 16,
-              bottom: 18,
-              left: 16,
-              right: 16,
+              top: MediaQuery.of(context).padding.top + 14,
+              bottom: 16,
+              left: 14,
+              right: 14,
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -378,27 +418,27 @@ class HomeDrawer extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        // Expand/Shrink Chevron Button
+                        // Left: Expand / Shrink Chevron Button
                         Semantics(
                           button: true,
-                          label: isExpanded
-                              ? 'Shrink settings to side panel'
-                              : 'Expand settings to full screen',
+                          label: isExpanded ? 'Shrink Settings' : 'Expand Settings',
                           child: Tooltip(
-                            message: isExpanded
-                                ? 'Collapse drawer'
-                                : 'Expand to full screen',
+                            message: isExpanded ? 'Shrink Settings' : 'Expand Settings',
                             child: Material(
                               color: Colors.transparent,
                               child: InkWell(
-                                onTap: () => onToggleExpanded?.call(!isExpanded),
-                                borderRadius: BorderRadius.circular(10),
+                                onTap: () {
+                                  onToggleExpanded?.call(!isExpanded);
+                                  DrawerGestureHintHelper.setDismissed();
+                                },
+                                borderRadius: BorderRadius.circular(12),
                                 child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  margin: const EdgeInsets.only(right: 8),
+                                  width: isVeryCompact ? 36 : 40,
+                                  height: isVeryCompact ? 36 : 40,
+                                  alignment: Alignment.center,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.20),
-                                    borderRadius: BorderRadius.circular(10),
+                                    color: Colors.white.withValues(alpha: 0.22),
+                                    borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
                                       color: Colors.white.withValues(alpha: 0.35),
                                       width: 1.0,
@@ -406,94 +446,101 @@ class HomeDrawer extends StatelessWidget {
                                   ),
                                   child: Icon(
                                     isExpanded
-                                        ? Icons.chevron_right_rounded
-                                        : Icons.chevron_left_rounded,
+                                        ? Icons.chevron_left_rounded
+                                        : Icons.chevron_right_rounded,
                                     color: Colors.white,
-                                    size: isVeryCompact ? 18 : 20,
+                                    size: isVeryCompact ? 20 : 24,
                                   ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                        // Branded squircle communication icon
-                        Container(
-                          width: isVeryCompact ? 38 : 42,
-                          height: isVeryCompact ? 38 : 42,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.32),
-                              width: 1.2,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.chat_bubble_rounded,
-                            color: Colors.white,
-                            size: isVeryCompact ? 20 : 22,
-                          ),
-                        ),
-                        // Subtle vertical divider line
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: isVeryCompact ? 8 : 12),
-                          width: 1.5,
-                          height: isVeryCompact ? 22 : 26,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.35),
-                            borderRadius: BorderRadius.circular(1),
-                          ),
-                        ),
-                        // Title and subtitle
+                        const SizedBox(width: 12),
+                        // Center / Left-aligned Title, Subtitle, and Version Badge
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Simple AAC',
+                                'Settings',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: isVeryCompact ? 18 : 20,
+                                  fontSize: isVeryCompact ? 18 : 21,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.2,
                                 ),
                               ),
-                              const SizedBox(height: 1),
+                              const SizedBox(height: 1.5),
                               Text(
-                                'Sri Lanka',
+                                'Simple AAC Sri Lanka',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.85),
+                                  color: Colors.white.withValues(alpha: 0.88),
                                   fontSize: isVeryCompact ? 11.5 : 12.5,
                                   fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 3.5),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 2.5),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.20),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.32),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: const Text(
+                                  'v1.1.1',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.3,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
                         ),
                         const SizedBox(width: 8),
-                        // Version badge pill
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3.5),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.30),
-                              width: 1,
-                            ),
-                          ),
-                          child: const Text(
-                            'v1.1.0',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.3,
+                        // Right: Dedicated Close (×) Button
+                        Semantics(
+                          button: true,
+                          label: 'Close Settings',
+                          child: Tooltip(
+                            message: 'Close Settings',
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () => _handleClose(context),
+                                borderRadius: BorderRadius.circular(20),
+                                child: Container(
+                                  width: isVeryCompact ? 36 : 40,
+                                  height: isVeryCompact ? 36 : 40,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.white.withValues(alpha: 0.22),
+                                    border: Border.all(
+                                      color: Colors.white.withValues(alpha: 0.35),
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.close_rounded,
+                                    color: Colors.white,
+                                    size: isVeryCompact ? 18 : 22,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -1687,4 +1734,294 @@ class _DrawerHeaderWavePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _DrawerHeaderWavePainter oldDelegate) =>
       oldDelegate.waveColor != waveColor;
+}
+
+/// Helper service for managing and persisting the Settings Drawer first-time swipe hint.
+class DrawerGestureHintHelper {
+  static const String prefKey = 'settings_drawer_gesture_hint_dismissed_v111';
+  static bool? _inMemoryOverride;
+
+  /// Returns true if the user has previously dismissed or demonstrated the swipe gesture.
+  static Future<bool> isDismissed() async {
+    if (_inMemoryOverride != null) return _inMemoryOverride!;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(prefKey) ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Marks the gesture hint as dismissed permanently.
+  static Future<void> setDismissed() async {
+    _inMemoryOverride = true;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(prefKey, true);
+    } catch (_) {}
+  }
+
+  /// Resets the dismissed flag (primarily for QA and automated test verification).
+  static Future<void> reset() async {
+    _inMemoryOverride = false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(prefKey);
+    } catch (_) {}
+  }
+}
+
+/// Dismissible onboarding hint showing "Swipe left to expand" or "Swipe right to shrink".
+class _DrawerGestureHintBar extends StatefulWidget {
+  final bool isExpanded;
+  final bool? forceShow;
+
+  const _DrawerGestureHintBar({
+    Key? key,
+    required this.isExpanded,
+    this.forceShow,
+  }) : super(key: key);
+
+  @override
+  State<_DrawerGestureHintBar> createState() => _DrawerGestureHintBarState();
+}
+
+class _DrawerGestureHintBarState extends State<_DrawerGestureHintBar> {
+  bool _dismissed = false;
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPref();
+  }
+
+  @override
+  void didUpdateWidget(covariant _DrawerGestureHintBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.forceShow != oldWidget.forceShow) {
+      _checkPref();
+    }
+  }
+
+  Future<void> _checkPref() async {
+    if (widget.forceShow != null) {
+      if (mounted) {
+        setState(() {
+          _dismissed = !widget.forceShow!;
+          _loaded = true;
+        });
+      }
+      return;
+    }
+    final dismissed = await DrawerGestureHintHelper.isDismissed();
+    if (mounted) {
+      setState(() {
+        _dismissed = dismissed;
+        _loaded = true;
+      });
+    }
+  }
+
+  void _dismiss() {
+    setState(() {
+      _dismissed = true;
+    });
+    DrawerGestureHintHelper.setDismissed();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_loaded || _dismissed) {
+      return const SizedBox.shrink();
+    }
+
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Semantics(
+      container: true,
+      label: widget.isExpanded
+          ? 'Gesture hint: Swipe right to shrink'
+          : 'Gesture hint: Swipe left to expand',
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE8F1FC),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isDark ? const Color(0xFF334155) : const Color(0xFFD0E2F9),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              widget.isExpanded
+                  ? Icons.swipe_right_rounded
+                  : Icons.swipe_left_rounded,
+              color: isDark ? const Color(0xFF93C5FD) : const Color(0xFF155799),
+              size: 24,
+            ),
+            Container(
+              height: 22,
+              width: 1,
+              margin: const EdgeInsets.symmetric(horizontal: 10),
+              color: isDark ? const Color(0xFF475569) : const Color(0xFFB0CBEA),
+            ),
+            Expanded(
+              child: widget.isExpanded
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                'Swipe right to shrink',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: TextStyle(
+                                  color: isDark ? Colors.white : const Color(0xFF0F3B7A),
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              size: 13,
+                              color: isDark ? Colors.white : const Color(0xFF0F3B7A),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          'Swipe right again to close',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                            color: isDark ? Colors.white70 : const Color(0xFF336699),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            'Swipe left to expand',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                              color: isDark ? Colors.white : const Color(0xFF0F3B7A),
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_back_rounded,
+                          size: 13,
+                          color: isDark ? Colors.white : const Color(0xFF0F3B7A),
+                        ),
+                      ],
+                    ),
+            ),
+            Semantics(
+              button: true,
+              label: 'Dismiss gesture hint',
+              child: Tooltip(
+                message: 'Dismiss hint',
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _dismiss,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 18,
+                        color: isDark ? Colors.white60 : const Color(0xFF5A7CA5),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Gesture detector specifically tuned for horizontal drawer resize and close actions.
+class _DrawerGestureHandler extends StatefulWidget {
+  final Widget child;
+  final bool isExpanded;
+  final ValueChanged<bool>? onToggleExpanded;
+  final VoidCallback onClose;
+
+  const _DrawerGestureHandler({
+    Key? key,
+    required this.child,
+    required this.isExpanded,
+    required this.onToggleExpanded,
+    required this.onClose,
+  }) : super(key: key);
+
+  @override
+  State<_DrawerGestureHandler> createState() => _DrawerGestureHandlerState();
+}
+
+class _DrawerGestureHandlerState extends State<_DrawerGestureHandler> {
+  double _accumulatedDelta = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onHorizontalDragStart: (_) {
+        _accumulatedDelta = 0.0;
+      },
+      onHorizontalDragUpdate: (details) {
+        _accumulatedDelta += details.primaryDelta ?? 0.0;
+        if (_accumulatedDelta <= -40 && !widget.isExpanded) {
+          _accumulatedDelta = 0.0;
+          widget.onToggleExpanded?.call(true);
+          DrawerGestureHintHelper.setDismissed();
+        } else if (_accumulatedDelta >= 40 && widget.isExpanded) {
+          _accumulatedDelta = 0.0;
+          widget.onToggleExpanded?.call(false);
+          DrawerGestureHintHelper.setDismissed();
+        }
+      },
+      onHorizontalDragEnd: (details) {
+        final velocity = details.primaryVelocity ?? 0.0;
+        if ((velocity < -200 || _accumulatedDelta <= -30) && !widget.isExpanded) {
+          widget.onToggleExpanded?.call(true);
+          DrawerGestureHintHelper.setDismissed();
+        } else if (velocity > 200 || _accumulatedDelta >= 30) {
+          if (widget.isExpanded) {
+            widget.onToggleExpanded?.call(false);
+            DrawerGestureHintHelper.setDismissed();
+          } else {
+            widget.onClose();
+          }
+        }
+        _accumulatedDelta = 0.0;
+      },
+      child: widget.child,
+    );
+  }
 }

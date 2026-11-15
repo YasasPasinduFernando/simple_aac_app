@@ -2562,12 +2562,20 @@ class _HomePageState extends State<HomePage> {
                 },
                 isEditMode: isEditMode,
                 showMenu: !isPinned,
-                onOpenMenu: () => _scaffoldKey.currentState?.openEndDrawer(),
+                onOpenMenu: () {
+                  if (_isDrawerExpanded) {
+                    setState(() {
+                      _isDrawerExpanded = false;
+                    });
+                  }
+                  _scaffoldKey.currentState?.openEndDrawer();
+                },
                 titleTextColor: themeText,
               ),
         endDrawer: isPinned
             ? null
             : HomeDrawer(
+                onClose: () => _scaffoldKey.currentState?.closeEndDrawer(),
                 selectedCategory: selectedCategory,
                 currentLanguageLabel: _getLanguageName(currentLanguage),
                 speechStatusLabel: _speechDrawerSubtitle(),
@@ -2743,8 +2751,14 @@ class _HomePageState extends State<HomePage> {
                         });
                         UiModeHelper.applySystemUi(fullScreen);
                       },
-                      onOpenMenu: () =>
-                          _scaffoldKey.currentState?.openEndDrawer(),
+                      onOpenMenu: () {
+                        if (_isDrawerExpanded) {
+                          setState(() {
+                            _isDrawerExpanded = false;
+                          });
+                        }
+                        _scaffoldKey.currentState?.openEndDrawer();
+                      },
                       onGoBack: () {
                         setState(() {
                           _resetTtsInput();
