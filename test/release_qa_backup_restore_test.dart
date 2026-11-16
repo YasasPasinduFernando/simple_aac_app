@@ -457,6 +457,18 @@ void main() {
         'colorBlindBoldText': true,
         'colorBlindFilterImages': true,
         'customCategories': ['School', 'Emotions', 'Daily Routine'],
+        'customCategoryMetadata': {
+          'School': {
+            'name': 'School',
+            'iconCodePoint': 0xe559,
+            'colorValue': 0xFF42A5F5,
+          },
+          'Emotions': {
+            'name': 'Emotions',
+            'iconCodePoint': 0xe7f2,
+            'colorValue': 0xFFFFCA28,
+          },
+        },
         'selectedCategory': 'Food',
       };
 
@@ -493,6 +505,10 @@ void main() {
       expect(s['colorBlindBoldText'], true);
       expect(s['colorBlindFilterImages'], true);
       expect(s['customCategories'], ['School', 'Emotions', 'Daily Routine']);
+      expect(s['customCategoryMetadata'], isNotNull);
+      final meta = s['customCategoryMetadata'] as Map;
+      expect(meta['School']['colorValue'], 0xFF42A5F5);
+      expect(meta['Emotions']['colorValue'], 0xFFFFCA28);
       expect(s['selectedCategory'], 'Food');
       expect(s['enableHaptics'], true);
     });

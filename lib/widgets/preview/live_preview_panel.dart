@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 class LivePreviewPanel extends StatelessWidget {
   final String title;
   final IconData? icon;
+  final Color? accentColor;
   final Widget child;
   final Widget? trailing;
   final double minHeight;
@@ -15,6 +16,7 @@ class LivePreviewPanel extends StatelessWidget {
     Key? key,
     this.title = 'LIVE PREVIEW',
     this.icon,
+    this.accentColor,
     required this.child,
     this.trailing,
     this.minHeight = 110.0,
@@ -28,10 +30,13 @@ class LivePreviewPanel extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     final panelBg = isDark ? const Color(0xFF1E2836) : const Color(0xFFF2F7FD);
-    final borderColor = isDark
-        ? const Color(0xFF3B82F6).withValues(alpha: 0.35)
-        : const Color(0xFF0267C1).withValues(alpha: 0.25);
-    final badgeBg = isDark ? const Color(0xFF1E3A8A) : const Color(0xFF0267C1);
+    final borderColor = accentColor != null
+        ? accentColor!.withValues(alpha: isDark ? 0.45 : 0.35)
+        : (isDark
+            ? const Color(0xFF3B82F6).withValues(alpha: 0.35)
+            : const Color(0xFF0267C1).withValues(alpha: 0.25));
+    final badgeBg = accentColor ??
+        (isDark ? const Color(0xFF1E3A8A) : const Color(0xFF0267C1));
 
     return Container(
       width: double.infinity,

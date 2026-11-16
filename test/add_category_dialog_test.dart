@@ -247,5 +247,30 @@ void main() {
       // Should be back to initial state
       expect(find.text('Tap cards below to assign to this category'), findsOneWidget);
     });
+
+    testWidgets('action buttons remain in a horizontal row and do not wrap vertically',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: AddCategoryDialog(
+              availableCards: sampleCards,
+              existingCategories: const {'General'},
+              currentLanguage: 'en',
+              onAddCategory: (_, __, ___, ____) {},
+            ),
+          ),
+        ),
+      );
+
+      final alertDialog = tester.widget<AlertDialog>(find.byType(AlertDialog));
+      expect(alertDialog.actions, isNotNull);
+      expect(alertDialog.actions!.length, 1);
+      expect(alertDialog.actions!.first, isA<Row>());
+
+      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text('Reset'), findsOneWidget);
+      expect(find.text('Add Category'), findsOneWidget);
+    });
   });
 }

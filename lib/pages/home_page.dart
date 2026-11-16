@@ -21,8 +21,10 @@ import '../services/multilingual_concept_service.dart';
 import '../services/network_policy_service.dart';
 import '../services/speech_engine.dart';
 import '../services/tutorial_service.dart';
+import '../models/category_metadata.dart';
 import '../widgets/add_category_dialog.dart';
 import '../widgets/card_editor_dialog.dart';
+import '../widgets/select_category_dialog.dart';
 import '../widgets/color_vision_dialog.dart';
 import '../widgets/professional_color_picker_dialog.dart';
 
@@ -92,6 +94,7 @@ class _HomePageState extends State<HomePage> {
   String selectedCategory = 'All';
   Set<String> allCategories = {'General'};
   Set<String> _customCategories = {};
+  Map<String, CategoryMetadata> _customCategoryMetadata = {};
   AACCard? activeParentCard;
   bool isEditMode = false;
   bool isCardEditorOpen = false;
@@ -286,6 +289,23 @@ class _HomePageState extends State<HomePage> {
         ThemeAccessibility.colorBlindMode = nextColorBlind;
         _customCategories =
             (prefs.getStringList('customCategories') ?? []).toSet();
+        final rawMeta = prefs.getString('customCategoryMetadata');
+        if (rawMeta != null && rawMeta.isNotEmpty) {
+          try {
+            final decoded = jsonDecode(rawMeta) as Map<String, dynamic>;
+            _customCategoryMetadata = decoded.map(
+              (key, val) => MapEntry(
+                key,
+                CategoryMetadata.fromJson(val as Map<String, dynamic>),
+              ),
+            );
+          } catch (e) {
+            debugPrint('[HomePage] Error loading customCategoryMetadata: $e');
+            _customCategoryMetadata = {};
+          }
+        } else {
+          _customCategoryMetadata = {};
+        }
         _updateCategories();
         _migrateVisibleCountIfNeeded(prefs);
       });
@@ -390,6 +410,12 @@ class _HomePageState extends State<HomePage> {
               ThemeAccessibility.colorBlindPrefKey, _isColorBlindMode),
           prefs.setStringList(
               'customCategories', _customCategories.toList()),
+          prefs.setString(
+            'customCategoryMetadata',
+            jsonEncode(
+              _customCategoryMetadata.map((k, v) => MapEntry(k, v.toJson())),
+            ),
+          ),
         ]);
       }),
     ]);
@@ -1110,49 +1136,20 @@ class _HomePageState extends State<HomePage> {
   void _showCategoryDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        title: const StyledDialogHeader(
-          icon: Icons.category_rounded,
-          title: 'Select Category',
-          subtitle: 'Filter cards shown on board',
-        ),
-        content: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight:
-                (MediaQuery.of(context).size.height * 0.55).clamp(180.0, 460.0),
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: allCategories
-                  .map(
-                    (cat) => DialogOptionTile(
-                      icon: cat == 'All'
-                          ? Icons.apps_rounded
-                          : Icons.folder_outlined,
-                      title: cat,
-                      selected: selectedCategory == cat,
-                      onTap: () {
-                        setState(() {
-                          selectedCategory = cat;
-                          activeParentCard = null;
-                          _resetTtsInput();
-                        });
-                        Navigator.pop(context);
-                      },
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-        ],
+      builder: (context) => SelectCategoryDialog(
+        categories: allCategories.toList(),
+        selectedCategory: selectedCategory,
+        availableCards: cards,
+        customMetadata: _customCategoryMetadata,
+        currentLanguage: currentLanguage,
+        onApply: (newCategory) {
+          setState(() {
+            selectedCategory = newCategory;
+            activeParentCard = null;
+            _resetTtsInput();
+          });
+          _saveCards();
+        },
       ),
     );
   }
@@ -1168,6 +1165,11 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             allCategories.add(cleanName);
             _customCategories.add(cleanName);
+            _customCategoryMetadata[cleanName] = CategoryMetadata(
+              name: cleanName,
+              icon: icon,
+              colorValue: colorValue,
+            );
             if (selectedCardIds.isNotEmpty) {
               for (var card in cards) {
                 if (selectedCardIds.contains(card.id)) {
@@ -1192,6 +1194,12 @@ class _HomePageState extends State<HomePage> {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setStringList(
               'customCategories', _customCategories.toList());
+          await prefs.setString(
+            'customCategoryMetadata',
+            jsonEncode(
+              _customCategoryMetadata.map((k, v) => MapEntry(k, v.toJson())),
+            ),
+          );
 
           await _saveCards();
 
@@ -1584,6 +1592,8 @@ class _HomePageState extends State<HomePage> {
       'colorBlindBoldText': ThemeAccessibility.colorBlindBoldText,
       'colorBlindFilterImages': ThemeAccessibility.colorBlindFilterImages,
       'customCategories': _customCategories.toList(),
+      'customCategoryMetadata':
+          _customCategoryMetadata.map((k, v) => MapEntry(k, v.toJson())),
       'selectedCategory': selectedCategory,
     };
   }
@@ -2621,6 +2631,17 @@ class _HomePageState extends State<HomePage> {
             .map((c) => c.toString())
             .where((c) => c.isNotEmpty)
             .toSet();
+      }
+
+      if (settings.containsKey('customCategoryMetadata') &&
+          settings['customCategoryMetadata'] is Map) {
+        final raw = settings['customCategoryMetadata'] as Map;
+        _customCategoryMetadata = raw.map((k, v) => MapEntry(
+              k.toString(),
+              CategoryMetadata.fromJson(Map<String, dynamic>.from(v as Map)),
+            ));
+      } else {
+        _customCategoryMetadata = {};
       }
 
       final cbType = settings['colorBlindType']?.toString() ??

@@ -373,6 +373,8 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
     final colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final media = MediaQuery.of(context).size;
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+    final isKeyboardOpen = keyboardInset > 60;
     final accentColor = Color(_selectedColorValue);
 
     final categoryNameDisplay = _nameController.text.trim().isEmpty
@@ -384,8 +386,16 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
         .where((c) => _selectedCardIds.contains(c.id))
         .toList();
 
+    // Dynamically scale content height to adapt to open keyboard without awkward shrinking or overflow
+    final availableHeight = media.height - keyboardInset;
+    final maxContentHeight =
+        (availableHeight * (isKeyboardOpen ? 0.62 : 0.72)).clamp(180.0, 640.0);
+
     return AlertDialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: isKeyboardOpen ? 8 : 20,
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       title: StyledDialogHeader(
         icon: Icons.create_new_folder_rounded,
@@ -415,7 +425,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
       content: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: (media.width - 32).clamp(280.0, 500.0),
-          maxHeight: (media.height * 0.76).clamp(320.0, 680.0),
+          maxHeight: maxContentHeight,
         ),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -427,8 +437,9 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
               LivePreviewPanel(
                 title: 'LIVE CATEGORY PREVIEW',
                 icon: Icons.visibility_rounded,
-                minHeight: 100,
-                maxHeight: 180,
+                accentColor: accentColor,
+                minHeight: isKeyboardOpen ? 70 : 100,
+                maxHeight: isKeyboardOpen ? 110 : 180,
                 trailing: Text(
                   '${_selectedCardIds.length} assigned',
                   style: const TextStyle(
@@ -518,7 +529,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
                     ),
 
                     // Horizontal assigned cards thumbnail strip
-                    if (selectedCardsList.isNotEmpty) ...[
+                    if (selectedCardsList.isNotEmpty && !isKeyboardOpen) ...[
                       const SizedBox(height: 8),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -609,7 +620,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
               // 2. CATEGORY NAME TEXT FIELD
               TextField(
                 controller: _nameController,
-                autofocus: true,
+                autofocus: false,
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: 'Category Name',
@@ -1171,23 +1182,37 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
           ),
         ),
       ),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: _resetForm,
-          child: const Text('Reset'),
-        ),
-        FilledButton.icon(
-          icon: const Icon(Icons.add_rounded, size: 18),
-          label: Text(
-            _selectedCardIds.isEmpty
-                ? 'Add Category'
-                : 'Add Category (${_selectedCardIds.length})',
-          ),
-          onPressed: _canSubmit ? _submit : null,
+        Row(
+          children: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            const SizedBox(width: 4),
+            TextButton(
+              onPressed: _resetForm,
+              child: const Text('Reset'),
+            ),
+            const Spacer(),
+            FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: accentColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              icon: const Icon(Icons.add_rounded, size: 18),
+              label: Text(
+                _selectedCardIds.isEmpty
+                    ? 'Add Category'
+                    : 'Add Category (${_selectedCardIds.length})',
+              ),
+              onPressed: _canSubmit ? _submit : null,
+            ),
+          ],
         ),
       ],
     );

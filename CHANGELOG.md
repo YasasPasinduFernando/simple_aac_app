@@ -17,6 +17,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.3] - 2026-11-16
+
+### Added
+- **Modern Redesigned Select Category Dialog (`SelectCategoryDialog`):**
+  - Displays real category icons and accent colors for every category (Food, School, Feelings, Play, Home, Health, and custom categories) instead of generic folder icons.
+  - Dedicated "All Cards" option with grid icon and accurate total card count across root and subcategories.
+  - Interactive compact Live Preview Panel showing currently active or newly selected category banner, icon avatar, card count, and horizontal thumbnail strip.
+  - Friendly amber guidance card for empty categories ("No cards in this category yet. Create cards in Edit Mode to get started.").
+  - Clean Apply and Cancel commitment model preserving user board state on dismiss.
+- **Custom Category Metadata Persistence (`CategoryMetadata`):**
+  - Full serialization and persistence of user-selected custom category icons, accent colors, and names across app restarts and backup/restore archives (`customCategoryMetadata`).
+
+### Fixed
+- **Add New Category Keyboard Layout & Responsive Action Buttons:**
+  - Resolved `AlertDialog` action buttons vertical wrapping bug when the IME keyboard opens by encapsulating Cancel, Reset, and Add Category into a single horizontal Row.
+  - Dynamically scaled dialog height based on `MediaQuery.viewInsetsOf(context).bottom` to prevent blank gaps, content squishing, or hidden customization sections.
+  - Disabled `autofocus` on Category Name TextField to maintain full overview on modal open.
+
+### Changed
+- Bumped application version to `1.1.3+11` (`versionCode: 11`) for Google Play production release.
+
+---
+
 ## [1.1.2] - 2026-11-16
 
 ### Added

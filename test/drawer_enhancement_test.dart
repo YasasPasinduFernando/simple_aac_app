@@ -103,7 +103,7 @@ void main() {
     );
   }
 
-  testWidgets('HomeDrawer header renders title, subtitle, v1.1.2 version pill and close button without chat bubble',
+  testWidgets('HomeDrawer header renders title, subtitle, v1.1.3 version pill and close button without chat bubble',
       (tester) async {
     tester.view.physicalSize = const Size(384, 800);
     tester.view.devicePixelRatio = 1.0;
@@ -115,7 +115,7 @@ void main() {
 
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Simple AAC Sri Lanka'), findsOneWidget);
-    expect(find.text('v1.1.2'), findsOneWidget);
+    expect(find.text('v1.1.3'), findsOneWidget);
     expect(find.byIcon(Icons.close_rounded), findsWidgets);
     expect(find.byIcon(Icons.chat_bubble_rounded), findsNothing);
     expect(tester.takeException(), isNull);
