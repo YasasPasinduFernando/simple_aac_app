@@ -91,7 +91,23 @@ class _HomePageState extends State<HomePage> {
   Map<String, Set<String>> visibleCardIdsByParent = {};
   String currentLanguage = 'en';
   bool showTtsInput = true;
-  String selectedCategory = 'All';
+  Set<String> selectedCategories = {'All'};
+  String get selectedCategory {
+    if (selectedCategories.contains('All') || selectedCategories.isEmpty) {
+      return 'All';
+    }
+    if (selectedCategories.length == 1) {
+      return selectedCategories.first;
+    }
+    return '${selectedCategories.length} Categories';
+  }
+  set selectedCategory(String val) {
+    if (val == 'All' || val.isEmpty) {
+      selectedCategories = {'All'};
+    } else {
+      selectedCategories = {val};
+    }
+  }
   Set<String> allCategories = {'General'};
   Set<String> _customCategories = {};
   Map<String, CategoryMetadata> _customCategoryMetadata = {};
@@ -111,6 +127,7 @@ class _HomePageState extends State<HomePage> {
   List<AACCard>? _editSnapshotCards;
   Map<String, Set<String>>? _editSnapshotVisible;
   Set<String>? _editSnapshotCategories;
+  Set<String>? _editSnapshotSelectedCategories;
   String? _editSnapshotSelectedCategory;
   String? _editSnapshotActiveParentId;
   static const int _defaultPrimaryColorValue = 0xFF0277BD;
@@ -306,6 +323,17 @@ class _HomePageState extends State<HomePage> {
         } else {
           _customCategoryMetadata = {};
         }
+        final savedCatList = prefs.getStringList('selectedCategories');
+        if (savedCatList != null && savedCatList.isNotEmpty) {
+          selectedCategories = savedCatList.toSet();
+        } else {
+          final legacyCat = prefs.getString('selectedCategory');
+          if (legacyCat != null && legacyCat.isNotEmpty && legacyCat != 'All') {
+            selectedCategories = {legacyCat};
+          } else {
+            selectedCategories = {'All'};
+          }
+        }
         _updateCategories();
         _migrateVisibleCountIfNeeded(prefs);
       });
@@ -410,6 +438,9 @@ class _HomePageState extends State<HomePage> {
               ThemeAccessibility.colorBlindPrefKey, _isColorBlindMode),
           prefs.setStringList(
               'customCategories', _customCategories.toList()),
+          prefs.setStringList(
+              'selectedCategories', selectedCategories.toList()),
+          prefs.setString('selectedCategory', selectedCategory),
           prefs.setString(
             'customCategoryMetadata',
             jsonEncode(
@@ -1138,13 +1169,13 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) => SelectCategoryDialog(
         categories: allCategories.toList(),
-        selectedCategory: selectedCategory,
+        selectedCategories: selectedCategories,
         availableCards: cards,
         customMetadata: _customCategoryMetadata,
         currentLanguage: currentLanguage,
-        onApply: (newCategory) {
+        onApply: (newCategories) {
           setState(() {
-            selectedCategory = newCategory;
+            selectedCategories = newCategories;
             activeParentCard = null;
             _resetTtsInput();
           });
@@ -1594,15 +1625,21 @@ class _HomePageState extends State<HomePage> {
       'customCategories': _customCategories.toList(),
       'customCategoryMetadata':
           _customCategoryMetadata.map((k, v) => MapEntry(k, v.toJson())),
+      'selectedCategories': selectedCategories.toList(),
       'selectedCategory': selectedCategory,
     };
   }
 
   List<AACCard> _getFilteredCards() {
-    if (selectedCategory == 'All') {
+    if (selectedCategories.contains('All') || selectedCategories.isEmpty) {
       return cards;
     }
-    return cards.where((card) => card.category == selectedCategory).toList();
+    final cleanSelected =
+        selectedCategories.map((c) => c.trim().toLowerCase()).toSet();
+    return cards
+        .where((card) =>
+            cleanSelected.contains(card.category.trim().toLowerCase()))
+        .toList();
   }
 
   List<AACCard> _getBaseDisplayedCards() {
@@ -1684,6 +1721,7 @@ class _HomePageState extends State<HomePage> {
       _editSnapshotCards = _cloneCards(cards);
       _editSnapshotVisible = _cloneVisibleMap(visibleCardIdsByParent);
       _editSnapshotCategories = Set<String>.from(allCategories);
+      _editSnapshotSelectedCategories = Set<String>.from(selectedCategories);
       _editSnapshotSelectedCategory = selectedCategory;
       _editSnapshotActiveParentId = activeParentCard?.id;
     });
@@ -1701,6 +1739,7 @@ class _HomePageState extends State<HomePage> {
     _editSnapshotCards = null;
     _editSnapshotVisible = null;
     _editSnapshotCategories = null;
+    _editSnapshotSelectedCategories = null;
     _editSnapshotSelectedCategory = null;
     _editSnapshotActiveParentId = null;
   }
@@ -1712,6 +1751,8 @@ class _HomePageState extends State<HomePage> {
       cards = _cloneCards(_editSnapshotCards!);
       visibleCardIdsByParent = _cloneVisibleMap(_editSnapshotVisible ?? {});
       allCategories = Set<String>.from(_editSnapshotCategories ?? {'All'});
+      selectedCategories =
+          Set<String>.from(_editSnapshotSelectedCategories ?? {'All'});
       selectedCategory = _editSnapshotSelectedCategory ?? 'All';
       activeParentCard = _editSnapshotActiveParentId == null
           ? null
@@ -2575,7 +2616,21 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       cards = restoredCards;
       activeParentCard = null;
-      selectedCategory = settings['selectedCategory']?.toString() ?? 'All';
+      if (settings.containsKey('selectedCategories') &&
+          settings['selectedCategories'] is List) {
+        selectedCategories = (settings['selectedCategories'] as List)
+            .map((e) => e.toString())
+            .where((e) => e.isNotEmpty)
+            .toSet();
+      } else if (settings.containsKey('selectedCategory')) {
+        final legacy = settings['selectedCategory']?.toString() ?? 'All';
+        selectedCategory = legacy;
+      } else {
+        selectedCategories = {'All'};
+      }
+      if (selectedCategories.isEmpty) {
+        selectedCategories = {'All'};
+      }
 
       final visibleRaw = settings['visibleCardIdsByParent'];
       if (visibleRaw is Map) {
@@ -2673,10 +2728,13 @@ class _HomePageState extends State<HomePage> {
     });
     unawaited(_initTts());
     _updateCategories();
-    if (!allCategories.contains(selectedCategory)) {
-      setState(() {
-        selectedCategory = 'All';
-      });
+    if (!selectedCategories.contains('All')) {
+      selectedCategories.removeWhere((c) => !allCategories.contains(c));
+      if (selectedCategories.isEmpty) {
+        setState(() {
+          selectedCategories = {'All'};
+        });
+      }
     }
     UiModeHelper.applyOrientation(orientationMode);
     UiModeHelper.applySystemUi(fullScreen);

@@ -325,7 +325,7 @@ class HomeDrawer extends StatelessWidget {
                 _buildDrawerItem(
                   context,
                   icon: Icons.category_rounded,
-                  title: 'Category',
+                  title: 'Choose Categories',
                   subtitle: selectedCategory,
                   onTap: onSelectCategory,
                 ),
@@ -560,7 +560,7 @@ class HomeDrawer extends StatelessWidget {
                                   ),
                                 ),
                                 child: const Text(
-                                  'v1.1.3',
+                                  'v1.1.4',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 10.5,

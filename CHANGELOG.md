@@ -17,6 +17,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.4] - 2026-11-16
+
+### Added
+- **Multi-Category Selection ("Choose Categories"):**
+  - Fully redesigned category selection experience supporting simultaneous multi-category filtering with clean checkbox indicators.
+  - Mutually exclusive "All Cards" mode: selecting All Cards deselects specific categories; selecting any specific category automatically deselects All Cards.
+  - Live "BOARD PREVIEW" header with sparkle badge showing total unique card count across selected categories (`X cards from Y categories ✨`).
+  - Removable category chips row featuring category icon, title, and one-tap `×` dismiss action with live preview recalculation.
+  - Horizontal card thumbnail strip showcasing actual image previews and multilingual labels for selected categories.
+  - Friendly amber guidance callout when selected categories contain no cards yet.
+  - Dynamic `Apply (N)` action button committing multi-category selection to board view and persistent state.
+- **Deduplication & Union Board Filtering:**
+  - Board dynamically renders the union of cards belonging to all selected categories with strict deduplication by ID.
+  - Preserves individual card visibility rules (hidden cards stay hidden regardless of active category selections).
+- **Multi-Category State Persistence & Migration:**
+  - Seamless migration from legacy single-category setting (`selectedCategory`) to multi-category list (`selectedCategories`).
+  - Complete persistence across app restarts and full roundtrip preservation in Backup & Restore archives.
+
+### Changed
+- Bumped application version to `1.1.4+12` (`versionCode: 12`) for Google Play production release.
+
+---
+
 ## [1.1.3] - 2026-11-16
 
 ### Added

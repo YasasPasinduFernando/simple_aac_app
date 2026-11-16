@@ -106,6 +106,7 @@ void main() {
 
       final settings = {
         'selectedCategory': 'Food',
+        'selectedCategories': ['Food', 'Animals'],
         'isDarkMode': true,
         'offlineAudioCacheEnabled': true,
       };
@@ -123,6 +124,7 @@ void main() {
 
       expect(payload.cards.length, 2);
       expect(payload.settings['selectedCategory'], 'Food');
+      expect(payload.settings['selectedCategories'], ['Food', 'Animals']);
       expect(payload.settings['isDarkMode'], true);
 
       // Verify top-level card
@@ -470,6 +472,7 @@ void main() {
           },
         },
         'selectedCategory': 'Food',
+        'selectedCategories': ['Food', 'Animals'],
       };
 
       final zipBytes = await BackupService.buildBackupZip(
@@ -510,6 +513,7 @@ void main() {
       expect(meta['School']['colorValue'], 0xFF42A5F5);
       expect(meta['Emotions']['colorValue'], 0xFFFFCA28);
       expect(s['selectedCategory'], 'Food');
+      expect(s['selectedCategories'], ['Food', 'Animals']);
       expect(s['enableHaptics'], true);
     });
   });

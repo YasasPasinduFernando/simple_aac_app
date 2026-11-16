@@ -33,6 +33,14 @@ void main() {
       category: 'General',
       colorValue: 0xFF90CAF9,
     ),
+    AACCard(
+      id: 'c4',
+      label: 'Dog',
+      labelSinhala: 'බල්ලා',
+      labelTamil: 'நாய்',
+      category: 'Animals',
+      colorValue: 0xFF4CAF50,
+    ),
   ];
 
   final customMetadata = {
@@ -43,15 +51,24 @@ void main() {
     ),
   };
 
-  group('SelectCategoryDialog Tests', () {
-    testWidgets('renders all categories, "All Cards", and live preview header',
+  void configureScreen(WidgetTester tester) {
+    tester.view.physicalSize = const Size(1080, 2340);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+  }
+
+  group('ChooseCategoriesDialog (Multi-Category Selection) Tests', () {
+    testWidgets('renders Choose Categories title, checkboxes and All Cards',
         (tester) async {
+      configureScreen(tester);
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: SelectCategoryDialog(
-              categories: const ['All', 'General', 'Food', 'School', 'EmptyTest'],
-              selectedCategory: 'Food',
+              categories: const ['All', 'General', 'Food', 'School', 'Animals'],
+              selectedCategories: const {'All'},
               availableCards: sampleCards,
               customMetadata: customMetadata,
               currentLanguage: 'en',
@@ -62,31 +79,142 @@ void main() {
       );
 
       // Verify Header
-      expect(find.text('Select Category'), findsOneWidget);
-      expect(find.text('Choose which cards appear on your board'), findsOneWidget);
+      expect(find.text('Choose Categories'), findsOneWidget);
+      expect(
+        find.text('Select the categories to show on your board'),
+        findsOneWidget,
+      );
 
-      // Verify Live Preview shows selected 'Food'
-      expect(find.text('CURRENTLY SHOWING'), findsOneWidget);
-      expect(find.text('Food'), findsNWidgets(2)); // in preview and list
-      expect(find.text('1 card in this category'), findsOneWidget);
+      // Verify Board Preview Panel
+      expect(find.text('BOARD PREVIEW'), findsOneWidget);
+      expect(find.text('4 cards from All Categories'), findsOneWidget);
 
-      // Verify "All Cards" option exists
+      // Verify Checkboxes present
+      expect(find.byType(Checkbox), findsNWidgets(5)); // All + 4 categories
+
+      // All Cards option exists
       expect(find.text('All Cards'), findsOneWidget);
+      expect(find.text('Apply (All)'), findsOneWidget);
+    });
 
-      // Verify categories in list
-      expect(find.text('General'), findsOneWidget);
-      expect(find.text('School'), findsOneWidget);
-      expect(find.text('EmptyTest'), findsOneWidget);
+    testWidgets('selecting multiple categories updates live preview and chips',
+        (tester) async {
+      configureScreen(tester);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SelectCategoryDialog(
+              categories: const ['All', 'General', 'Food', 'School', 'Animals'],
+              selectedCategories: const {'Food'},
+              availableCards: sampleCards,
+              customMetadata: customMetadata,
+              currentLanguage: 'en',
+              onApply: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      // Initially 1 card from 1 category
+      expect(find.text('1 cards from 1 category'), findsOneWidget);
+      expect(find.text('Apply (1)'), findsOneWidget);
+
+      // Select Animals
+      await tester.ensureVisible(find.text('Animals'));
+      await tester.tap(find.text('Animals'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      // Now 2 cards from 2 categories
+      expect(find.text('2 cards from 2 categories'), findsOneWidget);
+      expect(find.text('Apply (2)'), findsOneWidget);
+
+      // Both chips should be visible
+      expect(find.byIcon(Icons.close_rounded), findsWidgets);
+    });
+
+    testWidgets('All Cards is mutually exclusive with individual categories',
+        (tester) async {
+      configureScreen(tester);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SelectCategoryDialog(
+              categories: const ['All', 'General', 'Food', 'School'],
+              selectedCategories: const {'Food', 'School'},
+              availableCards: sampleCards,
+              customMetadata: customMetadata,
+              currentLanguage: 'en',
+              onApply: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('2 cards from 2 categories'), findsOneWidget);
+
+      // Tap 'All Cards' -> should deselect Food & School and select All
+      await tester.ensureVisible(find.text('All Cards'));
+      await tester.tap(find.text('All Cards'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      expect(find.text('4 cards from All Categories'), findsOneWidget);
+      expect(find.text('Apply (All)'), findsOneWidget);
+
+      // Tap 'General' -> should deselect All Cards and select General
+      await tester.ensureVisible(find.text('General'));
+      await tester.tap(find.text('General'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      expect(find.text('1 cards from 1 category'), findsOneWidget);
+      expect(find.text('Apply (1)'), findsOneWidget);
+    });
+
+    testWidgets('tapping cross on preview chip removes category',
+        (tester) async {
+      configureScreen(tester);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SelectCategoryDialog(
+              categories: const ['All', 'General', 'Food', 'School'],
+              selectedCategories: const {'Food', 'School'},
+              availableCards: sampleCards,
+              customMetadata: customMetadata,
+              currentLanguage: 'en',
+              onApply: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('2 cards from 2 categories'), findsOneWidget);
+
+      // Find close icons in preview chips
+      final closeIcons = find.byIcon(Icons.close_rounded);
+      expect(closeIcons, findsNWidgets(2)); // 2 chips
+
+      // Tap the first chip close icon
+      await tester.tap(closeIcons.first, warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      // Now only 1 category remains
+      expect(find.text('1 cards from 1 category'), findsOneWidget);
+      expect(find.text('Apply (1)'), findsOneWidget);
     });
 
     testWidgets('empty category shows friendly guidance in live preview',
         (tester) async {
+      configureScreen(tester);
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: SelectCategoryDialog(
               categories: const ['General', 'EmptyTest'],
-              selectedCategory: 'EmptyTest',
+              selectedCategories: const {'EmptyTest'},
               availableCards: sampleCards,
               customMetadata: customMetadata,
               currentLanguage: 'en',
@@ -96,74 +224,53 @@ void main() {
         ),
       );
 
-      // Preview should show empty state guidance
       expect(
-        find.text('No cards in this category yet.\nCreate cards in Edit Mode to get started.'),
+        find.text(
+          'No cards in the selected categories yet.\nCreate cards in Edit Mode to get started.',
+        ),
         findsOneWidget,
       );
-      expect(find.text('0 cards'), findsNWidgets(2));
+      expect(find.text('0 cards from 1 category'), findsOneWidget);
     });
 
-    testWidgets('selecting a different category updates live preview immediately',
+    testWidgets('Apply button triggers onApply with selected categories set',
         (tester) async {
+      configureScreen(tester);
+
+      Set<String>? applied;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: SelectCategoryDialog(
               categories: const ['General', 'Food', 'School'],
-              selectedCategory: 'General',
+              selectedCategories: const {'Food'},
               availableCards: sampleCards,
               customMetadata: customMetadata,
               currentLanguage: 'en',
-              onApply: (_) {},
+              onApply: (cats) => applied = cats,
             ),
           ),
         ),
       );
 
-      // Initially showing General
-      expect(find.text('CURRENTLY SHOWING'), findsOneWidget);
-
-      // Tap School row
-      await tester.tap(find.text('School'));
+      // Select School
+      await tester.ensureVisible(find.text('School'));
+      await tester.tap(find.text('School'), warnIfMissed: false);
       await tester.pumpAndSettle();
 
-      // Now previewing selection
-      expect(find.text('PREVIEWING SELECTION'), findsOneWidget);
-    });
-
-    testWidgets('Apply button triggers onApply with selected category',
-        (tester) async {
-      String? applied;
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SelectCategoryDialog(
-              categories: const ['General', 'Food', 'School'],
-              selectedCategory: 'General',
-              availableCards: sampleCards,
-              customMetadata: customMetadata,
-              currentLanguage: 'en',
-              onApply: (cat) => applied = cat,
-            ),
-          ),
-        ),
-      );
-
-      // Select Food
-      await tester.tap(find.text('Food'));
+      // Tap Apply (2)
+      await tester.ensureVisible(find.text('Apply (2)'));
+      await tester.tap(find.text('Apply (2)'), warnIfMissed: false);
       await tester.pumpAndSettle();
 
-      // Tap Apply
-      await tester.tap(find.text('Apply'));
-      await tester.pumpAndSettle();
-
-      expect(applied, 'Food');
+      expect(applied, equals({'Food', 'School'}));
     });
 
     testWidgets('Cancel button dismisses without calling onApply',
         (tester) async {
-      String? applied;
+      configureScreen(tester);
+
+      Set<String>? applied;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -172,12 +279,12 @@ void main() {
                 onPressed: () => showDialog(
                   context: context,
                   builder: (_) => SelectCategoryDialog(
-                    categories: const ['General', 'Food'],
-                    selectedCategory: 'General',
+                    categories: const ['General', 'Food', 'School'],
+                    selectedCategories: const {'General'},
                     availableCards: sampleCards,
                     customMetadata: customMetadata,
                     currentLanguage: 'en',
-                    onApply: (cat) => applied = cat,
+                    onApply: (cats) => applied = cats,
                   ),
                 ),
                 child: const Text('Open'),
@@ -192,15 +299,62 @@ void main() {
       await tester.pumpAndSettle();
 
       // Select Food
-      await tester.tap(find.text('Food'));
+      await tester.ensureVisible(find.text('Food'));
+      await tester.tap(find.text('Food'), warnIfMissed: false);
       await tester.pumpAndSettle();
 
       // Tap Cancel
-      await tester.tap(find.text('Cancel'));
+      await tester.ensureVisible(find.text('Cancel'));
+      await tester.tap(find.text('Cancel'), warnIfMissed: false);
       await tester.pumpAndSettle();
 
       expect(applied, isNull);
-      expect(find.text('Select Category'), findsNothing);
+      expect(find.text('Choose Categories'), findsNothing);
+    });
+
+    testWidgets('duplicate card prevention across selected categories',
+        (tester) async {
+      configureScreen(tester);
+
+      // Create cards where c1 has category 'Food' and c1_dup also has 'Food' or duplicate ids
+      final duplicateCards = [
+        AACCard(
+          id: 'card_apple_1',
+          label: 'Apple',
+          category: 'Food',
+          colorValue: 0xFFFFA726,
+        ),
+        AACCard(
+          id: 'card_apple_1', // Duplicate ID
+          label: 'Apple',
+          category: 'Food',
+          colorValue: 0xFFFFA726,
+        ),
+        AACCard(
+          id: 'card_dog',
+          label: 'Dog',
+          category: 'Animals',
+          colorValue: 0xFF4CAF50,
+        ),
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SelectCategoryDialog(
+              categories: const ['Food', 'Animals'],
+              selectedCategories: const {'Food', 'Animals'},
+              availableCards: duplicateCards,
+              customMetadata: customMetadata,
+              currentLanguage: 'en',
+              onApply: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      // Should count 2 unique cards (card_apple_1 and card_dog) instead of 3
+      expect(find.text('2 cards from 2 categories'), findsOneWidget);
     });
   });
 }
