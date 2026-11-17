@@ -560,7 +560,7 @@ class HomeDrawer extends StatelessWidget {
                                   ),
                                 ),
                                 child: const Text(
-                                  'v1.1.4',
+                                  'v1.1.5',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 10.5,
