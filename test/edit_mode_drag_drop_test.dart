@@ -203,8 +203,9 @@ void main() {
   });
 
   group('Edit Mode Bar and Hint Widget Tests', () {
-    testWidgets('EditModeBar renders with Done and Undo and calls callbacks',
+    testWidgets('EditModeBar renders with Cancel, Done, Undo and Add New and calls callbacks',
         (tester) async {
+      bool cancelCalled = false;
       bool doneCalled = false;
       bool undoCalled = false;
       bool addCalled = false;
@@ -213,6 +214,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: EditModeBar(
+              onCancel: () => cancelCalled = true,
               onDone: () => doneCalled = true,
               onUndo: () => undoCalled = true,
               onAdd: () => addCalled = true,
@@ -224,10 +226,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Edit Words'), findsOneWidget);
+      expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Done'), findsOneWidget);
       expect(find.text('Undo'), findsOneWidget);
       expect(find.text('Add New'), findsOneWidget);
+
+      await tester.tap(find.text('Cancel'));
+      expect(cancelCalled, isTrue);
 
       await tester.tap(find.text('Done'));
       expect(doneCalled, isTrue);

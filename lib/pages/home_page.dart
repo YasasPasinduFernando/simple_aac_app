@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,8 +23,10 @@ import '../services/network_policy_service.dart';
 import '../services/speech_engine.dart';
 import '../services/tutorial_service.dart';
 import '../models/category_metadata.dart';
+import '../models/edit_session_snapshot.dart';
 import '../widgets/add_category_dialog.dart';
 import '../widgets/card_editor_dialog.dart';
+import '../widgets/manage_sub_cards_dialog.dart';
 import '../widgets/select_category_dialog.dart';
 import '../widgets/color_vision_dialog.dart';
 import '../widgets/professional_color_picker_dialog.dart';
@@ -157,12 +160,8 @@ class _HomePageState extends State<HomePage> {
   DateTime? _lastBackPress;
   final List<TtsToken> _ttsTokens = [];
   String searchQuery = '';
-  List<AACCard>? _editSnapshotCards;
-  Map<String, Set<String>>? _editSnapshotVisible;
-  Set<String>? _editSnapshotCategories;
-  Set<String>? _editSnapshotSelectedCategories;
-  String? _editSnapshotSelectedCategory;
-  String? _editSnapshotActiveParentId;
+  EditSessionSnapshot? _editSessionSnapshot;
+  final Set<String> _sessionCreatedMediaFiles = <String>{};
   final List<EditUndoStep> _undoHistory = [];
   final List<AACCard> _parentStack = [];
   Timer? _autoScrollTimer;
@@ -440,6 +439,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _saveCards() async {
+    if (isEditMode) {
+      debugPrint(
+        '[HomePage] staged edit session active; deferring card persistence until Done',
+      );
+      return;
+    }
     await Future.wait([
       CardStorageService.saveCards(cards),
       SharedPreferences.getInstance().then((prefs) async {
@@ -686,6 +691,9 @@ class _HomePageState extends State<HomePage> {
           imageQuality: 80,
         );
         if (outcome != null && mounted) {
+          if (isEditMode) {
+            _sessionCreatedMediaFiles.add(outcome.imagePath);
+          }
           setState(() {
             card.imagePath = outcome.imagePath;
           });
@@ -750,6 +758,9 @@ class _HomePageState extends State<HomePage> {
             cardId: card.id,
             mediaType: 'images',
           );
+          if (isEditMode) {
+            _sessionCreatedMediaFiles.add(permanentPath);
+          }
           debugPrint(
             '[HomePage] image selected for card ${card.id}: '
             'pickerPath=${image.path}, savedPath=$permanentPath',
@@ -794,6 +805,11 @@ class _HomePageState extends State<HomePage> {
   }) async {
     if (isCardEditorOpen) return;
     isCardEditorOpen = true;
+
+    final preEditSnapshot = _cloneCards(cards);
+    final preEditVisibleMap = _cloneVisibleMap(visibleCardIdsByParent);
+    final List<AACCard> movedCardsToHome = [];
+
     final action = await showDialog<CardEditorAction>(
       context: context,
       builder: (context) => CardEditorDialog(
@@ -802,6 +818,14 @@ class _HomePageState extends State<HomePage> {
         categories: allCategories.toList(),
         audioPlayer: _audioPlayer,
         language: currentLanguage,
+        onMoveSubCardsToHome: (moved) {
+          movedCardsToHome.addAll(moved);
+        },
+        onMediaCreated: (path) {
+          if (isEditMode) {
+            _sessionCreatedMediaFiles.add(path);
+          }
+        },
         onPickImage: () {
           Navigator.pop(context);
           _pickImage(card);
@@ -817,6 +841,8 @@ class _HomePageState extends State<HomePage> {
     }
     if (action == CardEditorAction.addSubCard) {
       _createCard(parent: card);
+    } else if (action == CardEditorAction.manageSubCards) {
+      _showManageSubCardsDialog(card);
     } else if (action == CardEditorAction.saved) {
       debugPrint(
         '[HomePage] card editor saved: id=${card.id}, label=${card.label}, '
@@ -825,11 +851,83 @@ class _HomePageState extends State<HomePage> {
       if (onSave != null) {
         onSave(card);
       } else {
-        _recordUndoStep('Edit ${card.getLabel(currentLanguage)}');
+        if (movedCardsToHome.isNotEmpty) {
+          for (final mc in movedCardsToHome) {
+            if (!cards.any((c) => c.id == mc.id)) {
+              cards.add(mc);
+              _includeInVisibleSelection('__root__', mc.id);
+            }
+          }
+        }
+        _undoHistory.add(EditUndoStep(
+          cards: preEditSnapshot,
+          visibleMap: preEditVisibleMap,
+          activeParentId: activeParentCard?.id,
+          parentStackIds: _parentStack.map((c) => c.id).toList(),
+          description: 'Edit ${card.getLabel(currentLanguage)}',
+        ));
+        if (_undoHistory.length > 50) {
+          _undoHistory.removeAt(0);
+        }
         _updateCategories();
         _saveCards();
+
+        if (movedCardsToHome.isNotEmpty && mounted) {
+          final hiddenCount = movedCardsToHome.where((c) {
+            if (selectedCategories.contains('All') ||
+                selectedCategories.isEmpty) {
+              return false;
+            }
+            final cleanSelected =
+                selectedCategories.map((s) => s.trim().toLowerCase()).toSet();
+            return !cleanSelected.contains(c.category.trim().toLowerCase());
+          }).length;
+
+          if (hiddenCount > 0) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Moved ${movedCardsToHome.length} card(s) to Home board. '
+                  'Note: $hiddenCount card(s) may be hidden by current category filter.',
+                ),
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+        }
       }
     }
+  }
+
+  Future<void> _showManageSubCardsDialog(AACCard folderCard) async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => ManageSubCardsDialog(
+        folderCard: folderCard,
+        rootCards: cards,
+        currentLanguage: currentLanguage,
+        customMetadata: _customCategoryMetadata,
+        onCardsChanged: () {
+          setState(() {});
+          _updateCategories();
+          _saveCards();
+        },
+        onRecordUndo: (description) {
+          _recordUndoStep(description);
+        },
+        onEditSubCard: (subCard) async {
+          await _editCard(subCard);
+        },
+        onAddSubCard: () async {
+          _createCard(parent: folderCard);
+        },
+      ),
+    );
+    setState(() {});
+    _updateCategories();
+    _saveCards();
   }
 
   void _createCard({AACCard? parent}) {
@@ -1748,6 +1846,20 @@ class _HomePageState extends State<HomePage> {
     current.add(cardId);
   }
 
+  void _collectMediaPaths(List<AACCard> cardList, Set<String> paths) {
+    for (final card in cardList) {
+      if (card.imagePath != null && card.imagePath!.isNotEmpty) {
+        paths.add(card.imagePath!);
+      }
+      if (card.voicePath != null && card.voicePath!.isNotEmpty) {
+        paths.add(card.voicePath!);
+      }
+      if (card.subCards.isNotEmpty) {
+        _collectMediaPaths(card.subCards, paths);
+      }
+    }
+  }
+
   void _toggleEditMode() async {
     if (!isEditMode && CaregiverLockService.instance.isEnabled) {
       final allowed = await CaregiverLockService.instance.authenticate(
@@ -1762,7 +1874,48 @@ class _HomePageState extends State<HomePage> {
       Navigator.pop(context);
     }
     if (isEditMode) {
-      _exitEditMode();
+      if (!_hasEditSessionChanges()) {
+        await _cancelEditSession(confirmed: true);
+      } else {
+        final choice = await showDialog<String>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: const Text('Unsaved Changes'),
+            content: const Text(
+              'You have unsaved changes in Edit Mode. What would you like to do?',
+              style: TextStyle(fontSize: 14, height: 1.4),
+            ),
+            actions: [
+              TextButton(
+                key: const ValueKey('drawer_unsaved_keep_editing_btn'),
+                onPressed: () => Navigator.pop(ctx, 'keep'),
+                child: const Text('Keep Editing'),
+              ),
+              TextButton(
+                key: const ValueKey('drawer_unsaved_discard_btn'),
+                style: TextButton.styleFrom(foregroundColor: Colors.red.shade700),
+                onPressed: () => Navigator.pop(ctx, 'discard'),
+                child: const Text('Discard Changes'),
+              ),
+              FilledButton(
+                key: const ValueKey('drawer_unsaved_save_btn'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.green.shade600,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () => Navigator.pop(ctx, 'save'),
+                child: const Text('Save & Exit'),
+              ),
+            ],
+          ),
+        );
+        if (choice == 'discard') {
+          await _cancelEditSession(confirmed: true);
+        } else if (choice == 'save') {
+          await _handleEditDone();
+        }
+      }
     } else {
       _enterEditMode();
     }
@@ -1773,32 +1926,233 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       isEditMode = true;
       _undoHistory.clear();
-      _editSnapshotCards = _cloneCards(cards);
-      _editSnapshotVisible = _cloneVisibleMap(visibleCardIdsByParent);
-      _editSnapshotCategories = Set<String>.from(allCategories);
-      _editSnapshotSelectedCategories = Set<String>.from(selectedCategories);
-      _editSnapshotSelectedCategory = selectedCategory;
-      _editSnapshotActiveParentId = activeParentCard?.id;
+      _sessionCreatedMediaFiles.clear();
+
+      final initialMedia = <String>{};
+      _collectMediaPaths(cards, initialMedia);
+
+      _editSessionSnapshot = EditSessionSnapshot(
+        cards: _cloneCards(cards),
+        visibleCardIdsByParent: _cloneVisibleMap(visibleCardIdsByParent),
+        allCategories: Set<String>.from(allCategories),
+        customCategories: Set<String>.from(_customCategories),
+        selectedCategories: Set<String>.from(selectedCategories),
+        selectedCategory: selectedCategory,
+        customCategoryMetadata:
+            Map<String, CategoryMetadata>.from(_customCategoryMetadata),
+        activeParentId: activeParentCard?.id,
+        parentStackIds: _parentStack.map((c) => c.id).toList(),
+        initialMediaPaths: initialMedia,
+      );
     });
   }
 
-  void _exitEditMode() {
+  bool _hasEditSessionChanges() {
+    final snapshot = _editSessionSnapshot;
+    if (snapshot == null) return false;
+
+    final currentCardsJson =
+        jsonEncode(cards.map((c) => c.toJson()).toList());
+    final snapshotCardsJson =
+        jsonEncode(snapshot.cards.map((c) => c.toJson()).toList());
+    if (currentCardsJson != snapshotCardsJson) return true;
+
+    final currentVisible = jsonEncode(
+      visibleCardIdsByParent.map((k, v) => MapEntry(k, v.toList())),
+    );
+    final snapshotVisible = jsonEncode(
+      snapshot.visibleCardIdsByParent.map((k, v) => MapEntry(k, v.toList())),
+    );
+    if (currentVisible != snapshotVisible) return true;
+
+    if (!setEquals(allCategories, snapshot.allCategories)) return true;
+    if (!setEquals(_customCategories, snapshot.customCategories)) return true;
+
+    return false;
+  }
+
+  Future<void> _handleEditCancel() async {
+    if (!_hasEditSessionChanges()) {
+      await _cancelEditSession(confirmed: true);
+      return;
+    }
+
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Discard Changes?'),
+        content: const Text(
+          'All changes made during this editing session will be lost. Your previously saved cards will remain unchanged.',
+          style: TextStyle(fontSize: 14, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            key: const ValueKey('cancel_dialog_keep_editing_btn'),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Keep Editing'),
+          ),
+          FilledButton(
+            key: const ValueKey('cancel_dialog_discard_btn'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red.shade700,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Discard Changes'),
+          ),
+        ],
+      ),
+    );
+
+    if (discard == true) {
+      await _cancelEditSession(confirmed: true);
+    }
+  }
+
+  Future<void> _cancelEditSession({required bool confirmed}) async {
+    final snapshot = _editSessionSnapshot;
+    if (!confirmed || snapshot == null) {
+      setState(() {
+        isEditMode = false;
+        _stopAutoScroll();
+        _undoHistory.clear();
+        _editSessionSnapshot = null;
+        _sessionCreatedMediaFiles.clear();
+      });
+      return;
+    }
+
+    final restoredCards = _cloneCards(snapshot.cards);
+    final restoredVisible = _cloneVisibleMap(snapshot.visibleCardIdsByParent);
+    final restoredCategories = Set<String>.from(snapshot.allCategories);
+    final restoredCustomCategories = Set<String>.from(snapshot.customCategories);
+    final restoredSelectedCategories =
+        Set<String>.from(snapshot.selectedCategories);
+    final restoredSelectedCategory = snapshot.selectedCategory;
+    final restoredCustomMetadata =
+        Map<String, CategoryMetadata>.from(snapshot.customCategoryMetadata);
+
+    final restoredParentStack = <AACCard>[];
+    for (final id in snapshot.parentStackIds) {
+      final found = _findCardById(id, restoredCards);
+      if (found != null) restoredParentStack.add(found);
+    }
+    final restoredActiveParent = snapshot.activeParentId == null
+        ? null
+        : _findCardById(snapshot.activeParentId!, restoredCards);
+
+    // Clean up temporary media files created during this session that are NOT in restored cards
+    final restoredMedia = <String>{};
+    _collectMediaPaths(restoredCards, restoredMedia);
+
+    for (final path in _sessionCreatedMediaFiles) {
+      if (!restoredMedia.contains(path) &&
+          !snapshot.initialMediaPaths.contains(path)) {
+        try {
+          final f = File(path);
+          if (await f.exists()) {
+            await f.delete();
+            debugPrint('[EditSession] safely removed uncommitted media file: $path');
+          }
+        } catch (e) {
+          debugPrint('[EditSession] media cleanup warning: $e');
+        }
+      }
+    }
+
+    setState(() {
+      cards = restoredCards;
+      visibleCardIdsByParent = restoredVisible;
+      allCategories = restoredCategories;
+      _customCategories = restoredCustomCategories;
+      selectedCategories = restoredSelectedCategories;
+      selectedCategory = restoredSelectedCategory;
+      _customCategoryMetadata = restoredCustomMetadata;
+      _parentStack.clear();
+      _parentStack.addAll(restoredParentStack);
+      activeParentCard = restoredActiveParent;
+      isEditMode = false;
+      _stopAutoScroll();
+      _undoHistory.clear();
+      _editSessionSnapshot = null;
+      _sessionCreatedMediaFiles.clear();
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Changes discarded. Original board restored.'),
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  String? _validateCardHierarchy(List<AACCard> cardList) {
+    final seenIds = <String>{};
+
+    String? checkCard(AACCard card, Set<String> ancestors) {
+      if (card.id.trim().isEmpty) {
+        return 'Found card with empty ID';
+      }
+      if (ancestors.contains(card.id)) {
+        return 'Circular parent-child relationship detected for card "${card.label}"';
+      }
+      if (seenIds.contains(card.id)) {
+        return 'Duplicate card ID detected: ${card.id}';
+      }
+      seenIds.add(card.id);
+
+      final nextAncestors = Set<String>.from(ancestors)..add(card.id);
+      for (final sub in card.subCards) {
+        final err = checkCard(sub, nextAncestors);
+        if (err != null) return err;
+      }
+      return null;
+    }
+
+    for (final c in cardList) {
+      final err = checkCard(c, {});
+      if (err != null) return err;
+    }
+    return null;
+  }
+
+  Future<void> _handleEditDone() async {
+    final validationError = _validateCardHierarchy(cards);
+    if (validationError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Cannot save: $validationError'),
+          backgroundColor: Colors.red.shade800,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       isEditMode = false;
       _stopAutoScroll();
       _undoHistory.clear();
-      _clearEditSnapshot();
+      _editSessionSnapshot = null;
+      _sessionCreatedMediaFiles.clear();
     });
-    _saveCards();
-  }
 
-  void _clearEditSnapshot() {
-    _editSnapshotCards = null;
-    _editSnapshotVisible = null;
-    _editSnapshotCategories = null;
-    _editSnapshotSelectedCategories = null;
-    _editSnapshotSelectedCategory = null;
-    _editSnapshotActiveParentId = null;
+    await _saveCards();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Changes saved successfully.'),
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _recordUndoStep(String description) {
@@ -1832,7 +2186,6 @@ class _HomePageState extends State<HomePage> {
             ? null
             : _findCardById(step.activeParentId!, cards);
       });
-      _saveCards();
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1844,25 +2197,10 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    if (_editSnapshotCards == null) return;
-    debugPrint('[HomePage] undoing edit-mode changes from initial snapshot');
-    setState(() {
-      cards = _cloneCards(_editSnapshotCards!);
-      visibleCardIdsByParent = _cloneVisibleMap(_editSnapshotVisible ?? {});
-      allCategories = Set<String>.from(_editSnapshotCategories ?? {'All'});
-      selectedCategories =
-          Set<String>.from(_editSnapshotSelectedCategories ?? {'All'});
-      selectedCategory = _editSnapshotSelectedCategory ?? 'All';
-      _parentStack.clear();
-      activeParentCard = _editSnapshotActiveParentId == null
-          ? null
-          : _findCardById(_editSnapshotActiveParentId!, cards);
-    });
-    _saveCards();
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Restored initial cards state'),
+        content: Text('Nothing to undo'),
         duration: Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
       ),
@@ -1917,6 +2255,41 @@ class _HomePageState extends State<HomePage> {
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+
+  Future<void> _requestNestingConfirmation(
+    AACCard draggedCard,
+    AACCard targetCard,
+  ) async {
+    if (draggedCard.id == targetCard.id) return;
+    if (_isDescendantOf(targetCard, draggedCard)) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cannot move a card into its own sub-cards'),
+          duration: Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final isTargetFolder = targetCard.type == 'folder';
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => _NestingConfirmationDialog(
+        draggedCard: draggedCard,
+        targetCard: targetCard,
+        isTargetFolder: isTargetFolder,
+        currentLanguage: currentLanguage,
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      _handleMoveCardInside(draggedCard, targetCard);
+    }
   }
 
   void _handleMoveCardInside(AACCard draggedCard, AACCard targetCard) {
@@ -3248,10 +3621,53 @@ class _HomePageState extends State<HomePage> {
           return false;
         }
         if (activeParentCard != null) {
-          setState(() {
-            _resetTtsInput();
-            activeParentCard = null;
-          });
+          _navigateBackFromSubCards();
+          return false;
+        }
+        if (isEditMode) {
+          if (!_hasEditSessionChanges()) {
+            await _cancelEditSession(confirmed: true);
+            return false;
+          }
+          final choice = await showDialog<String>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Text('Unsaved Changes'),
+              content: const Text(
+                'You have unsaved changes in Edit Mode. What would you like to do?',
+                style: TextStyle(fontSize: 14, height: 1.4),
+              ),
+              actions: [
+                TextButton(
+                  key: const ValueKey('back_unsaved_keep_editing_btn'),
+                  onPressed: () => Navigator.pop(ctx, 'keep'),
+                  child: const Text('Keep Editing'),
+                ),
+                TextButton(
+                  key: const ValueKey('back_unsaved_discard_btn'),
+                  style: TextButton.styleFrom(foregroundColor: Colors.red.shade700),
+                  onPressed: () => Navigator.pop(ctx, 'discard'),
+                  child: const Text('Discard Changes'),
+                ),
+                FilledButton(
+                  key: const ValueKey('back_unsaved_save_btn'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.green.shade600,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: () => Navigator.pop(ctx, 'save'),
+                  child: const Text('Save & Exit'),
+                ),
+              ],
+            ),
+          );
+
+          if (choice == 'discard') {
+            await _cancelEditSession(confirmed: true);
+          } else if (choice == 'save') {
+            await _handleEditDone();
+          }
           return false;
         }
         final now = DateTime.now();
@@ -3278,12 +3694,7 @@ class _HomePageState extends State<HomePage> {
                         : activeParentCard!.getLabel(currentLanguage),
                     backgroundColor: themePrimary,
                     showBack: activeParentCard != null && !isPinned,
-                    onBack: () {
-                      setState(() {
-                        _resetTtsInput();
-                        activeParentCard = null;
-                      });
-                    },
+                    onBack: _navigateBackFromSubCards,
                     showPin: true,
                     isPinned: isPinned,
                     onTogglePin: _handleTogglePin,
@@ -3577,6 +3988,7 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 width: 8,
@@ -3600,34 +4012,41 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: _isDarkMode ? const Color(0xFF0F172A) : Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: const Color(0xFF00E5FF).withOpacity(0.5),
-                width: 1,
+          const SizedBox(width: 8),
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: _isDarkMode ? const Color(0xFF0F172A) : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF00E5FF).withOpacity(0.5),
+                  width: 1,
+                ),
               ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.swap_vert_rounded,
-                  size: 14,
-                  color: Color(0xFF00E5FF),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.touch_app_rounded,
+                      size: 14,
+                      color: Color(0xFF00E5FF),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Tap pencil to edit • Tap folder to open',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: _isDarkMode ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  'Drag to reorder',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: _isDarkMode ? Colors.white : Colors.black87,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ],
@@ -3671,30 +4090,71 @@ class _HomePageState extends State<HomePage> {
                 onTap: _navigateBackFromSubCards,
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        Icons.arrow_back_rounded,
-                        size: 18,
+                        Icons.chevron_left_rounded,
+                        size: 22,
                         color: _isDarkMode ? Colors.white : Colors.black87,
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Home',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: _isDarkMode ? Colors.white70 : Colors.black87,
-                        ),
-                      ),
+                      const SizedBox(width: 2),
                     ],
                   ),
                 ),
               ),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    _resetTtsInput();
+                    _parentStack.clear();
+                    activeParentCard = null;
+                  });
+                },
+                borderRadius: BorderRadius.circular(6),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  child: Text(
+                    'Home',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: _isDarkMode ? Colors.white70 : Colors.black87,
+                    ),
+                  ),
+                ),
+              ),
+              for (int i = 0; i < _parentStack.length - 1; i++) ...[
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 2),
+                  child: Icon(Icons.chevron_right_rounded, size: 16, color: Colors.grey),
+                ),
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      _resetTtsInput();
+                      final target = _parentStack[i];
+                      _parentStack.removeRange(i + 1, _parentStack.length);
+                      activeParentCard = target;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(6),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                    child: Text(
+                      _parentStack[i].getLabel(currentLanguage),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _isDarkMode ? Colors.white70 : Colors.black87,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4),
+                padding: EdgeInsets.symmetric(horizontal: 2),
                 child: Icon(Icons.chevron_right_rounded, size: 16, color: Colors.grey),
               ),
               Expanded(
@@ -3783,7 +4243,8 @@ class _HomePageState extends State<HomePage> {
           EditModeBar(
             key: const ValueKey('edit_mode_bar'),
             addKey: _addNewCardKey,
-            onDone: _exitEditMode,
+            onCancel: _handleEditCancel,
+            onDone: _handleEditDone,
             onUndo: _undoEditChanges,
             baseColor: themePrimary,
             textColor: themeText,
@@ -3992,8 +4453,13 @@ class _HomePageState extends State<HomePage> {
         }
         TutorialService.instance.notifyNewCardTapped(card.id);
         if (isEditMode) {
-          _editCard(card);
-          return;
+          if (card.type == 'folder' || card.subCards.isNotEmpty) {
+            _showSubCards(card);
+            return;
+          } else {
+            _editCard(card);
+            return;
+          }
         }
         _triggerWordTapAnimation(card.id);
         if (card.type == 'folder' || card.subCards.isNotEmpty) {
@@ -4066,37 +4532,76 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Expanded(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                         alignment: Alignment.center,
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.center,
-                          child: Text(
-                            displayLabel,
-                            style: TextStyle(
-                              color: cardTextColor,
-                              fontSize: (isTablet ? 20 : 16) * _cardTextScale,
-                              fontWeight: _isColorBlindMode && ThemeAccessibility.colorBlindBoldText
-                                  ? FontWeight.w900
-                                  : FontWeight.bold,
-                              shadows: (_isColorBlindMode && ThemeAccessibility.colorBlindBoldText)
-                                  ? ThemeAccessibility.resolveCardTextShadow(
-                                      cardSurface: cardSurfaceColor,
-                                      isColorBlindMode: _isColorBlindMode,
-                                    )
-                                  : (useLightShadow
-                                      ? const [
-                                          Shadow(
-                                            blurRadius: 3,
-                                            color: Colors.black26,
-                                            offset: Offset(0, 1),
-                                          ),
-                                        ]
-                                      : null),
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.40),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    '${card.subCards.length} ${card.subCards.length == 1 ? "sub-card" : "sub-cards"}',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: (isTablet ? 11 : 9.5) * _cardTextScale,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                              ],
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    displayLabel,
+                                    style: TextStyle(
+                                      color: cardTextColor,
+                                      fontSize: (isTablet ? 20 : 16) * _cardTextScale,
+                                      fontWeight: _isColorBlindMode && ThemeAccessibility.colorBlindBoldText
+                                          ? FontWeight.w900
+                                          : FontWeight.bold,
+                                      shadows: (_isColorBlindMode && ThemeAccessibility.colorBlindBoldText)
+                                          ? ThemeAccessibility.resolveCardTextShadow(
+                                              cardSurface: cardSurfaceColor,
+                                              isColorBlindMode: _isColorBlindMode,
+                                            )
+                                          : (useLightShadow
+                                              ? const [
+                                                  Shadow(
+                                                    blurRadius: 3,
+                                                    color: Colors.black26,
+                                                    offset: Offset(0, 1),
+                                                  ),
+                                                ]
+                                              : null),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.arrow_forward_rounded,
+                                      size: (isTablet ? 18 : 15) * _cardTextScale,
+                                      color: cardTextColor,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -4122,42 +4627,113 @@ class _HomePageState extends State<HomePage> {
                 ),
               if (useImageOverlay)
                 Positioned(
-                  left: 8,
-                  right: 8,
-                  bottom: 8,
+                  left: 6,
+                  right: 6,
+                  bottom: 6,
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.center,
-                    child: Text(
-                      displayLabel,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: cardTextColor,
-                        fontSize: (isTablet ? 20 : 16) * _cardTextScale,
-                        fontWeight: _isColorBlindMode && ThemeAccessibility.colorBlindBoldText
-                            ? FontWeight.w900
-                            : FontWeight.bold,
-                        shadows: (_isColorBlindMode && ThemeAccessibility.colorBlindBoldText)
-                            ? ThemeAccessibility.resolveCardTextShadow(
-                                cardSurface: Colors.black54,
-                                isColorBlindMode: true,
-                              )
-                            : const [
-                                Shadow(
-                                  blurRadius: 6,
-                                  color: Colors.black54,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 1.5),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.55),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '${card.subCards.length} ${card.subCards.length == 1 ? "sub-card" : "sub-cards"}',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: (isTablet ? 11 : 9.5) * _cardTextScale,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                        ],
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              displayLabel,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: cardTextColor,
+                                fontSize: (isTablet ? 20 : 16) * _cardTextScale,
+                                fontWeight: _isColorBlindMode && ThemeAccessibility.colorBlindBoldText
+                                    ? FontWeight.w900
+                                    : FontWeight.bold,
+                                shadows: (_isColorBlindMode && ThemeAccessibility.colorBlindBoldText)
+                                    ? ThemeAccessibility.resolveCardTextShadow(
+                                        cardSurface: Colors.black54,
+                                        isColorBlindMode: true,
+                                      )
+                                    : const [
+                                        Shadow(
+                                          blurRadius: 6,
+                                          color: Colors.black54,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
+                              ),
+                            ),
+                            if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.arrow_forward_rounded,
+                                size: (isTablet ? 18 : 15) * _cardTextScale,
+                                color: cardTextColor,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              if (isEditMode)
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    width: isTablet ? 38 : 32,
+                    height: isTablet ? 38 : 32,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E88E5),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.35),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1.5),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      key: ValueKey('card_edit_pencil_${card.id}'),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: Icon(
+                        Icons.edit_rounded,
+                        color: Colors.white,
+                        size: isTablet ? 19 : 16,
                       ),
+                      tooltip: 'Edit Card',
+                      onPressed: () => _editCard(card),
                     ),
                   ),
                 ),
               if (card.voicePath != null)
                 Positioned(
-                  top: 8,
+                  top: isEditMode ? null : 8,
+                  bottom: isEditMode ? 8 : null,
                   left: 8,
                   child: Container(
                     padding: const EdgeInsets.all(4),
@@ -4168,31 +4744,33 @@ class _HomePageState extends State<HomePage> {
                     child: const Icon(Icons.mic, color: Colors.white, size: 16),
                   ),
                 ),
-              if (card.type == 'folder' || card.subCards.isNotEmpty)
-                Positioned(
-                  bottom: 8,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.arrow_forward,
-                        color: Colors.white, size: 16),
-                  ),
-                ),
               if (isEditMode)
                 Positioned(
                   top: 8,
                   right: 8,
                   child: Container(
+                    width: isTablet ? 38 : 32,
+                    height: isTablet ? 38 : 32,
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
+                      color: Colors.black.withOpacity(0.55),
                       shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1.5),
+                        ),
+                      ],
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.white),
+                      key: ValueKey('card_delete_btn_${card.id}'),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: Icon(
+                        Icons.delete_outline_rounded,
+                        color: Colors.white,
+                        size: isTablet ? 19 : 16,
+                      ),
                       tooltip: 'Delete',
                       onPressed: () => _confirmDelete(card),
                     ),
@@ -4220,7 +4798,7 @@ class _HomePageState extends State<HomePage> {
         cardTextColor: cardTextColor,
         currentLanguage: currentLanguage,
         onReorder: _handleReorderCard,
-        onMoveInside: _handleMoveCardInside,
+        onMoveInside: _requestNestingConfirmation,
         onAutoScroll: _checkAutoScroll,
         onStopAutoScroll: _stopAutoScroll,
         isDescendant: _isDescendantOf,
@@ -4282,39 +4860,78 @@ class _HomePageState extends State<HomePage> {
               ),
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                   alignment: Alignment.center,
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.center,
-                    child: Text(
-                      displayLabel,
-                      style: TextStyle(
-                        color: cardTextColor,
-                        fontSize: (isTablet ? 20 : 16) * _cardTextScale,
-                        fontWeight: _isColorBlindMode &&
-                                ThemeAccessibility.colorBlindBoldText
-                            ? FontWeight.w900
-                            : FontWeight.bold,
-                        shadows: (_isColorBlindMode &&
-                                ThemeAccessibility.colorBlindBoldText)
-                            ? ThemeAccessibility.resolveCardTextShadow(
-                                cardSurface: cardSurfaceColor,
-                                isColorBlindMode: _isColorBlindMode,
-                              )
-                            : (useLightShadow
-                                ? const [
-                                    Shadow(
-                                      blurRadius: 3,
-                                      color: Colors.black26,
-                                      offset: Offset(0, 1),
-                                    ),
-                                  ]
-                                : null),
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 1.5),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.40),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              '${card.subCards.length} ${card.subCards.length == 1 ? "sub-card" : "sub-cards"}',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: (isTablet ? 11 : 9.5) * _cardTextScale,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                        ],
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              displayLabel,
+                              style: TextStyle(
+                                color: cardTextColor,
+                                fontSize: (isTablet ? 20 : 16) * _cardTextScale,
+                                fontWeight: _isColorBlindMode &&
+                                        ThemeAccessibility.colorBlindBoldText
+                                    ? FontWeight.w900
+                                    : FontWeight.bold,
+                                shadows: (_isColorBlindMode &&
+                                        ThemeAccessibility.colorBlindBoldText)
+                                    ? ThemeAccessibility.resolveCardTextShadow(
+                                        cardSurface: cardSurfaceColor,
+                                        isColorBlindMode: _isColorBlindMode,
+                                      )
+                                    : (useLightShadow
+                                        ? const [
+                                            Shadow(
+                                              blurRadius: 3,
+                                              color: Colors.black26,
+                                              offset: Offset(0, 1),
+                                            ),
+                                          ]
+                                        : null),
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.arrow_forward_rounded,
+                                size: (isTablet ? 18 : 15) * _cardTextScale,
+                                color: cardTextColor,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -4340,44 +4957,106 @@ class _HomePageState extends State<HomePage> {
           ),
         if (useImageOverlay)
           Positioned(
-            left: 8,
-            right: 8,
-            bottom: 8,
+            left: 6,
+            right: 6,
+            bottom: 6,
             child: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.center,
-              child: Text(
-                displayLabel,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: cardTextColor,
-                  fontSize: (isTablet ? 20 : 16) * _cardTextScale,
-                  fontWeight: _isColorBlindMode &&
-                          ThemeAccessibility.colorBlindBoldText
-                      ? FontWeight.w900
-                      : FontWeight.bold,
-                  shadows: (_isColorBlindMode &&
-                          ThemeAccessibility.colorBlindBoldText)
-                      ? ThemeAccessibility.resolveCardTextShadow(
-                          cardSurface: Colors.black54,
-                          isColorBlindMode: true,
-                        )
-                      : const [
-                          Shadow(
-                            blurRadius: 6,
-                            color: Colors.black54,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 1.5),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.55),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '${card.subCards.length} ${card.subCards.length == 1 ? "sub-card" : "sub-cards"}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: (isTablet ? 11 : 9.5) * _cardTextScale,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                  ],
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        displayLabel,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: cardTextColor,
+                          fontSize: (isTablet ? 20 : 16) * _cardTextScale,
+                          fontWeight: _isColorBlindMode &&
+                                  ThemeAccessibility.colorBlindBoldText
+                              ? FontWeight.w900
+                              : FontWeight.bold,
+                          shadows: (_isColorBlindMode &&
+                                  ThemeAccessibility.colorBlindBoldText)
+                              ? ThemeAccessibility.resolveCardTextShadow(
+                                  cardSurface: Colors.black54,
+                                  isColorBlindMode: true,
+                                )
+                              : const [
+                                  Shadow(
+                                    blurRadius: 6,
+                                    color: Colors.black54,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                        ),
+                      ),
+                      if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          size: (isTablet ? 18 : 15) * _cardTextScale,
+                          color: cardTextColor,
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
+        Positioned(
+          top: 8,
+          left: 8,
+          child: Container(
+            width: isTablet ? 38 : 32,
+            height: isTablet ? 38 : 32,
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E88E5),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.35),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1.5),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.edit_rounded,
+              color: Colors.white,
+              size: isTablet ? 19 : 16,
+            ),
+          ),
+        ),
         if (card.voicePath != null)
           Positioned(
-            top: 8,
+            bottom: 8,
             left: 8,
             child: Container(
               padding: const EdgeInsets.all(4),
@@ -4388,31 +5067,27 @@ class _HomePageState extends State<HomePage> {
               child: const Icon(Icons.mic, color: Colors.white, size: 16),
             ),
           ),
-        if (card.type == 'folder' || card.subCards.isNotEmpty)
-          Positioned(
-            bottom: 8,
-            right: 8,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.arrow_forward,
-                  color: Colors.white, size: 16),
-            ),
-          ),
         Positioned(
           top: 8,
           right: 8,
           child: Container(
+            width: isTablet ? 38 : 32,
+            height: isTablet ? 38 : 32,
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withOpacity(0.55),
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1.5),
+                ),
+              ],
             ),
-            child: const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Icon(Icons.delete, color: Colors.white, size: 20),
+            child: Icon(
+              Icons.delete_outline_rounded,
+              color: Colors.white,
+              size: isTablet ? 19 : 16,
             ),
           ),
         ),
@@ -4806,6 +5481,157 @@ class _DragAndDropCardItemState extends State<_DragAndDropCardItem> {
         ),
       );
     }
+  }
+}
+
+class _NestingConfirmationDialog extends StatelessWidget {
+  final AACCard draggedCard;
+  final AACCard targetCard;
+  final bool isTargetFolder;
+  final String currentLanguage;
+
+  const _NestingConfirmationDialog({
+    required this.draggedCard,
+    required this.targetCard,
+    required this.isTargetFolder,
+    required this.currentLanguage,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final draggedLabel = draggedCard.getLabel(currentLanguage);
+    final targetLabel = targetCard.getLabel(currentLanguage);
+
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      title: StyledDialogHeader(
+        icon: Icons.create_new_folder_rounded,
+        title: isTargetFolder ? 'Add as Sub-Card?' : 'Convert to Folder & Add?',
+        accentColor: const Color(0xFF0284C7),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF0F9FF),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isDark ? Colors.white12 : const Color(0xFFBAE6FD),
+                width: 1.2,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildCardPreview(draggedCard, draggedLabel, isDark),
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Color(0xFF0284C7),
+                  size: 26,
+                ),
+                _buildCardPreview(targetCard, targetLabel, isDark,
+                    isFolder: isTargetFolder),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            isTargetFolder
+                ? 'Add "$draggedLabel" as a sub-card inside "$targetLabel"?'
+                : '"$targetLabel" is currently a Word Card. Adding "$draggedLabel" inside it will convert it into a Folder Card.\n\nDo you want to continue?',
+            style: const TextStyle(fontSize: 14, height: 1.45),
+          ),
+        ],
+      ),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      actions: [
+        TextButton(
+          key: const ValueKey('nesting_dialog_cancel_btn'),
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          key: const ValueKey('nesting_dialog_confirm_btn'),
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFF0284C7),
+            foregroundColor: Colors.white,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+          onPressed: () => Navigator.pop(context, true),
+          child: Text(isTargetFolder ? 'Add as Sub-Card' : 'Convert & Add'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCardPreview(
+    AACCard card,
+    String label,
+    bool isDark, {
+    bool isFolder = false,
+  }) {
+    final cardColor = Color(card.colorValue);
+
+    return Container(
+      width: 76,
+      height: 86,
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF161F2E) : Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: card.imagePath != null && card.imagePath!.isNotEmpty
+                  ? buildCardImage(card.imagePath!, fit: BoxFit.contain)
+                  : Container(
+                      color: cardColor,
+                      child: Center(
+                        child: Icon(
+                          isFolder ? Icons.folder_rounded : Icons.image,
+                          size: 22,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white : const Color(0xFF1E293B),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

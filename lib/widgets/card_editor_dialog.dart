@@ -20,7 +20,9 @@ import 'smart_image_search_dialog.dart';
 import 'styled_dialog_header.dart';
 import 'tutorial/tutorial_overlay.dart';
 
-enum CardEditorAction { saved, addSubCard }
+enum CardEditorAction { saved, addSubCard, manageSubCards }
+
+enum _FolderToWordChoice { moveToHome, delete, cancel }
 
 class CardEditorDialog extends StatefulWidget {
   final AACCard card;
@@ -30,6 +32,8 @@ class CardEditorDialog extends StatefulWidget {
   final VoidCallback? onPickImage;
   final CameraAnalysisResult? initialCameraAnalysis;
   final String language;
+  final void Function(List<AACCard> movedCards)? onMoveSubCardsToHome;
+  final ValueChanged<String>? onMediaCreated;
 
   const CardEditorDialog({
     Key? key,
@@ -40,6 +44,8 @@ class CardEditorDialog extends StatefulWidget {
     this.onPickImage,
     this.initialCameraAnalysis,
     this.language = 'en',
+    this.onMoveSubCardsToHome,
+    this.onMediaCreated,
   }) : super(key: key);
 
   @override
@@ -168,6 +174,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         cardId: widget.card.id,
         mediaType: 'images',
       );
+      widget.onMediaCreated?.call(permanentPath);
       if (!mounted) return;
       setState(() {
         widget.card.imagePath = permanentPath;
@@ -298,6 +305,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       final path = await _recorder.stop();
       if (path != null) {
         widget.card.voicePath = path;
+        widget.onMediaCreated?.call(path);
       }
     } catch (_) {}
     if (!mounted) return;
@@ -406,17 +414,224 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     _disposePlayback();
   }
 
-  void _saveCard() {
+  void _saveCardFormToCard() {
     widget.card.label = _controllerEn.text.trim();
     widget.card.labelSinhala = _controllerSi.text.trim().isEmpty ? null : _controllerSi.text.trim();
     widget.card.labelTamil = _controllerTa.text.trim().isEmpty ? null : _controllerTa.text.trim();
     widget.card.category = _selectedCategory;
     widget.card.type = _selectedType;
+  }
+
+  int _countAllDescendants(AACCard c) {
+    int count = 0;
+    for (final child in c.subCards) {
+      count += 1 + _countAllDescendants(child);
+    }
+    return count;
+  }
+
+  Future<_FolderToWordChoice?> _showFolderToWordSafeguardDialog() async {
+    final subCardsCount = widget.card.subCards.length;
+    int totalDescendants = 0;
+    for (final child in widget.card.subCards) {
+      totalDescendants += 1 + _countAllDescendants(child);
+    }
+
+    return showDialog<_FolderToWordChoice>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const StyledDialogHeader(
+          icon: Icons.warning_amber_rounded,
+          title: 'Convert Folder to Word Card?',
+          accentColor: Color(0xFFF59E0B),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'This folder currently contains $subCardsCount sub-card(s)'
+              '${totalDescendants > subCardsCount ? " ($totalDescendants total including nested cards)" : ""}.\n\n'
+              'Word cards cannot hold sub-cards. Please choose what to do with the existing sub-cards:',
+              style: const TextStyle(fontSize: 14, height: 1.4),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (int i = 0;
+                    i <
+                        (widget.card.subCards.length > 5
+                            ? 5
+                            : widget.card.subCards.length);
+                    i++)
+                  Chip(
+                    avatar: Icon(
+                      widget.card.subCards[i].type == 'folder'
+                          ? Icons.folder_rounded
+                          : Icons.chat_bubble_outline_rounded,
+                      size: 16,
+                      color: Color(widget.card.subCards[i].colorValue),
+                    ),
+                    label: Text(
+                      widget.card.subCards[i].getLabel(widget.language),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                if (widget.card.subCards.length > 5)
+                  Chip(
+                    label: Text('+${widget.card.subCards.length - 5} more'),
+                    visualDensity: VisualDensity.compact,
+                  ),
+              ],
+            ),
+          ],
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        actions: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              FilledButton.icon(
+                key: const ValueKey('folder_to_word_move_home'),
+                icon: const Icon(Icons.home_rounded, size: 18),
+                label: const Text(
+                  'Move to Home Board (Recommended)',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF0284C7),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () =>
+                    Navigator.pop(ctx, _FolderToWordChoice.moveToHome),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                key: const ValueKey('folder_to_word_delete'),
+                icon: const Icon(Icons.delete_forever_rounded,
+                    size: 18, color: Colors.red),
+                label: const Text(
+                  'Delete Sub-Cards',
+                  style:
+                      TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.redAccent),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () async {
+                  final reallyDelete = await showDialog<bool>(
+                    context: ctx,
+                    builder: (innerCtx) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      title: const StyledDialogHeader(
+                        icon: Icons.delete_forever_rounded,
+                        title: 'Confirm Delete Sub-Cards',
+                        accentColor: Colors.red,
+                      ),
+                      content: Text(
+                        'Are you sure you want to permanently delete $totalDescendants card(s) '
+                        '(all sub-cards and nested descendants)?\n\n'
+                        'This action cannot be undone except via Undo.',
+                        style: const TextStyle(fontSize: 14, height: 1.4),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(innerCtx, false),
+                          child: const Text('Cancel'),
+                        ),
+                        FilledButton(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                          ),
+                          onPressed: () => Navigator.pop(innerCtx, true),
+                          child: Text('Delete ($totalDescendants cards)'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (reallyDelete == true) {
+                    if (ctx.mounted) {
+                      Navigator.pop(ctx, _FolderToWordChoice.delete);
+                    }
+                  }
+                },
+              ),
+              const SizedBox(height: 4),
+              Align(
+                alignment: Alignment.center,
+                child: TextButton(
+                  key: const ValueKey('folder_to_word_cancel'),
+                  onPressed: () =>
+                      Navigator.pop(ctx, _FolderToWordChoice.cancel),
+                  child: const Text('Cancel'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _saveCard() async {
+    if (widget.card.subCards.isNotEmpty && _selectedType == 'word') {
+      final choice = await _showFolderToWordSafeguardDialog();
+      if (choice == _FolderToWordChoice.cancel || choice == null) {
+        setState(() {
+          _selectedType = 'folder';
+        });
+        return;
+      }
+      if (choice == _FolderToWordChoice.moveToHome) {
+        final subCardsToMove = List<AACCard>.from(widget.card.subCards);
+        widget.card.subCards.clear();
+        _saveCardFormToCard();
+        widget.card.type = 'word';
+        widget.onMoveSubCardsToHome?.call(subCardsToMove);
+        TutorialService.instance.notifyCardSaved(widget.card.id);
+        if (mounted) {
+          _isClosing = true;
+          Navigator.pop(context, CardEditorAction.saved);
+        }
+        return;
+      }
+      if (choice == _FolderToWordChoice.delete) {
+        widget.card.subCards.clear();
+        _saveCardFormToCard();
+        widget.card.type = 'word';
+        TutorialService.instance.notifyCardSaved(widget.card.id);
+        if (mounted) {
+          _isClosing = true;
+          Navigator.pop(context, CardEditorAction.saved);
+        }
+        return;
+      }
+    }
+
+    _saveCardFormToCard();
     if (widget.card.type == 'word') {
       widget.card.subCards.clear();
     }
     TutorialService.instance.notifyCardSaved(widget.card.id);
-    Navigator.pop(context, CardEditorAction.saved);
+    if (mounted) {
+      _isClosing = true;
+      Navigator.pop(context, CardEditorAction.saved);
+    }
   }
 
   @override
@@ -482,24 +697,78 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                   _buildAudioSection(context),
                   const SizedBox(height: 18),
                   _buildPropertiesSection(context),
-                  if (!widget.isNew && widget.card.type == 'folder') ...[
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.folder_open_rounded),
-                      label: const Text('Manage Sub-Cards'),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(46),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: () async {
-                        if (_isClosing) return;
-                        _isClosing = true;
-                        await _stopAll();
-                        if (mounted) {
-                          Navigator.pop(context, CardEditorAction.addSubCard);
+                  if (!widget.isNew &&
+                      (widget.card.type == 'folder' ||
+                          widget.card.subCards.isNotEmpty ||
+                          _selectedType == 'folder')) ...[
+                    const SizedBox(height: 14),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isNarrow = constraints.maxWidth < 360;
+                        final manageBtn = OutlinedButton.icon(
+                          key: const ValueKey('card_editor_manage_subcards_btn'),
+                          icon: const Icon(Icons.folder_copy_outlined, size: 18),
+                          label: Text(
+                            'Manage Sub-Cards (${widget.card.subCards.length})',
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(46),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (_isClosing) return;
+                            _isClosing = true;
+                            await _stopAll();
+                            if (mounted) {
+                              _saveCardFormToCard();
+                              Navigator.pop(context, CardEditorAction.manageSubCards);
+                            }
+                          },
+                        );
+
+                        final addSubBtn = OutlinedButton.icon(
+                          key: const ValueKey('card_editor_add_subcard_btn'),
+                          icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+                          label: const Text(
+                            '+ Add Sub-Card',
+                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(46),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (_isClosing) return;
+                            _isClosing = true;
+                            await _stopAll();
+                            if (mounted) {
+                              _saveCardFormToCard();
+                              Navigator.pop(context, CardEditorAction.addSubCard);
+                            }
+                          },
+                        );
+
+                        if (isNarrow) {
+                          return Column(
+                            children: [
+                              manageBtn,
+                              const SizedBox(height: 8),
+                              addSubBtn,
+                            ],
+                          );
                         }
+                        return Row(
+                          children: [
+                            Expanded(child: manageBtn),
+                            const SizedBox(width: 8),
+                            Expanded(child: addSubBtn),
+                          ],
+                        );
                       },
                     ),
                   ],
@@ -530,10 +799,9 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
             ),
             onPressed: () async {
               if (_isClosing) return;
-              _isClosing = true;
               await _stopAll();
               if (!mounted) return;
-              _saveCard();
+              await _saveCard();
             },
             child: const Text(
               'Save Card',
