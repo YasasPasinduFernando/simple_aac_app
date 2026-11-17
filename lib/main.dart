@@ -28,6 +28,7 @@ void main() async {
     imagePickerImplementation.useAndroidPhotoPicker = true;
   }
 
+  HomePage.enablePersonalizeInit = true;
   HomePage.enableTutorialInit = true;
 
   runApp(const AACApp());

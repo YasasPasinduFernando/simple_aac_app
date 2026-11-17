@@ -1,0 +1,2926 @@
+// Generated from default_pack_manifest.json - DO NOT EDIT MANUALLY
+const String starterPackManifestJson = r'''
+{
+  "schema": "simple-aac-starter-pack.v2",
+  "packId": "simpleaac-srilanka-114-v8-color-baked",
+  "basedOn": "Simple_AAC_Default_100_Card_Pack original user-provided AI-generated pack",
+  "rootCardId": "simpleaac.starter.v2.default",
+  "counts": {
+    "rootFolders": 1,
+    "categoryFolders": 13,
+    "wordCards": 114,
+    "totalCards": 128,
+    "artFiles": 114,
+    "newArt": 47,
+    "reusedArt": 67,
+    "recenteredSourceImages": 68,
+    "manuallyCleanedOriginalIcons": 20,
+    "replacedClippedOriginalIcons": 1,
+    "colorBakedImages": 114
+  },
+  "compatibility": "Blueprint. Map to the actual Flutter AACCard data model without altering backup schema.",
+  "seedingPolicy": "Only for fresh installations or explicit optional import; never replace existing user cards.",
+  "languages": [
+    "en-US",
+    "si-LK",
+    "ta-LK"
+  ],
+  "licenseNote": "Original AI-generated assets; review localization and suitability with a speech therapist before production.",
+  "cards": [
+    {
+      "id": "simpleaac.starter.v2.default",
+      "role": "root_folder",
+      "type": "folder",
+      "parentId": null,
+      "labels": {
+        "en-US": "Default",
+        "si-LK": "පෙරනිමි",
+        "ta-LK": "இயல்புநிலை"
+      },
+      "image": null,
+      "suggestedTileColor": "#228ED3",
+      "positionWithinGroup": 0,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.family",
+        "simpleaac.starter.v2.colours",
+        "simpleaac.starter.v2.shapes",
+        "simpleaac.starter.v2.animals",
+        "simpleaac.starter.v2.food",
+        "simpleaac.starter.v2.snacks",
+        "simpleaac.starter.v2.drinks",
+        "simpleaac.starter.v2.feelings",
+        "simpleaac.starter.v2.needs",
+        "simpleaac.starter.v2.basic_words",
+        "simpleaac.starter.v2.activities",
+        "simpleaac.starter.v2.school_places",
+        "simpleaac.starter.v2.personal_care"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.family",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "labels": {
+        "en-US": "Family",
+        "si-LK": "පවුල",
+        "ta-LK": "குடும்பம்"
+      },
+      "image": null,
+      "suggestedTileColor": "#FFF1CE",
+      "positionWithinGroup": 0,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.family.people",
+        "simpleaac.starter.v2.family.mother",
+        "simpleaac.starter.v2.family.father",
+        "simpleaac.starter.v2.family.sister",
+        "simpleaac.starter.v2.family.brother",
+        "simpleaac.starter.v2.family.grandma",
+        "simpleaac.starter.v2.family.grandpa",
+        "simpleaac.starter.v2.family.friend",
+        "simpleaac.starter.v2.family.teacher",
+        "simpleaac.starter.v2.family.doctor"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.family.people",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.family",
+      "group": "family",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "People",
+        "si-LK": "පුද්ගලයන්",
+        "ta-LK": "மக்கள்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/family_people.webp",
+      "imageSha256": "879631be4df7b3dba20b3a4aa8787430833834ae129b824359bd2d4288d9521d",
+      "suggestedTileColor": "#D8C5EB",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.family.mother",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.family",
+      "group": "family",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "Mother",
+        "si-LK": "අම්මා",
+        "ta-LK": "அம்மா"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/family_mother.webp",
+      "imageSha256": "8edd788090f88db2140abde7ea2ff123c7870a6a29d97905d761ef0f11188e49",
+      "suggestedTileColor": "#D8C5EB",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.family.father",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.family",
+      "group": "family",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "Father",
+        "si-LK": "තාත්තා",
+        "ta-LK": "அப்பா"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/family_father.webp",
+      "imageSha256": "5775b7c8a1daa8cc9494cea4341f8790229616337ec20c1f130dcaa0a446e1bc",
+      "suggestedTileColor": "#D8C5EB",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.family.sister",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.family",
+      "group": "family",
+      "positionWithinGroup": 3,
+      "labels": {
+        "en-US": "Sister",
+        "si-LK": "සහෝදරිය",
+        "ta-LK": "சகோதரி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/family_sister.webp",
+      "imageSha256": "f254dfb0efeed98ca1a1b25f4b1cf4d7f5b97eaf16313a699e645fc22bb47b9c",
+      "suggestedTileColor": "#D8C5EB",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.family.brother",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.family",
+      "group": "family",
+      "positionWithinGroup": 4,
+      "labels": {
+        "en-US": "Brother",
+        "si-LK": "සහෝදරයා",
+        "ta-LK": "சகோதரன்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/family_brother.webp",
+      "imageSha256": "78815ef98318debfe1bae321dd1c054f50cc3c2d755d459c70f317e321813240",
+      "suggestedTileColor": "#D8C5EB",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.family.grandma",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.family",
+      "group": "family",
+      "positionWithinGroup": 5,
+      "labels": {
+        "en-US": "Grandma",
+        "si-LK": "ආච්චි",
+        "ta-LK": "பாட்டி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/family_grandma.webp",
+      "imageSha256": "ac338dfa6358ad2ba9380a82dd16d00334b7127b74db9ad2d501d008b5b1cad4",
+      "suggestedTileColor": "#D8C5EB",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.family.grandpa",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.family",
+      "group": "family",
+      "positionWithinGroup": 6,
+      "labels": {
+        "en-US": "Grandpa",
+        "si-LK": "සීයා",
+        "ta-LK": "தாத்தா"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/family_grandpa.webp",
+      "imageSha256": "7b6263d27b748d96e082fce011fd3a5b20c1ed5e2edf5443d6190e8235678f70",
+      "suggestedTileColor": "#D8C5EB",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.family.friend",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.family",
+      "group": "family",
+      "positionWithinGroup": 7,
+      "labels": {
+        "en-US": "Friend",
+        "si-LK": "මිතුරා / මිතුරිය",
+        "ta-LK": "நண்பர்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/family_friend.webp",
+      "imageSha256": "74a24f0d85cf383b5167e291b63b593c8b5b1186225e02a2c1905e7f81326168",
+      "suggestedTileColor": "#D8C5EB",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.family.teacher",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.family",
+      "group": "family",
+      "positionWithinGroup": 8,
+      "labels": {
+        "en-US": "Teacher",
+        "si-LK": "ගුරුතුමා / ගුරුතුමිය",
+        "ta-LK": "ஆசிரியர்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/family_teacher.webp",
+      "imageSha256": "db0b18211ea07b6fcb293949c1d490996098341470630a93f6c2d393d5dd12be",
+      "suggestedTileColor": "#D8C5EB",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.family.doctor",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.family",
+      "group": "family",
+      "positionWithinGroup": 9,
+      "labels": {
+        "en-US": "Doctor",
+        "si-LK": "වෛද්‍යවරයා",
+        "ta-LK": "மருத்துவர்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/family_doctor.webp",
+      "imageSha256": "13887024db24674315c0cc49c525a6615c8f476c68e68df1d835b65dbf7d607d",
+      "suggestedTileColor": "#D8C5EB",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.colours",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "labels": {
+        "en-US": "Colours",
+        "si-LK": "වර්ණ",
+        "ta-LK": "நிறங்கள்"
+      },
+      "image": null,
+      "suggestedTileColor": "#F2E4FF",
+      "positionWithinGroup": 1,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.colours.red",
+        "simpleaac.starter.v2.colours.blue",
+        "simpleaac.starter.v2.colours.yellow",
+        "simpleaac.starter.v2.colours.green",
+        "simpleaac.starter.v2.colours.orange",
+        "simpleaac.starter.v2.colours.purple",
+        "simpleaac.starter.v2.colours.black",
+        "simpleaac.starter.v2.colours.white"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.colours.red",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.colours",
+      "group": "colours",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "Red",
+        "si-LK": "රතු",
+        "ta-LK": "சிவப்பு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/colours_red.webp",
+      "imageSha256": "9feeb8f974d9d80bdeef18b3a1244ae46f71c5e6d5edbbae013dbf7af0d88d8d",
+      "suggestedTileColor": "#ECF0F5",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.colours.blue",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.colours",
+      "group": "colours",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "Blue",
+        "si-LK": "නිල්",
+        "ta-LK": "நீலம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/colours_blue.webp",
+      "imageSha256": "647bc007316185742c85471c42beaf8a9e5eb23ac3006679e6c5bc6c958f0b6d",
+      "suggestedTileColor": "#ECF0F5",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.colours.yellow",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.colours",
+      "group": "colours",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "Yellow",
+        "si-LK": "කහ",
+        "ta-LK": "மஞ்சள்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/colours_yellow.webp",
+      "imageSha256": "04331641f7a16bd20fd42b3db1689a5cb252d51183b8f7c68957fef204f6b45b",
+      "suggestedTileColor": "#ECF0F5",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.colours.green",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.colours",
+      "group": "colours",
+      "positionWithinGroup": 3,
+      "labels": {
+        "en-US": "Green",
+        "si-LK": "කොළ",
+        "ta-LK": "பச்சை"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/colours_green.webp",
+      "imageSha256": "37c147c933547e5f00a1f97f65e9504192a8d85037aee2094d08a80983511590",
+      "suggestedTileColor": "#ECF0F5",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.colours.orange",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.colours",
+      "group": "colours",
+      "positionWithinGroup": 4,
+      "labels": {
+        "en-US": "Orange",
+        "si-LK": "තැඹිලි",
+        "ta-LK": "ஆரஞ்சு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/colours_orange.webp",
+      "imageSha256": "ea9be144f79b215e57c67d79f2828335bb018713b688362d017d222abe09e72b",
+      "suggestedTileColor": "#ECF0F5",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.colours.purple",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.colours",
+      "group": "colours",
+      "positionWithinGroup": 5,
+      "labels": {
+        "en-US": "Purple",
+        "si-LK": "දම්",
+        "ta-LK": "ஊதா"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/colours_purple.webp",
+      "imageSha256": "019c2761444b7e7c1e0d5050b8a0970490ae7568dda6a9f47c06006de3748507",
+      "suggestedTileColor": "#ECF0F5",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.colours.black",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.colours",
+      "group": "colours",
+      "positionWithinGroup": 6,
+      "labels": {
+        "en-US": "Black",
+        "si-LK": "කළු",
+        "ta-LK": "கருப்பு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/colours_black.webp",
+      "imageSha256": "6ff89616194fa6dd60eee03505655851803b2ad48aad0fdc94295a0e87a8cbcf",
+      "suggestedTileColor": "#ECF0F5",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.colours.white",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.colours",
+      "group": "colours",
+      "positionWithinGroup": 7,
+      "labels": {
+        "en-US": "White",
+        "si-LK": "සුදු",
+        "ta-LK": "வெள்ளை"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/colours_white.webp",
+      "imageSha256": "0b366dd4ed87e28caeaaf09b15508f90ab7409ecbc8750049b25ceebeb1d3c44",
+      "suggestedTileColor": "#ECF0F5",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.shapes",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "labels": {
+        "en-US": "Shapes",
+        "si-LK": "හැඩ",
+        "ta-LK": "வடிவங்கள்"
+      },
+      "image": null,
+      "suggestedTileColor": "#DFF3F8",
+      "positionWithinGroup": 2,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.shapes.circle",
+        "simpleaac.starter.v2.shapes.square",
+        "simpleaac.starter.v2.shapes.triangle",
+        "simpleaac.starter.v2.shapes.rectangle",
+        "simpleaac.starter.v2.shapes.star",
+        "simpleaac.starter.v2.shapes.heart"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.shapes.circle",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.shapes",
+      "group": "shapes",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "Circle",
+        "si-LK": "වෘත්තය",
+        "ta-LK": "வட்டம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/shapes_circle.webp",
+      "imageSha256": "4103ff5ff67435f21239a7bc4a2d6fa28f28d1b7a602ba9fc57f17a45abc9aef",
+      "suggestedTileColor": "#CEEAF7",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.shapes.square",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.shapes",
+      "group": "shapes",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "Square",
+        "si-LK": "සමචතුරස්‍රය",
+        "ta-LK": "சதுரம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/shapes_square.webp",
+      "imageSha256": "bcb3f5578840542b48a225d261b05736bb862f2256c1a8a31f48cf478d2f5bf2",
+      "suggestedTileColor": "#CEEAF7",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.shapes.triangle",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.shapes",
+      "group": "shapes",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "Triangle",
+        "si-LK": "ත්‍රිකෝණය",
+        "ta-LK": "முக்கோணம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/shapes_triangle.webp",
+      "imageSha256": "b79e8ddf7d935571e026316ff621afbd525fc91b5a8d5957d02f64a2f24e2d67",
+      "suggestedTileColor": "#CEEAF7",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.shapes.rectangle",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.shapes",
+      "group": "shapes",
+      "positionWithinGroup": 3,
+      "labels": {
+        "en-US": "Rectangle",
+        "si-LK": "ඍජුකෝණාස්‍රය",
+        "ta-LK": "செவ்வகம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/shapes_rectangle.webp",
+      "imageSha256": "2c46c8cf0e08e2dc458183cf23b50f071e14617ec9fe29256a29177114e7eb68",
+      "suggestedTileColor": "#CEEAF7",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.shapes.star",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.shapes",
+      "group": "shapes",
+      "positionWithinGroup": 4,
+      "labels": {
+        "en-US": "Star",
+        "si-LK": "තරුව",
+        "ta-LK": "நட்சத்திரம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/shapes_star.webp",
+      "imageSha256": "0023974ef256bc5a97799887e3a6a53952c3e51e618b1763c30fe2b44326906b",
+      "suggestedTileColor": "#CEEAF7",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.shapes.heart",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.shapes",
+      "group": "shapes",
+      "positionWithinGroup": 5,
+      "labels": {
+        "en-US": "Heart",
+        "si-LK": "හදවත",
+        "ta-LK": "இதயம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/shapes_heart.webp",
+      "imageSha256": "53c2313f31946e8ffbedc71cf761e68284631b07035124d46eee4ba242ea8aef",
+      "suggestedTileColor": "#CEEAF7",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.animals",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "labels": {
+        "en-US": "Animals",
+        "si-LK": "සතුන්",
+        "ta-LK": "விலங்குகள்"
+      },
+      "image": null,
+      "suggestedTileColor": "#E8F4DD",
+      "positionWithinGroup": 3,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.animals.dog",
+        "simpleaac.starter.v2.animals.cat",
+        "simpleaac.starter.v2.animals.bird",
+        "simpleaac.starter.v2.animals.fish",
+        "simpleaac.starter.v2.animals.cow",
+        "simpleaac.starter.v2.animals.elephant",
+        "simpleaac.starter.v2.animals.rabbit",
+        "simpleaac.starter.v2.animals.butterfly",
+        "simpleaac.starter.v2.animals.monkey",
+        "simpleaac.starter.v2.animals.chicken"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.animals.dog",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.animals",
+      "group": "animals",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "Dog",
+        "si-LK": "බල්ලා",
+        "ta-LK": "நாய்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/animals_dog.webp",
+      "imageSha256": "104a7cc5229e16a6b77cc499733db9336ce12c26e7f3500ccdad0d5410001fe6",
+      "suggestedTileColor": "#DFEECF",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.animals.cat",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.animals",
+      "group": "animals",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "Cat",
+        "si-LK": "පූසා",
+        "ta-LK": "பூனை"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/animals_cat.webp",
+      "imageSha256": "8d5001b65be36cbf8471a72a31e466f8a6c86d5ac452422d27eea71d06239c49",
+      "suggestedTileColor": "#DFEECF",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.animals.bird",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.animals",
+      "group": "animals",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "Bird",
+        "si-LK": "කුරුල්ලා",
+        "ta-LK": "பறவை"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/animals_bird.webp",
+      "imageSha256": "67199ffa77d7431c42044d8818c9dd65522cf11d5bbc72553aaba96a1725c5ad",
+      "suggestedTileColor": "#DFEECF",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.animals.fish",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.animals",
+      "group": "animals",
+      "positionWithinGroup": 3,
+      "labels": {
+        "en-US": "Fish",
+        "si-LK": "මාළුවා",
+        "ta-LK": "மீன்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/animals_fish.webp",
+      "imageSha256": "7fc986e29252f528fc3dfa6322db2ae0a20f0e408a29db18cb25afd29fc6feba",
+      "suggestedTileColor": "#DFEECF",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.animals.cow",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.animals",
+      "group": "animals",
+      "positionWithinGroup": 4,
+      "labels": {
+        "en-US": "Cow",
+        "si-LK": "එළදෙන",
+        "ta-LK": "பசு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/animals_cow.webp",
+      "imageSha256": "95101af0dc442d244db9d209f9587e7b89cb8b4c6dffeafb456f9519f85143d2",
+      "suggestedTileColor": "#DFEECF",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.animals.elephant",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.animals",
+      "group": "animals",
+      "positionWithinGroup": 5,
+      "labels": {
+        "en-US": "Elephant",
+        "si-LK": "අලියා",
+        "ta-LK": "யானை"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/animals_elephant.webp",
+      "imageSha256": "9e70a2ab8a29cdddaa0464129cd153e7390502ada17ecc0ae628491baba82ff1",
+      "suggestedTileColor": "#DFEECF",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.animals.rabbit",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.animals",
+      "group": "animals",
+      "positionWithinGroup": 6,
+      "labels": {
+        "en-US": "Rabbit",
+        "si-LK": "හාවා",
+        "ta-LK": "முயல்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/animals_rabbit.webp",
+      "imageSha256": "91a5cc78a26951da0baa889476732aa93acb984357f7c35e8dc6b73fb9026556",
+      "suggestedTileColor": "#DFEECF",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.animals.butterfly",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.animals",
+      "group": "animals",
+      "positionWithinGroup": 7,
+      "labels": {
+        "en-US": "Butterfly",
+        "si-LK": "සමනලයා",
+        "ta-LK": "பட்டாம்பூச்சி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/animals_butterfly.webp",
+      "imageSha256": "fa3820442761c228d5ffc111c395eee7c3b0a0dc00cd012d262b04d290e74ec8",
+      "suggestedTileColor": "#DFEECF",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.animals.monkey",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.animals",
+      "group": "animals",
+      "positionWithinGroup": 8,
+      "labels": {
+        "en-US": "Monkey",
+        "si-LK": "වඳුරා",
+        "ta-LK": "குரங்கு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/animals_monkey.webp",
+      "imageSha256": "76bbc2c27805f5f6fc2dcee8d4c066255195241701d243038d05b4aee193ef68",
+      "suggestedTileColor": "#DFEECF",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.animals.chicken",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.animals",
+      "group": "animals",
+      "positionWithinGroup": 9,
+      "labels": {
+        "en-US": "Chicken",
+        "si-LK": "කුකුළා",
+        "ta-LK": "கோழி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/animals_chicken.webp",
+      "imageSha256": "2c3f475c3ef1669c35d48f406c7728d903fe40e88d3fd8c25953af72253d4938",
+      "suggestedTileColor": "#DFEECF",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "labels": {
+        "en-US": "Food",
+        "si-LK": "ආහාර",
+        "ta-LK": "உணவு"
+      },
+      "image": null,
+      "suggestedTileColor": "#FFF0B7",
+      "positionWithinGroup": 4,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.food.food",
+        "simpleaac.starter.v2.food.rice",
+        "simpleaac.starter.v2.food.bread",
+        "simpleaac.starter.v2.food.banana",
+        "simpleaac.starter.v2.food.apple",
+        "simpleaac.starter.v2.food.egg",
+        "simpleaac.starter.v2.food.fish",
+        "simpleaac.starter.v2.food.soup",
+        "simpleaac.starter.v2.food.biscuit",
+        "simpleaac.starter.v2.food.vegetables",
+        "simpleaac.starter.v2.food.eat",
+        "simpleaac.starter.v2.food.milk",
+        "simpleaac.starter.v2.food.kottu",
+        "simpleaac.starter.v2.food.string_hoppers",
+        "simpleaac.starter.v2.food.hoppers",
+        "simpleaac.starter.v2.food.butter",
+        "simpleaac.starter.v2.food.butter_bread"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.food.food",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "Food",
+        "si-LK": "ආහාර",
+        "ta-LK": "உணவு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_food.webp",
+      "imageSha256": "d4c6913de8fa9c3f5fdc6f898b10ba8771a59004f7f2204d78f3d452b1be6af0",
+      "suggestedTileColor": "#FFE2A1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.rice",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "Rice",
+        "si-LK": "බත්",
+        "ta-LK": "சோறு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_rice.webp",
+      "imageSha256": "9d34230fd92c1753cd15e39ba65e162af2adbcace95ae1698999a242f8d594a2",
+      "suggestedTileColor": "#FBE7B9",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.bread",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "Bread",
+        "si-LK": "පාන්",
+        "ta-LK": "ரொட்டி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_bread.webp",
+      "imageSha256": "1f6de7885aa916c66b3c43a1dd9218653c5e99e37ea7951b9d6b67d0aed7a328",
+      "suggestedTileColor": "#FFE2A1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.banana",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 3,
+      "labels": {
+        "en-US": "Banana",
+        "si-LK": "කෙසෙල්",
+        "ta-LK": "வாழைப்பழம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_banana.webp",
+      "imageSha256": "547e878ee1c081c44ecf9dee1f1b27dd6b4728c10e360b09f473775a8d2ec997",
+      "suggestedTileColor": "#FFE2A1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.apple",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 4,
+      "labels": {
+        "en-US": "Apple",
+        "si-LK": "ඇපල්",
+        "ta-LK": "ஆப்பிள்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_apple.webp",
+      "imageSha256": "307c3ec2d0a1a2058b806f030b2a71aeccac20df5ebbf6db3a86aa1d0122f13d",
+      "suggestedTileColor": "#FFE2A1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.egg",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 5,
+      "labels": {
+        "en-US": "Egg",
+        "si-LK": "බිත්තර",
+        "ta-LK": "முட்டை"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_egg.webp",
+      "imageSha256": "0d1665e7c608f4f132ee0e6ebf8f1f1ef6b1ec1c4f68c7de6e02f92a92974efe",
+      "suggestedTileColor": "#FFE2A1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.fish",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 6,
+      "labels": {
+        "en-US": "Fish",
+        "si-LK": "මාළු",
+        "ta-LK": "மீன்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_fish.webp",
+      "imageSha256": "098e3d73b540eb0944125da35b52b9b4fab3f4f7727cf0a05050e16b83ba07d2",
+      "suggestedTileColor": "#FFE2A1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.soup",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 7,
+      "labels": {
+        "en-US": "Soup",
+        "si-LK": "සුප්",
+        "ta-LK": "சூப்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_soup.webp",
+      "imageSha256": "86c50af90718cc85aa273946b1ed5549b0b022d37b29e8e9cfea247c885ce40a",
+      "suggestedTileColor": "#FFE2A1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.biscuit",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 8,
+      "labels": {
+        "en-US": "Biscuit",
+        "si-LK": "බිස්කට්",
+        "ta-LK": "பிஸ்கட்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_biscuit.webp",
+      "imageSha256": "a92d5e7a794c19495cb57ae49d40c306059b38e791057611e82f510b9bd5084f",
+      "suggestedTileColor": "#FFE2A1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.vegetables",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 9,
+      "labels": {
+        "en-US": "Vegetables",
+        "si-LK": "එළවළු",
+        "ta-LK": "காய்கறிகள்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_vegetables.webp",
+      "imageSha256": "eef8a278ea63c596814b14ca183371b7bc77aabfa3e2fb1b10c7d41eb7860e73",
+      "suggestedTileColor": "#FFE2A1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.eat",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 10,
+      "labels": {
+        "en-US": "Eat",
+        "si-LK": "කන්න",
+        "ta-LK": "சாப்பிடு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_eat.webp",
+      "imageSha256": "eb38484f77d2f27e8ea9a5c5c3df8f40eec5efa5b8a5864684339a92db4fd03d",
+      "suggestedTileColor": "#FFE2A1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.milk",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 11,
+      "labels": {
+        "en-US": "Milk",
+        "si-LK": "කිරි",
+        "ta-LK": "பால்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_milk.webp",
+      "imageSha256": "ddf907bda00442c97e26d01df46378a66b15b02e488601a04a951f67421e269b",
+      "suggestedTileColor": "#FFE2A1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.snacks",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "labels": {
+        "en-US": "Snacks",
+        "si-LK": "කෙටි ආහාර",
+        "ta-LK": "சிற்றுண்டிகள்"
+      },
+      "image": null,
+      "suggestedTileColor": "#FFE6D4",
+      "positionWithinGroup": 5,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.snacks.ice_cream",
+        "simpleaac.starter.v2.snacks.cake",
+        "simpleaac.starter.v2.snacks.chips",
+        "simpleaac.starter.v2.snacks.cookies",
+        "simpleaac.starter.v2.snacks.popcorn",
+        "simpleaac.starter.v2.snacks.yogurt",
+        "simpleaac.starter.v2.snacks.candy",
+        "simpleaac.starter.v2.snacks.samosa",
+        "simpleaac.starter.v2.snacks.rolls",
+        "simpleaac.starter.v2.snacks.patties",
+        "simpleaac.starter.v2.snacks.milk_biscuit"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.snacks.ice_cream",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.snacks",
+      "group": "snacks",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "Ice Cream",
+        "si-LK": "අයිස්ක්‍රීම්",
+        "ta-LK": "ஐஸ்கிரீம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/snacks_ice_cream.webp",
+      "imageSha256": "bf394c2f6c951d68f715fc14c00e4993d27d7f5644e0f463b8d41c7b206b83f9",
+      "suggestedTileColor": "#FFD9BD",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.snacks.cake",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.snacks",
+      "group": "snacks",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "Cake",
+        "si-LK": "කේක්",
+        "ta-LK": "கேக்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/snacks_cake.webp",
+      "imageSha256": "420451a1914b5f6868ef56caa8bb149b31665a8d16276cf3f777bdb36e5e4e16",
+      "suggestedTileColor": "#FFD9BD",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.snacks.chips",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.snacks",
+      "group": "snacks",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "Chips",
+        "si-LK": "චිප්ස්",
+        "ta-LK": "சிப்ஸ்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/snacks_chips.webp",
+      "imageSha256": "8fe911bd113d66b9f4fad0856477d00754b5e7bd48fd1617385f4f1fbf7ff6ab",
+      "suggestedTileColor": "#FFD9BD",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.snacks.cookies",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.snacks",
+      "group": "snacks",
+      "positionWithinGroup": 3,
+      "labels": {
+        "en-US": "Cookies",
+        "si-LK": "කුකීස්",
+        "ta-LK": "பிஸ்கட்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/snacks_cookies.webp",
+      "imageSha256": "b967c43b5e6e9c0726694a56e79c3f63801b1b5957800246b35fc3d5e693667f",
+      "suggestedTileColor": "#FFD9BD",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.snacks.popcorn",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.snacks",
+      "group": "snacks",
+      "positionWithinGroup": 4,
+      "labels": {
+        "en-US": "Popcorn",
+        "si-LK": "පොප්කෝන්",
+        "ta-LK": "பாப்கார்ன்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/snacks_popcorn.webp",
+      "imageSha256": "91687ffbb39c8ecb609e3484152f315a6cac350f8b917143c41315e7cf89d344",
+      "suggestedTileColor": "#FFD9BD",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.snacks.yogurt",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.snacks",
+      "group": "snacks",
+      "positionWithinGroup": 5,
+      "labels": {
+        "en-US": "Yogurt",
+        "si-LK": "යෝගට්",
+        "ta-LK": "தயிர்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/snacks_yogurt.webp",
+      "imageSha256": "be43f8a18db4c5be8e260e17ba6bfe7ff7cb32ff027e586ddb5516a1ee620e0a",
+      "suggestedTileColor": "#FFD9BD",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.snacks.candy",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.snacks",
+      "group": "snacks",
+      "positionWithinGroup": 6,
+      "labels": {
+        "en-US": "Candy",
+        "si-LK": "ටොෆි",
+        "ta-LK": "மிட்டாய்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/snacks_candy.webp",
+      "imageSha256": "21818d510c4b42aabc304ba315990472ebcb9e882c7fd3086cf707750b0b8e8b",
+      "suggestedTileColor": "#FFD9BD",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.drinks",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "labels": {
+        "en-US": "Drinks",
+        "si-LK": "පාන වර්ග",
+        "ta-LK": "பானங்கள்"
+      },
+      "image": null,
+      "suggestedTileColor": "#D5EFFF",
+      "positionWithinGroup": 6,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.drinks.water",
+        "simpleaac.starter.v2.drinks.milk",
+        "simpleaac.starter.v2.drinks.juice",
+        "simpleaac.starter.v2.drinks.tea",
+        "simpleaac.starter.v2.drinks.coconut_water",
+        "simpleaac.starter.v2.drinks.cup",
+        "simpleaac.starter.v2.drinks.bottle",
+        "simpleaac.starter.v2.drinks.straw",
+        "simpleaac.starter.v2.drinks.coffee",
+        "simpleaac.starter.v2.drinks.soft_drink"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.drinks.water",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.drinks",
+      "group": "drinks",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "Water",
+        "si-LK": "වතුර",
+        "ta-LK": "தண்ணீர்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/drinks_water.webp",
+      "imageSha256": "ac3039dd107820348107b211b42496ebb6df9def0a5c0a75f083a34b56f09367",
+      "suggestedTileColor": "#B4DEF6",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.drinks.milk",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.drinks",
+      "group": "drinks",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "Milk",
+        "si-LK": "කිරි",
+        "ta-LK": "பால்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/drinks_milk.webp",
+      "imageSha256": "305aea1f8051da6cd55f2f5d1cb32e86744da6ac55ce7ab8692df9b2015cb141",
+      "suggestedTileColor": "#B4DEF6",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.drinks.juice",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.drinks",
+      "group": "drinks",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "Juice",
+        "si-LK": "යුෂ",
+        "ta-LK": "பழச்சாறு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/drinks_juice.webp",
+      "imageSha256": "c9041f02e1962cb7e9e77b60333119a78557dd56c09a5ed4581deb2e60e14d91",
+      "suggestedTileColor": "#B4DEF6",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.drinks.tea",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.drinks",
+      "group": "drinks",
+      "positionWithinGroup": 3,
+      "labels": {
+        "en-US": "Tea",
+        "si-LK": "තේ",
+        "ta-LK": "தேநீர்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/drinks_tea.webp",
+      "imageSha256": "1bdb1a02b27c8a2526684abd53074205de10d858eef9ca0d1512b5c8287cfd23",
+      "suggestedTileColor": "#B4DEF6",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.drinks.coconut_water",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.drinks",
+      "group": "drinks",
+      "positionWithinGroup": 4,
+      "labels": {
+        "en-US": "Coconut Water",
+        "si-LK": "තැඹිලි වතුර",
+        "ta-LK": "இளநீர்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/drinks_coconut_water.webp",
+      "imageSha256": "af1606b445ad47e69d27753d202e9e8affb9a755abf245d45442afa63eadd0b9",
+      "suggestedTileColor": "#B4DEF6",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.drinks.cup",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.drinks",
+      "group": "drinks",
+      "positionWithinGroup": 5,
+      "labels": {
+        "en-US": "Cup",
+        "si-LK": "කෝප්පය",
+        "ta-LK": "கோப்பை"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/drinks_cup.webp",
+      "imageSha256": "5746baf8e617365c063d3effd12cc3184f3f9332da2a88f66a1c98179ef47283",
+      "suggestedTileColor": "#B4DEF6",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.drinks.bottle",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.drinks",
+      "group": "drinks",
+      "positionWithinGroup": 6,
+      "labels": {
+        "en-US": "Bottle",
+        "si-LK": "බෝතලය",
+        "ta-LK": "பாட்டில்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/drinks_bottle.webp",
+      "imageSha256": "17b0cc8ac00a6b274036387142880b390e0bab92af1025b5c79d1de93e9141b5",
+      "suggestedTileColor": "#B4DEF6",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.drinks.straw",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.drinks",
+      "group": "drinks",
+      "positionWithinGroup": 7,
+      "labels": {
+        "en-US": "Straw",
+        "si-LK": "බීම බටය",
+        "ta-LK": "உறிஞ்சுகுழல்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/drinks_straw.webp",
+      "imageSha256": "fbec1d493069503c6dbc886ea4fb557ae74bcbf6e2a0aec0a1efab2bf6fe46c1",
+      "suggestedTileColor": "#B4DEF6",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.feelings",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "labels": {
+        "en-US": "Feelings",
+        "si-LK": "හැඟීම්",
+        "ta-LK": "உணர்வுகள்"
+      },
+      "image": null,
+      "suggestedTileColor": "#FFE3E7",
+      "positionWithinGroup": 7,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.feelings.happy",
+        "simpleaac.starter.v2.feelings.sad",
+        "simpleaac.starter.v2.feelings.angry",
+        "simpleaac.starter.v2.feelings.scared",
+        "simpleaac.starter.v2.feelings.tired",
+        "simpleaac.starter.v2.feelings.excited",
+        "simpleaac.starter.v2.feelings.calm",
+        "simpleaac.starter.v2.feelings.worried",
+        "simpleaac.starter.v2.feelings.okay",
+        "simpleaac.starter.v2.feelings.love"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.feelings.happy",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.feelings",
+      "group": "feelings",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "Happy",
+        "si-LK": "සතුටුයි",
+        "ta-LK": "மகிழ்ச்சி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/feelings_happy.webp",
+      "imageSha256": "0fe1905ad2c0e5a537ecbe338846e2cf700d8c5b2d7e6603f27924fd7aaa4f78",
+      "suggestedTileColor": "#FFDF69",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.feelings.sad",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.feelings",
+      "group": "feelings",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "Sad",
+        "si-LK": "දුකයි",
+        "ta-LK": "சோகம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/feelings_sad.webp",
+      "imageSha256": "06a2d953e3d6830b078ca3ada37ef35099d089f55830131fb8b8e5b821d34f80",
+      "suggestedTileColor": "#A4C9F2",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.feelings.angry",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.feelings",
+      "group": "feelings",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "Angry",
+        "si-LK": "තරහයි",
+        "ta-LK": "கோபம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/feelings_angry.webp",
+      "imageSha256": "4643122d1d917e85d8d7e176e5a83f6e69c7b4826eabe41c083c8506729a8b16",
+      "suggestedTileColor": "#F3A6A0",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.feelings.scared",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.feelings",
+      "group": "feelings",
+      "positionWithinGroup": 3,
+      "labels": {
+        "en-US": "Scared",
+        "si-LK": "බයයි",
+        "ta-LK": "பயம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/feelings_scared.webp",
+      "imageSha256": "6d12563374814ca80d62a214d9cfc5e47141ba3533a34eaa14ba122bd56c147f",
+      "suggestedTileColor": "#D4C4ED",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.feelings.tired",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.feelings",
+      "group": "feelings",
+      "positionWithinGroup": 4,
+      "labels": {
+        "en-US": "Tired",
+        "si-LK": "මහන්සියි",
+        "ta-LK": "களைப்பு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/feelings_tired.webp",
+      "imageSha256": "ecd9fc1d49f51f0b17ef54e3e02733bff330818f0bf65aab60b9d926b45efaf3",
+      "suggestedTileColor": "#C8D4E3",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.feelings.excited",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.feelings",
+      "group": "feelings",
+      "positionWithinGroup": 5,
+      "labels": {
+        "en-US": "Excited",
+        "si-LK": "ඉතා සතුටුයි",
+        "ta-LK": "உற்சாகம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/feelings_excited.webp",
+      "imageSha256": "dc236097c3271b98f61c12f531b3861a888afbc7e75e66817747f5c6a641f093",
+      "suggestedTileColor": "#FFDE75",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.feelings.calm",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.feelings",
+      "group": "feelings",
+      "positionWithinGroup": 6,
+      "labels": {
+        "en-US": "Calm",
+        "si-LK": "සන්සුන්",
+        "ta-LK": "அமைதி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/feelings_calm.webp",
+      "imageSha256": "b6e3299f0281e707092777d1eeb132a5689a830209929c59c5c5e5577a6e0afe",
+      "suggestedTileColor": "#AFE1C9",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.feelings.worried",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.feelings",
+      "group": "feelings",
+      "positionWithinGroup": 7,
+      "labels": {
+        "en-US": "Worried",
+        "si-LK": "කනස්සල්ලෙන්",
+        "ta-LK": "கவலை"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/feelings_worried.webp",
+      "imageSha256": "10e8631b7009a81d863e9b09c871649625a726d5e38f1355088156007c1d5451",
+      "suggestedTileColor": "#D4C6EA",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.feelings.okay",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.feelings",
+      "group": "feelings",
+      "positionWithinGroup": 8,
+      "labels": {
+        "en-US": "Okay",
+        "si-LK": "හරි",
+        "ta-LK": "சரி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/feelings_okay.webp",
+      "imageSha256": "5dc3330451d1c93e91c33726b7203efd0cfa67a9c0d7d8604b7ced535ac86221",
+      "suggestedTileColor": "#ACDE9B",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.feelings.love",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.feelings",
+      "group": "feelings",
+      "positionWithinGroup": 9,
+      "labels": {
+        "en-US": "Love",
+        "si-LK": "ආදරය",
+        "ta-LK": "அன்பு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/feelings_love.webp",
+      "imageSha256": "7fe0a9c13df725d3bfde33a86c687be196bded6dbcea5ec377315db424e35d37",
+      "suggestedTileColor": "#F2BECD",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.needs",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "labels": {
+        "en-US": "Needs",
+        "si-LK": "අවශ්‍යතා",
+        "ta-LK": "தேவைகள்"
+      },
+      "image": null,
+      "suggestedTileColor": "#DDF5ED",
+      "positionWithinGroup": 8,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.needs.hungry",
+        "simpleaac.starter.v2.needs.thirsty",
+        "simpleaac.starter.v2.needs.toilet",
+        "simpleaac.starter.v2.needs.help",
+        "simpleaac.starter.v2.needs.rest",
+        "simpleaac.starter.v2.needs.pain",
+        "simpleaac.starter.v2.needs.hot",
+        "simpleaac.starter.v2.needs.cold",
+        "simpleaac.starter.v2.needs.sleep",
+        "simpleaac.starter.v2.needs.needs"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.needs.hungry",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.needs",
+      "group": "needs",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "Hungry",
+        "si-LK": "බඩගිනියි",
+        "ta-LK": "பசிக்கிறது"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/needs_hungry.webp",
+      "imageSha256": "5902cc5d5fff581dc8c5e95a1a3e8ff58a222218476d3f280f0a9261d2e2d3c0",
+      "suggestedTileColor": "#FAD199",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.needs.thirsty",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.needs",
+      "group": "needs",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "Thirsty",
+        "si-LK": "පිපාසයි",
+        "ta-LK": "தாகமாக இருக்கிறது"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/needs_thirsty.webp",
+      "imageSha256": "6d0761bedeba587b0b3dfea0a245f4f7a41fe0774dbf48b9627c51af76d5ba6c",
+      "suggestedTileColor": "#AFD8F3",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.needs.toilet",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.needs",
+      "group": "needs",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "Toilet",
+        "si-LK": "වැසිකිළිය",
+        "ta-LK": "கழிப்பறை"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/needs_toilet.webp",
+      "imageSha256": "5183e0a79ea1696930fdb41508338b2a68e61897198a67ac0f826b09d011ae29",
+      "suggestedTileColor": "#B1DCF2",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.needs.help",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.needs",
+      "group": "needs",
+      "positionWithinGroup": 3,
+      "labels": {
+        "en-US": "Help",
+        "si-LK": "උදව්",
+        "ta-LK": "உதவி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/needs_help.webp",
+      "imageSha256": "37bdf4de1bfe00becf995a11343792927e03c0936a78c38d24ee7e0acbfaeeb4",
+      "suggestedTileColor": "#A8E0CA",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.needs.rest",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.needs",
+      "group": "needs",
+      "positionWithinGroup": 4,
+      "labels": {
+        "en-US": "Rest",
+        "si-LK": "විවේකය",
+        "ta-LK": "ஓய்வு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/needs_rest.webp",
+      "imageSha256": "068eec803d3e870123e40551ab9ac3d6fec27f2dcb4da76b1799601ba4c50ec5",
+      "suggestedTileColor": "#BEE6D3",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.needs.pain",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.needs",
+      "group": "needs",
+      "positionWithinGroup": 5,
+      "labels": {
+        "en-US": "Pain",
+        "si-LK": "රිදෙනවා",
+        "ta-LK": "வலிக்கிறது"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/needs_pain.webp",
+      "imageSha256": "0825bdef54db26f3c3cd9d0eea750a6257e721157702542bc3bf6cfc8d5a3c79",
+      "suggestedTileColor": "#F1B8B5",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.needs.hot",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.needs",
+      "group": "needs",
+      "positionWithinGroup": 6,
+      "labels": {
+        "en-US": "Hot",
+        "si-LK": "රස්නෙයි",
+        "ta-LK": "சூடாக இருக்கிறது"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/needs_hot.webp",
+      "imageSha256": "7b9f7ee125bd3997cdbbc4d7bf6c0770b87b7f79671d0cc131a06f56e5760544",
+      "suggestedTileColor": "#F9C3A3",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.needs.cold",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.needs",
+      "group": "needs",
+      "positionWithinGroup": 7,
+      "labels": {
+        "en-US": "Cold",
+        "si-LK": "සීතලයි",
+        "ta-LK": "குளிராக இருக்கிறது"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/needs_cold.webp",
+      "imageSha256": "400e03da60b91773eeff9e876b7710d63dcf42dea0fdd7cd180621c330877abe",
+      "suggestedTileColor": "#B1D0F1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.needs.sleep",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.needs",
+      "group": "needs",
+      "positionWithinGroup": 8,
+      "labels": {
+        "en-US": "Sleep",
+        "si-LK": "නිදාගන්න",
+        "ta-LK": "தூங்கு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/needs_sleep.webp",
+      "imageSha256": "47a00ccac1ff67a346d481a8a90e217fc0ff9ed6ddc3d04fa583b015f72ecd44",
+      "suggestedTileColor": "#D4CEEF",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.needs.needs",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.needs",
+      "group": "needs",
+      "positionWithinGroup": 9,
+      "labels": {
+        "en-US": "Needs",
+        "si-LK": "අවශ්‍යතා",
+        "ta-LK": "தேவைகள்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/needs_needs.webp",
+      "imageSha256": "823f1f57e656d53e3d935d469c0dfeb91f7381c3658ee3a2125f3e12ad711458",
+      "suggestedTileColor": "#BEE6D3",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.basic_words",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "labels": {
+        "en-US": "Basic Words",
+        "si-LK": "මූලික වචන",
+        "ta-LK": "அடிப்படைச் சொற்கள்"
+      },
+      "image": null,
+      "suggestedTileColor": "#FFE79C",
+      "positionWithinGroup": 9,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.basic_words.hello",
+        "simpleaac.starter.v2.basic_words.yes",
+        "simpleaac.starter.v2.basic_words.no",
+        "simpleaac.starter.v2.basic_words.please",
+        "simpleaac.starter.v2.basic_words.thank_you",
+        "simpleaac.starter.v2.basic_words.more",
+        "simpleaac.starter.v2.basic_words.stop",
+        "simpleaac.starter.v2.basic_words.again",
+        "simpleaac.starter.v2.basic_words.finished",
+        "simpleaac.starter.v2.basic_words.come"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.basic_words.hello",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.basic_words",
+      "group": "basic_words",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "Hello",
+        "si-LK": "ආයුබෝවන්",
+        "ta-LK": "வணக்கம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/basic_words_hello.webp",
+      "imageSha256": "82517ff32743460b1c56f217f798efd531f3d3ad5494af7ddef99f1939c88667",
+      "suggestedTileColor": "#FFE063",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.basic_words.yes",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.basic_words",
+      "group": "basic_words",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "Yes",
+        "si-LK": "ඔව්",
+        "ta-LK": "ஆம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/basic_words_yes.webp",
+      "imageSha256": "c585b3eca8caf93827f528153e313377d5db5c923202f49fe2a42654c7e89348",
+      "suggestedTileColor": "#9EDA91",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.basic_words.no",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.basic_words",
+      "group": "basic_words",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "No",
+        "si-LK": "නැහැ",
+        "ta-LK": "இல்லை"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/basic_words_no.webp",
+      "imageSha256": "7f85cfee4a9f2f525b26f68104792e15d132a8e6d23eb47abe7b60fed510452d",
+      "suggestedTileColor": "#F2B7B3",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.basic_words.please",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.basic_words",
+      "group": "basic_words",
+      "positionWithinGroup": 3,
+      "labels": {
+        "en-US": "Please",
+        "si-LK": "කරුණාකර",
+        "ta-LK": "தயவுசெய்து"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/basic_words_please.webp",
+      "imageSha256": "b86c113071f4bb7c14b5f9107ab6ddefa1aa186143699353c89f78e0f8164065",
+      "suggestedTileColor": "#D5C4F0",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.basic_words.thank_you",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.basic_words",
+      "group": "basic_words",
+      "positionWithinGroup": 4,
+      "labels": {
+        "en-US": "Thank You",
+        "si-LK": "ස්තුතියි",
+        "ta-LK": "நன்றி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/basic_words_thank_you.webp",
+      "imageSha256": "a5444aaaed441ebaeef92fad1bb5ece4830af9a53dbf1e0c6789f4a53c119d35",
+      "suggestedTileColor": "#B0E5C1",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.basic_words.more",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.basic_words",
+      "group": "basic_words",
+      "positionWithinGroup": 5,
+      "labels": {
+        "en-US": "More",
+        "si-LK": "තවත්",
+        "ta-LK": "இன்னும்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/basic_words_more.webp",
+      "imageSha256": "ee17a59fcbd778f0dcba880db1dfb0e5ad389d5845368a56d65e955b3ae5fdf0",
+      "suggestedTileColor": "#FFE079",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.basic_words.stop",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.basic_words",
+      "group": "basic_words",
+      "positionWithinGroup": 6,
+      "labels": {
+        "en-US": "Stop",
+        "si-LK": "නවත්වන්න",
+        "ta-LK": "நிறுத்து"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/basic_words_stop.webp",
+      "imageSha256": "8621694f55f383544e1ce764ce986e41ab3a48434d1764d154ed219250069627",
+      "suggestedTileColor": "#EE9A93",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.basic_words.again",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.basic_words",
+      "group": "basic_words",
+      "positionWithinGroup": 7,
+      "labels": {
+        "en-US": "Again",
+        "si-LK": "නැවත",
+        "ta-LK": "மீண்டும்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/basic_words_again.webp",
+      "imageSha256": "6ef66b03ba10f84ea6e42e7a889b0c8a0eb484486f717f459cab4e427f358f38",
+      "suggestedTileColor": "#F9DEA0",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.basic_words.finished",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.basic_words",
+      "group": "basic_words",
+      "positionWithinGroup": 8,
+      "labels": {
+        "en-US": "Finished",
+        "si-LK": "ඉවරයි",
+        "ta-LK": "முடிந்தது"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/basic_words_finished.webp",
+      "imageSha256": "faf37cc40ab1f0ecdc842e28a223814005a5b583f9ba8120eb4c00b631a4f480",
+      "suggestedTileColor": "#CBD8E6",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.basic_words.come",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.basic_words",
+      "group": "basic_words",
+      "positionWithinGroup": 9,
+      "labels": {
+        "en-US": "Come",
+        "si-LK": "එන්න",
+        "ta-LK": "வா"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/basic_words_come.webp",
+      "imageSha256": "c48432d40166e6371585ad5987aa2bba27e0dd4a9229c83b3b5163465b05620b",
+      "suggestedTileColor": "#F9DEA0",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.activities",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "labels": {
+        "en-US": "Activities",
+        "si-LK": "ක්‍රියාකාරකම්",
+        "ta-LK": "செயல்பாடுகள்"
+      },
+      "image": null,
+      "suggestedTileColor": "#E6E3FF",
+      "positionWithinGroup": 10,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.activities.eat",
+        "simpleaac.starter.v2.activities.drink",
+        "simpleaac.starter.v2.activities.play",
+        "simpleaac.starter.v2.activities.read",
+        "simpleaac.starter.v2.activities.walk"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.activities.eat",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.activities",
+      "group": "activities",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "Eat",
+        "si-LK": "කන්න",
+        "ta-LK": "சாப்பிடு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/activities_eat.webp",
+      "imageSha256": "c3c714f4648a85f9b17836ab1f882cf9f8627eb9ec730eb3eb79ac15f4e432d5",
+      "suggestedTileColor": "#CDE4F7",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.activities.drink",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.activities",
+      "group": "activities",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "Drink",
+        "si-LK": "බොන්න",
+        "ta-LK": "குடி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/activities_drink.webp",
+      "imageSha256": "33b7a7e13886ceffabbf83af04b356b7f5824f478dead221cc745b8f5f711eba",
+      "suggestedTileColor": "#CDE4F7",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.activities.play",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.activities",
+      "group": "activities",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "Play",
+        "si-LK": "සෙල්ලම් කරන්න",
+        "ta-LK": "விளையாடு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/activities_play.webp",
+      "imageSha256": "cf82cb7793bc42f4430aeb7b25dc29443cf547d2e559377fb0b6b809ababbb8d",
+      "suggestedTileColor": "#CDE4F7",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.activities.read",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.activities",
+      "group": "activities",
+      "positionWithinGroup": 3,
+      "labels": {
+        "en-US": "Read",
+        "si-LK": "කියවන්න",
+        "ta-LK": "வாசி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/activities_read.webp",
+      "imageSha256": "5cc8ecefd3f8b1860ffabef9aa2368b2621e81c5659444915f32fe6db4fe26dd",
+      "suggestedTileColor": "#CDE4F7",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.activities.walk",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.activities",
+      "group": "activities",
+      "positionWithinGroup": 4,
+      "labels": {
+        "en-US": "Walk",
+        "si-LK": "ඇවිදින්න",
+        "ta-LK": "நட"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/activities_walk.webp",
+      "imageSha256": "eeeeb3efd98d7ad526fc3858f234f1913c7daa0de481d6664a4e69248a529ad2",
+      "suggestedTileColor": "#CDE4F7",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.school_places",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "labels": {
+        "en-US": "School & Places",
+        "si-LK": "පාසල සහ ස්ථාන",
+        "ta-LK": "பள்ளி மற்றும் இடங்கள்"
+      },
+      "image": null,
+      "suggestedTileColor": "#D9EDFF",
+      "positionWithinGroup": 11,
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.school_places.home",
+        "simpleaac.starter.v2.school_places.school",
+        "simpleaac.starter.v2.school_places.playground",
+        "simpleaac.starter.v2.school_places.classroom"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.school_places.home",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.school_places",
+      "group": "school_places",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "Home",
+        "si-LK": "ගෙදර",
+        "ta-LK": "வீடு"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/school_places_home.webp",
+      "imageSha256": "14bb1ce5716a7f3fd6b75281c7d36633fbbdc18d92a5cda5ca6cc78687280893",
+      "suggestedTileColor": "#D1E2FA",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.school_places.school",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.school_places",
+      "group": "school_places",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "School",
+        "si-LK": "පාසල",
+        "ta-LK": "பள்ளி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/school_places_school.webp",
+      "imageSha256": "2915b9a3a4c469c53a71fb0c7a1b1c3798b785409fab05c0a1b7276ee209f204",
+      "suggestedTileColor": "#D1E2FA",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.school_places.playground",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.school_places",
+      "group": "school_places",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "Playground",
+        "si-LK": "ක්‍රීඩා පිටිය",
+        "ta-LK": "விளையாட்டு மைதானம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/school_places_playground.webp",
+      "imageSha256": "07ece6569932e52884bb57c71ea311026e72673e8020242d546adb844693b68b",
+      "suggestedTileColor": "#D1E2FA",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.school_places.classroom",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.school_places",
+      "group": "school_places",
+      "positionWithinGroup": 3,
+      "labels": {
+        "en-US": "Classroom",
+        "si-LK": "පන්ති කාමරය",
+        "ta-LK": "வகுப்பறை"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/school_places_classroom.webp",
+      "imageSha256": "9ff76771530f61ce2e4b4f6c2c224a6845531664e1a19e6493bb31212a7f72fc",
+      "suggestedTileColor": "#D1E2FA",
+      "suggestedAction": "speak_label",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.personal_care",
+      "role": "category_folder",
+      "type": "folder",
+      "parentId": "simpleaac.starter.v2.default",
+      "positionWithinGroup": 12,
+      "labels": {
+        "en-US": "Personal Care",
+        "si-LK": "පුද්ගලික සනීපාරක්ෂාව",
+        "ta-LK": "தனிப்பட்ட சுகாதாரம்"
+      },
+      "image": null,
+      "suggestedTileColor": "#D1F2E8",
+      "suggestedAction": "open_children",
+      "childrenIds": [
+        "simpleaac.starter.v2.personal_care.toothpaste",
+        "simpleaac.starter.v2.personal_care.toothbrush",
+        "simpleaac.starter.v2.personal_care.brush_teeth"
+      ]
+    },
+    {
+      "id": "simpleaac.starter.v2.food.kottu",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 12,
+      "labels": {
+        "en-US": "Kottu Roti",
+        "si-LK": "කොත්තු රොටි",
+        "ta-LK": "கொத்து ரொட்டி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_kottu.webp",
+      "imageSha256": "5da5bd3c48ac62d7c133b4ff5ab5bff45410230ede0d1035c1777ebb3ee8866e",
+      "suggestedTileColor": "#FFDE9B",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.string_hoppers",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 13,
+      "labels": {
+        "en-US": "String Hoppers",
+        "si-LK": "ඉඳිආප්ප",
+        "ta-LK": "இடியாப்பம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_string_hoppers.webp",
+      "imageSha256": "c9e735447bae780d1b465ee274dba3bef01cceacc4328bd102997c8f1dbf851d",
+      "suggestedTileColor": "#E0E9E9",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.hoppers",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 14,
+      "labels": {
+        "en-US": "Hoppers",
+        "si-LK": "ආප්ප",
+        "ta-LK": "ஆப்பம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_hoppers.webp",
+      "imageSha256": "b5d60b6c05b1ec9a6d9601194fbb19bbd1d99fec19c7ea18befea3454e964734",
+      "suggestedTileColor": "#F9DF9D",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.butter",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 15,
+      "labels": {
+        "en-US": "Butter",
+        "si-LK": "බටර්",
+        "ta-LK": "வெண்ணெய்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_butter.webp",
+      "imageSha256": "b50d90f982085b3515a8206359b5206cfe43d5e8dd53f55bd6b43765ea0d140e",
+      "suggestedTileColor": "#FFEDB0",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.food.butter_bread",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.food",
+      "group": "food",
+      "positionWithinGroup": 16,
+      "labels": {
+        "en-US": "Butter Bread",
+        "si-LK": "බටර් පාන්",
+        "ta-LK": "வெண்ணெய் தடவிய ரொட்டி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/food_butter_bread.webp",
+      "imageSha256": "ad8e6c091db6da0b8e19e56edd0ce54cc021fa47c934fc4818eb0faafbb381c3",
+      "suggestedTileColor": "#FFE39C",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.snacks.samosa",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.snacks",
+      "group": "snacks",
+      "positionWithinGroup": 7,
+      "labels": {
+        "en-US": "Samosa",
+        "si-LK": "සමෝසා",
+        "ta-LK": "சமோசா"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/snacks_samosa.webp",
+      "imageSha256": "95ea74dfa28519c1b77bc786699ca1294f606c6199c002c18444f0cf8b625609",
+      "suggestedTileColor": "#F6D3AD",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.snacks.rolls",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.snacks",
+      "group": "snacks",
+      "positionWithinGroup": 8,
+      "labels": {
+        "en-US": "Rolls",
+        "si-LK": "රෝල්ස්",
+        "ta-LK": "ரோல்ஸ்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/snacks_rolls.webp",
+      "imageSha256": "953f85182d980a1341f308273ae886d50f98186604d63f87fa9fef92dd248c80",
+      "suggestedTileColor": "#FFD9BD",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.snacks.patties",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.snacks",
+      "group": "snacks",
+      "positionWithinGroup": 9,
+      "labels": {
+        "en-US": "Patties",
+        "si-LK": "පැටිස්",
+        "ta-LK": "பேட்டீஸ்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/snacks_patties.webp",
+      "imageSha256": "3f1bfe5e69bde1ecef1ae1d79a1810c92b0425d504e7dfd530937dfd574fa233",
+      "suggestedTileColor": "#FFD9BD",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.snacks.milk_biscuit",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.snacks",
+      "group": "snacks",
+      "positionWithinGroup": 10,
+      "labels": {
+        "en-US": "Milk Biscuit",
+        "si-LK": "මිල්ක් බිස්කට්",
+        "ta-LK": "பால் பிஸ்கட்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/snacks_milk_biscuit.webp",
+      "imageSha256": "bcf20dc56548de9960129fea37aa7c3fdedc296512bd0a00e50a2145290ce905",
+      "suggestedTileColor": "#FCE6BC",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.drinks.coffee",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.drinks",
+      "group": "drinks",
+      "positionWithinGroup": 8,
+      "labels": {
+        "en-US": "Coffee",
+        "si-LK": "කෝපි",
+        "ta-LK": "காப்பி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/drinks_coffee.webp",
+      "imageSha256": "da29353d94ee281798fae95ebda5aabba8e848ec7b39bd37c4e6e6edbb0f23b2",
+      "suggestedTileColor": "#D6C0AE",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.drinks.soft_drink",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.drinks",
+      "group": "drinks",
+      "positionWithinGroup": 9,
+      "labels": {
+        "en-US": "Soft Drink",
+        "si-LK": "සිසිල් බීම",
+        "ta-LK": "குளிர்பானம்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/drinks_soft_drink.webp",
+      "imageSha256": "172df7094b55184ae9f6648df054251c5e56d87036a4c67dd565893c3fdaa2d8",
+      "suggestedTileColor": "#F6C1B5",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.personal_care.toothpaste",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.personal_care",
+      "group": "personal_care",
+      "positionWithinGroup": 0,
+      "labels": {
+        "en-US": "Toothpaste",
+        "si-LK": "දත් බෙහෙත්",
+        "ta-LK": "பற்பசை"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/personal_care_toothpaste.webp",
+      "imageSha256": "80959e6ad552658d0bba6e1a98213fa1571056e50cee0391457b82465393a89f",
+      "suggestedTileColor": "#C8E5F8",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.personal_care.toothbrush",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.personal_care",
+      "group": "personal_care",
+      "positionWithinGroup": 1,
+      "labels": {
+        "en-US": "Toothbrush",
+        "si-LK": "දත් බුරුසුව",
+        "ta-LK": "பல் துலக்கி"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/personal_care_toothbrush.webp",
+      "imageSha256": "b81f4c8f7ee8b2232de18d5ada7e8c16ac0faee96c56c5b36189736a11c08858",
+      "suggestedTileColor": "#C5E8D5",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    },
+    {
+      "id": "simpleaac.starter.v2.personal_care.brush_teeth",
+      "role": "word_card",
+      "type": "word",
+      "parentId": "simpleaac.starter.v2.personal_care",
+      "group": "personal_care",
+      "positionWithinGroup": 2,
+      "labels": {
+        "en-US": "Brush Teeth",
+        "si-LK": "දත් මදින්න",
+        "ta-LK": "பல் துலக்குதல்"
+      },
+      "tts": {
+        "useSelectedLanguageLabel": true
+      },
+      "image": "images/personal_care_brush_teeth.webp",
+      "imageSha256": "65b2ca30ae2746d33e7c99a755fd34afde401472437e9723160f41ac4d5f27ab",
+      "suggestedTileColor": "#FCE5AC",
+      "colorPersistence": "baked_in_image_pixels_no_picker_required",
+      "suggestedAction": "speak_label",
+      "imageBackgroundEmbedded": true
+    }
+  ],
+  "imageFraming": "source-art stray atlas fragments removed; centered transparent WebP",
+  "tileColorPolicy": "Every word card has an individual suggestedTileColor hex. Persist it in the existing card data/model, not inside image pixels. Import on fresh install or explicit opt-in only; never override user custom colors.",
+  "sriLankanEssentials": [
+    "food.kottu",
+    "food.string_hoppers",
+    "food.hoppers",
+    "food.butter",
+    "food.butter_bread",
+    "snacks.samosa",
+    "snacks.rolls",
+    "snacks.patties",
+    "snacks.milk_biscuit",
+    "drinks.coffee",
+    "drinks.soft_drink",
+    "personal_care.toothpaste",
+    "personal_care.toothbrush",
+    "personal_care.brush_teeth"
+  ],
+  "mustHaveCoverage": "See MUST_HAVE_CHECKLIST.tsv: 20 requested vocabulary concepts, 6 previously present and 14 newly added.",
+  "backgroundRendering": "Images are fully opaque with their own pastel background. Do not create a color picker or overlay additional tiles. Preserve labels as separate Flutter text."
+}
+
+''';

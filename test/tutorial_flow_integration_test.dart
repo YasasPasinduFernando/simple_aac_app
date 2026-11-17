@@ -29,6 +29,15 @@ void main() {
       );
 
       expect(find.text('Welcome to Simple AAC Sri Lanka!'), findsOneWidget);
+      expect(find.text('Communicate with Picture Cards'), findsOneWidget);
+      expect(find.text('Create Your Own Cards'), findsOneWidget);
+      expect(find.text('Privacy-Focused'), findsOneWidget);
+      expect(
+        find.text(
+          'Core card communication works offline.\nSmart Image Search uses the internet.',
+        ),
+        findsOneWidget,
+      );
       expect(find.text('Start Quick Tour'), findsOneWidget);
       expect(find.text('Not Now'), findsOneWidget);
 

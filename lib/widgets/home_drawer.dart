@@ -39,6 +39,7 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onPickPrimaryColor;
   final VoidCallback onPickTextColor;
   final VoidCallback onPickBackgroundColor;
+  final VoidCallback? onOpenPersonalizeSetup;
   final VoidCallback? onPickCardTextColor;
   final VoidCallback onShowTtsBarSize;
   final VoidCallback onToggleFullScreen;
@@ -49,6 +50,8 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback? onShowCardTextSize;
   final VoidCallback onBackup;
   final VoidCallback onRestore;
+  final VoidCallback? onShowStarterPack;
+  final VoidCallback? onOpenRecycleBin;
   final VoidCallback onResetSettings;
   final VoidCallback? onManagePermissions;
   final String speechStatusLabel;
@@ -104,6 +107,7 @@ class HomeDrawer extends StatelessWidget {
     required this.onPickPrimaryColor,
     required this.onPickTextColor,
     required this.onPickBackgroundColor,
+    this.onOpenPersonalizeSetup,
     this.onPickCardTextColor,
     required this.onShowTtsBarSize,
     required this.onToggleFullScreen,
@@ -114,6 +118,8 @@ class HomeDrawer extends StatelessWidget {
     this.onShowCardTextSize,
     required this.onBackup,
     required this.onRestore,
+    this.onShowStarterPack,
+    this.onOpenRecycleBin,
     required this.onResetSettings,
     this.onManagePermissions,
     this.speechStatusLabel = 'Automatic offline voice',
@@ -274,7 +280,8 @@ class HomeDrawer extends StatelessWidget {
                   context,
                   icon: Icons.grid_view_rounded,
                   title: 'Grid Columns',
-                  subtitle: '$gridColumns columns',
+                  subtitle:
+                      '$gridColumns ${gridColumns == 1 ? "column" : "columns"}',
                   onTap: onShowGrid,
                 ),
                 _buildDrawerItem(
@@ -349,6 +356,24 @@ class HomeDrawer extends StatelessWidget {
                   subtitle: 'Restore board from zip backup',
                   onTap: onRestore,
                 ),
+                if (onShowStarterPack != null)
+                  _buildDrawerItem(
+                    context,
+                    itemKey: const ValueKey('drawer_starter_pack_item'),
+                    icon: Icons.auto_awesome_rounded,
+                    title: 'Starter Card Pack',
+                    subtitle: '114 cards in 13 categories (Sri Lanka)',
+                    onTap: onShowStarterPack!,
+                  ),
+                if (onOpenRecycleBin != null)
+                  _buildDrawerItem(
+                    context,
+                    itemKey: const ValueKey('drawer_recycle_bin_item'),
+                    icon: Icons.restore_from_trash_outlined,
+                    title: 'Recycle Bin',
+                    subtitle: 'Recover deleted cards for up to 30 days',
+                    onTap: onOpenRecycleBin!,
+                  ),
                 _buildDrawerItem(
                   context,
                   icon: Icons.restart_alt_rounded,
@@ -733,7 +758,24 @@ class HomeDrawer extends StatelessWidget {
             ),
           ),
 
-          // Row 2: Primary App Color with Mini UI Header Preview
+          // Row 2: Personalize App (Language & Theme Wizard)
+          if (onOpenPersonalizeSetup != null)
+            _buildColorPickerRow(
+              context,
+              icon: Icons.tune_rounded,
+              title: 'Personalize App',
+              subtitle: isDarkMode
+                  ? 'Language & theme setup'
+                  : 'Language, App Bar & Board colors',
+              previewChip: _PersonalizePreviewChip(
+                appBarColor: primaryColorSwatch,
+                boardColor: backgroundColorSwatch,
+                isDarkMode: isDark,
+              ),
+              onTap: onOpenPersonalizeSetup!,
+            ),
+
+          // Row 3: Primary App Color with Mini UI Header Preview
           _buildColorPickerRow(
             context,
             icon: Icons.palette_rounded,
@@ -1252,6 +1294,108 @@ class _DrawerIconBadge extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: Icon(icon, size: 20, color: tint),
+    );
+  }
+}
+
+/// Mini UI preview chip for Personalize App (reflects selected App Bar and Board colors)
+class _PersonalizePreviewChip extends StatelessWidget {
+  final Color appBarColor;
+  final Color boardColor;
+  final bool isDarkMode;
+
+  const _PersonalizePreviewChip({
+    required this.appBarColor,
+    required this.boardColor,
+    required this.isDarkMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Personalize preview: App bar and board colors',
+      child: Container(
+        width: 86,
+        height: 38,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.black.withValues(alpha: 0.14),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDarkMode ? 0.3 : 0.06),
+              blurRadius: 3,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            // Mini Header Bar in selected App Bar color
+            Container(
+              height: 14,
+              color: appBarColor,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: const Row(
+                children: [
+                  Icon(
+                    Icons.chat_bubble_rounded,
+                    size: 7,
+                    color: Colors.white,
+                  ),
+                  Spacer(),
+                  Icon(
+                    Icons.menu_rounded,
+                    size: 7,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ),
+            // Mini Board in selected Board color
+            Expanded(
+              child: Container(
+                color: boardColor,
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFDE68A),
+                          borderRadius: BorderRadius.circular(3),
+                          border: Border.all(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            width: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 3),
+                    Expanded(
+                      child: Container(
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFBAE6FD),
+                          borderRadius: BorderRadius.circular(3),
+                          border: Border.all(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            width: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

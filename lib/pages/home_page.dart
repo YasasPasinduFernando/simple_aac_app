@@ -24,10 +24,17 @@ import '../services/speech_engine.dart';
 import '../services/tutorial_service.dart';
 import '../models/category_metadata.dart';
 import '../models/edit_session_snapshot.dart';
+import '../services/recycle_bin_service.dart';
+import '../services/personalize_service.dart';
+import '../services/starter_pack_service.dart';
+import 'recycle_bin_page.dart';
 import '../widgets/add_category_dialog.dart';
 import '../widgets/card_editor_dialog.dart';
+import '../widgets/crop_zoom_dialog.dart';
+import '../widgets/personalize_setup_dialog.dart';
 import '../widgets/manage_sub_cards_dialog.dart';
 import '../widgets/select_category_dialog.dart';
+import '../widgets/select_grid_size_dialog.dart';
 import '../widgets/color_vision_dialog.dart';
 import '../widgets/professional_color_picker_dialog.dart';
 
@@ -40,7 +47,6 @@ import '../widgets/tts_bar.dart';
 import '../widgets/visible_cards_dialog.dart';
 import '../widgets/preview/live_preview_panel.dart';
 import '../widgets/preview/tts_composer_preview.dart';
-import '../widgets/preview/grid_density_preview.dart';
 import '../widgets/tutorial/mini_guides_dialog.dart';
 import '../widgets/tutorial/tutorial_overlay.dart';
 import '../widgets/tutorial/welcome_tour_dialog.dart';
@@ -70,6 +76,7 @@ class HomePage extends StatefulWidget {
   @visibleForTesting
   static bool enableTtsInit = true;
   static bool enableTutorialInit = false;
+  static bool enablePersonalizeInit = false;
   @visibleForTesting
   static List<AACCard>? initialCardsForTesting;
 
@@ -102,6 +109,7 @@ class EditUndoStep {
   final String? activeParentId;
   final List<String> parentStackIds;
   final String description;
+  final String? recycleBinEntryId;
 
   EditUndoStep({
     required this.cards,
@@ -109,6 +117,7 @@ class EditUndoStep {
     required this.activeParentId,
     required this.parentStackIds,
     required this.description,
+    this.recycleBinEntryId,
   });
 }
 
@@ -121,6 +130,7 @@ class _HomePageState extends State<HomePage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController _gridController = ScrollController();
+  final ScrollController _horizontalScrollController = ScrollController();
 
   List<AACCard> cards = [];
   int gridColumns = 2;
@@ -162,6 +172,7 @@ class _HomePageState extends State<HomePage> {
   String searchQuery = '';
   EditSessionSnapshot? _editSessionSnapshot;
   final Set<String> _sessionCreatedMediaFiles = <String>{};
+  final Set<String> _sessionRecycleBinEntryIds = <String>{};
   final List<EditUndoStep> _undoHistory = [];
   final List<AACCard> _parentStack = [];
   Timer? _autoScrollTimer;
@@ -248,8 +259,41 @@ class _HomePageState extends State<HomePage> {
     _loadCardsFuture = _loadCards();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!HomePage.enableTutorialInit) return;
+      if (!HomePage.enableTutorialInit && !HomePage.enablePersonalizeInit) return;
       if (HomePage.initialCardsForTesting != null) return;
+
+      final prefs = await SharedPreferences.getInstance();
+
+      if (HomePage.enablePersonalizeInit &&
+          PersonalizeService.shouldShowFirstLaunchSetup(prefs)) {
+        if (!mounted) return;
+        final result = await PersonalizeSetupDialog.show(
+          context,
+          initialLanguage: currentLanguage,
+          initialAppBarColor: Color(_themePrimaryColor),
+          initialBoardColor: Color(_themeBackgroundColor),
+          isFirstLaunch: true,
+        );
+
+        if (result != null) {
+          await PersonalizeService.markCompleted(prefs);
+          if (mounted) {
+            setState(() {
+              currentLanguage = result.language;
+              _themePrimaryColor = result.appBarColor.value;
+              _themeBackgroundColor = result.boardColor.value;
+            });
+            await prefs.setString('language', currentLanguage);
+            await prefs.setInt('themePrimaryColor', _themePrimaryColor);
+            await prefs.setInt('themeBackgroundColor', _themeBackgroundColor);
+            await _saveCards();
+          }
+        } else {
+          await PersonalizeService.markCompleted(prefs);
+        }
+      }
+
+      if (!HomePage.enableTutorialInit) return;
       await TutorialService.instance.init();
       if (mounted && TutorialService.instance.isWelcomeVisibleNotifier.value) {
         unawaited(WelcomeTourDialog.show(context, language: currentLanguage));
@@ -289,7 +333,9 @@ class _HomePageState extends State<HomePage> {
       final prefs = results[0] as SharedPreferences;
       final loadedCards = results[1] as List<AACCard>;
 
-      final nextGridColumns = prefs.getInt('gridColumns') ?? 2;
+      final nextGridColumns =
+          (prefs.getInt('gridColumns') ?? prefs.getInt('grid_columns') ?? 2)
+              .clamp(1, 30);
       final nextShowTtsInput = prefs.getBool('showTtsInput') ?? true;
       final nextOrientation = prefs.getString('orientationMode') ?? 'portrait';
       final nextFullScreen = prefs.getBool('fullScreen') ?? true;
@@ -384,6 +430,8 @@ class _HomePageState extends State<HomePage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(_initTts());
       });
+      // Lightweight 30-day Recycle Bin cleanup
+      unawaited(RecycleBinService.instance.purgeExpiredEntries(activeCards: loadedCards));
     } catch (e, st) {
       debugPrint('[_loadCards] ERROR: $e\n$st');
     }
@@ -454,7 +502,8 @@ class _HomePageState extends State<HomePage> {
           ),
         );
         await Future.wait([
-          prefs.setInt('gridColumns', gridColumns),
+          prefs.setInt('gridColumns', gridColumns.clamp(1, 30)),
+          prefs.setInt('grid_columns', gridColumns.clamp(1, 30)),
           prefs.setString('visibleCardIdsByParent', encodedVisible),
           prefs.setBool('showTtsInput', showTtsInput),
           prefs.setString('orientationMode', orientationMode),
@@ -691,11 +740,19 @@ class _HomePageState extends State<HomePage> {
           imageQuality: 80,
         );
         if (outcome != null && mounted) {
+          final cropped = await CropZoomDialog.show(context, imagePath: outcome.imagePath);
+          if (cropped == null || !mounted) return;
+
+          final permanentPath = await CardStorageService.persistMediaFile(
+            cropped,
+            cardId: card.id,
+            mediaType: 'images',
+          );
           if (isEditMode) {
-            _sessionCreatedMediaFiles.add(outcome.imagePath);
+            _sessionCreatedMediaFiles.add(permanentPath);
           }
           setState(() {
-            card.imagePath = outcome.imagePath;
+            card.imagePath = permanentPath;
           });
           _saveCards();
           if (outcome.analysis.analyzerAvailable &&
@@ -752,9 +809,12 @@ class _HomePageState extends State<HomePage> {
       try {
         final image = await _picker.pickImage(
             source: ImageSource.gallery, imageQuality: 80);
-        if (image != null) {
+        if (image != null && mounted) {
+          final cropped = await CropZoomDialog.show(context, imagePath: image.path);
+          if (cropped == null || !mounted) return;
+
           final permanentPath = await CardStorageService.persistMediaFile(
-            image.path,
+            cropped,
             cardId: card.id,
             mediaType: 'images',
           );
@@ -809,6 +869,7 @@ class _HomePageState extends State<HomePage> {
     final preEditSnapshot = _cloneCards(cards);
     final preEditVisibleMap = _cloneVisibleMap(visibleCardIdsByParent);
     final List<AACCard> movedCardsToHome = [];
+    AACCard? duplicateCandidateCard;
 
     final action = await showDialog<CardEditorAction>(
       context: context,
@@ -825,6 +886,9 @@ class _HomePageState extends State<HomePage> {
           if (isEditMode) {
             _sessionCreatedMediaFiles.add(path);
           }
+        },
+        onDuplicate: (candidate) {
+          duplicateCandidateCard = candidate;
         },
         onPickImage: () {
           Navigator.pop(context);
@@ -843,6 +907,8 @@ class _HomePageState extends State<HomePage> {
       _createCard(parent: card);
     } else if (action == CardEditorAction.manageSubCards) {
       _showManageSubCardsDialog(card);
+    } else if (action == CardEditorAction.duplicate) {
+      await _duplicateCard(card, candidateData: duplicateCandidateCard);
     } else if (action == CardEditorAction.saved) {
       debugPrint(
         '[HomePage] card editor saved: id=${card.id}, label=${card.label}, '
@@ -897,6 +963,18 @@ class _HomePageState extends State<HomePage> {
           }
         }
       }
+    } else if (action == null && !isNew) {
+      final orig = _findCardById(card.id, preEditSnapshot);
+      if (orig != null) {
+        card.label = orig.label;
+        card.labelSinhala = orig.labelSinhala;
+        card.labelTamil = orig.labelTamil;
+        card.category = orig.category;
+        card.type = orig.type;
+        card.colorValue = orig.colorValue;
+        card.imagePath = orig.imagePath;
+        card.voicePath = orig.voicePath;
+      }
     }
   }
 
@@ -928,6 +1006,140 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
     _updateCategories();
     _saveCards();
+  }
+
+  AACCard? _findParentFolderOf(String cardId, [List<AACCard>? list]) {
+    final searchList = list ?? cards;
+    for (final card in searchList) {
+      if (card.subCards.any((c) => c.id == cardId)) {
+        return card;
+      }
+      final found = _findParentFolderOf(cardId, card.subCards);
+      if (found != null) return found;
+    }
+    return null;
+  }
+
+  static int _duplicateCounter = 0;
+
+  String _generateUniqueCardId(String baseId) {
+    var newId =
+        'card_${DateTime.now().microsecondsSinceEpoch}_${_duplicateCounter++}';
+    while (_findCardById(newId, cards) != null) {
+      newId =
+          'card_${DateTime.now().microsecondsSinceEpoch}_${_duplicateCounter++}';
+    }
+    return newId;
+  }
+
+  Future<void> _duplicateCard(
+    AACCard originalCard, {
+    AACCard? candidateData,
+  }) async {
+    // 1. Strict guard: folder cards or cards with sub-cards can NEVER be duplicated
+    if (originalCard.type != 'word' || originalCard.subCards.isNotEmpty) {
+      debugPrint(
+        '[DuplicateCard] Safely rejected attempt to duplicate non-word card: '
+        'id=${originalCard.id}, type=${originalCard.type}, subCards=${originalCard.subCards.length}',
+      );
+      return;
+    }
+
+    _recordUndoStep('Duplicate ${originalCard.getLabel(currentLanguage)}');
+
+    final newCardId = _generateUniqueCardId(originalCard.id);
+
+    // 2. Safe media duplication
+    String? newImagePath = candidateData?.imagePath ?? originalCard.imagePath;
+    String? newVoicePath = candidateData?.voicePath ?? originalCard.voicePath;
+
+    if (newImagePath != null && newImagePath.isNotEmpty) {
+      newImagePath = await CardStorageService.copyMediaFile(
+        newImagePath,
+        cardId: newCardId,
+        mediaType: 'images',
+      );
+      if (isEditMode && newImagePath != null) {
+        _sessionCreatedMediaFiles.add(newImagePath);
+      }
+    }
+
+    if (newVoicePath != null && newVoicePath.isNotEmpty) {
+      newVoicePath = await CardStorageService.copyMediaFile(
+        newVoicePath,
+        cardId: newCardId,
+        mediaType: 'voices',
+      );
+      if (isEditMode && newVoicePath != null) {
+        _sessionCreatedMediaFiles.add(newVoicePath);
+      }
+    }
+
+    // 3. Construct independent duplicate AACCard
+    final duplicate = AACCard(
+      id: newCardId,
+      label: candidateData?.label ?? originalCard.label,
+      labelSinhala: candidateData?.labelSinhala ?? originalCard.labelSinhala,
+      labelTamil: candidateData?.labelTamil ?? originalCard.labelTamil,
+      category: candidateData?.category ?? originalCard.category,
+      type: 'word',
+      colorValue: candidateData?.colorValue ?? originalCard.colorValue,
+      imagePath: newImagePath,
+      voicePath: newVoicePath,
+      subCards: const [],
+    );
+
+    // 4. Insert immediately after original in same parent container
+    setState(() {
+      if (activeParentCard != null) {
+        final idx = activeParentCard!.subCards
+            .indexWhere((c) => c.id == originalCard.id);
+        if (idx != -1) {
+          activeParentCard!.subCards.insert(idx + 1, duplicate);
+        } else {
+          activeParentCard!.subCards.add(duplicate);
+        }
+        _includeInVisibleSelection(activeParentCard!.id, duplicate.id);
+      } else {
+        final rootIdx = cards.indexWhere((c) => c.id == originalCard.id);
+        if (rootIdx != -1) {
+          cards.insert(rootIdx + 1, duplicate);
+          _includeInVisibleSelection('__root__', duplicate.id);
+        } else {
+          final parent = _findParentFolderOf(originalCard.id, cards);
+          if (parent != null) {
+            final pIdx =
+                parent.subCards.indexWhere((c) => c.id == originalCard.id);
+            if (pIdx != -1) {
+              parent.subCards.insert(pIdx + 1, duplicate);
+            } else {
+              parent.subCards.add(duplicate);
+            }
+            _includeInVisibleSelection(parent.id, duplicate.id);
+          } else {
+            cards.add(duplicate);
+            _includeInVisibleSelection('__root__', duplicate.id);
+          }
+        }
+      }
+    });
+
+    _updateCategories();
+    await _saveCards();
+    _setHighlight(duplicate.id);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Card duplicated successfully'),
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: _undoEditChanges,
+          ),
+        ),
+      );
+    }
   }
 
   void _createCard({AACCard? parent}) {
@@ -1071,12 +1283,33 @@ class _HomePageState extends State<HomePage> {
             ),
             icon: const Icon(Icons.delete_outline_rounded, size: 18),
             label: const Text('Delete'),
-            onPressed: () {
+            onPressed: () async {
               debugPrint(
                 '[HomePage] deleting card: id=${card.id}, '
                 'label=${card.label}, activeParentId=${activeParentCard?.id}',
               );
-              _recordUndoStep('Delete ${card.getLabel(currentLanguage)}');
+              final parentId = activeParentCard?.id;
+              final originalIndex = activeParentCard != null
+                  ? activeParentCard!.subCards.indexOf(card)
+                  : cards.indexOf(card);
+
+              // 1. Transactionally record into Recycle Bin
+              final binEntry = await RecycleBinService.instance.moveToRecycleBin(
+                card: card,
+                parentId: parentId,
+                originalIndex: originalIndex >= 0 ? originalIndex : 0,
+              );
+              if (isEditMode) {
+                _sessionRecycleBinEntryIds.add(binEntry.entryId);
+              }
+
+              // 2. Record undo step with entry id
+              _recordUndoStep(
+                'Delete ${card.getLabel(currentLanguage)}',
+                recycleBinEntryId: binEntry.entryId,
+              );
+
+              // 3. Remove card from board
               setState(() {
                 if (activeParentCard != null) {
                   activeParentCard!.subCards.remove(card);
@@ -1086,7 +1319,9 @@ class _HomePageState extends State<HomePage> {
               });
               _updateCategories();
               _saveCards();
-              Navigator.pop(context);
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
             },
           ),
         ],
@@ -1395,108 +1630,18 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showGridOptions() {
-    final labels = ['Extra Large', 'Large', 'Medium', 'Small', 'Extra Small'];
-    int tempColumns = gridColumns.clamp(1, 5);
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setLocalState) {
-          final colorScheme = Theme.of(context).colorScheme;
-          return AlertDialog(
-            insetPadding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            title: const StyledDialogHeader(
-              icon: Icons.grid_view_rounded,
-              title: 'Select Grid Size',
-              subtitle: 'Choose card size & column density',
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  LivePreviewPanel(
-                    title: 'LIVE GRID PREVIEW',
-                    icon: Icons.remove_red_eye_rounded,
-                    minHeight: 120,
-                    maxHeight: 185,
-                    child: GridDensityPreview(
-                      columns: tempColumns,
-                      cards: _getBaseDisplayedCards(),
-                      language: currentLanguage,
-                      cardTextScale: _cardTextScale,
-                      cardTextColor: _cardTextColor,
-                      isDarkMode: _isDarkMode,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color:
-                          colorScheme.primaryContainer.withValues(alpha: 0.45),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '$tempColumns ${tempColumns == 1 ? 'Column' : 'Columns'} • ${labels[tempColumns - 1]}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Slider(
-                    value: (6 - tempColumns).toDouble(),
-                    min: 1,
-                    max: 5,
-                    divisions: 4,
-                    label: labels[tempColumns - 1],
-                    onChanged: (value) {
-                      setLocalState(() => tempColumns = 6 - value.round());
-                    },
-                  ),
-                  const SizedBox(height: 4),
-                  ...List.generate(
-                    labels.length,
-                    (index) {
-                      final cols = index + 1;
-                      return DialogOptionTile(
-                        icon: Icons.view_module_rounded,
-                        badgeText: '${cols}x',
-                        title: labels[index],
-                        subtitle:
-                            '$cols ${cols == 1 ? 'card' : 'cards'} per row',
-                        selected: tempColumns == cols,
-                        onTap: () => setLocalState(() => tempColumns = cols),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  setLocalState(() => tempColumns = 2);
-                },
-                child: const Text('Reset'),
-              ),
-              FilledButton(
-                onPressed: () {
-                  setState(() => gridColumns = tempColumns);
-                  _saveCards();
-                  Navigator.pop(context);
-                },
-                child: const Text('Apply'),
-              ),
-            ],
-          );
+      builder: (context) => SelectGridSizeDialog(
+        currentColumns: gridColumns,
+        cards: _getBaseDisplayedCards(),
+        currentLanguage: currentLanguage,
+        cardTextScale: _cardTextScale,
+        cardTextColor: _cardTextColor,
+        isDarkMode: _isDarkMode,
+        onApply: (newCols) {
+          setState(() => gridColumns = newCols);
+          _saveCards();
         },
       ),
     );
@@ -1585,6 +1730,131 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  void _showStarterPackDialog() {
+    _closeDrawerIfOpen();
+    final isInstalled = StarterPackService.isStarterPackInstalled(cards);
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        icon: const Icon(
+          Icons.auto_awesome_rounded,
+          color: Color(0xFF0277BD),
+          size: 40,
+        ),
+        title: Text(
+          isInstalled ? 'Starter Pack Installed' : 'Import Starter Pack?',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isInstalled
+                  ? 'All 114 Sri Lankan starter cards are installed in the "Default" folder across 13 categories.'
+                  : 'Add 114 ready-colored Sri Lankan communication cards organized in 13 categories (Family, Food, Drinks, Feelings, Personal Care, and more) under a "Default" folder.',
+              style: const TextStyle(fontSize: 14, height: 1.4),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0F9FF),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFBAE6FD)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.shield_outlined, color: Color(0xFF0284C7), size: 24),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Your existing cards, custom photos, audio recordings, and board layout remain 100% safe.',
+                      style: TextStyle(fontSize: 12, color: Color(0xFF0369A1), height: 1.3),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isInstalled) ...[
+              const SizedBox(height: 12),
+              const Text(
+                'Tip: You can re-sync to restore any missing starter cards without affecting cards you have edited.',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: Text(isInstalled ? 'Close' : 'Cancel'),
+          ),
+          FilledButton.icon(
+            key: const ValueKey('confirm_import_starter_pack_btn'),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF0277BD),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            icon: Icon(isInstalled ? Icons.sync_rounded : Icons.download_rounded, size: 18),
+            label: Text(isInstalled ? 'Re-sync Cards' : 'Import 114 Cards'),
+            onPressed: () {
+              Navigator.of(dialogCtx).pop();
+              _handleImportStarterPack();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleImportStarterPack() {
+    final result = StarterPackService.importStarterPack(cards);
+    _saveCards();
+    _updateCategories();
+    setState(() {});
+
+    if (result.alreadyInstalled && result.cardsAdded == 0) {
+      _showMessage('Starter Pack is up to date. All 114 cards are already present.');
+    } else {
+      _showMessage(
+        result.alreadyInstalled
+            ? 'Re-synced ${result.cardsAdded} missing starter cards.'
+            : 'Imported 114 starter cards into "Default" folder!',
+      );
+    }
+  }
+
+  Future<void> _openRecycleBin() async {
+    _closeDrawerIfOpen();
+    await RecycleBinService.instance.purgeExpiredEntries(activeCards: cards);
+    if (!mounted) return;
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RecycleBinPage(
+          activeCards: cards,
+          currentLanguage: currentLanguage,
+          themePrimary: Color(_themePrimaryColor),
+          themeText: Color(_themeTextColor),
+          isDarkMode: _isDarkMode,
+          onRestoreCard: (restoredCard, parentId, index) {
+            setState(() {});
+            _updateCategories();
+            _saveCards();
+          },
+        ),
+      ),
+    );
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void _resetSettingsToDefaults() {
@@ -1745,7 +2015,7 @@ class _HomePageState extends State<HomePage> {
 
   Map<String, dynamic> _buildBackupSettings() {
     return {
-      'gridColumns': gridColumns,
+      'gridColumns': gridColumns.clamp(1, 30),
       'visibleCardIdsByParent': visibleCardIdsByParent.map(
         (key, value) => MapEntry(key, value.toList()),
       ),
@@ -1927,6 +2197,7 @@ class _HomePageState extends State<HomePage> {
       isEditMode = true;
       _undoHistory.clear();
       _sessionCreatedMediaFiles.clear();
+      _sessionRecycleBinEntryIds.clear();
 
       final initialMedia = <String>{};
       _collectMediaPaths(cards, initialMedia);
@@ -2013,12 +2284,20 @@ class _HomePageState extends State<HomePage> {
   Future<void> _cancelEditSession({required bool confirmed}) async {
     final snapshot = _editSessionSnapshot;
     if (!confirmed || snapshot == null) {
+      for (final entryId in _sessionRecycleBinEntryIds) {
+        await RecycleBinService.instance.removeEntry(
+          entryId,
+          activeCards: cards,
+        );
+      }
+      _sessionRecycleBinEntryIds.clear();
       setState(() {
         isEditMode = false;
         _stopAutoScroll();
         _undoHistory.clear();
         _editSessionSnapshot = null;
         _sessionCreatedMediaFiles.clear();
+      _sessionRecycleBinEntryIds.clear();
       });
       return;
     }
@@ -2041,6 +2320,15 @@ class _HomePageState extends State<HomePage> {
     final restoredActiveParent = snapshot.activeParentId == null
         ? null
         : _findCardById(snapshot.activeParentId!, restoredCards);
+
+    // Roll back Recycle Bin entries created during this uncommitted editing session
+    for (final entryId in _sessionRecycleBinEntryIds) {
+      await RecycleBinService.instance.removeEntry(
+        entryId,
+        activeCards: restoredCards,
+      );
+    }
+    _sessionRecycleBinEntryIds.clear();
 
     // Clean up temporary media files created during this session that are NOT in restored cards
     final restoredMedia = <String>{};
@@ -2077,6 +2365,7 @@ class _HomePageState extends State<HomePage> {
       _undoHistory.clear();
       _editSessionSnapshot = null;
       _sessionCreatedMediaFiles.clear();
+      _sessionRecycleBinEntryIds.clear();
     });
 
     if (mounted) {
@@ -2139,6 +2428,7 @@ class _HomePageState extends State<HomePage> {
       _undoHistory.clear();
       _editSessionSnapshot = null;
       _sessionCreatedMediaFiles.clear();
+      _sessionRecycleBinEntryIds.clear();
     });
 
     await _saveCards();
@@ -2155,13 +2445,14 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _recordUndoStep(String description) {
+  void _recordUndoStep(String description, {String? recycleBinEntryId}) {
     _undoHistory.add(EditUndoStep(
       cards: _cloneCards(cards),
       visibleMap: _cloneVisibleMap(visibleCardIdsByParent),
       activeParentId: activeParentCard?.id,
       parentStackIds: _parentStack.map((c) => c.id).toList(),
       description: description,
+      recycleBinEntryId: recycleBinEntryId,
     ));
     if (_undoHistory.length > 50) {
       _undoHistory.removeAt(0);
@@ -2172,6 +2463,13 @@ class _HomePageState extends State<HomePage> {
     if (_undoHistory.isNotEmpty) {
       final step = _undoHistory.removeLast();
       debugPrint('[HomePage] undoing edit-mode action: ${step.description}');
+      if (step.recycleBinEntryId != null) {
+        RecycleBinService.instance.removeEntry(
+          step.recycleBinEntryId!,
+          activeCards: step.cards,
+        );
+        _sessionRecycleBinEntryIds.remove(step.recycleBinEntryId);
+      }
       setState(() {
         cards = _cloneCards(step.cards);
         visibleCardIdsByParent = _cloneVisibleMap(step.visibleMap);
@@ -2186,6 +2484,8 @@ class _HomePageState extends State<HomePage> {
             ? null
             : _findCardById(step.activeParentId!, cards);
       });
+      _updateCategories();
+      _saveCards();
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -2506,6 +2806,28 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
+  }
+
+  void _openPersonalizeSetup() async {
+    final result = await PersonalizeSetupDialog.show(
+      context,
+      initialLanguage: currentLanguage,
+      initialAppBarColor: Color(_themePrimaryColor),
+      initialBoardColor: Color(_themeBackgroundColor),
+      isFirstLaunch: false,
+    );
+    if (result != null && mounted) {
+      setState(() {
+        currentLanguage = result.language;
+        _themePrimaryColor = result.appBarColor.value;
+        _themeBackgroundColor = result.boardColor.value;
+      });
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('language', currentLanguage);
+      await prefs.setInt('themePrimaryColor', _themePrimaryColor);
+      await prefs.setInt('themeBackgroundColor', _themeBackgroundColor);
+      await _saveCards();
+    }
   }
 
   void _showThemeColorDialog({
@@ -3315,7 +3637,8 @@ class _HomePageState extends State<HomePage> {
         visibleCardIdsByParent.clear();
       }
 
-      gridColumns = (settings['gridColumns'] as num?)?.toInt() ?? gridColumns;
+      gridColumns =
+          ((settings['gridColumns'] as num?)?.toInt() ?? gridColumns).clamp(1, 30);
       showTtsInput = settings['showTtsInput'] as bool? ?? showTtsInput;
       orientationMode =
           settings['orientationMode']?.toString() ?? orientationMode;
@@ -3846,6 +4169,7 @@ class _HomePageState extends State<HomePage> {
                         },
                       );
                     },
+                    onOpenPersonalizeSetup: _openPersonalizeSetup,
                     onPickCardTextColor: _showCardTextColorDialog,
                     onShowTtsBarSize: _showTtsBarSizeDialog,
                     cardTextScaleLabel: _getCardTextScaleLabel(),
@@ -3871,6 +4195,8 @@ class _HomePageState extends State<HomePage> {
                     onShowVisibleCount: _showVisibleCountDialog,
                     onBackup: _backupWithPicker,
                     onRestore: _restoreWithPicker,
+                    onShowStarterPack: _showStarterPackDialog,
+                    onOpenRecycleBin: _openRecycleBin,
                     onResetSettings: _confirmResetSettings,
                     onManagePermissions: () async {
                       await AppPermissionsHelper.requestAllAndShowStatus(
@@ -4018,10 +4344,10 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: _isDarkMode ? const Color(0xFF0F172A) : Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: const Color(0xFF00E5FF).withOpacity(0.5),
-                  width: 1,
+                  color: const Color(0xFF00E5FF).withOpacity(0.6),
+                  width: 1.2,
                 ),
               ),
               child: FittedBox(
@@ -4031,17 +4357,17 @@ class _HomePageState extends State<HomePage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
-                      Icons.touch_app_rounded,
-                      size: 14,
+                      Icons.swap_vert_rounded,
+                      size: 15,
                       color: Color(0xFF00E5FF),
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Tap pencil to edit • Tap folder to open',
+                      'Drag to reorder',
                       style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: _isDarkMode ? Colors.white : Colors.black87,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: _isDarkMode ? Colors.white : const Color(0xFF1E293B),
                       ),
                     ),
                   ],
@@ -4350,25 +4676,58 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   )
-                : GridView.builder(
-                    key: viewKey,
-                    controller: _gridController,
-                    cacheExtent: 360,
-                    padding: EdgeInsets.all(isTablet ? 20 : 12),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: isTablet
-                          ? (gridColumns == 1 ? 2 : gridColumns + 1)
-                          : gridColumns,
-                      crossAxisSpacing: isTablet ? 16 : 12,
-                      mainAxisSpacing: isTablet ? 16 : 12,
-                      childAspectRatio: isTablet ? 1.1 : 1.0,
-                    ),
-                    itemCount: displayedCards.length,
-                    itemBuilder: (context, i) {
-                      final card = displayedCards[i];
-                      return RepaintBoundary(
-                        key: ValueKey(card.id),
-                        child: _buildCardWidget(card, isTablet, index: i),
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      final effectiveCols = gridColumns.clamp(1, 30);
+                      final padding = isTablet ? 20.0 : 12.0;
+                      final spacing = isTablet ? 16.0 : 12.0;
+                      final minCardWidth = isTablet ? 90.0 : 76.0;
+                      final neededWidth = (effectiveCols * minCardWidth) +
+                          ((effectiveCols - 1) * spacing) +
+                          (padding * 2);
+                      final bool needsHorizontalScroll =
+                          neededWidth > constraints.maxWidth;
+                      final double contentWidth =
+                          needsHorizontalScroll ? neededWidth : constraints.maxWidth;
+
+                      final gridView = GridView.builder(
+                        key: viewKey,
+                        controller: _gridController,
+                        cacheExtent: 360,
+                        padding: EdgeInsets.all(padding),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: effectiveCols,
+                          crossAxisSpacing: spacing,
+                          mainAxisSpacing: spacing,
+                          childAspectRatio: isTablet ? 1.05 : 0.98,
+                        ),
+                        itemCount: displayedCards.length,
+                        itemBuilder: (context, i) {
+                          final card = displayedCards[i];
+                          return RepaintBoundary(
+                            key: ValueKey(card.id),
+                            child: _buildCardWidget(card, isTablet, index: i),
+                          );
+                        },
+                      );
+
+                      if (!needsHorizontalScroll) {
+                        return gridView;
+                      }
+
+                      return Scrollbar(
+                        controller: _horizontalScrollController,
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          controller: _horizontalScrollController,
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: SizedBox(
+                            width: contentWidth,
+                            height: constraints.maxHeight,
+                            child: gridView,
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -4425,8 +4784,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               )
             : _isDarkMode
-                ? Border.all(color: Colors.white24, width: 1)
-                : null;
+                ? Border.all(color: Colors.white24, width: 1.5)
+                : Border.all(color: Colors.white, width: 3.5);
 
     final normalCard = GestureDetector(
       key: cardKey,
@@ -4483,7 +4842,7 @@ class _HomePageState extends State<HomePage> {
           duration: Duration(milliseconds: isTapAnimated ? 110 : 160),
           decoration: BoxDecoration(
             color: cardSurfaceColor,
-            borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
+            borderRadius: BorderRadius.circular(isTablet ? 24 : 20),
             border: cardBorder,
             boxShadow: [
               BoxShadow(
@@ -4493,9 +4852,9 @@ class _HomePageState extends State<HomePage> {
                             .withValues(alpha: _isDarkMode ? 0.55 : 0.28)
                         : Color(card.colorValue)
                             .withValues(alpha: _isDarkMode ? 0.60 : 0.40))
-                    : Colors.black.withValues(alpha: _isDarkMode ? 0.30 : 0.10),
-                blurRadius: isTapAnimated ? 18 : 8,
-                spreadRadius: isTapAnimated ? 2 : 0,
+                    : Colors.black.withValues(alpha: _isDarkMode ? 0.30 : 0.08),
+                blurRadius: isTapAnimated ? 18 : 10,
+                spreadRadius: isTapAnimated ? 2 : 1,
                 offset: isTapAnimated ? const Offset(0, 8) : const Offset(0, 4),
               ),
             ],
@@ -4541,12 +4900,12 @@ class _HomePageState extends State<HomePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
+                              if (card.subCards.isNotEmpty) ...[
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 1.5),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.40),
+                                    color: Colors.black.withOpacity(0.55),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Text(
@@ -4592,11 +4951,26 @@ class _HomePageState extends State<HomePage> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
-                                    const SizedBox(width: 4),
-                                    Icon(
-                                      Icons.arrow_forward_rounded,
-                                      size: (isTablet ? 18 : 15) * _cardTextScale,
-                                      color: cardTextColor,
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      width: (isTablet ? 24 : 20) * _cardTextScale,
+                                      height: (isTablet ? 24 : 20) * _cardTextScale,
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.55),
+                                        shape: BoxShape.circle,
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 3,
+                                            offset: Offset(0, 1),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Icon(
+                                        Icons.arrow_forward_rounded,
+                                        size: (isTablet ? 14 : 12) * _cardTextScale,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ],
                                 ],
@@ -4636,7 +5010,7 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
+                        if (card.subCards.isNotEmpty) ...[
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 1.5),
@@ -4685,11 +5059,26 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.arrow_forward_rounded,
-                                size: (isTablet ? 18 : 15) * _cardTextScale,
-                                color: cardTextColor,
+                              const SizedBox(width: 6),
+                              Container(
+                                width: (isTablet ? 24 : 20) * _cardTextScale,
+                                height: (isTablet ? 24 : 20) * _cardTextScale,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.55),
+                                  shape: BoxShape.circle,
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 3,
+                                      offset: Offset(0, 1),
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: (isTablet ? 14 : 12) * _cardTextScale,
+                                  color: Colors.white,
+                                ),
                               ),
                             ],
                           ],
@@ -4783,10 +5172,7 @@ class _HomePageState extends State<HomePage> {
     );
 
     if (isEditMode) {
-      final isSingleCol = (isTablet
-              ? (gridColumns == 1 ? 2 : gridColumns + 1)
-              : gridColumns) ==
-          1;
+      final isSingleCol = gridColumns.clamp(1, 30) == 1;
       return _DragAndDropCardItem(
         key: ValueKey('drag_item_${card.id}'),
         card: card,
@@ -4869,12 +5255,12 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
+                        if (card.subCards.isNotEmpty) ...[
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 1.5),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.40),
+                              color: Colors.black.withOpacity(0.55),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
@@ -4922,11 +5308,26 @@ class _HomePageState extends State<HomePage> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.arrow_forward_rounded,
-                                size: (isTablet ? 18 : 15) * _cardTextScale,
-                                color: cardTextColor,
+                              const SizedBox(width: 6),
+                              Container(
+                                width: (isTablet ? 24 : 20) * _cardTextScale,
+                                height: (isTablet ? 24 : 20) * _cardTextScale,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.55),
+                                  shape: BoxShape.circle,
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 3,
+                                      offset: Offset(0, 1),
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: (isTablet ? 14 : 12) * _cardTextScale,
+                                  color: Colors.white,
+                                ),
                               ),
                             ],
                           ],
@@ -4966,7 +5367,7 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
+                  if (card.subCards.isNotEmpty) ...[
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 1.5),
@@ -5017,11 +5418,26 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_forward_rounded,
-                          size: (isTablet ? 18 : 15) * _cardTextScale,
-                          color: cardTextColor,
+                        const SizedBox(width: 6),
+                        Container(
+                          width: (isTablet ? 24 : 20) * _cardTextScale,
+                          height: (isTablet ? 24 : 20) * _cardTextScale,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.55),
+                            shape: BoxShape.circle,
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 3,
+                                offset: Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.arrow_forward_rounded,
+                            size: (isTablet ? 14 : 12) * _cardTextScale,
+                            color: Colors.white,
+                          ),
                         ),
                       ],
                     ],
@@ -5156,6 +5572,7 @@ class _HomePageState extends State<HomePage> {
     unawaited(SpeechEngine.instance.stop());
     _audioPlayer.dispose();
     _gridController.dispose();
+    _horizontalScrollController.dispose();
     super.dispose();
   }
 }

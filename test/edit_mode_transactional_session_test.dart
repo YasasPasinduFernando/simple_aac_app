@@ -459,7 +459,7 @@ void main() {
       expect(doneTapped, isTrue);
     });
 
-    testWidgets('Renders adaptive two-row toolbar on compact portrait (width 360) without overflow', (tester) async {
+    testWidgets('Renders compact single-row toolbar on portrait (width 360) without overflow', (tester) async {
       tester.view.physicalSize = const Size(360, 640);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -480,7 +480,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Edit Mode'), findsOneWidget);
+      expect(find.text('Edit Words'), findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Done'), findsOneWidget);
       expect(find.text('Undo'), findsOneWidget);
@@ -511,7 +511,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Edit Mode'), findsOneWidget);
+      expect(find.text('Edit Words'), findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Done'), findsOneWidget);
       expect(tester.takeException(), isNull);

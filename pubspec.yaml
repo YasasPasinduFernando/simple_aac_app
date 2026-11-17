@@ -43,6 +43,7 @@ dependencies:
   # Share backup file
   share_plus: ^10.0.2
   http: ^1.6.0
+  image: ^4.3.0
 
 dev_dependencies:
   flutter_test:
@@ -57,6 +58,8 @@ flutter:
   assets:
     - assets/images/
     - assets/images/seed/
+    - assets/images/starter_pack_v8/
+    - assets/data/starter_pack_v8/
     - assets/sounds/
 
 dependency_overrides:

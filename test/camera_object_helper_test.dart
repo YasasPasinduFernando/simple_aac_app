@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -196,7 +197,10 @@ void main() {
     addTearDown(() {
       if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
     });
-    final shot = File('${tempDir.path}/apple.jpg')..writeAsBytesSync([1, 2, 3]);
+    final testImg = img.Image(width: 200, height: 200);
+    img.fill(testImg, color: img.ColorRgb8(255, 100, 100));
+    final sampleBytes = img.encodeJpg(testImg);
+    final shot = File('${tempDir.path}/apple.jpg')..writeAsBytesSync(sampleBytes);
     final persisted = File('${tempDir.path}/persisted_apple.jpg');
 
     CameraObjectHelper.cameraPickerOverride =
@@ -223,7 +227,7 @@ void main() {
       category: 'General',
     );
 
-    tester.view.physicalSize = const Size(400, 800);
+    tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -243,6 +247,11 @@ void main() {
 
     await tester.tap(find.text('Camera'));
     await tester.pumpAndSettle();
+
+    if (find.text('Use Photo').evaluate().isNotEmpty) {
+      await tester.tap(find.text('Use Photo'));
+      await tester.pumpAndSettle();
+    }
 
     expect(find.textContaining('Detected (offline)'), findsOneWidget);
     expect(find.text('Apple'), findsOneWidget);

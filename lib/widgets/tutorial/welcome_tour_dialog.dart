@@ -136,8 +136,9 @@ class WelcomeTourDialog extends StatelessWidget {
           _buildFeatureRow(
             icon: Icons.offline_bolt_rounded,
             iconColor: const Color(0xFFE65100),
-            title: '100% Offline & Private',
-            subtitle: 'Speech and cards work completely offline with zero data tracking.',
+            title: 'Privacy-Focused',
+            subtitle:
+                'Core card communication works offline.\nSmart Image Search uses the internet.',
           ),
           const SizedBox(height: 22),
 

@@ -489,14 +489,14 @@ void main() {
       expect(find.text('Select Grid Size'), findsOneWidget);
       expect(find.text('LIVE GRID PREVIEW'), findsOneWidget);
 
-      // Tap 3x option (Medium)
-      final threeColsOption = find.text('Medium');
+      // Tap preset 3 option
+      final threeColsOption = find.widgetWithText(InkWell, '3');
       await tester.ensureVisible(threeColsOption);
       await tester.tap(threeColsOption);
       await tester.pumpAndSettle();
 
       // Density indicator updates
-      expect(find.text('3 Columns • Medium'), findsOneWidget);
+      expect(find.text('3 columns selected'), findsOneWidget);
 
       // Cancel button closes without saving
       await tester.tap(find.text('Cancel'));

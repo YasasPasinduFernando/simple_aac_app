@@ -4,7 +4,7 @@ import '../../models/aac_card_model.dart';
 import '../../utils/card_image.dart';
 
 /// Live preview widget for the Select Grid Size dialog.
-/// Reactively reflows sample cards into 1, 2, 3, 4, or 5 columns.
+/// Reactively reflows sample cards into 1 to 30 columns.
 class GridDensityPreview extends StatelessWidget {
   final int columns;
   final List<AACCard> cards;
@@ -35,7 +35,7 @@ class GridDensityPreview extends StatelessWidget {
           id: 'preview_happy',
           label: 'Happy',
           labelSinhala: 'සතුටුයි',
-          labelTamil: 'மகிழ்ச்சி',
+          labelTamil: 'மகிழ்ச்சි',
           colorValue: 0xFFB9DCFE,
         ),
         AACCard(
@@ -46,11 +46,18 @@ class GridDensityPreview extends StatelessWidget {
           colorValue: 0xFFBAE6FD,
         ),
         AACCard(
-          id: 'preview_angry',
-          label: 'Angry',
-          labelSinhala: 'තරහයි',
-          labelTamil: 'கோபம்',
-          colorValue: 0xFFFCA5A5,
+          id: 'preview_water',
+          label: 'Water',
+          labelSinhala: 'වතුර',
+          labelTamil: 'தண்ணீர்',
+          colorValue: 0xFF38BDF8,
+        ),
+        AACCard(
+          id: 'preview_food',
+          label: 'Food',
+          labelSinhala: 'කෑම',
+          labelTamil: 'உணவு',
+          colorValue: 0xFF86EFAC,
         ),
         AACCard(
           id: 'preview_more',
@@ -60,16 +67,221 @@ class GridDensityPreview extends StatelessWidget {
           colorValue: 0xFFFEE685,
           type: 'folder',
         ),
+        AACCard(
+          id: 'preview_eat',
+          label: 'Eat',
+          labelSinhala: 'කන්න',
+          labelTamil: 'சாப்பிடு',
+          colorValue: 0xFF86EFAC,
+        ),
+        AACCard(
+          id: 'preview_drink',
+          label: 'Drink',
+          labelSinhala: 'බොන්න',
+          labelTamil: 'குடி',
+          colorValue: 0xFF38BDF8,
+        ),
+        AACCard(
+          id: 'preview_finish',
+          label: 'Finish',
+          labelSinhala: 'ඉවරයි',
+          labelTamil: 'முடிந்தது',
+          colorValue: 0xFFE2E8F0,
+        ),
+        AACCard(
+          id: 'preview_play',
+          label: 'Play',
+          labelSinhala: 'සෙල්ලම්',
+          labelTamil: 'விளையாடு',
+          colorValue: 0xFFFDE047,
+        ),
+        AACCard(
+          id: 'preview_again',
+          label: 'Again',
+          labelSinhala: 'ආයෙත්',
+          labelTamil: 'மீண்டும்',
+          colorValue: 0xFFFEE685,
+        ),
+        AACCard(
+          id: 'preview_please',
+          label: 'Please',
+          labelSinhala: 'කරුණාකර',
+          labelTamil: 'தயவுசெய்து',
+          colorValue: 0xFFB9DCFE,
+        ),
+        AACCard(
+          id: 'preview_angry',
+          label: 'Angry',
+          labelSinhala: 'තරහයි',
+          labelTamil: 'கோபம்',
+          colorValue: 0xFFFCA5A5,
+        ),
+        AACCard(
+          id: 'preview_help',
+          label: 'Help',
+          labelSinhala: 'උදව්',
+          labelTamil: 'உதவி',
+          colorValue: 0xFFFCA5A5,
+        ),
+        AACCard(
+          id: 'preview_yes',
+          label: 'Yes',
+          labelSinhala: 'ඔව්',
+          labelTamil: 'ஆம்',
+          colorValue: 0xFF86EFAC,
+        ),
+        AACCard(
+          id: 'preview_no',
+          label: 'No',
+          labelSinhala: 'නැහැ',
+          labelTamil: 'இல்லை',
+          colorValue: 0xFFFCA5A5,
+        ),
+        AACCard(
+          id: 'preview_sleep',
+          label: 'Sleep',
+          labelSinhala: 'නිදාගන්න',
+          labelTamil: 'தூங்கு',
+          colorValue: 0xFFC7D2FE,
+        ),
+        AACCard(
+          id: 'preview_toilet',
+          label: 'Toilet',
+          labelSinhala: 'වැසිකිලිය',
+          labelTamil: 'கழிப்பறை',
+          colorValue: 0xFFBAE6FD,
+        ),
+        AACCard(
+          id: 'preview_home',
+          label: 'Home',
+          labelSinhala: 'ගෙදර',
+          labelTamil: 'வீடு',
+          colorValue: 0xFFFED7AA,
+        ),
+        AACCard(
+          id: 'preview_school',
+          label: 'School',
+          labelSinhala: 'ඉස්කෝලේ',
+          labelTamil: 'பள்ளி',
+          colorValue: 0xFFFEF08A,
+        ),
+        AACCard(
+          id: 'preview_car',
+          label: 'Car',
+          labelSinhala: 'කාර් එක',
+          labelTamil: 'கார்',
+          colorValue: 0xFFFDE047,
+        ),
+        AACCard(
+          id: 'preview_music',
+          label: 'Music',
+          labelSinhala: 'සංගීතය',
+          labelTamil: 'இசை',
+          colorValue: 0xFFE9D5FF,
+        ),
+        AACCard(
+          id: 'preview_book',
+          label: 'Book',
+          labelSinhala: 'පොත',
+          labelTamil: 'புத்தகம்',
+          colorValue: 0xFFDDD6FE,
+        ),
+        AACCard(
+          id: 'preview_love',
+          label: 'Love',
+          labelSinhala: 'ආදරෙයි',
+          labelTamil: 'அன்பு',
+          colorValue: 0xFFFBCFE8,
+        ),
+        AACCard(
+          id: 'preview_i',
+          label: 'I',
+          labelSinhala: 'මම',
+          labelTamil: 'நான்',
+          colorValue: 0xFFBAE6FD,
+        ),
+        AACCard(
+          id: 'preview_you',
+          label: 'You',
+          labelSinhala: 'ඔයා',
+          labelTamil: 'நீ',
+          colorValue: 0xFFBAE6FD,
+        ),
+        AACCard(
+          id: 'preview_go',
+          label: 'Go',
+          labelSinhala: 'යන්න',
+          labelTamil: 'போ',
+          colorValue: 0xFF86EFAC,
+        ),
+        AACCard(
+          id: 'preview_stop',
+          label: 'Stop',
+          labelSinhala: 'නවත්තන්න',
+          labelTamil: 'நிறுத்து',
+          colorValue: 0xFFFCA5A5,
+        ),
+        AACCard(
+          id: 'preview_thanks',
+          label: 'Thanks',
+          labelSinhala: 'ස්තූතියි',
+          labelTamil: 'நன்றி',
+          colorValue: 0xFFFEE685,
+        ),
+        AACCard(
+          id: 'preview_ball',
+          label: 'Ball',
+          labelSinhala: 'බෝලය',
+          labelTamil: 'பந்து',
+          colorValue: 0xFFFCA5A5,
+        ),
       ];
 
   @override
   Widget build(BuildContext context) {
+    final cols = columns.clamp(1, 30);
+    final sourceCards = cards.isNotEmpty ? cards : defaultSampleCards;
+
+    // For densities > 5, render a horizontal scrollable row with accessible mini cards
+    if (cols > 5) {
+      final List<AACCard> previewCards;
+      if (sourceCards.length >= cols) {
+        previewCards = sourceCards.take(cols).toList();
+      } else {
+        final combined = List<AACCard>.from(sourceCards);
+        while (combined.length < cols) {
+          combined.addAll(defaultSampleCards);
+        }
+        previewCards = combined.take(cols).toList();
+      }
+
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final card in previewCards)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 3.0),
+                  child: SizedBox(
+                    width: 64,
+                    height: 78,
+                    child: _buildMiniCard(card, 5),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Densities 1..5: reflow into dynamic aspect ratio grid
     final previewCards =
-        cards.isNotEmpty ? cards.take(6).toList() : defaultSampleCards;
+        sourceCards.length >= cols ? sourceCards.take(cols * 2).toList() : sourceCards;
 
-    final cols = columns.clamp(1, 5);
-
-    // Dynamic aspect ratios tailored per density
     final double childAspectRatio;
     switch (cols) {
       case 1:
@@ -149,7 +361,7 @@ class GridDensityPreview extends StatelessWidget {
       case 5:
       default:
         fontSize = 7.5 * cardTextScale;
-        iconSize = 15.0;
+        iconSize = 16.0;
         break;
     }
 
@@ -264,6 +476,51 @@ class GridDensityPreview extends StatelessWidget {
     } else if (label.contains('angry')) {
       return Icon(Icons.sentiment_very_dissatisfied_rounded,
           size: iconSize, color: const Color(0xFFB91C1C));
+    } else if (label.contains('water') || label.contains('drink')) {
+      return Icon(Icons.local_drink_rounded,
+          size: iconSize, color: const Color(0xFF0284C7));
+    } else if (label.contains('food') || label.contains('eat')) {
+      return Icon(Icons.restaurant_rounded,
+          size: iconSize, color: const Color(0xFF15803D));
+    } else if (label.contains('finish')) {
+      return Icon(Icons.sports_score_rounded,
+          size: iconSize, color: const Color(0xFF475569));
+    } else if (label.contains('play')) {
+      return Icon(Icons.sports_esports_rounded,
+          size: iconSize, color: const Color(0xFFB45309));
+    } else if (label.contains('again')) {
+      return Icon(Icons.replay_rounded,
+          size: iconSize, color: const Color(0xFFB45309));
+    } else if (label.contains('please')) {
+      return Icon(Icons.pan_tool_alt_rounded,
+          size: iconSize, color: const Color(0xFF1D4ED8));
+    } else if (label.contains('help')) {
+      return Icon(Icons.help_outline_rounded,
+          size: iconSize, color: const Color(0xFFB91C1C));
+    } else if (label.contains('sleep')) {
+      return Icon(Icons.bedtime_rounded,
+          size: iconSize, color: const Color(0xFF4338CA));
+    } else if (label.contains('home')) {
+      return Icon(Icons.home_rounded,
+          size: iconSize, color: const Color(0xFFC2410C));
+    } else if (label.contains('school')) {
+      return Icon(Icons.school_rounded,
+          size: iconSize, color: const Color(0xFF854D0E));
+    } else if (label.contains('car')) {
+      return Icon(Icons.directions_car_rounded,
+          size: iconSize, color: const Color(0xFFB45309));
+    } else if (label.contains('music')) {
+      return Icon(Icons.music_note_rounded,
+          size: iconSize, color: const Color(0xFF7E22CE));
+    } else if (label.contains('book')) {
+      return Icon(Icons.menu_book_rounded,
+          size: iconSize, color: const Color(0xFF6B21A8));
+    } else if (label.contains('toilet')) {
+      return Icon(Icons.wc_rounded,
+          size: iconSize, color: const Color(0xFF0369A1));
+    } else if (label.contains('love')) {
+      return Icon(Icons.favorite_rounded,
+          size: iconSize, color: const Color(0xFFBE185D));
     }
     return Icon(Icons.widgets_rounded, size: iconSize, color: Colors.black54);
   }

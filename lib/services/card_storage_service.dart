@@ -328,6 +328,57 @@ class CardStorageService {
     return targetPath;
   }
 
+  static Future<String?> copyMediaFile(
+    String sourcePath, {
+    required String cardId,
+    required String mediaType,
+  }) async {
+    if (sourcePath.isEmpty) return sourcePath;
+    if (sourcePath.startsWith('assets/') ||
+        sourcePath.startsWith('http://') ||
+        sourcePath.startsWith('https://')) {
+      return sourcePath;
+    }
+
+    final sourceFile = File(sourcePath);
+    if (!await sourceFile.exists()) {
+      debugPrint(
+        '[CardStorage] copyMediaFile: source does not exist: $sourcePath',
+      );
+      return sourcePath;
+    }
+
+    try {
+      final mediaDir = await mediaDirectory(mediaType);
+      final safeId = _safeFileComponent(cardId);
+      final extension = _extension(
+        sourcePath,
+        fallback: mediaType == 'images'
+            ? '.jpg'
+            : (mediaType == 'voices' ? '.m4a' : ''),
+      );
+      final timestamp = DateTime.now().microsecondsSinceEpoch;
+      var fileName =
+          '${mediaType}_${safeId}_${timestamp}_${_mediaCounter++}$extension';
+      var targetPath = _join(mediaDir.path, fileName);
+      while (await File(targetPath).exists()) {
+        fileName =
+            '${mediaType}_${safeId}_${timestamp}_${_mediaCounter++}$extension';
+        targetPath = _join(mediaDir.path, fileName);
+      }
+
+      await sourceFile.copy(targetPath);
+      debugPrint(
+        '[CardStorage] duplicated $mediaType file: source=$sourcePath, '
+        'target=$targetPath',
+      );
+      return targetPath;
+    } catch (e) {
+      debugPrint('[CardStorage] failed to duplicate media file: $e');
+      return sourcePath;
+    }
+  }
+
   static Future<bool> _migrateMediaFilesToDocuments(
     List<AACCard> cards, {
     String? docsPath,

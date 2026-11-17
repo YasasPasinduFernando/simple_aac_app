@@ -1,0 +1,940 @@
+# Graph Report - simple_aac_play_release  (2026-11-18)
+
+## Corpus Check
+- cluster-only mode — file stats not available
+
+## Summary
+- 2867 nodes · 3709 edges · 383 communities (113 shown, 270 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 63 edges (avg confidence: 0.85)
+- Token cost: 9,714 input · 4,638 output
+
+## Graph Freshness
+- Built from commit: `52066939`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
+
+## Community Hubs (Navigation)
+- Home Screen Logic
+- Document Generation Scripts
+- Grid Settings UI
+- Card Editor Dialog
+- Color Picker Dialog
+- Speech Engine Service
+- Card Storage Service
+- App Entry Point
+- Openverse Image Search
+- Image Crop Controls
+- Accessibility Theme Settings
+- Project Dependencies
+- Board Personalization Dialog
+- Tutorial Navigation Service
+- Service Mocking Utilities
+- Linux Platform Integration
+- Smart Image Search
+- Tutorial UI Components
+- Data Backup Service
+- Home App Bar
+- Video to GIF Conversion
+- App Service Registry
+- Backup and Restore
+- Category Creation Dialog
+- Tutorial Overlay Controller
+- Home Grid Management
+- Recycle Bin Page
+- Camera Analysis Helper
+- App Feature Screenshots
+- Tutorial Text Strings
+- Category Selection Dialog
+- Windows C++ Runtime
+- Default Seed Cards
+- Recycle Bin Service
+- App Permissions Helper
+- Android Build Manifests
+- Windows Window Management
+- Landscape Navigation Menu
+- TTS Control Bar
+- Network Policy Service
+- Grid Density Settings
+- Image Handling Utilities
+- Edit Mode Toolbar
+- Windows Flutter Controller
+- Multilingual Translation Service
+- Caregiver Lock Service
+- Sub-Card Management
+- Styled Dialog Header
+- Image Search Model
+- Card Image Widget
+- Multilingual Speech Router
+- Visible Cards Dialog
+- Starter Pack Service
+- Win32 Window Lifecycle
+- Android Image Analysis
+- Category Metadata Model
+- Media Permission Tests
+- UI Preview Chips
+- Tutorial Speech Bubble
+- Tutorial Integration Tests
+- Android Video Encoder
+- GIF Encoding Logic
+- Recycle Bin Model
+- AAC Card Model
+- Sub-Card UI Components
+- Live Preview Panel
+- Edit Session State
+- Grid Density Preview
+- Custom UI Painters
+- Home Page State
+- TTS Composer Preview
+- Testing Utility Hooks
+- Android Plugin Registry
+- Windows Plugin Registry
+- Visible Cards Preview
+- macOS Plugin Registry
+- Image and UI Helpers
+- Design System Documentation
+- Card Data Model
+- Web App Manifest
+- Storage Key Management
+- App Icon Configuration
+- Tutorial Spotlight Painter
+- Linter Rules Configuration
+- iOS App Delegate
+- Android Release Build
+- Tutorial Step Model
+- Project Documentation
+- Personalization Service
+- Windows Class Registrar
+- Geometry Utility Classes
+- Category Dialog Tests
+- Android Resource Merging
+- Image Search Tests
+- Mini Guides Dialog
+- Welcome Tour Dialog
+- Category Selection Tests
+- Web and UI Assets
+- Android Build Optimization
+- macOS App Infrastructure
+- AAC Research and Modeling
+- macOS Application Lifecycle
+- macOS Plugin Registration
+- macOS Unit Testing
+- TTS Token Data Model
+- Windows Build Configuration
+- UI/UX Design Skills
+- Family Avatar Illustrations
+- iOS Launch Assets
+- Flutter Development Standards
+- Android Launcher Assets
+- Android Code Minification
+- Launcher Icon Previews
+- Food and Hunger Illustrations
+- ERC Research Documentation
+- User Onboarding Tutorial
+- Version Release Logs
+- Android Image Picker Resources
+- Linux Build Configuration
+- Android Path Provider Resources
+- Android Permission Handler Resources
+- Drink and Thirst Illustrations
+- ERC Project Management
+- Quality Assurance Audits
+- User Documentation and QA
+- Card Editor Screenshots
+- Media Conversion Screenshots
+- Security Feature Screenshots
+- Settings UI Screenshots
+- Android TTS Plugin Resources
+- Starter Pack Manifest
+- Card Editor Dialog
+- Drawer Gesture Handling
+- Drawer Gesture UI
+- Personalization Setup Dialog
+- Color Picker Dialog
+- Image Search Dialog
+- Spotlight Rendering Logic
+- Spotlight UI Widget
+- HDPI Launcher Background
+- MDPI Launcher Background
+- XHDPI Launcher Background
+- XHDPI Launcher Foreground
+- XXHDPI Launcher Background
+- XXHDPI Launcher Foreground
+- HDPI Round App Icon
+- MDPI App Icon
+- MDPI Round App Icon
+- XHDPI App Icon
+- XHDPI Round App Icon
+- XXHDPI App Icon
+- XXHDPI Round App Icon
+- XXXHDPI App Icon
+- XXXHDPI Round App Icon
+- Android Lint Release Check
+- Android Lint Analysis
+- Resource Merging Task
+- Large App Icon
+- Small App Icon
+- App Logo 120px
+- App Logo 128px
+- App Logo 144px
+- App Logo 152px
+- App Logo 167px
+- App Logo 16px
+- App Logo 180px
+- App Logo 192px
+- App Logo 20px
+- App Logo 256px
+- App Logo 29px
+- App Logo 40px
+- App Logo 48px
+- App Logo 512px
+- App Logo 58px
+- App Logo 60px
+- App Logo 72px
+- App Logo 76px
+- App Logo 80px
+- App Logo 87px
+- General App Logo
+- Adaptive Icon Background
+- Adaptive Icon Foreground
+- Original App Artwork
+- Documentation Placeholders
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- User Interface Component
+- Animal Illustration
+- Animal Illustration
+- Animal Illustration
+- Animal Illustration
+- Communication Concept Illustration
+- Communication Concept Illustration
+- Communication Concept Illustration
+- Communication Concept Illustration
+- Communication Concept Illustration
+- Communication Concept Illustration
+- Color Illustration
+- Color Illustration
+- Color Illustration
+- Color Illustration
+- Color Illustration
+- Color Illustration
+- Color Swatch
+- Color Swatch
+- Beverage Illustration
+- Beverage Illustration
+- Beverage Illustration
+- Beverage Illustration
+- Beverage Illustration
+- Beverage Illustration
+- Beverage Illustration
+- Beverage Illustration
+- Beverage Illustration
+- Beverage Illustration
+- People and Roles
+- People and Roles
+- People and Roles
+- People and Roles
+- People and Roles
+- People and Roles
+- Emotion and Feeling Illustration
+- Emotion and Feeling Illustration
+- Emotion and Feeling Illustration
+- Emotion and Feeling Illustration
+- Emotion and Feeling Illustration
+- Emotion and Feeling Illustration
+- Emotion and Feeling Illustration
+- Emotion and Feeling Illustration
+- Emotion and Feeling Illustration
+- Emotion and Feeling Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Food and Meal Illustration
+- Physical State Illustration
+- Physical State Illustration
+- Physical State Illustration
+- Physical State Illustration
+- Physical State Illustration
+- Physical State Illustration
+- Physical State Illustration
+- Personal Hygiene Illustration
+- Personal Hygiene Illustration
+- Personal Hygiene Illustration
+- Personal Hygiene Illustration
+- Location and Place Illustration
+- Location and Place Illustration
+- Location and Place Illustration
+- Location and Place Illustration
+- Geometric Shape Illustration
+- Geometric Shape Illustration
+- Geometric Shape Illustration
+- Geometric Shape Illustration
+- Geometric Shape Illustration
+- Geometric Shape Illustration
+- Snack and Dessert Illustration
+- Snack and Dessert Illustration
+- Snack and Dessert Illustration
+- Snack and Dessert Illustration
+- Snack and Dessert Illustration
+- Snack and Dessert Illustration
+- Snack and Dessert Illustration
+- Snack and Dessert Illustration
+- Snack and Dessert Illustration
+- Snack and Dessert Illustration
+- Snack and Dessert Illustration
+- File Picker Utility
+- Text to Speech Utility
+- Android Image Picker
+- Android Path Provider
+- ERC Document Inventory
+- Feasibility Gap Matrix
+- Pilot Build Notes
+- ERC Production Logs
+- ERC Submission Checklist
+- Supervisor Review Summary
+- ERC Script Requirements
+- Crop Dialog UI
+- Device Restore Certification
+- 1-Column Landscape Layout
+- 2-Column Portrait Layout
+- 4-Column Landscape Layout
+- 4-Column Portrait Layout
+- 8-Column Grid Layout
+- 12-Column Custom Layout
+- 15-Column Grid Layout
+- Horizontal Scroll UI
+- Grid State Management
+- Personalization Dialog UI
+- Home Folder Navigation
+- Category Navigation UI
+- Food Folder UI
+- Food Content UI
+- Sentence Bar UI
+- Feelings Folder UI
+- Tile Preview UI
+- App Identity Documentation
+- Clinical Application Summary
+- Clinical Team Inquiries
+- English User Guide
+- Interaction Animations
+- Color Picker Animation
+- Multilingual Documentation
+- Home Screen Screenshot
+- AAC Grid Screenshot
+- Card Interaction Screenshot
+- Sentence Bar Screenshot
+- Edit Mode Screenshot
+- Folder View Screenshot
+- Camera Flow Screenshot
+- Gallery Picker Screenshot
+- Offline Search Screenshot
+- Voice Recorder Screenshot
+- Tamil User Guide
+- Documentation QA Report
+- Documentation Certification Report
+- Accessibility Features
+- Smart Image Search
+- iOS App Icon
+- macOS Icon 1024
+- macOS Icon 128
+- macOS Icon 16
+- macOS Icon 256
+- macOS Icon 32
+- macOS Icon 512
+- macOS Icon 64
+- Path Provider Build
+- Permission Handler Build
+- Play Store Icon
+- Project README
+- Android Record Build
+- Android Resource Merging
+- Home Screen UI
+- Navigation Drawer UI
+- Scrolled Navigation UI
+- Edit Mode UI
+- Add Card Dialog
+- Search Interface UI
+- Search Timeout UI
+- Add Card Screen
+- Testing Documentation
+- Search Dialog Screenshot
+- Search Results Screenshot
+- App Icon 512
+- Maskable Icon 192
+- Maskable Icon 512
+
+## God Nodes (most connected - your core abstractions)
+1. `add_body()` - 41 edges
+2. `add_heading()` - 34 edges
+3. `Win32Window` - 27 edges
+4. `build_research_protocol()` - 27 edges
+5. `main()` - 23 edges
+6. `Simple AAC இலங்கை` - 23 edges
+7. `add_plain_table()` - 21 edges
+8. `save_doc()` - 21 edges
+9. `_` - 21 edges
+10. `setup_header_footer()` - 19 edges
+
+## Surprising Connections (you probably didn't know these)
+- `App Icon (1024x1024)` --references--> `Simple AAC இலங்கை`  [INFERRED]
+  ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png → docs/user-guide/tamil/Simple_AAC_User_Guide_TA.md
+- `UI Screenshot: Settings Drawer` --conceptually_related_to--> `Web Index HTML`  [INFERRED]
+  screenshots_review/drawer_test.png → web/index.html
+- `UI Screenshot: Home Screen Landscape` --conceptually_related_to--> `Web Index HTML`  [INFERRED]
+  ui_audit/screenshots/01_home_screen_fixed.png → web/index.html
+- `app` --references--> `file_picker`  [EXTRACTED]
+  build_release_log.txt → macos/Flutter/GeneratedPluginRegistrant.swift
+- `app` --references--> `flutter_tts`  [EXTRACTED]
+  build_release_log.txt → macos/Flutter/GeneratedPluginRegistrant.swift
+
+## Import Cycles
+- None detected.
+
+## Hyperedges (group relationships)
+- **Android Resource Compilation Flow** — audioplayers_android_mergereleaseresources, file_picker_mergereleaseresources, flutter_plugin_android_lifecycle_mergereleaseresources, flutter_tts_mergereleaseresources [EXTRACTED 0.90]
+- **Application Release Optimization** — app_minifyreleasewithr8, app_lintvitalanalyzerelease, r8_compiler [EXTRACTED 0.90]
+- **Resource Merging and Verification Pattern** — image_picker_android_merge_release_resources, image_picker_android_verify_release_resources, path_provider_android_merge_release_resources, path_provider_android_verify_release_resources, permission_handler_android_merge_release_resources, permission_handler_android_verify_release_resources [EXTRACTED 0.90]
+- **Security and Privacy Model** — feature_pin_lock, feature_backup_restore, simple_aac_app [EXTRACTED 0.90]
+- **Android Plugin Release Build Flow** — flutter_tts_assemble_release, permission_handler_android_bundle_release_aar, record_android_bundle_release_aar [EXTRACTED 0.95]
+- **Agent Operational Framework** — agents_rules_flutter_rules, agents_skills_aac_accessibility_skill, agents_skills_design_system_skill, agents_skills_flutter_quality_skill, agents_skills_flutter_ui_ux_skill, agents_skills_release_management_skill [EXTRACTED 1.00]
+- **Android Launcher Icon Set** — android_app_src_main_res_mipmap_hdpi_ic_launcher, android_app_src_main_res_mipmap_hdpi_ic_launcher_round, android_app_src_main_res_mipmap_mdpi_ic_launcher, android_app_src_main_res_mipmap_mdpi_ic_launcher_round, android_app_src_main_res_mipmap_xhdpi_ic_launcher, android_app_src_main_res_mipmap_xhdpi_ic_launcher_round, android_app_src_main_res_mipmap_xxhdpi_ic_launcher, android_app_src_main_res_mipmap_xxhdpi_ic_launcher_round, android_app_src_main_res_mipmap_xxxhdpi_ic_launcher, android_app_src_main_res_mipmap_xxxhdpi_ic_launcher_round [EXTRACTED 1.00]
+- **Android Manifest Merging Flow** — app_processreleasemainmanifest, audioplayers_android_processreleasemanifest, file_picker_processreleasemanifest, flutter_plugin_android_lifecycle_processreleasemanifest, flutter_tts_processreleasemanifest, image_picker_android_processreleasemanifest, path_provider_android_processreleasemanifest, permission_handler_android_processreleasemanifest, record_android_processreleasemanifest, share_plus_processreleasemanifest, shared_preferences_android_processreleasemanifest [EXTRACTED 1.00]
+- **Android Resource Compilation Flow** — build_release_log, app_package_release, app_assemble_release [EXTRACTED 1.00]
+- **Simple AAC Branding Assets** — assets_branding_simple_aac_icon_1024, assets_branding_simple_aac_original_1254, assets_branding_resolutions_simple_aac_1024x1024, assets_branding_resolutions_simple_aac_114x114 [EXTRACTED 1.00]
+- **Flutter Android Plugin Compilation Flow** — audioplayers_android, file_picker, flutter_plugin_android_lifecycle, image_picker_android, flutter_tts, path_provider_android, permission_handler_android, record_android, share_plus, shared_preferences_android [EXTRACTED 1.00]
+- **Flutter Android Plugin Modules** — build_release_log_txt_audioplayers_android, build_release_log_txt_file_picker, build_release_log_txt_flutter_tts, build_release_log_txt_image_picker_android, build_release_log_txt_path_provider_android, build_release_log_txt_permission_handler_android, build_release_log_txt_record_android, build_release_log_txt_share_plus, build_release_log_txt_shared_preferences_android [EXTRACTED 1.00]
+- **Food and Drink Items** — assets_images_starter_pack_v8_food_fish, assets_images_starter_pack_v8_food_food, assets_images_starter_pack_v8_food_hoppers, assets_images_starter_pack_v8_food_kottu, assets_images_starter_pack_v8_food_milk, assets_images_starter_pack_v8_food_rice, assets_images_starter_pack_v8_food_soup, assets_images_starter_pack_v8_food_string_hoppers, assets_images_starter_pack_v8_food_vegetables [EXTRACTED 1.00]
+- **Linux Build System** — linux_cmakelists, linux_flutter_cmakelists, linux_runner_cmakelists [EXTRACTED 1.00]
+- **Medical Feasibility Study Evidence** — docs_research_medical_feasibility_evidence_01_application_feature_evidence_md, docs_research_medical_feasibility_evidence_02_medical_feasibility_domain_mapping_md, docs_research_medical_feasibility_evidence_04_research_phase_status_md, docs_research_medical_feasibility_evidence_06_final_evidence_summary_for_research_writing_md [EXTRACTED 1.00]
+- **Multilingual User Guides** — docs_user_guide_sinhala_simple_aac_user_guide_si, docs_user_guide_sinhala_simple_aac_user_guide_si_md, docs_user_guide_tamil_simple_aac_user_guide_ta [EXTRACTED 1.00]
+- **Basic Needs and Sensations** — assets_images_starter_pack_v8_needs_cold, assets_images_starter_pack_v8_needs_help, assets_images_starter_pack_v8_needs_hot, assets_images_starter_pack_v8_needs_hungry, assets_images_starter_pack_v8_needs_needs, assets_images_starter_pack_v8_needs_pain, assets_images_starter_pack_v8_needs_rest, assets_images_starter_pack_v8_needs_sleep, assets_images_starter_pack_v8_needs_thirsty, assets_images_starter_pack_v8_needs_toilet [EXTRACTED 1.00]
+- **Release Documentation Chain** — docs_releases_2026_11_14_v1_1_0_md, docs_releases_2026_11_16_v1_1_1_build9_md, docs_releases_2026_11_16_v1_1_2_build10_md [EXTRACTED 1.00]
+- **Release Documentation Flow** — changelog_md, nov14_play_release_readiness_report_md, nov16_play_release_sign_off_report_md [EXTRACTED 1.00]
+- **Ruhuna ERC Ethics Submission Package** — docs_ethics_ruhuna_erc_readme, docs_ethics_ruhuna_erc_applicability_and_missing_info, docs_ethics_ruhuna_erc_master_prompt, docs_ethics_ruhuna_erc_source_fact_matrix, docs_ethics_ruhuna_erc_source_register, docs_ethics_ruhuna_erc_qa_document_inventory, docs_ethics_ruhuna_erc_qa_qa_report, docs_ethics_ruhuna_erc_qa_submission_checklist [EXTRACTED 1.00]
+- **Simple AAC Branding Assets** — assets_branding_resolutions_simple_aac_120x120_logo, assets_branding_resolutions_simple_aac_128x128_logo, assets_branding_resolutions_simple_aac_144x144_logo, assets_branding_resolutions_simple_aac_152x152_logo, assets_branding_resolutions_simple_aac_167x167_logo, assets_branding_resolutions_simple_aac_16x16_logo, assets_branding_resolutions_simple_aac_180x180_logo, assets_branding_resolutions_simple_aac_192x192_logo, assets_branding_resolutions_simple_aac_20x20_logo, assets_branding_resolutions_simple_aac_256x256_logo, assets_branding_resolutions_simple_aac_29x29_logo, assets_branding_resolutions_simple_aac_40x40_logo, assets_branding_resolutions_simple_aac_48x48_logo, assets_branding_resolutions_simple_aac_512x512_logo, assets_branding_resolutions_simple_aac_58x58_logo, assets_branding_resolutions_simple_aac_60x60_logo, assets_branding_resolutions_simple_aac_72x72_logo, assets_branding_resolutions_simple_aac_76x76_logo, assets_branding_resolutions_simple_aac_80x80_logo, assets_branding_resolutions_simple_aac_87x87_logo [EXTRACTED 1.00]
+- **Starter Pack V8 Animals** — assets_images_starter_pack_v8_animals_elephant, assets_images_starter_pack_v8_animals_fish, assets_images_starter_pack_v8_animals_monkey, assets_images_starter_pack_v8_animals_rabbit [EXTRACTED 1.00]
+- **Starter Pack V8 Basic Words** — assets_images_starter_pack_v8_basic_words_no, assets_images_starter_pack_v8_basic_words_come, assets_images_starter_pack_v8_basic_words_finished, assets_images_starter_pack_v8_basic_words_hello, assets_images_starter_pack_v8_basic_words_more, assets_images_starter_pack_v8_basic_words_please [EXTRACTED 1.00]
+- **Starter Pack V8 Colours** — assets_images_starter_pack_v8_colours_black, assets_images_starter_pack_v8_colours_blue, assets_images_starter_pack_v8_colours_green, assets_images_starter_pack_v8_colours_orange, assets_images_starter_pack_v8_colours_purple, assets_images_starter_pack_v8_colours_red [EXTRACTED 1.00]
+- **Starter Pack V8 Drinks Category** — assets_images_starter_pack_v8_drinks_bottle, assets_images_starter_pack_v8_drinks_coconut_water, assets_images_starter_pack_v8_drinks_coffee, assets_images_starter_pack_v8_drinks_cup, assets_images_starter_pack_v8_drinks_juice, assets_images_starter_pack_v8_drinks_milk, assets_images_starter_pack_v8_drinks_soft_drink, assets_images_starter_pack_v8_drinks_straw, assets_images_starter_pack_v8_drinks_tea, assets_images_starter_pack_v8_drinks_water [EXTRACTED 1.00]
+- **Family/People Category** — assets_images_starter_pack_v8_family_sister, assets_images_starter_pack_v8_family_teacher [EXTRACTED 1.00]
+- **Starter Pack V8 Family/People Category** — assets_images_starter_pack_v8_family_brother, assets_images_starter_pack_v8_family_doctor, assets_images_starter_pack_v8_family_father, assets_images_starter_pack_v8_family_friend, assets_images_starter_pack_v8_family_grandma, assets_images_starter_pack_v8_family_grandpa, assets_images_starter_pack_v8_family_mother, assets_images_starter_pack_v8_family_people [EXTRACTED 1.00]
+- **Feelings Category** — assets_images_starter_pack_v8_feelings_angry, assets_images_starter_pack_v8_feelings_calm, assets_images_starter_pack_v8_feelings_excited, assets_images_starter_pack_v8_feelings_happy, assets_images_starter_pack_v8_feelings_love, assets_images_starter_pack_v8_feelings_okay, assets_images_starter_pack_v8_feelings_sad, assets_images_starter_pack_v8_feelings_scared, assets_images_starter_pack_v8_feelings_tired, assets_images_starter_pack_v8_feelings_worried [EXTRACTED 1.00]
+- **Food Category** — assets_images_starter_pack_v8_food_apple, assets_images_starter_pack_v8_food_banana, assets_images_starter_pack_v8_food_biscuit, assets_images_starter_pack_v8_food_bread, assets_images_starter_pack_v8_food_butter, assets_images_starter_pack_v8_food_butter_bread, assets_images_starter_pack_v8_food_eat, assets_images_starter_pack_v8_food_egg [EXTRACTED 1.00]
+- **User Documentation Suite** — docs_user_guide_readme_md, docs_user_guide_trilingual_document_qa_report_md, docs_user_guide_user_guide_layout_qa_md, docs_user_guide_user_guide_qa_report_md [EXTRACTED 1.00]
+- **Web Deployment Assets** — web_index, web_favicon, web_icons_icon192, web_icons_icon512, web_icons_iconmaskable192, web_icons_iconmaskable512 [EXTRACTED 1.00]
+- **Windows Build System** — windows_cmakelists, windows_flutter_cmakelists, windows_runner_cmakelists [EXTRACTED 1.00]
+- **Accessibility and Inclusion Features** — feature_color_blind_mode, feature_tap_to_speak, feature_gif_support [INFERRED 0.80]
+- **Speech Synthesis Subsystem** — lib_services_speech_engine, lib_utils_multilingual_speech_router_dart, lib_widgets_tts_bar [INFERRED 0.85]
+- **AAC Visual Vocabulary** — assets_images_seed_angry, assets_images_seed_blocks, assets_images_seed_good, assets_images_seed_happy, assets_images_seed_hello, assets_images_seed_play, assets_images_seed_sad, assets_images_seed_turn, assets_images_starter_pack_v8_activities_drink, assets_images_starter_pack_v8_activities_eat, assets_images_starter_pack_v8_activities_play, assets_images_starter_pack_v8_activities_read, assets_images_starter_pack_v8_activities_walk, assets_images_starter_pack_v8_animals_bird, assets_images_starter_pack_v8_animals_butterfly, assets_images_starter_pack_v8_animals_cat, assets_images_starter_pack_v8_animals_chicken, assets_images_starter_pack_v8_animals_cow, assets_images_starter_pack_v8_animals_dog [INFERRED 0.90]
+- **Android Library Build Flow** — build_release_log_txt_merge_release_resources, build_release_log_txt_verify_release_resources, build_release_log_txt_bundle_release_aar [INFERRED 0.90]
+- **App Branding Assets** — ios_runner_assets_xcassets_appicon_appiconset_icon_app_83_5x83_5_2x_png, macos_runner_assets_xcassets_appicon_appiconset_app_icon_1024_png, play_store_simple_aac_play_icon_512_png [INFERRED 0.90]
+- **App Settings Visual Documentation** — docs_user_guide_screenshots_16_settings_drawer_appearance_chips, docs_user_guide_screenshots_17_color_picker_app_color, docs_user_guide_screenshots_18_color_picker_text_color, docs_user_guide_screenshots_19_color_picker_board_background, docs_user_guide_screenshots_20_appearance_and_color_vision, docs_user_guide_screenshots_25_accessibility_haptics [INFERRED 0.90]
+- **Card Editing and Customization Flow** — docs_user_guide_screenshots_05_edit_mode_active, docs_user_guide_screenshots_06_card_editor_dialog, docs_user_guide_screenshots_08_camera_flow, docs_user_guide_screenshots_09_gallery_picker, docs_user_guide_screenshots_13_custom_voice_recorder [INFERRED 0.90]
+- **Data Management Visual Documentation** — docs_user_guide_screenshots_21_backup_export, docs_user_guide_screenshots_22_cloud_backup_sync, docs_user_guide_screenshots_23_backup_restore [INFERRED 0.90]
+- **Personal Care Category** — assets_images_starter_pack_v8_personal_care_toothbrush, assets_images_starter_pack_v8_personal_care_toothpaste [INFERRED 0.90]
+- **QA Forensic Audit & Certification Suite** — docs_qa_backup_restore_stress_test_report, docs_qa_camera_video_forensic_audit, docs_qa_cross_device_restore_report, docs_qa_data_persistence_forensic_audit [INFERRED 0.90]
+- **Android Release Build Pipeline** — build_release_log_txt_app, build_release_log_txt_r8, build_release_log_txt_profileinstaller [INFERRED 0.90]
+- **School and Places Category** — assets_images_starter_pack_v8_school_places_classroom, assets_images_starter_pack_v8_school_places_home, assets_images_starter_pack_v8_school_places_playground, assets_images_starter_pack_v8_school_places_school [INFERRED 0.90]
+- **Shapes Category** — assets_images_starter_pack_v8_shapes_circle, assets_images_starter_pack_v8_shapes_heart, assets_images_starter_pack_v8_shapes_rectangle, assets_images_starter_pack_v8_shapes_square, assets_images_starter_pack_v8_shapes_star, assets_images_starter_pack_v8_shapes_triangle [INFERRED 0.90]
+
+## Communities (383 total, 270 thin omitted)
+
+### Community 0 - "Home Screen Logic"
+Cohesion: 0.01
+Nodes (198): Imported Home Screen, activeParentCard, activeParentId, _addNewCardKey, allCategories, _appendToTtsInput, _applyRestoredBackup, _applyTextColorToCards (+190 more)
+
+### Community 1 - "Document Generation Scripts"
+Cohesion: 0.06
+Nodes (90): convert_docx_to_pdf(), extract_toc(), main(), strip_and_write(), text_of_pdf(), write_pointer(), add_body(), add_bullet() (+82 more)
+
+### Community 2 - "Grid Settings UI"
+Cohesion: 0.02
+Nodes (111): Grid Settings Dialog, _accumulatedDelta, active, appBarColor, applyTextColorToCards, backgroundColorSwatch, boardColor, build (+103 more)
+
+### Community 3 - "Card Editor Dialog"
+Cohesion: 0.02
+Nodes (73): accentColor, _adjustCurrentImage, _applyRecognizedLabel, audioPlayer, build, _buildAudioSection, _buildCameraDetectionBanner, _buildCandidateDuplicateCard (+65 more)
+
+### Community 4 - "Color Picker Dialog"
+Cohesion: 0.03
+Nodes (53): backgroundColor, backgroundPresets, backgroundPreview, build, _buildActionsFooter, _buildAppHeaderPreview, _buildBackgroundPreview, _buildCustomColorSection (+45 more)
+
+### Community 5 - "Speech Engine Service"
+Cohesion: 0.04
+Nodes (48): _activeLanguageTag, _activeRateFlutter, _activeVoiceKey, _channel, _configureLanguage, defaultEngine, dispose, _doInitialize (+40 more)
+
+### Community 6 - "Card Storage Service"
+Cohesion: 0.04
+Nodes (50): Data Persistence Forensic Audit, _applyDefaultCatalogMigration, _cardsBackupFile, _cardsBackupFileName, _cardsFile, _cardsFileName, CardStorageService, _cloneCard (+42 more)
+
+### Community 7 - "App Entry Point"
+Cohesion: 0.05
+Nodes (39): AACApp, build, _buildTheme, imagePickerImplementation, main, wait, baseColor, _boldText (+31 more)
+
+### Community 8 - "Openverse Image Search"
+Cohesion: 0.05
+Nodes (38): _client, _customClient, _dedupSorted, downloadAndPersistImage, _enableMultiSource, _extractTokens, ImageSearchProvider, _isNoisyTitle (+30 more)
+
+### Community 9 - "Image Crop Controls"
+Cohesion: 0.05
+Nodes (35): _basePan, _baseZoom, build, _buildBadge, _buildCropViewport, _buildFooterActions, _buildHeader, _buildInfoBanner (+27 more)
+
+### Community 10 - "Accessibility Theme Settings"
+Cohesion: 0.05
+Nodes (36): colorBlindBoldText, colorBlindBoldTextPrefKey, colorBlindBorderColor, colorBlindBorderColorPrefKey, colorBlindBorderWidth, colorBlindBorderWidthPrefKey, colorBlindFilterImages, colorBlindFilterImagesPrefKey (+28 more)
+
+### Community 11 - "Project Dependencies"
+Cohesion: 0.05
+Nodes (38): dependencies, archive, audioplayers, cupertino_icons, file_picker, flutter, flutter_colorpicker, flutter_tts (+30 more)
+
+### Community 12 - "Board Personalization Dialog"
+Cohesion: 0.05
+Nodes (36): appBarColor, appBarColors, boardBackgroundOptions, boardColor, BoardColorOption, build, _buildAppBarColorSection, _buildBoardBackgroundSection (+28 more)
+
+### Community 13 - "Tutorial Navigation Service"
+Cohesion: 0.06
+Nodes (31): completeTour, currentStepNotifier, endTour, finishTour, getKey, init, _instance, isTourActive (+23 more)
+
+### Community 14 - "Service Mocking Utilities"
+Cohesion: 0.09
+Nodes (18): OfflineModeException, CardEditorAction, _FakeAudioPlayer, _FakeAudioPlayer, _FakeAudioPlayer, main, tempDocsDir, _FakeAudioPlayer (+10 more)
+
+### Community 15 - "Linux Platform Integration"
+Cohesion: 0.07
+Nodes (14): fl_register_plugins(), main(), first_frame_cb(), my_application_activate(), my_application_class_init(), my_application_dispose(), my_application_init(), my_application_local_command_line() (+6 more)
+
+### Community 16 - "Smart Image Search"
+Cohesion: 0.06
+Nodes (30): build, _buildCenteredStatus, _buildConfirmationView, _buildDownloadingState, _buildErrorState, _buildFilterChip, _buildLoadingState, _buildOfflineWarning (+22 more)
+
+### Community 17 - "Tutorial UI Components"
+Cohesion: 0.08
+Nodes (9): animationValue, build, pointsDown, main, main, main, main, main (+1 more)
+
+### Community 18 - "Data Backup Service"
+Cohesion: 0.10
+Nodes (15): main, main, _sha256Hex, _validGifHeader, main, _sha256Bytes, _sha256File, tempDir (+7 more)
+
+### Community 19 - "Home App Bar"
+Cohesion: 0.06
+Nodes (27): _AppBarIconButton, backgroundColor, build, color, HomeAppBar, icon, isEditMode, isPinned (+19 more)
+
+### Community 20 - "Video to GIF Conversion"
+Cohesion: 0.06
+Nodes (26): AnimatedMediaHelper, AnimatedMediaSource, _confirmTrimLongVideo, _convertVideoToGif, _defaultPicker, durationMs, encodedDurationMs, frameCount (+18 more)
+
+### Community 21 - "App Service Registry"
+Cohesion: 0.10
+Nodes (10): HomeDrawer, buildTestDrawer, main, main, main, main, main, main (+2 more)
+
+### Community 22 - "Backup and Restore"
+Cohesion: 0.07
+Nodes (27): Backup & Restore Stress Test Report, archive, BackupPayload, BackupService, _basename, buildBackupZip, bytes, cards (+19 more)
+
+### Community 23 - "Category Creation Dialog"
+Cohesion: 0.07
+Nodes (28): _applyPreset, availableCards, build, _CategoryPreset, _clearSelected, colorValue, createState, currentLanguage (+20 more)
+
+### Community 24 - "Tutorial Overlay Controller"
+Cohesion: 0.07
+Nodes (21): _ActiveTutorialOverlay, _ActiveTutorialOverlayState, build, createRenderObject, createState, currentStep, dialogSteps, didUpdateWidget (+13 more)
+
+### Community 25 - "Home Grid Management"
+Cohesion: 0.07
+Nodes (20): _openRecycleBin, _addNewCard, _addSubCard, _audioPlayer, build, _buildGridOption, cards, _createDefaultCards (+12 more)
+
+### Community 26 - "Recycle Bin Page"
+Cohesion: 0.07
+Nodes (26): activeCards, build, _buildBottomActions, _buildEmptyState, _buildEntryCard, _buildHeader, _buildInfoPanel, _buildSectionHeader (+18 more)
+
+### Community 27 - "Camera Analysis Helper"
+Cohesion: 0.07
+Nodes (23): analysis, analyzeImage, analyzerAvailable, _buildPreviewThumb, CameraAnalysisResult, CameraCaptureOutcome, CameraObjectHelper, captureAndVerify (+15 more)
+
+### Community 28 - "App Feature Screenshots"
+Cohesion: 0.08
+Nodes (26): aac_cards_v1.json, aac_cards_v1.json, Settings Drawer Appearance Chips Screenshot, App Color Picker Screenshot, Text Color Picker Screenshot, Board Background Picker Screenshot, Appearance and Color Vision Settings Screenshot, Backup and Export Settings Screenshot (+18 more)
+
+### Community 29 - "Tutorial Text Strings"
+Cohesion: 0.08
+Nodes (24): getBackLabel, getBackupGuideDesc, getBackupGuideTitle, getFinishLabel, getGifGuideDesc, getGifGuideTitle, getMiniGuidesTitle, getNextLabel (+16 more)
+
+### Community 30 - "Category Selection Dialog"
+Cohesion: 0.09
+Nodes (24): availableCards, build, _build4ColorGridIcon, _cardCountFor, categories, ChooseCategoriesDialog, _commitSelection, createState (+16 more)
+
+### Community 31 - "Windows C++ Runtime"
+Cohesion: 0.12
+Nodes (4): wWinMain(), CreateAndAttachConsole(), GetCommandLineArguments(), Utf8FromUtf16()
+
+### Community 32 - "Default Seed Cards"
+Cohesion: 0.08
+Nodes (22): createDefaultSeedCards, seedAngryImage, seedBlocksImage, seedGoodImage, seedHappyImage, seedHelloImage, seedPlayImage, seedSadImage (+14 more)
+
+### Community 33 - "Recycle Bin Service"
+Cohesion: 0.08
+Nodes (18): _cleanupUnreferencedMedia, _deduplicateCardIds, emptyRecycleBin, fileName, _findCardById, _getDocsDirectory, getEntryCount, _getFile (+10 more)
+
+### Community 34 - "App Permissions Helper"
+Cohesion: 0.09
+Nodes (19): Camera & Video Forensic Audit, AppPermissionsHelper, build, ensureCameraPermission, ensureLegacyStorageIfNeeded, ensureMicrophonePermission, _ensurePermission, ensureVideoRecordingPermissions (+11 more)
+
+### Community 36 - "Android Build Manifests"
+Cohesion: 0.09
+Nodes (22): Process Release Main Manifest, Process Release Manifest (audioplayers_android), com.baseflow.permissionhandler, com.example.simple_aac_app, com.llfbandit.record, com.mr.flutter.plugin.filepicker, com.tundralabs.fluttertts, dev.fluttercommunity.plus.share (+14 more)
+
+### Community 37 - "Windows Window Management"
+Cohesion: 0.16
+Nodes (6): Win32Window::GetHandle(), Win32Window::Show(), EnableFullDpiSupportIfAvailable(), EnableNonClientDpiScaling, Scale(), Win32Window::Win32Window()
+
+### Community 38 - "Landscape Navigation Menu"
+Cohesion: 0.09
+Nodes (21): baseColor, build, canGoBack, color, icon, isPinned, label, LandscapeMenu (+13 more)
+
+### Community 39 - "TTS Control Bar"
+Cohesion: 0.09
+Nodes (20): backgroundColor, borderColor, build, enabled, icon, isTablet, label, onClear (+12 more)
+
+### Community 40 - "Network Policy Service"
+Cohesion: 0.10
+Nodes (15): close, createGatedClient, init, inner, _instance, _isOnlineEnabled, isOnlineEnabledNotifier, message (+7 more)
+
+### Community 41 - "Grid Density Settings"
+Cohesion: 0.10
+Nodes (17): build, _buildPresetButton, cards, cardTextColor, cardTextScale, createState, currentColumns, currentLanguage (+9 more)
+
+### Community 42 - "Image Handling Utilities"
+Cohesion: 0.10
+Nodes (6): main, createTestCard, main, tempDir, main, main
+
+### Community 43 - "Edit Mode Toolbar"
+Cohesion: 0.10
+Nodes (19): addKey, backgroundColor, baseColor, borderColor, build, cancelKey, doneKey, _EditBarButton (+11 more)
+
+### Community 44 - "Windows Flutter Controller"
+Cohesion: 0.11
+Nodes (6): FlutterWindow::OnDestroy(), FlutterWindow, flutter_controller_, FlutterWindow::FlutterWindow(), project_, Win32Window::OnDestroy()
+
+### Community 45 - "Multilingual Translation Service"
+Cohesion: 0.10
+Nodes (16): AacTranslation, category, _conceptMap, english, isLatinScript, lookupTranslations, MultilingualConceptService, normalizeConcept (+8 more)
+
+### Community 46 - "Caregiver Lock Service"
+Cohesion: 0.11
+Nodes (15): authenticate, CaregiverLockService, _channel, defaultFallbackPin, getFallbackPin, init, _instance, isDeviceSecure (+7 more)
+
+### Community 47 - "Sub-Card Management"
+Cohesion: 0.11
+Nodes (17): build, _buildCardRow, _buildPreviewCardThumbnail, _buildPreviewSection, _confirmDeleteCard, _confirmMoveAllToHome, _countTotalDescendants, createState (+9 more)
+
+### Community 48 - "Styled Dialog Header"
+Cohesion: 0.11
+Nodes (18): accentColor, badgeText, build, color, DialogOptionTile, glossOpacity, icon, iconWidget (+10 more)
+
+### Community 49 - "Image Search Model"
+Cohesion: 0.11
+Nodes (16): creator, creatorUrl, foreignLandingUrl, fromJson, id, ImageSearchResult, imageUrl, isPhoto (+8 more)
+
+### Community 50 - "Card Image Widget"
+Cohesion: 0.11
+Nodes (11): autoApplyColorBlindFilter, buildCardImage, cacheWidth, effectiveCacheWidth, effectiveFilter, endsWith, fit, image (+3 more)
+
+### Community 51 - "Multilingual Speech Router"
+Cohesion: 0.11
+Nodes (18): _, _appendOrMerge, _englishIntToWords, languageCode, MultilingualSpeechRouter, normalizeEnglishText, normalizeIndicText, _normalizeLang (+10 more)
+
+### Community 52 - "Visible Cards Dialog"
+Cohesion: 0.12
+Nodes (14): build, cards, categoryName, _clearAll, createState, currentLanguage, gridColumns, initialSelectedIds (+6 more)
+
+### Community 53 - "Starter Pack Service"
+Cohesion: 0.12
+Nodes (14): alreadyInstalled, assetImagePrefix, buildStarterPack, _cachedPackRoot, cardsAdded, findStarterPackRoot, getStarterPackRootClone, importStarterPack (+6 more)
+
+### Community 54 - "Win32 Window Lifecycle"
+Cohesion: 0.15
+Nodes (8): FlutterWindow::OnCreate(), Win32Window::Destroy(), Win32Window::GetClientArea(), Win32Window::OnCreate(), Win32Window, child_content_, quit_on_close_, window_handle_
+
+### Community 56 - "Category Metadata Model"
+Cohesion: 0.12
+Nodes (13): CategoryMetadata, CategoryPresetItem, color, colorValue, defaultPresets, emoji, fromJson, icon (+5 more)
+
+### Community 57 - "Media Permission Tests"
+Cohesion: 0.15
+Nodes (4): main, _sampleGifBytes, main, main
+
+### Community 58 - "UI Preview Chips"
+Cohesion: 0.12
+Nodes (15): _NestingConfirmationDialog, _MediaSourceTile, _BackgroundColorPreviewChip, _CardTextColorPreviewChip, _ColorBlindRadioOption, ColorVisionPreviewChip, _DrawerIconBadge, _MiniCard (+7 more)
+
+### Community 59 - "Tutorial Speech Bubble"
+Cohesion: 0.12
+Nodes (14): allowsManualAdvance, arrowHorizontalOffset, build, isArrowUp, language, onBack, onNext, onSkip (+6 more)
+
+### Community 60 - "Tutorial Integration Tests"
+Cohesion: 0.20
+Nodes (4): main, main, main, main
+
+### Community 62 - "GIF Encoding Logic"
+Cohesion: 0.26
+Nodes (4): VideoGifEncoder, ColorBox, EncodeResult, LzwGifWriter
+
+### Community 63 - "Recycle Bin Model"
+Cohesion: 0.13
+Nodes (13): card, collectMediaPaths, deletedAtUtc, entryId, fromJson, getDaysRemaining, getDeletionStatusText, isExpired (+5 more)
+
+### Community 64 - "AAC Card Model"
+Cohesion: 0.13
+Nodes (14): AACCard, category, colorValue, fromJson, getLabel, id, imagePath, label (+6 more)
+
+### Community 65 - "Sub-Card UI Components"
+Cohesion: 0.15
+Nodes (8): build, parentCard, SubCardPage, AACCardWidget, build, card, onLongPress, onTap
+
+### Community 66 - "Live Preview Panel"
+Cohesion: 0.14
+Nodes (10): accentColor, build, child, icon, LivePreviewPanel, maxHeight, minHeight, padding (+2 more)
+
+### Community 67 - "Edit Session State"
+Cohesion: 0.14
+Nodes (11): activeParentId, allCategories, cards, customCategories, customCategoryMetadata, EditSessionSnapshot, initialMediaPaths, parentStackIds (+3 more)
+
+### Community 68 - "Grid Density Preview"
+Cohesion: 0.14
+Nodes (12): build, _buildCardIcon, _buildMiniCard, cards, cardTextColor, cardTextScale, columns, defaultSampleCards (+4 more)
+
+### Community 69 - "Custom UI Painters"
+Cohesion: 0.15
+Nodes (12): _RecycleBinWavePainter, _CropOverlayPainter, _HeaderWavePainter, _DrawerHeaderWavePainter, _MiniStickFigurePainter, _HappyStickFigurePainter, _HelloStickFigurePainter, _WaterStickFigurePainter (+4 more)
+
+### Community 70 - "Home Page State"
+Cohesion: 0.19
+Nodes (10): _DragAndDropCardItem, _DragAndDropCardItemState, HomePage, _HomePageState, HomePage, _HomePageState, AddCategoryDialog, _AddCategoryDialogState (+2 more)
+
+### Community 71 - "TTS Composer Preview"
+Cohesion: 0.15
+Nodes (12): build, buildActionChips, _buildMiniChip, _buildSampleActionPill, _buildSampleToken, showActions, showClear, showDelete (+4 more)
+
+### Community 72 - "Testing Utility Hooks"
+Cohesion: 0.17
+Nodes (11): buildTheme, enableHapticsForTesting, resetSettingsForTesting, useImageOverlayLabelForTesting, resetTestHooks, resetCooldown, resetTestHooks, clearCache (+3 more)
+
+### Community 73 - "Android Plugin Registry"
+Cohesion: 0.17
+Nodes (12): app, audioplayers_android, RecordPlugin, file_picker, flutter_plugin_android_lifecycle, image_picker_android, SharedPreferencesPlugin, path_provider_android (+4 more)
+
+### Community 75 - "Visible Cards Preview"
+Cohesion: 0.17
+Nodes (9): build, _buildCardIcon, cards, columns, _fallbackIcon, isDarkMode, language, selectedIds (+1 more)
+
+### Community 76 - "macOS Plugin Registry"
+Cohesion: 0.18
+Nodes (10): audioplayers_darwin, FlutterTtsPlugin, SharePlusPlugin, file_selector_macos, flutter_tts, Foundation, path_provider_foundation, record_darwin (+2 more)
+
+### Community 77 - "Image and UI Helpers"
+Cohesion: 0.18
+Nodes (6): cropSquare, ImageCropHelper, _resolveTempDir, applyOrientation, applySystemUi, UiModeHelper
+
+### Community 78 - "Design System Documentation"
+Cohesion: 0.18
+Nodes (11): Simple AAC Design System, Home Page, Backup Service, Card Storage Service, Speech Engine Service, Animated Media Helper, App Permissions Helper, Camera Object Helper (+3 more)
+
+### Community 79 - "Card Data Model"
+Cohesion: 0.18
+Nodes (9): AACCard, colorValue, fromJson, id, imagePath, label, subCards, toJson (+1 more)
+
+### Community 80 - "Web App Manifest"
+Cohesion: 0.18
+Nodes (10): background_color, description, display, icons, name, orientation, prefer_related_applications, short_name (+2 more)
+
+### Community 81 - "Storage Key Management"
+Cohesion: 0.20
+Nodes (8): _cardsKey, _gridColumnsKey, _gridColumnsLegacyKey, loadCards, loadGridColumns, saveCards, saveGridColumns, StorageService
+
+### Community 82 - "App Icon Configuration"
+Cohesion: 0.20
+Nodes (9): flutter_launcher_icons, adaptive_icon_background, adaptive_icon_foreground, adaptive_icon_foreground_inset, android, image_path, ios, min_sdk_android (+1 more)
+
+### Community 83 - "Tutorial Spotlight Painter"
+Cohesion: 0.20
+Nodes (9): borderRadius, padding, paint, pulseColor, pulseProgress, scrimColor, shouldRepaint, targetRect (+1 more)
+
+### Community 84 - "Linter Rules Configuration"
+Cohesion: 0.22
+Nodes (8): analyzer, errors, exclude, deprecated_member_use, use_build_context_synchronously, include, linter, rules
+
+### Community 85 - "iOS App Delegate"
+Cohesion: 0.25
+Nodes (3): Flutter, AppDelegate, UIKit
+
+### Community 86 - "Android Release Build"
+Cohesion: 0.25
+Nodes (9): :app:assembleRelease, :app:packageRelease, audioplayers_android:mergeReleaseResources, Build Release Log, file_picker:mergeReleaseResources, flutter_plugin_android_lifecycle:mergeReleaseResources, flutter_tts:mergeReleaseResources, image_picker_android:mergeReleaseResources (+1 more)
+
+### Community 87 - "Tutorial Step Model"
+Cohesion: 0.22
+Nodes (8): allowsManualAdvance, bubblePosition, keyName, showHandPointer, SpeechBubblePosition, TutorialStep, TutorialStepType, type
+
+### Community 88 - "Project Documentation"
+Cohesion: 0.25
+Nodes (8): Simple AAC — Agent Operating Guide, Changelog, DESIGN_SYSTEM.md, CAMERA_VIDEO_FORENSIC_AUDIT.md, home_page.dart, multilingual_speech_router.dart, November 14 Play Release Readiness Report, November 16 Google Play Release Sign-Off Report
+
+### Community 89 - "Personalization Service"
+Cohesion: 0.25
+Nodes (5): markCompleted, PersonalizeService, prefPersonalizeCompleted, resetForTesting, shouldShowFirstLaunchSetup
+
+### Community 90 - "Windows Class Registrar"
+Cohesion: 0.25
+Nodes (3): WindowClassRegistrar, class_registered_, instance_
+
+### Community 91 - "Geometry Utility Classes"
+Cohesion: 0.21
+Nodes (6): Point, x, y, Size, height, width
+
+### Community 93 - "Android Resource Merging"
+Cohesion: 0.43
+Nodes (7): bundleReleaseAar, mergeReleaseResources, permission_handler_android, record_android, share_plus, shared_preferences_android, verifyReleaseResources
+
+### Community 95 - "Mini Guides Dialog"
+Cohesion: 0.29
+Nodes (5): build, _buildGuideCard, language, MiniGuidesDialog, show
+
+### Community 96 - "Welcome Tour Dialog"
+Cohesion: 0.29
+Nodes (5): build, _buildFeatureRow, language, show, WelcomeTourDialog
+
+### Community 97 - "Category Selection Tests"
+Cohesion: 0.29
+Nodes (4): configureScreen, customMetadata, main, sampleCards
+
+### Community 98 - "Web and UI Assets"
+Cohesion: 0.29
+Nodes (7): UI Screenshot: Settings Drawer, UI Screenshot: Home Screen Landscape, Favicon, Flutter Bootstrap Script, App Icon 192x192, Web Index HTML, Web Manifest
+
+### Community 99 - "Android Build Optimization"
+Cohesion: 0.33
+Nodes (6): app, :audioplayers_android, AndroidManifest.xml, packageRelease, androidx.profileinstaller:profileinstaller:1.4.0, R8 Shrinker
+
+### Community 100 - "macOS App Infrastructure"
+Cohesion: 0.47
+Nodes (3): Cocoa, FlutterMacOS, XCTest
+
+### Community 101 - "AAC Research and Modeling"
+Cohesion: 0.33
+Nodes (6): AACCard Model, TtsBar Widget, Technical Evidence Report: Application Feature Audit, Medical Feasibility Domain Mapping, Research Phase Status Report, Final Evidence Summary
+
+### Community 105 - "TTS Token Data Model"
+Cohesion: 0.40
+Nodes (4): imagePath, label, TtsToken, voicePath
+
+### Community 106 - "Windows Build Configuration"
+Cohesion: 0.50
+Nodes (5): Windows CMakeLists, Windows Flutter CMakeLists, Generated Plugins CMake, Windows Runner CMakeLists, Windows Main Entry
+
+### Community 107 - "UI/UX Design Skills"
+Cohesion: 0.50
+Nodes (4): AAC Accessibility Skill, Design System Skill, Flutter UI/UX Skill, Launcher Foreground (hdpi)
+
+### Community 108 - "Family Avatar Illustrations"
+Cohesion: 0.50
+Nodes (4): Young boy (brother) avatar illustration, Man (father) avatar illustration, Woman (mother) avatar illustration, Family group (parents and children) illustration
+
+### Community 109 - "iOS Launch Assets"
+Cohesion: 0.50
+Nodes (4): iOS Launch Image (@2x), iOS Launch Image (@3x), iOS Launch Image, Launch Screen Assets README
+
+### Community 110 - "Flutter Development Standards"
+Cohesion: 0.67
+Nodes (3): Flutter Operational Rules, Flutter Quality Skill, Release Management Skill
+
+### Community 112 - "Android Launcher Assets"
+Cohesion: 0.67
+Nodes (3): Android Launcher Background (Blue Gradient), Android Launcher Foreground (Simple AAC Characters), Android App Icon (HDPI)
+
+### Community 113 - "Android Code Minification"
+Cohesion: 0.67
+Nodes (3): app:minifyReleaseWithR8, Proguard Configuration Rules, R8 Compiler
+
+### Community 114 - "Launcher Icon Previews"
+Cohesion: 0.67
+Nodes (3): Circle Launcher Preview, Samsung Squircle Launcher Preview, Simple AAC Icon (1024px)
+
+### Community 115 - "Food and Hunger Illustrations"
+Cohesion: 0.67
+Nodes (3): Illustration of a happy child eating a meal, Illustration of a bowl of white rice, Illustration of a child thinking about a burger (hungry)
+
+### Community 116 - "ERC Research Documentation"
+Cohesion: 0.67
+Nodes (3): Ruhuna ERC Master Prompt, ERC Source Fact Matrix, ERC Source Register
+
+### Community 117 - "User Onboarding Tutorial"
+Cohesion: 0.67
+Nodes (3): Welcome Tour Dialog UI, Interactive First-Run Tutorial Implementation Plan, TutorialService
+
+### Community 118 - "Version Release Logs"
+Cohesion: 0.67
+Nodes (3): Release Specification & Log: v1.1.0, Release Specification & Log: v1.1.1 Build 9, Release Specification & Log: v1.1.2 Build 10
+
+### Community 119 - "Android Image Picker Resources"
+Cohesion: 0.67
+Nodes (3): image_picker_android:mergeReleaseResources, image_picker_android Resources, image_picker_android:verifyReleaseResources
+
+### Community 120 - "Linux Build Configuration"
+Cohesion: 1.00
+Nodes (3): Linux Project CMakeLists, Linux Flutter CMakeLists, Linux Runner CMakeLists
+
+### Community 121 - "Android Path Provider Resources"
+Cohesion: 0.67
+Nodes (3): path_provider_android:mergeReleaseResources, path_provider_android Resources, path_provider_android:verifyReleaseResources
+
+### Community 122 - "Android Permission Handler Resources"
+Cohesion: 0.67
+Nodes (3): permission_handler_android:mergeReleaseResources, permission_handler_android Resources, permission_handler_android:verifyReleaseResources
+
+## Knowledge Gaps
+- **1880 isolated node(s):** `activeParentCard`, `activeParentId`, `_addNewCardKey`, `allCategories`, `_appendToTtsInput` (+1875 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2187 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **270 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+
+## Suggested Questions
+_Questions this graph is uniquely positioned to answer:_
+
+- **Why does `TutorialStepType` connect `Tutorial Step Model` to `Tutorial Overlay Controller`, `Tutorial Speech Bubble`?**
+  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+- **What connects `activeParentCard`, `activeParentId`, `_addNewCardKey` to the rest of the system?**
+  _1880 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Home Screen Logic` be split into smaller, more focused modules?**
+  _Cohesion score 0.008888888888888889 - nodes in this community are weakly interconnected._
+- **Why does `_SpotlightHitTestBlocker` connect `Spotlight UI Widget` to `Tutorial Overlay Controller`?**
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
+- **Should `Document Generation Scripts` be split into smaller, more focused modules?**
+  _Cohesion score 0.06129032258064516 - nodes in this community are weakly interconnected._
+- **Why does `VideoGifEncoder` connect `GIF Encoding Logic` to `Android Video Encoder`?**
+  _High betweenness centrality (0.005) - this node is a cross-community bridge._
+- **Should `Grid Settings UI` be split into smaller, more focused modules?**
+  _Cohesion score 0.017699115044247787 - nodes in this community are weakly interconnected._

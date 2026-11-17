@@ -72,10 +72,29 @@ Specialized engineering workflows are packaged into project-local Agent Skills i
 | **`design-system`** | `.agents/skills/design-system/SKILL.md` | Verifying colors, radii, spacing, typography, dialog patterns, and approved UI invariants. |
 | **`flutter-quality`** | `.agents/skills/flutter-quality/SKILL.md` | Executing tests, static analysis, overflow checks, and release qualification. |
 | **`release-management`** | `.agents/skills/release-management/SKILL.md` | Managing versioning, changelogs, Git checkpoints, Play Store requirements, and release evidence. |
+| **`graphify`** | `.agents/skills/graphify/SKILL.md` | Querying codebase knowledge graph, file relationships, god nodes, and tracing paths. |
+| **`ponytail`** | `.agents/skills/ponytail/SKILL.md` | Enforcing lazy senior dev mode: YAGNI, shortest working diff, stdlib/native first. |
+| **`ponytail-review`** | `.agents/skills/ponytail-review/SKILL.md` | Code review hunting for over-engineering, unneeded abstractions, and bloat. |
+| **`ponytail-audit`** | `.agents/skills/ponytail-audit/SKILL.md` | Whole-repo audit scanning for dead code, unneeded dependencies, and simplification. |
+| **`ponytail-debt`** | `.agents/skills/ponytail-debt/SKILL.md` | Tracking deliberate shortcuts, deferrals, and `ponytail:` comments across the repo. |
+| **`ponytail-gain`** | `.agents/skills/ponytail-gain/SKILL.md` | Displaying measured impact and productivity metrics. |
+| **`ponytail-help`** | `.agents/skills/ponytail-help/SKILL.md` | Quick reference card for all ponytail modes, commands, and options. |
 
 ---
 
-## 4. Key Verification & Test Commands
+## 4. Codebase Knowledge Base (Graphify)
+
+A comprehensive, GraphRAG-ready architectural knowledge base is generated and maintained in `graphify-out/`:
+
+* **Knowledge Graph Report:** `graphify-out/GRAPH_REPORT.md` (architecture summary, 383 communities, hub nodes)
+* **Interactive Topology Visualizer:** `graphify-out/graph.html` (open in browser for 2D interactive force-directed graph)
+* **Knowledge Graph JSON:** `graphify-out/graph.json` (2,867 nodes, 3,709 edges)
+* **Architecture Call-Flow:** `graphify-out/simple_aac_play_release-callflow.html` (Mermaid sequence & flow diagrams)
+* **Codebase Wiki:** `graphify-out/wiki/index.md` (393 cross-referenced Markdown articles)
+
+---
+
+## 5. Key Verification & Test Commands
 
 Always verify changes before considering tasks complete:
 
@@ -95,7 +114,7 @@ git status
 
 ---
 
-## 5. Documentation & Release Knowledge
+## 6. Documentation & Release Knowledge
 
 * **Play Store Signing & Identity Guide:** `docs/releases/PLAY_STORE_SIGNING_AND_IDENTITY_GUIDE.md`
 * **Release Management Skill:** `.agents/skills/release-management/SKILL.md`
@@ -107,11 +126,12 @@ git status
 
 ---
 
-## 6. Development Rules & Operational Boundaries
+## 7. Development Rules & Operational Boundaries
 
-1. **Lazy Senior Dev Mode:** Minimal working diffs. Use native Flutter widgets and Dart standard library. No unnecessary abstractions or dependencies.
-2. **Never Report Unexecuted Checks as Passed:** Always run the actual commands and inspect the output.
-3. **No Unapproved Push or Publish:** Never execute `git push`, merges to main, or Play Console deployments without explicit user confirmation.
-4. **Preserve User Data:** Never wipe user cards, voice recordings, or camera images during migrations or testing.
-5. **Strict Production Package ID (`lk.yasas.simpleaac`):** The production `applicationId` MUST ALWAYS be `lk.yasas.simpleaac`. Never revert to `com.example.simple_aac_app`. Keep `namespace = "com.example.simple_aac_app"` separate from `applicationId` in `build.gradle.kts`. Debug variants use `applicationIdSuffix = ".dev"` (`lk.yasas.simpleaac.dev`).
-6. **Official Upload Key Requirement:** Production releases MUST be signed with `/home/yasas/simple-aac-signing/simple-aac-upload.jks` (alias `simpleaacupload`, RSA 3072, SHA-256 fingerprint `81:18:50:33:8F:19:CB:0D:02:6E:99:76:3D:75:6F:23:BE:10:B1:C3:F0:B8:54:EA:09:70:EC:14:AD:CD:14:88`). Never commit `.jks`, passwords, or `key.properties` to Git.
+1. **Lazy Senior Dev Mode (Ponytail):** Minimal working diffs. Use native Flutter widgets and Dart standard library. No unnecessary abstractions or dependencies. Follow `.agents/rules/ponytail_rules.md`.
+2. **Knowledge Base Navigation (Graphify):** Query `graphify-out/` knowledge graph before complex architectural changes. Follow `.agents/rules/graphify_rules.md`.
+3. **Never Report Unexecuted Checks as Passed:** Always run the actual commands and inspect the output.
+4. **No Unapproved Push or Publish:** Never execute `git push`, merges to main, or Play Console deployments without explicit user confirmation.
+5. **Preserve User Data:** Never wipe user cards, voice recordings, or camera images during migrations or testing.
+6. **Strict Production Package ID (`lk.yasas.simpleaac`):** The production `applicationId` MUST ALWAYS be `lk.yasas.simpleaac`. Never revert to `com.example.simple_aac_app`. Keep `namespace = "com.example.simple_aac_app"` separate from `applicationId` in `build.gradle.kts`. Debug variants use `applicationIdSuffix = ".dev"` (`lk.yasas.simpleaac.dev`).
+7. **Official Upload Key Requirement:** Production releases MUST be signed with `/home/yasas/simple-aac-signing/simple-aac-upload.jks` (alias `simpleaacupload`, RSA 3072, SHA-256 fingerprint `81:18:50:33:8F:19:CB:0D:02:6E:99:76:3D:75:6F:23:BE:10:B1:C3:F0:B8:54:EA:09:70:EC:14:AD:CD:14:88`). Never commit `.jks`, passwords, or `key.properties` to Git.

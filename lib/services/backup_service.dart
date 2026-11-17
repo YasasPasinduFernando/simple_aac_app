@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../models/aac_card_model.dart';
 import 'card_storage_service.dart';
+import 'starter_pack_service.dart';
 
 class BackupPayload {
   final List<AACCard> cards;
@@ -362,6 +363,27 @@ class BackupService {
         final settings = await _readSettings(dir);
         return BackupPayload(cards: restored, settings: settings);
       }
+
+      // Check if archive contains a starter pack manifest
+      File? starterManifest;
+      final directStarter = File('${tempDir.path}/default_pack_manifest.json');
+      if (await directStarter.exists()) {
+        starterManifest = directStarter;
+      } else {
+        await for (final entity in tempDir.list(recursive: true)) {
+          if (entity is File && entity.path.endsWith('default_pack_manifest.json')) {
+            starterManifest = entity;
+            break;
+          }
+        }
+      }
+
+      if (starterManifest != null) {
+        final manifestRaw = await starterManifest.readAsString();
+        final starterRoot = StarterPackService.buildStarterPack(jsonString: manifestRaw);
+        return BackupPayload(cards: [starterRoot], settings: {});
+      }
+
       return const BackupPayload(cards: [], settings: {});
     } finally {
       if (await tempDir.exists()) {

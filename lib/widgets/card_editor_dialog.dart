@@ -16,11 +16,12 @@ import '../utils/animated_media_helper.dart';
 import '../utils/app_permissions_helper.dart';
 import '../utils/camera_object_helper.dart';
 import '../utils/card_image.dart';
+import 'crop_zoom_dialog.dart';
 import 'smart_image_search_dialog.dart';
 import 'styled_dialog_header.dart';
 import 'tutorial/tutorial_overlay.dart';
 
-enum CardEditorAction { saved, addSubCard, manageSubCards }
+enum CardEditorAction { saved, addSubCard, manageSubCards, duplicate }
 
 enum _FolderToWordChoice { moveToHome, delete, cancel }
 
@@ -34,6 +35,7 @@ class CardEditorDialog extends StatefulWidget {
   final String language;
   final void Function(List<AACCard> movedCards)? onMoveSubCardsToHome;
   final ValueChanged<String>? onMediaCreated;
+  final void Function(AACCard candidateCard)? onDuplicate;
 
   const CardEditorDialog({
     Key? key,
@@ -46,6 +48,7 @@ class CardEditorDialog extends StatefulWidget {
     this.language = 'en',
     this.onMoveSubCardsToHome,
     this.onMediaCreated,
+    this.onDuplicate,
   }) : super(key: key);
 
   @override
@@ -73,6 +76,8 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   bool _isMediaBusy = false;
   String _detectedConcept = '';
   CameraAnalysisResult? _cameraAnalysis;
+  late final String? _initialImagePath;
+  final List<String> _temporaryCroppedPaths = [];
 
   final GlobalKey _cardMediaKey = GlobalKey();
   final GlobalKey _cardLabelsKey = GlobalKey();
@@ -102,6 +107,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       }
     };
 
+    _initialImagePath = widget.card.imagePath;
     _cameraAnalysis = widget.initialCameraAnalysis;
     _controllerEn = TextEditingController(text: widget.card.label);
     _controllerSi = TextEditingController(text: widget.card.labelSinhala ?? '');
@@ -157,6 +163,31 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     return raw.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
   }
 
+  void _revertUnsavedImage() {
+    widget.card.imagePath = _initialImagePath;
+    for (final path in _temporaryCroppedPaths) {
+      try {
+        final f = File(path);
+        if (f.existsSync()) {
+          f.deleteSync();
+        }
+      } catch (_) {}
+    }
+    _temporaryCroppedPaths.clear();
+  }
+
+  Future<void> _adjustCurrentImage() async {
+    final currentPath = widget.card.imagePath;
+    if (currentPath == null || currentPath.isEmpty || isGifImagePath(currentPath)) return;
+    final cropped = await CropZoomDialog.show(context, imagePath: currentPath);
+    if (cropped != null && mounted) {
+      _temporaryCroppedPaths.add(cropped);
+      setState(() {
+        widget.card.imagePath = cropped;
+      });
+    }
+  }
+
   Future<void> _pickFromGallery() async {
     if (_isMediaBusy || _isClosing) return;
     _isMediaBusy = true;
@@ -168,16 +199,18 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         source: ImageSource.gallery,
         imageQuality: 85,
       );
-      if (picked == null) return;
-      final permanentPath = await CardStorageService.persistMediaFile(
-        picked.path,
-        cardId: widget.card.id,
-        mediaType: 'images',
-      );
-      widget.onMediaCreated?.call(permanentPath);
-      if (!mounted) return;
+      if (picked == null || !mounted) return;
+
+      String finalPath = picked.path;
+      if (!isGifImagePath(picked.path)) {
+        final cropped = await CropZoomDialog.show(context, imagePath: picked.path);
+        if (cropped == null || !mounted) return;
+        _temporaryCroppedPaths.add(cropped);
+        finalPath = cropped;
+      }
+
       setState(() {
-        widget.card.imagePath = permanentPath;
+        widget.card.imagePath = finalPath;
         _cameraAnalysis = null;
       });
       TutorialService.instance.notifyMediaSelected();
@@ -205,8 +238,17 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         imageQuality: 85,
       );
       if (outcome == null || !mounted) return;
+
+      String finalPath = outcome.imagePath;
+      if (!isGifImagePath(outcome.imagePath)) {
+        final cropped = await CropZoomDialog.show(context, imagePath: outcome.imagePath);
+        if (cropped == null || !mounted) return;
+        _temporaryCroppedPaths.add(cropped);
+        finalPath = cropped;
+      }
+
       setState(() {
-        widget.card.imagePath = outcome.imagePath;
+        widget.card.imagePath = finalPath;
         _cameraAnalysis = outcome.analysis;
       });
       TutorialService.instance.notifyMediaSelected();
@@ -588,7 +630,365 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     );
   }
 
+  AACCard _buildCandidateDuplicateCard() {
+    final enLabel = _controllerEn.text.trim().isNotEmpty
+        ? _controllerEn.text.trim()
+        : widget.card.label;
+    final siLabel = _controllerSi.text.trim().isNotEmpty
+        ? _controllerSi.text.trim()
+        : widget.card.labelSinhala;
+    final taLabel = _controllerTa.text.trim().isNotEmpty
+        ? _controllerTa.text.trim()
+        : widget.card.labelTamil;
+
+    return AACCard(
+      id: '',
+      label: enLabel,
+      labelSinhala: siLabel,
+      labelTamil: taLabel,
+      category: _selectedCategory,
+      type: 'word',
+      colorValue: widget.card.colorValue,
+      imagePath: widget.card.imagePath,
+      voicePath: widget.card.voicePath,
+      subCards: const [],
+    );
+  }
+
+  Future<void> _handleDuplicatePressed() async {
+    if (_isClosing) return;
+
+    final candidate = _buildCandidateDuplicateCard();
+
+    final confirmed =
+        await _showDuplicateConfirmationDialog(context, candidate);
+    if (confirmed == true && mounted) {
+      _isClosing = true;
+      await _stopAll();
+      if (widget.onDuplicate != null) {
+        widget.onDuplicate!(candidate);
+      }
+      if (mounted) {
+        Navigator.pop(context, CardEditorAction.duplicate);
+      }
+    }
+  }
+
+  Future<bool?> _showDuplicateConfirmationDialog(
+    BuildContext context,
+    AACCard candidate,
+  ) {
+    final targetLabel = candidate.getLabel(widget.language).isNotEmpty
+        ? candidate.getLabel(widget.language)
+        : candidate.label;
+
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        contentPadding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 360),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0F2FE),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.copy_rounded,
+                    color: Color(0xFF0284C7),
+                    size: 28,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Duplicate Card?',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0F172A),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Create a separate copy of "$targetLabel"?',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildConfirmationCardThumbnail(
+                      card: widget.card,
+                      label: widget.card.getLabel(widget.language),
+                      isDuplicate: false,
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 14),
+                      child: Icon(
+                        Icons.arrow_forward_rounded,
+                        color: Color(0xFF0284C7),
+                        size: 24,
+                      ),
+                    ),
+                    _buildConfirmationCardThumbnail(
+                      card: candidate,
+                      label: targetLabel,
+                      isDuplicate: true,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE0F2FE),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.check_circle_rounded,
+                      color: Color(0xFF0369A1),
+                      size: 22,
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Original card stays unchanged.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF0F172A),
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'A new card will be added beside it.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF334155),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      key: const ValueKey('duplicate_card_cancel_btn'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(46),
+                        side: BorderSide(color: Colors.grey.shade300),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF0284C7),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      key: const ValueKey('duplicate_card_confirm_btn'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF0284C7),
+                        minimumSize: const Size.fromHeight(46),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text(
+                        'Duplicate',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildConfirmationCardThumbnail({
+    required AACCard card,
+    required String label,
+    required bool isDuplicate,
+  }) {
+    final hasImg = card.imagePath != null && card.imagePath!.isNotEmpty;
+    final cardColor = Color(card.colorValue);
+
+    final thumbnail = Container(
+      width: 82,
+      height: 86,
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: hasImg
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: buildCardImage(
+                        card.imagePath!,
+                        fit: BoxFit.contain,
+                      ),
+                    )
+                  : const Icon(
+                      Icons.image_outlined,
+                      color: Colors.black45,
+                      size: 32,
+                    ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            width: double.infinity,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (!isDuplicate) return thumbnail;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        thumbnail,
+        Positioned(
+          top: -6,
+          right: -6,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0369A1),
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.18),
+                  blurRadius: 3,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: const Text(
+              'New copy',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 9,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Future<void> _saveCard() async {
+    // Persist any active temporary cropped image to permanent app media
+    if (widget.card.imagePath != null &&
+        _temporaryCroppedPaths.contains(widget.card.imagePath)) {
+      final permanentPath = await CardStorageService.persistMediaFile(
+        widget.card.imagePath!,
+        cardId: widget.card.id,
+        mediaType: 'images',
+      );
+      widget.onMediaCreated?.call(permanentPath);
+      widget.card.imagePath = permanentPath;
+    }
+    for (final path in _temporaryCroppedPaths) {
+      if (path != widget.card.imagePath) {
+        try {
+          final f = File(path);
+          if (f.existsSync()) {
+            f.deleteSync();
+          }
+        } catch (_) {}
+      }
+    }
+    _temporaryCroppedPaths.clear();
+
     if (widget.card.subCards.isNotEmpty && _selectedType == 'word') {
       final choice = await _showFolderToWordSafeguardDialog();
       if (choice == _FolderToWordChoice.cancel || choice == null) {
@@ -650,6 +1050,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
         await _stopAll();
+        _revertUnsavedImage();
         if (context.mounted) {
           Navigator.pop(context);
         }
@@ -675,6 +1076,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
               if (_isClosing) return;
               _isClosing = true;
               await _stopAll();
+              _revertUnsavedImage();
               if (mounted) {
                 Navigator.pop(context);
               }
@@ -772,6 +1174,35 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                       },
                     ),
                   ],
+                  if (!widget.isNew &&
+                      widget.card.type == 'word' &&
+                      widget.card.subCards.isEmpty &&
+                      _selectedType == 'word') ...[
+                    const SizedBox(height: 14),
+                    OutlinedButton.icon(
+                      key: const ValueKey('card_editor_duplicate_btn'),
+                      icon: const Icon(Icons.copy_rounded, size: 20),
+                      label: const Text(
+                        'Duplicate Card',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF0284C7),
+                        side: const BorderSide(
+                          color: Color(0xFF0284C7),
+                          width: 1.5,
+                        ),
+                        minimumSize: const Size.fromHeight(48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: _handleDuplicatePressed,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -783,6 +1214,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
               if (_isClosing) return;
               _isClosing = true;
               await _stopAll();
+              _revertUnsavedImage();
               if (mounted) {
                 Navigator.pop(context);
               }
@@ -868,6 +1300,30 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.6,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (!isGifImagePath(imagePath))
+                        Positioned(
+                          top: 8,
+                          right: 44,
+                          child: Material(
+                            color: Colors.black.withValues(alpha: 0.6),
+                            shape: const CircleBorder(),
+                            child: InkWell(
+                              customBorder: const CircleBorder(),
+                              onTap: _adjustCurrentImage,
+                              child: const Tooltip(
+                                message: 'Crop & Zoom',
+                                child: Padding(
+                                  padding: EdgeInsets.all(6),
+                                  child: Icon(
+                                    Icons.crop_rounded,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
                               ),
                             ),
                           ),

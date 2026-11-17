@@ -1,0 +1,4168 @@
+{
+  "communities": {
+    "0": [
+      "docs_qa_starter_pack_verification_01_imported_home",
+      "lib_pages_home_page",
+      "lib_pages_home_page_activeparentcard",
+      "lib_pages_home_page_activeparentid",
+      "lib_pages_home_page_addnewcardkey",
+      "lib_pages_home_page_allcategories",
+      "lib_pages_home_page_appendtottsinput",
+      "lib_pages_home_page_applyrestoredbackup",
+      "lib_pages_home_page_applytextcolortocards",
+      "lib_pages_home_page_audioplayer",
+      "lib_pages_home_page_autoscrolltimer",
+      "lib_pages_home_page_backupandshare",
+      "lib_pages_home_page_backuptoappdocszip",
+      "lib_pages_home_page_backuptodownloads",
+      "lib_pages_home_page_backupwithpicker",
+      "lib_pages_home_page_build",
+      "lib_pages_home_page_buildbackupsettings",
+      "lib_pages_home_page_buildcardcontentonly",
+      "lib_pages_home_page_buildcardpreview",
+      "lib_pages_home_page_buildcardwidget",
+      "lib_pages_home_page_buildeditbreadcrumbbar",
+      "lib_pages_home_page_buildedithintbar",
+      "lib_pages_home_page_buildinsertionline",
+      "lib_pages_home_page_buildmaincontent",
+      "lib_pages_home_page_buildmoveinsideoverlay",
+      "lib_pages_home_page_buildscalepreviewcard",
+      "lib_pages_home_page_buildsizepresetchip",
+      "lib_pages_home_page_canceleditsession",
+      "lib_pages_home_page_card",
+      "lib_pages_home_page_carddrophoverstate",
+      "lib_pages_home_page_cardkeys",
+      "lib_pages_home_page_cards",
+      "lib_pages_home_page_cardsurfacecolor",
+      "lib_pages_home_page_cardtextcolor",
+      "lib_pages_home_page_cardtextscale",
+      "lib_pages_home_page_checkautoscroll",
+      "lib_pages_home_page_child",
+      "lib_pages_home_page_clearttsinput",
+      "lib_pages_home_page_clonecards",
+      "lib_pages_home_page_clonevisiblemap",
+      "lib_pages_home_page_closedrawerifopen",
+      "lib_pages_home_page_collectmediapaths",
+      "lib_pages_home_page_confirmdelete",
+      "lib_pages_home_page_confirmresetsettings",
+      "lib_pages_home_page_contentonly",
+      "lib_pages_home_page_createcard",
+      "lib_pages_home_page_createdefaultcards",
+      "lib_pages_home_page_createseedimagecards",
+      "lib_pages_home_page_createstate",
+      "lib_pages_home_page_currentlanguage",
+      "lib_pages_home_page_customcategories",
+      "lib_pages_home_page_customcategorymetadata",
+      "lib_pages_home_page_defaulthapticperformer",
+      "lib_pages_home_page_defaultprimarycolorvalue",
+      "lib_pages_home_page_deletelastword",
+      "lib_pages_home_page_description",
+      "lib_pages_home_page_dispose",
+      "lib_pages_home_page_draggedcard",
+      "lib_pages_home_page_draggedcarddata",
+      "lib_pages_home_page_drawereditmodekey",
+      "lib_pages_home_page_drawerresizekey",
+      "lib_pages_home_page_duplicatecard",
+      "lib_pages_home_page_duplicatecounter",
+      "lib_pages_home_page_editcard",
+      "lib_pages_home_page_editsessionsnapshot",
+      "lib_pages_home_page_editundostep",
+      "lib_pages_home_page_enablehaptics",
+      "lib_pages_home_page_enablepersonalizeinit",
+      "lib_pages_home_page_enablettsinit",
+      "lib_pages_home_page_enabletutorialinit",
+      "lib_pages_home_page_entereditmode",
+      "lib_pages_home_page_filterbysearch",
+      "lib_pages_home_page_findcardbyid",
+      "lib_pages_home_page_findparentfolderof",
+      "lib_pages_home_page_fullscreen",
+      "lib_pages_home_page_generateuniquecardid",
+      "lib_pages_home_page_getbasedisplayedcards",
+      "lib_pages_home_page_getcardtextscalelabel",
+      "lib_pages_home_page_getdisplayedcards",
+      "lib_pages_home_page_getfilteredcards",
+      "lib_pages_home_page_getlanguagename",
+      "lib_pages_home_page_getvisiblecardslabel",
+      "lib_pages_home_page_getvisibleselection",
+      "lib_pages_home_page_gridcolumns",
+      "lib_pages_home_page_gridcontroller",
+      "lib_pages_home_page_handleeditcancel",
+      "lib_pages_home_page_handleeditdone",
+      "lib_pages_home_page_handleimportstarterpack",
+      "lib_pages_home_page_handlemovecardinside",
+      "lib_pages_home_page_handlemovecardup",
+      "lib_pages_home_page_handlereordercard",
+      "lib_pages_home_page_handletogglecaregiverlock",
+      "lib_pages_home_page_handletogglepin",
+      "lib_pages_home_page_handletutorialstepchanged",
+      "lib_pages_home_page_handleunpinlongpress",
+      "lib_pages_home_page_haseditsessionchanges",
+      "lib_pages_home_page_hidettstext",
+      "lib_pages_home_page_highlightedcardid",
+      "lib_pages_home_page_highlighttimer",
+      "lib_pages_home_page_horizontalscrollcontroller",
+      "lib_pages_home_page_hoverstate",
+      "lib_pages_home_page_includeinvisibleselection",
+      "lib_pages_home_page_index",
+      "lib_pages_home_page_initialcardsfortesting",
+      "lib_pages_home_page_initstate",
+      "lib_pages_home_page_inittts",
+      "lib_pages_home_page_isbusyoperation",
+      "lib_pages_home_page_iscardeditoropen",
+      "lib_pages_home_page_iscolorblindmode",
+      "lib_pages_home_page_isdarkmode",
+      "lib_pages_home_page_isdescendantof",
+      "lib_pages_home_page_isdrawerexpanded",
+      "lib_pages_home_page_iseditmode",
+      "lib_pages_home_page_ispinned",
+      "lib_pages_home_page_issinglecolumn",
+      "lib_pages_home_page_istablet",
+      "lib_pages_home_page_istargetfolder",
+      "lib_pages_home_page_lastbackpress",
+      "lib_pages_home_page_loadcards",
+      "lib_pages_home_page_loadcardsfuture",
+      "lib_pages_home_page_loadcardsfuturefortesting",
+      "lib_pages_home_page_loadvisibleselections",
+      "lib_pages_home_page_menubuttonkey",
+      "lib_pages_home_page_migratevisiblecountifneeded",
+      "lib_pages_home_page_navigatebackfromsubcards",
+      "lib_pages_home_page_onstopautoscroll",
+      "lib_pages_home_page_openpersonalizesetup",
+      "lib_pages_home_page_orientationmode",
+      "lib_pages_home_page_parentstack",
+      "lib_pages_home_page_parentstackids",
+      "lib_pages_home_page_picker",
+      "lib_pages_home_page_pickimage",
+      "lib_pages_home_page_playttstokens",
+      "lib_pages_home_page_playvoice",
+      "lib_pages_home_page_recordundostep",
+      "lib_pages_home_page_recyclebinentryid",
+      "lib_pages_home_page_requestnestingconfirmation",
+      "lib_pages_home_page_resetsettingstodefaults",
+      "lib_pages_home_page_resetttsinput",
+      "lib_pages_home_page_restorefromappdocszip",
+      "lib_pages_home_page_restorefrompickedfile",
+      "lib_pages_home_page_restorewithpicker",
+      "lib_pages_home_page_runasyncoperation",
+      "lib_pages_home_page_savecards",
+      "lib_pages_home_page_scaffoldkey",
+      "lib_pages_home_page_scrolltoend",
+      "lib_pages_home_page_searchquery",
+      "lib_pages_home_page_selectedcategories",
+      "lib_pages_home_page_selectedcategory",
+      "lib_pages_home_page_sessioncreatedmediafiles",
+      "lib_pages_home_page_sessionrecyclebinentryids",
+      "lib_pages_home_page_sethighlight",
+      "lib_pages_home_page_showabout",
+      "lib_pages_home_page_showaddcategorydialog",
+      "lib_pages_home_page_showcardtextcolordialog",
+      "lib_pages_home_page_showcardtextsizedialog",
+      "lib_pages_home_page_showcategorydialog",
+      "lib_pages_home_page_showcolorvisiondialog",
+      "lib_pages_home_page_showgridoptions",
+      "lib_pages_home_page_showlanguagedialog",
+      "lib_pages_home_page_showmanagesubcardsdialog",
+      "lib_pages_home_page_showmessage",
+      "lib_pages_home_page_showofflinespeechdialog",
+      "lib_pages_home_page_showorientationdialog",
+      "lib_pages_home_page_showpressandholdtounpinnotice",
+      "lib_pages_home_page_showsearchdialog",
+      "lib_pages_home_page_showstarterpackdialog",
+      "lib_pages_home_page_showsubcards",
+      "lib_pages_home_page_showthemecolordialog",
+      "lib_pages_home_page_showttsbarsizedialog",
+      "lib_pages_home_page_showttsclear",
+      "lib_pages_home_page_showttsdelete",
+      "lib_pages_home_page_showttsinput",
+      "lib_pages_home_page_showvisiblecountdialog",
+      "lib_pages_home_page_sourceindex",
+      "lib_pages_home_page_speak",
+      "lib_pages_home_page_speakorplaycard",
+      "lib_pages_home_page_speechcapabilities",
+      "lib_pages_home_page_speechdrawersubtitle",
+      "lib_pages_home_page_startautoscroll",
+      "lib_pages_home_page_stopautoscroll",
+      "lib_pages_home_page_tapanimatedcardid",
+      "lib_pages_home_page_tapanimtimer",
+      "lib_pages_home_page_targetcard",
+      "lib_pages_home_page_themebackgroundcolor",
+      "lib_pages_home_page_themeprimarycolor",
+      "lib_pages_home_page_themetextcolor",
+      "lib_pages_home_page_toggleeditmode",
+      "lib_pages_home_page_triggerwordtapanimation",
+      "lib_pages_home_page_ttsbarsize",
+      "lib_pages_home_page_ttstokens",
+      "lib_pages_home_page_undoeditchanges",
+      "lib_pages_home_page_undohistory",
+      "lib_pages_home_page_updatecategories",
+      "lib_pages_home_page_useimageoverlaylabel",
+      "lib_pages_home_page_validatecardhierarchy",
+      "lib_pages_home_page_visiblecardidsbyparent",
+      "lib_pages_home_page_visiblemap",
+      "lib_pages_home_page_visibleselectionkey",
+      "models_edit_session_snapshot_dart",
+      "package_share_plus_share_plus_dart",
+      "recycle_bin_page_dart",
+      "scrollcontroller",
+      "services_caregiver_lock_service_dart",
+      "services_personalize_service_dart",
+      "utils_ui_mode_helper_dart",
+      "widgets_add_category_dialog_dart",
+      "widgets_color_vision_dialog_dart",
+      "widgets_crop_zoom_dialog_dart",
+      "widgets_edit_mode_bar_dart",
+      "widgets_home_app_bar_dart",
+      "widgets_home_drawer_dart",
+      "widgets_landscape_menu_dart",
+      "widgets_manage_sub_cards_dialog_dart",
+      "widgets_personalize_setup_dialog_dart",
+      "widgets_preview_live_preview_panel_dart",
+      "widgets_preview_tts_composer_preview_dart",
+      "widgets_professional_color_picker_dialog_dart",
+      "widgets_select_category_dialog_dart",
+      "widgets_select_grid_size_dialog_dart",
+      "widgets_tts_bar_dart",
+      "widgets_tutorial_mini_guides_dialog_dart",
+      "widgets_tutorial_tutorial_overlay_dart",
+      "widgets_tutorial_welcome_tour_dialog_dart",
+      "widgets_visible_cards_dialog_dart"
+    ],
+    "1": [
+      "docs_ethics_ruhuna_erc_scripts_build_erc_package",
+      "docs_ethics_ruhuna_erc_scripts_build_erc_package_convert_docx_to_pdf",
+      "docs_ethics_ruhuna_erc_scripts_build_erc_package_extract_toc",
+      "docs_ethics_ruhuna_erc_scripts_build_erc_package_main",
+      "docs_ethics_ruhuna_erc_scripts_build_erc_package_rationale_2",
+      "docs_ethics_ruhuna_erc_scripts_build_erc_package_strip_and_write",
+      "docs_ethics_ruhuna_erc_scripts_build_erc_package_text_of_pdf",
+      "docs_ethics_ruhuna_erc_scripts_build_erc_package_write_pointer",
+      "docs_ethics_ruhuna_erc_scripts_docx_common",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_add_body",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_add_bullet",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_add_heading",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_add_mixed_body",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_add_numbered_item",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_add_page_break",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_add_page_field",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_add_plain_table",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_add_text",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_add_toc_line",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_clear_metadata",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_configure_heading_style",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_corresponding_contact_text",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_create_styled_document",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_erc_root",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_is_private_output",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_keep_row_together",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_load_private_contacts",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_nil_borders",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_rationale_188",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_rationale_2",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_rationale_287",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_rationale_38",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_rationale_65",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_repeat_header_row",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_repo_root",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_right_tab",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_save_doc",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_set_cell_text",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_set_run_font",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_set_style_font",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_set_table_borders",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_setup_header_footer",
+      "docs_ethics_ruhuna_erc_scripts_docx_common_shade_cell",
+      "docs_ethics_ruhuna_erc_scripts_generate_admin_docs",
+      "docs_ethics_ruhuna_erc_scripts_generate_admin_docs_build_animal_statement",
+      "docs_ethics_ruhuna_erc_scripts_generate_admin_docs_build_cover_letter",
+      "docs_ethics_ruhuna_erc_scripts_generate_admin_docs_build_cv",
+      "docs_ethics_ruhuna_erc_scripts_generate_admin_docs_build_fee_status",
+      "docs_ethics_ruhuna_erc_scripts_generate_admin_docs_build_submission_checklist",
+      "docs_ethics_ruhuna_erc_scripts_generate_admin_docs_build_supervisor_letter",
+      "docs_ethics_ruhuna_erc_scripts_generate_admin_docs_build_training_status",
+      "docs_ethics_ruhuna_erc_scripts_generate_admin_docs_doc",
+      "docs_ethics_ruhuna_erc_scripts_generate_admin_docs_main",
+      "docs_ethics_ruhuna_erc_scripts_generate_admin_docs_rationale_2",
+      "docs_ethics_ruhuna_erc_scripts_generate_application_form",
+      "docs_ethics_ruhuna_erc_scripts_generate_application_form_contact_pair",
+      "docs_ethics_ruhuna_erc_scripts_generate_application_form_fernando_contact_pair",
+      "docs_ethics_ruhuna_erc_scripts_generate_application_form_font",
+      "docs_ethics_ruhuna_erc_scripts_generate_application_form_main",
+      "docs_ethics_ruhuna_erc_scripts_generate_application_form_mark",
+      "docs_ethics_ruhuna_erc_scripts_generate_application_form_populate_application_form",
+      "docs_ethics_ruhuna_erc_scripts_generate_application_form_rationale_2",
+      "docs_ethics_ruhuna_erc_scripts_generate_application_form_rationale_69",
+      "docs_ethics_ruhuna_erc_scripts_generate_application_form_replace_starting",
+      "docs_ethics_ruhuna_erc_scripts_generate_application_form_set_cell",
+      "docs_ethics_ruhuna_erc_scripts_generate_application_form_set_paragraph",
+      "docs_ethics_ruhuna_erc_scripts_generate_ministry_brief",
+      "docs_ethics_ruhuna_erc_scripts_generate_ministry_brief_build_ministry_brief",
+      "docs_ethics_ruhuna_erc_scripts_generate_ministry_brief_rationale_2",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_annex_assent",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_annex_consent",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_annex_info",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_annex_languages",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_annex_letters",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_annex_tools",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_contents",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_introduction",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_justification",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_literature",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_management",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_methods",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_objectives",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_references",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_add_title_page",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_build_research_protocol",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_doc_path_holder",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_main",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_page",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_rationale_2",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_rationale_594",
+      "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_team_block",
+      "docs_ethics_ruhuna_erc_scripts_generate_scope_discussion",
+      "docs_ethics_ruhuna_erc_scripts_generate_scope_discussion_add_annex",
+      "docs_ethics_ruhuna_erc_scripts_generate_scope_discussion_add_decision",
+      "docs_ethics_ruhuna_erc_scripts_generate_scope_discussion_add_proposal",
+      "docs_ethics_ruhuna_erc_scripts_generate_scope_discussion_build_all",
+      "docs_ethics_ruhuna_erc_scripts_generate_scope_discussion_new_doc",
+      "docs_ethics_ruhuna_erc_scripts_generate_scope_discussion_out_dir",
+      "docs_ethics_ruhuna_erc_scripts_generate_scope_discussion_rationale_2",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_add_decisions",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_add_forms",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_add_permissions",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_add_sample_size",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_add_summary",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_add_technical_checklist",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_build_pack",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_ensure_proposal",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_pack_dir",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_proposal_source",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_rationale_2",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_rationale_54",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_set_widths",
+      "docs_ethics_ruhuna_erc_scripts_generate_supervisor_pack_tight",
+      "docx",
+      "docx_enum_text",
+      "docx_oxml",
+      "docx_oxml_ns",
+      "docx_shared",
+      "os",
+      "pypdf",
+      "shutil",
+      "subprocess",
+      "sys"
+    ],
+    "2": [
+      "docs_qa_grid_verification_01_grid_settings_dialog",
+      "lib_widgets_home_drawer",
+      "lib_widgets_home_drawer_accumulateddelta",
+      "lib_widgets_home_drawer_active",
+      "lib_widgets_home_drawer_appbarcolor",
+      "lib_widgets_home_drawer_applytextcolortocards",
+      "lib_widgets_home_drawer_backgroundcolorswatch",
+      "lib_widgets_home_drawer_boardcolor",
+      "lib_widgets_home_drawer_build",
+      "lib_widgets_home_drawer_buildappearancethemesection",
+      "lib_widgets_home_drawer_buildcoloraccessibilitycard",
+      "lib_widgets_home_drawer_buildcolorpickerrow",
+      "lib_widgets_home_drawer_builddraweritem",
+      "lib_widgets_home_drawer_buildheader",
+      "lib_widgets_home_drawer_buildminitile",
+      "lib_widgets_home_drawer_buildonlineswitch",
+      "lib_widgets_home_drawer_buildsectionheader",
+      "lib_widgets_home_drawer_buildswitchitem",
+      "lib_widgets_home_drawer_cardbg",
+      "lib_widgets_home_drawer_cardtextcolorswatch",
+      "lib_widgets_home_drawer_cardtextscalelabel",
+      "lib_widgets_home_drawer_checkpref",
+      "lib_widgets_home_drawer_child",
+      "lib_widgets_home_drawer_color",
+      "lib_widgets_home_drawer_createstate",
+      "lib_widgets_home_drawer_currentlanguagelabel",
+      "lib_widgets_home_drawer_didupdatewidget",
+      "lib_widgets_home_drawer_dismiss",
+      "lib_widgets_home_drawer_dismissed",
+      "lib_widgets_home_drawer_drawergesturehinthelper",
+      "lib_widgets_home_drawer_editmodekey",
+      "lib_widgets_home_drawer_enablehaptics",
+      "lib_widgets_home_drawer_forceshow",
+      "lib_widgets_home_drawer_fullscreen",
+      "lib_widgets_home_drawer_getcolorblindsubtitle",
+      "lib_widgets_home_drawer_gridcolumns",
+      "lib_widgets_home_drawer_handleclose",
+      "lib_widgets_home_drawer_headercolor",
+      "lib_widgets_home_drawer_headertextcolor",
+      "lib_widgets_home_drawer_hidettstext",
+      "lib_widgets_home_drawer_icon",
+      "lib_widgets_home_drawer_initstate",
+      "lib_widgets_home_drawer_iscaregiverlockenabled",
+      "lib_widgets_home_drawer_iscolorblind",
+      "lib_widgets_home_drawer_iscolorblindmode",
+      "lib_widgets_home_drawer_isdarkmode",
+      "lib_widgets_home_drawer_isdismissed",
+      "lib_widgets_home_drawer_iseditmode",
+      "lib_widgets_home_drawer_isexpanded",
+      "lib_widgets_home_drawer_isonlineenabled",
+      "lib_widgets_home_drawer_label",
+      "lib_widgets_home_drawer_loaded",
+      "lib_widgets_home_drawer_onaddcategory",
+      "lib_widgets_home_drawer_onbackup",
+      "lib_widgets_home_drawer_onchangecolorblindmode",
+      "lib_widgets_home_drawer_onchangeorientation",
+      "lib_widgets_home_drawer_onclose",
+      "lib_widgets_home_drawer_onmanagepermissions",
+      "lib_widgets_home_drawer_onopencolorblindsettings",
+      "lib_widgets_home_drawer_onopenpersonalizesetup",
+      "lib_widgets_home_drawer_onopenrecyclebin",
+      "lib_widgets_home_drawer_onpickbackgroundcolor",
+      "lib_widgets_home_drawer_onpickcardtextcolor",
+      "lib_widgets_home_drawer_onpickprimarycolor",
+      "lib_widgets_home_drawer_onpicktextcolor",
+      "lib_widgets_home_drawer_onreplaytutorial",
+      "lib_widgets_home_drawer_onresetsettings",
+      "lib_widgets_home_drawer_onrestore",
+      "lib_widgets_home_drawer_onselectcategory",
+      "lib_widgets_home_drawer_onsettingstap",
+      "lib_widgets_home_drawer_onshowabout",
+      "lib_widgets_home_drawer_onshowcardtextsize",
+      "lib_widgets_home_drawer_onshowgrid",
+      "lib_widgets_home_drawer_onshowlanguage",
+      "lib_widgets_home_drawer_onshowminiguides",
+      "lib_widgets_home_drawer_onshowofflinespeech",
+      "lib_widgets_home_drawer_onshowstarterpack",
+      "lib_widgets_home_drawer_onshowttsbarsize",
+      "lib_widgets_home_drawer_onshowvisiblecount",
+      "lib_widgets_home_drawer_ontap",
+      "lib_widgets_home_drawer_ontoggleapplytextcolortocards",
+      "lib_widgets_home_drawer_ontogglecardimagelabel",
+      "lib_widgets_home_drawer_ontogglecaregiverlock",
+      "lib_widgets_home_drawer_ontoggledarkmode",
+      "lib_widgets_home_drawer_ontoggleedit",
+      "lib_widgets_home_drawer_ontoggleexpanded",
+      "lib_widgets_home_drawer_ontogglefullscreen",
+      "lib_widgets_home_drawer_ontogglehaptics",
+      "lib_widgets_home_drawer_ontoggleonline",
+      "lib_widgets_home_drawer_ontogglettsinput",
+      "lib_widgets_home_drawer_ontogglettstext",
+      "lib_widgets_home_drawer_orientationlabel",
+      "lib_widgets_home_drawer_paint",
+      "lib_widgets_home_drawer_preview",
+      "lib_widgets_home_drawer_primarycolorswatch",
+      "lib_widgets_home_drawer_reset",
+      "lib_widgets_home_drawer_resizebuttonkey",
+      "lib_widgets_home_drawer_selected",
+      "lib_widgets_home_drawer_selectedcategory",
+      "lib_widgets_home_drawer_sessiondismissed",
+      "lib_widgets_home_drawer_setdismissed",
+      "lib_widgets_home_drawer_shouldrepaint",
+      "lib_widgets_home_drawer_showgesturehint",
+      "lib_widgets_home_drawer_showttsinput",
+      "lib_widgets_home_drawer_speechstatuslabel",
+      "lib_widgets_home_drawer_subtitle",
+      "lib_widgets_home_drawer_textcolor",
+      "lib_widgets_home_drawer_textcolorswatch",
+      "lib_widgets_home_drawer_title",
+      "lib_widgets_home_drawer_useimageoverlaylabel",
+      "lib_widgets_home_drawer_visiblecardslabel",
+      "lib_widgets_home_drawer_wavecolor",
+      "tutorial_mini_guides_dialog_dart"
+    ],
+    "3": [
+      "audiorecorder",
+      "crop_zoom_dialog_dart",
+      "imagepicker",
+      "lib_widgets_card_editor_dialog",
+      "lib_widgets_card_editor_dialog_accentcolor",
+      "lib_widgets_card_editor_dialog_adjustcurrentimage",
+      "lib_widgets_card_editor_dialog_applyrecognizedlabel",
+      "lib_widgets_card_editor_dialog_audioplayer",
+      "lib_widgets_card_editor_dialog_build",
+      "lib_widgets_card_editor_dialog_buildaudiosection",
+      "lib_widgets_card_editor_dialog_buildcameradetectionbanner",
+      "lib_widgets_card_editor_dialog_buildcandidateduplicatecard",
+      "lib_widgets_card_editor_dialog_buildconfirmationcardthumbnail",
+      "lib_widgets_card_editor_dialog_buildimagesection",
+      "lib_widgets_card_editor_dialog_buildimageview",
+      "lib_widgets_card_editor_dialog_buildlabelsection",
+      "lib_widgets_card_editor_dialog_buildlanguageselectioncard",
+      "lib_widgets_card_editor_dialog_buildpropertiessection",
+      "lib_widgets_card_editor_dialog_cameraanalysis",
+      "lib_widgets_card_editor_dialog_card",
+      "lib_widgets_card_editor_dialog_cardlabelskey",
+      "lib_widgets_card_editor_dialog_cardmediakey",
+      "lib_widgets_card_editor_dialog_cardsavekey",
+      "lib_widgets_card_editor_dialog_cardvoicekey",
+      "lib_widgets_card_editor_dialog_categories",
+      "lib_widgets_card_editor_dialog_completesub",
+      "lib_widgets_card_editor_dialog_controlleren",
+      "lib_widgets_card_editor_dialog_controllersi",
+      "lib_widgets_card_editor_dialog_controllerta",
+      "lib_widgets_card_editor_dialog_countalldescendants",
+      "lib_widgets_card_editor_dialog_createstate",
+      "lib_widgets_card_editor_dialog_detectedconcept",
+      "lib_widgets_card_editor_dialog_dispose",
+      "lib_widgets_card_editor_dialog_disposeplayback",
+      "lib_widgets_card_editor_dialog_foldertowordchoice",
+      "lib_widgets_card_editor_dialog_handleduplicatepressed",
+      "lib_widgets_card_editor_dialog_icon",
+      "lib_widgets_card_editor_dialog_iconwidget",
+      "lib_widgets_card_editor_dialog_initialcameraanalysis",
+      "lib_widgets_card_editor_dialog_initialimagepath",
+      "lib_widgets_card_editor_dialog_initstate",
+      "lib_widgets_card_editor_dialog_isclosing",
+      "lib_widgets_card_editor_dialog_ismediabusy",
+      "lib_widgets_card_editor_dialog_ismuted",
+      "lib_widgets_card_editor_dialog_isnew",
+      "lib_widgets_card_editor_dialog_isplaying",
+      "lib_widgets_card_editor_dialog_isrecording",
+      "lib_widgets_card_editor_dialog_label",
+      "lib_widgets_card_editor_dialog_language",
+      "lib_widgets_card_editor_dialog_onmediacreated",
+      "lib_widgets_card_editor_dialog_onpickimage",
+      "lib_widgets_card_editor_dialog_ontap",
+      "lib_widgets_card_editor_dialog_opensmartsearch",
+      "lib_widgets_card_editor_dialog_pickanimatedclip",
+      "lib_widgets_card_editor_dialog_picker",
+      "lib_widgets_card_editor_dialog_pickfromcamera",
+      "lib_widgets_card_editor_dialog_pickfromgallery",
+      "lib_widgets_card_editor_dialog_recorder",
+      "lib_widgets_card_editor_dialog_recordprogress",
+      "lib_widgets_card_editor_dialog_recordstart",
+      "lib_widgets_card_editor_dialog_recordtimer",
+      "lib_widgets_card_editor_dialog_revertunsavedimage",
+      "lib_widgets_card_editor_dialog_safeidforfile",
+      "lib_widgets_card_editor_dialog_savecard",
+      "lib_widgets_card_editor_dialog_savecardformtocard",
+      "lib_widgets_card_editor_dialog_selectedcategory",
+      "lib_widgets_card_editor_dialog_selectedtype",
+      "lib_widgets_card_editor_dialog_showduplicateconfirmationdialog",
+      "lib_widgets_card_editor_dialog_showfoldertowordsafeguarddialog",
+      "lib_widgets_card_editor_dialog_showoverwriteconfirmationdialog",
+      "lib_widgets_card_editor_dialog_startplayback",
+      "lib_widgets_card_editor_dialog_startrecording",
+      "lib_widgets_card_editor_dialog_stopall",
+      "lib_widgets_card_editor_dialog_stopplayback",
+      "lib_widgets_card_editor_dialog_stoprecording",
+      "lib_widgets_card_editor_dialog_temporarycroppedpaths",
+      "lib_widgets_card_editor_dialog_updateconcept",
+      "package_record_record_dart",
+      "services_multilingual_concept_service_dart",
+      "smart_image_search_dialog_dart",
+      "timer",
+      "tutorial_tutorial_overlay_dart",
+      "utils_animated_media_helper_dart",
+      "utils_app_permissions_helper_dart",
+      "utils_camera_object_helper_dart"
+    ],
+    "4": [
+      "appheader_textpreview",
+      "class",
+      "hsvcolor",
+      "lib_widgets_professional_color_picker_dialog",
+      "lib_widgets_professional_color_picker_dialog_backgroundcolor",
+      "lib_widgets_professional_color_picker_dialog_backgroundpresets",
+      "lib_widgets_professional_color_picker_dialog_backgroundpreview",
+      "lib_widgets_professional_color_picker_dialog_build",
+      "lib_widgets_professional_color_picker_dialog_buildactionsfooter",
+      "lib_widgets_professional_color_picker_dialog_buildappheaderpreview",
+      "lib_widgets_professional_color_picker_dialog_buildbackgroundpreview",
+      "lib_widgets_professional_color_picker_dialog_buildcustomcolorsection",
+      "lib_widgets_professional_color_picker_dialog_buildheader",
+      "lib_widgets_professional_color_picker_dialog_buildminiaaccard",
+      "lib_widgets_professional_color_picker_dialog_buildminiappheader",
+      "lib_widgets_professional_color_picker_dialog_buildminicardsrow",
+      "lib_widgets_professional_color_picker_dialog_buildminisentenceaction",
+      "lib_widgets_professional_color_picker_dialog_buildminisentencebar",
+      "lib_widgets_professional_color_picker_dialog_buildpreviewcard",
+      "lib_widgets_professional_color_picker_dialog_buildpreviewcontent",
+      "lib_widgets_professional_color_picker_dialog_buildquickcolorssection",
+      "lib_widgets_professional_color_picker_dialog_buildtextpreview",
+      "lib_widgets_professional_color_picker_dialog_buildtextsamplecard",
+      "lib_widgets_professional_color_picker_dialog_color",
+      "lib_widgets_professional_color_picker_dialog_colorpickerpreviewtype",
+      "lib_widgets_professional_color_picker_dialog_createstate",
+      "lib_widgets_professional_color_picker_dialog_currentcolor",
+      "lib_widgets_professional_color_picker_dialog_currenthsv",
+      "lib_widgets_professional_color_picker_dialog_defaultcolor",
+      "lib_widgets_professional_color_picker_dialog_dispose",
+      "lib_widgets_professional_color_picker_dialog_formathex",
+      "lib_widgets_professional_color_picker_dialog_handlegesture",
+      "lib_widgets_professional_color_picker_dialog_height",
+      "lib_widgets_professional_color_picker_dialog_hexcontroller",
+      "lib_widgets_professional_color_picker_dialog_hue",
+      "lib_widgets_professional_color_picker_dialog_initialcolor",
+      "lib_widgets_professional_color_picker_dialog_initstate",
+      "lib_widgets_professional_color_picker_dialog_iscolorselected",
+      "lib_widgets_professional_color_picker_dialog_iscrying",
+      "lib_widgets_professional_color_picker_dialog_isupdatingfromhex",
+      "lib_widgets_professional_color_picker_dialog_name",
+      "lib_widgets_professional_color_picker_dialog_onapply",
+      "lib_widgets_professional_color_picker_dialog_onchanged",
+      "lib_widgets_professional_color_picker_dialog_onhexchanged",
+      "lib_widgets_professional_color_picker_dialog_paint",
+      "lib_widgets_professional_color_picker_dialog_presetcoloritem",
+      "lib_widgets_professional_color_picker_dialog_presets",
+      "lib_widgets_professional_color_picker_dialog_previewtype",
+      "lib_widgets_professional_color_picker_dialog_saturation",
+      "lib_widgets_professional_color_picker_dialog_shouldrepaint",
+      "lib_widgets_professional_color_picker_dialog_subtitle",
+      "lib_widgets_professional_color_picker_dialog_textcolor",
+      "lib_widgets_professional_color_picker_dialog_textpresets",
+      "lib_widgets_professional_color_picker_dialog_title",
+      "lib_widgets_professional_color_picker_dialog_updatecolor",
+      "lib_widgets_professional_color_picker_dialog_value",
+      "lib_widgets_professional_color_picker_dialog_width",
+      "static_const"
+    ],
+    "5": [
+      "fluttertts",
+      "future",
+      "lib_services_speech_engine",
+      "lib_services_speech_engine_activelanguagetag",
+      "lib_services_speech_engine_activerateflutter",
+      "lib_services_speech_engine_activevoicekey",
+      "lib_services_speech_engine_channel",
+      "lib_services_speech_engine_configurelanguage",
+      "lib_services_speech_engine_defaultengine",
+      "lib_services_speech_engine_dispose",
+      "lib_services_speech_engine_doinitialize",
+      "lib_services_speech_engine_engines",
+      "lib_services_speech_engine_ensurevoicecatalogloaded",
+      "lib_services_speech_engine_errormessage",
+      "lib_services_speech_engine_fortest",
+      "lib_services_speech_engine_hasofflinevoice",
+      "lib_services_speech_engine_initfuture",
+      "lib_services_speech_engine_initialize",
+      "lib_services_speech_engine_initialized",
+      "lib_services_speech_engine_instance",
+      "lib_services_speech_engine_isandroid",
+      "lib_services_speech_engine_islanguageavailable",
+      "lib_services_speech_engine_issuccess",
+      "lib_services_speech_engine_langprefix",
+      "lib_services_speech_engine_languagecode",
+      "lib_services_speech_engine_languages",
+      "lib_services_speech_engine_languagevoicestatus",
+      "lib_services_speech_engine_lastcapabilities",
+      "lib_services_speech_engine_lastreport",
+      "lib_services_speech_engine_loadvoicecatalog",
+      "lib_services_speech_engine_localecandidatesfor",
+      "lib_services_speech_engine_localetag",
+      "lib_services_speech_engine_missinglanguages",
+      "lib_services_speech_engine_opensystemttsinstaller",
+      "lib_services_speech_engine_preferredvoices",
+      "lib_services_speech_engine_probecapabilities",
+      "lib_services_speech_engine_probefuture",
+      "lib_services_speech_engine_runprobe",
+      "lib_services_speech_engine_speak",
+      "lib_services_speech_engine_speechcapabilityreport",
+      "lib_services_speech_engine_speechengine",
+      "lib_services_speech_engine_speechepoch",
+      "lib_services_speech_engine_speechresult",
+      "lib_services_speech_engine_speechstatus",
+      "lib_services_speech_engine_status",
+      "lib_services_speech_engine_stop",
+      "lib_services_speech_engine_tts",
+      "lib_services_speech_engine_tunedratesflutter",
+      "lib_services_speech_engine_unsupportedlanguages",
+      "lib_services_speech_engine_voicesfuture",
+      "lib_services_speech_engine_voicesloaded",
+      "package_flutter_tts_flutter_tts_dart",
+      "speechcapabilityreport_get",
+      "static_bool_get",
+      "static_final_speechengine",
+      "utils_multilingual_speech_router_dart"
+    ],
+    "6": [
+      "docs_qa_data_persistence_forensic_audit",
+      "lib_services_card_storage_service",
+      "lib_services_card_storage_service_applydefaultcatalogmigration",
+      "lib_services_card_storage_service_cardsbackupfile",
+      "lib_services_card_storage_service_cardsbackupfilename",
+      "lib_services_card_storage_service_cardsfile",
+      "lib_services_card_storage_service_cardsfilename",
+      "lib_services_card_storage_service_cardstorageservice",
+      "lib_services_card_storage_service_clonecard",
+      "lib_services_card_storage_service_copymediafile",
+      "lib_services_card_storage_service_countcards",
+      "lib_services_card_storage_service_defaultcatalogversion",
+      "lib_services_card_storage_service_extension",
+      "lib_services_card_storage_service_finddirectchild",
+      "lib_services_card_storage_service_getdocsdirectory",
+      "lib_services_card_storage_service_hasseededdefaultskey",
+      "lib_services_card_storage_service_indexdefaultsbyid",
+      "lib_services_card_storage_service_isassetimagepath",
+      "lib_services_card_storage_service_isinsidedirectory",
+      "lib_services_card_storage_service_join",
+      "lib_services_card_storage_service_legacycardskey",
+      "lib_services_card_storage_service_loadcards",
+      "lib_services_card_storage_service_lookscorruptlocalizedtext",
+      "lib_services_card_storage_service_markseeded",
+      "lib_services_card_storage_service_mediacounter",
+      "lib_services_card_storage_service_mediadirectory",
+      "lib_services_card_storage_service_mergemissingdefaults",
+      "lib_services_card_storage_service_migratecardmediafiles",
+      "lib_services_card_storage_service_migratedeprecatedseedcards",
+      "lib_services_card_storage_service_migratemediafilestodocuments",
+      "lib_services_card_storage_service_migrateonemediapath",
+      "lib_services_card_storage_service_movetoplevelseedundermore",
+      "lib_services_card_storage_service_normalizeknownseedcards",
+      "lib_services_card_storage_service_normalizeseedcarddata",
+      "lib_services_card_storage_service_normalizeseedcatalog",
+      "lib_services_card_storage_service_persistmediafile",
+      "lib_services_card_storage_service_previousseedtextvalues",
+      "lib_services_card_storage_service_readcardsfile",
+      "lib_services_card_storage_service_readlegacyprefscards",
+      "lib_services_card_storage_service_removedirectchild",
+      "lib_services_card_storage_service_replacedeprecatedseed",
+      "lib_services_card_storage_service_safefilecomponent",
+      "lib_services_card_storage_service_salvagecardsfromcorruptfile",
+      "lib_services_card_storage_service_savecards",
+      "lib_services_card_storage_service_savecardsserial",
+      "lib_services_card_storage_service_savequeue",
+      "lib_services_card_storage_service_seededdefaultversionkey",
+      "lib_services_card_storage_service_shouldrefreshseedimage",
+      "lib_services_card_storage_service_shouldrefreshseedtext",
+      "lib_services_card_storage_service_synclegacycards",
+      "lib_services_card_storage_service_writecardsfile",
+      "static_future",
+      "static_int"
+    ],
+    "7": [
+      "lib_main",
+      "lib_main_aacapp",
+      "lib_main_build",
+      "lib_main_buildtheme_540ff8",
+      "lib_main_imagepickerimplementation",
+      "lib_main_main",
+      "lib_main_wait",
+      "lib_widgets_color_vision_dialog",
+      "lib_widgets_color_vision_dialog_basecolor",
+      "lib_widgets_color_vision_dialog_boldtext",
+      "lib_widgets_color_vision_dialog_bordercolor",
+      "lib_widgets_color_vision_dialog_bordercoloroption",
+      "lib_widgets_color_vision_dialog_bordercolors",
+      "lib_widgets_color_vision_dialog_borderwidth",
+      "lib_widgets_color_vision_dialog_build",
+      "lib_widgets_color_vision_dialog_buildlivecardspreview",
+      "lib_widgets_color_vision_dialog_color",
+      "lib_widgets_color_vision_dialog_colorblindpreset",
+      "lib_widgets_color_vision_dialog_colorvisiondialog",
+      "lib_widgets_color_vision_dialog_colorvisiondialogstate",
+      "lib_widgets_color_vision_dialog_createstate",
+      "lib_widgets_color_vision_dialog_description",
+      "lib_widgets_color_vision_dialog_enabled",
+      "lib_widgets_color_vision_dialog_filterimages",
+      "lib_widgets_color_vision_dialog_icon",
+      "lib_widgets_color_vision_dialog_id",
+      "lib_widgets_color_vision_dialog_imagepath",
+      "lib_widgets_color_vision_dialog_initialboldtext",
+      "lib_widgets_color_vision_dialog_initialbordercolor",
+      "lib_widgets_color_vision_dialog_initialborderwidth",
+      "lib_widgets_color_vision_dialog_initialcolorblind",
+      "lib_widgets_color_vision_dialog_initialfilterimages",
+      "lib_widgets_color_vision_dialog_initialtype",
+      "lib_widgets_color_vision_dialog_initstate",
+      "lib_widgets_color_vision_dialog_isdarkmode",
+      "lib_widgets_color_vision_dialog_label",
+      "lib_widgets_color_vision_dialog_presets",
+      "lib_widgets_color_vision_dialog_samplecarddata",
+      "lib_widgets_color_vision_dialog_subtitle",
+      "lib_widgets_color_vision_dialog_title",
+      "lib_widgets_color_vision_dialog_type",
+      "package_google_fonts_google_fonts_dart",
+      "pages_home_page_dart",
+      "services_network_policy_service_dart",
+      "utils_theme_accessibility_dart"
+    ],
+    "8": [
+      "client_get",
+      "lib_services_openverse_search_provider",
+      "lib_services_openverse_search_provider_client",
+      "lib_services_openverse_search_provider_customclient",
+      "lib_services_openverse_search_provider_dedupsorted",
+      "lib_services_openverse_search_provider_downloadandpersistimage",
+      "lib_services_openverse_search_provider_enablemultisource",
+      "lib_services_openverse_search_provider_extracttokens",
+      "lib_services_openverse_search_provider_imagesearchprovider",
+      "lib_services_openverse_search_provider_isnoisytitle",
+      "lib_services_openverse_search_provider_isnoisytopic",
+      "lib_services_openverse_search_provider_issupportedrasterurl",
+      "lib_services_openverse_search_provider_item",
+      "lib_services_openverse_search_provider_keywordsmatchtokens",
+      "lib_services_openverse_search_provider_mediadedupkey",
+      "lib_services_openverse_search_provider_mediaheaders",
+      "lib_services_openverse_search_provider_message",
+      "lib_services_openverse_search_provider_noisedescriptionregex",
+      "lib_services_openverse_search_provider_noisefilenameregex",
+      "lib_services_openverse_search_provider_openversebaseurl",
+      "lib_services_openverse_search_provider_openversecooldownuntil",
+      "lib_services_openverse_search_provider_openversesearchprovider",
+      "lib_services_openverse_search_provider_parseopenversejson",
+      "lib_services_openverse_search_provider_rankandinterleave",
+      "lib_services_openverse_search_provider_rankedresult",
+      "lib_services_openverse_search_provider_resolveextension",
+      "lib_services_openverse_search_provider_runstreamingmultisource",
+      "lib_services_openverse_search_provider_score",
+      "lib_services_openverse_search_provider_searcharasaac",
+      "lib_services_openverse_search_provider_searchcommonsgifs",
+      "lib_services_openverse_search_provider_searchimages",
+      "lib_services_openverse_search_provider_searchimagesstream",
+      "lib_services_openverse_search_provider_searchopenverseranked",
+      "lib_services_openverse_search_provider_searchopenversesingle",
+      "lib_services_openverse_search_provider_searchserviceexception",
+      "lib_services_openverse_search_provider_searchwikimediacommons",
+      "lib_services_openverse_search_provider_searchwikipediamedialist",
+      "lib_services_openverse_search_provider_searchwikipediatopic",
+      "lib_services_openverse_search_provider_sortedwikipages",
+      "lib_services_openverse_search_provider_tostring",
+      "multilingual_concept_service_dart",
+      "network_policy_service_dart",
+      "static_datetime",
+      "static_final_regexp"
+    ],
+    "9": [
+      "double",
+      "lib_widgets_crop_zoom_dialog",
+      "lib_widgets_crop_zoom_dialog_basepan",
+      "lib_widgets_crop_zoom_dialog_basezoom",
+      "lib_widgets_crop_zoom_dialog_build",
+      "lib_widgets_crop_zoom_dialog_buildbadge",
+      "lib_widgets_crop_zoom_dialog_buildcropviewport",
+      "lib_widgets_crop_zoom_dialog_buildfooteractions",
+      "lib_widgets_crop_zoom_dialog_buildheader",
+      "lib_widgets_crop_zoom_dialog_buildinfobanner",
+      "lib_widgets_crop_zoom_dialog_buildresetbutton",
+      "lib_widgets_crop_zoom_dialog_buildzoomcontrols",
+      "lib_widgets_crop_zoom_dialog_clamppan",
+      "lib_widgets_crop_zoom_dialog_createstate",
+      "lib_widgets_crop_zoom_dialog_cropzoomdialog",
+      "lib_widgets_crop_zoom_dialog_cropzoomdialogstate",
+      "lib_widgets_crop_zoom_dialog_errormessage",
+      "lib_widgets_crop_zoom_dialog_handleusephoto",
+      "lib_widgets_crop_zoom_dialog_imagepath",
+      "lib_widgets_crop_zoom_dialog_initstate",
+      "lib_widgets_crop_zoom_dialog_isloading",
+      "lib_widgets_crop_zoom_dialog_isprocessing",
+      "lib_widgets_crop_zoom_dialog_loadimagedimensions",
+      "lib_widgets_crop_zoom_dialog_maxzoom",
+      "lib_widgets_crop_zoom_dialog_minzoom",
+      "lib_widgets_crop_zoom_dialog_paint",
+      "lib_widgets_crop_zoom_dialog_pan",
+      "lib_widgets_crop_zoom_dialog_reset",
+      "lib_widgets_crop_zoom_dialog_shouldrepaint",
+      "lib_widgets_crop_zoom_dialog_show",
+      "lib_widgets_crop_zoom_dialog_srcheight",
+      "lib_widgets_crop_zoom_dialog_srcwidth",
+      "lib_widgets_crop_zoom_dialog_stepzoom",
+      "lib_widgets_crop_zoom_dialog_targetdimension",
+      "lib_widgets_crop_zoom_dialog_updatezoom",
+      "lib_widgets_crop_zoom_dialog_viewportsize",
+      "lib_widgets_crop_zoom_dialog_zoom",
+      "offset",
+      "static_const_double",
+      "utils_image_crop_helper_dart"
+    ],
+    "10": [
+      "lib_utils_theme_accessibility",
+      "lib_utils_theme_accessibility_colorblindboldtext",
+      "lib_utils_theme_accessibility_colorblindboldtextprefkey",
+      "lib_utils_theme_accessibility_colorblindbordercolor",
+      "lib_utils_theme_accessibility_colorblindbordercolorprefkey",
+      "lib_utils_theme_accessibility_colorblindborderwidth",
+      "lib_utils_theme_accessibility_colorblindborderwidthprefkey",
+      "lib_utils_theme_accessibility_colorblindfilterimages",
+      "lib_utils_theme_accessibility_colorblindfilterimagesprefkey",
+      "lib_utils_theme_accessibility_colorblindmode",
+      "lib_utils_theme_accessibility_colorblindprefkey",
+      "lib_utils_theme_accessibility_colorblindtype",
+      "lib_utils_theme_accessibility_colorblindtypeprefkey",
+      "lib_utils_theme_accessibility_darkmodenotifier",
+      "lib_utils_theme_accessibility_darkmodeprefkey",
+      "lib_utils_theme_accessibility_deuteranomalymatrix",
+      "lib_utils_theme_accessibility_initcolorblindsettings",
+      "lib_utils_theme_accessibility_initdarkmode",
+      "lib_utils_theme_accessibility_mapcolorblindhue",
+      "lib_utils_theme_accessibility_mapdeuteranomaly",
+      "lib_utils_theme_accessibility_mapmonochrome",
+      "lib_utils_theme_accessibility_mapprotanomaly",
+      "lib_utils_theme_accessibility_maptookabeito",
+      "lib_utils_theme_accessibility_maptritanomaly",
+      "lib_utils_theme_accessibility_monochromematrix",
+      "lib_utils_theme_accessibility_protanomalymatrix",
+      "lib_utils_theme_accessibility_resolvecardbordercolor",
+      "lib_utils_theme_accessibility_resolvecardborderwidth",
+      "lib_utils_theme_accessibility_resolvecardimagefilter",
+      "lib_utils_theme_accessibility_resolvecardsurface",
+      "lib_utils_theme_accessibility_resolvecardtextcolor",
+      "lib_utils_theme_accessibility_resolvecardtextshadow",
+      "lib_utils_theme_accessibility_savecolorblindsettings",
+      "lib_utils_theme_accessibility_setdarkmode",
+      "lib_utils_theme_accessibility_themeaccessibility",
+      "lib_utils_theme_accessibility_tritanomalymatrix",
+      "lib_utils_theme_accessibility_universalmatrix",
+      "static_double",
+      "static_final_valuenotifier",
+      "static_string"
+    ],
+    "11": [
+      "pubspec",
+      "pubspec_dependencies",
+      "pubspec_dependencies_archive",
+      "pubspec_dependencies_audioplayers",
+      "pubspec_dependencies_cupertino_icons",
+      "pubspec_dependencies_file_picker",
+      "pubspec_dependencies_flutter",
+      "pubspec_dependencies_flutter_colorpicker",
+      "pubspec_dependencies_flutter_tts",
+      "pubspec_dependencies_google_fonts",
+      "pubspec_dependencies_http",
+      "pubspec_dependencies_image",
+      "pubspec_dependencies_image_picker",
+      "pubspec_dependencies_image_picker_android",
+      "pubspec_dependencies_image_picker_platform_interface",
+      "pubspec_dependencies_path_provider",
+      "pubspec_dependencies_permission_handler",
+      "pubspec_dependencies_record",
+      "pubspec_dependencies_share_plus",
+      "pubspec_dependencies_shared_preferences",
+      "pubspec_dependency_overrides",
+      "pubspec_dependency_overrides_record_linux",
+      "pubspec_dependency_overrides_record_platform_interface",
+      "pubspec_description",
+      "pubspec_dev_dependencies",
+      "pubspec_dev_dependencies_crypto",
+      "pubspec_dev_dependencies_flutter_launcher_icons",
+      "pubspec_dev_dependencies_flutter_lints",
+      "pubspec_dev_dependencies_flutter_test",
+      "pubspec_environment",
+      "pubspec_environment_sdk",
+      "pubspec_flutter",
+      "pubspec_flutter_assets",
+      "pubspec_flutter_sdk",
+      "pubspec_flutter_test_sdk",
+      "pubspec_flutter_uses_material_design",
+      "pubspec_name",
+      "pubspec_publish_to",
+      "pubspec_version"
+    ],
+    "12": [
+      "lib_widgets_personalize_setup_dialog",
+      "lib_widgets_personalize_setup_dialog_appbarcolor",
+      "lib_widgets_personalize_setup_dialog_appbarcolors",
+      "lib_widgets_personalize_setup_dialog_boardbackgroundoptions",
+      "lib_widgets_personalize_setup_dialog_boardcolor",
+      "lib_widgets_personalize_setup_dialog_boardcoloroption",
+      "lib_widgets_personalize_setup_dialog_build",
+      "lib_widgets_personalize_setup_dialog_buildappbarcolorsection",
+      "lib_widgets_personalize_setup_dialog_buildboardbackgroundsection",
+      "lib_widgets_personalize_setup_dialog_builddraghandle",
+      "lib_widgets_personalize_setup_dialog_buildfooteractions",
+      "lib_widgets_personalize_setup_dialog_buildheader",
+      "lib_widgets_personalize_setup_dialog_buildlanguagecard",
+      "lib_widgets_personalize_setup_dialog_buildlanguagesection",
+      "lib_widgets_personalize_setup_dialog_buildlivepreviewsection",
+      "lib_widgets_personalize_setup_dialog_buildminidrawerrow",
+      "lib_widgets_personalize_setup_dialog_buildsectionheader",
+      "lib_widgets_personalize_setup_dialog_buildsettingshint",
+      "lib_widgets_personalize_setup_dialog_color",
+      "lib_widgets_personalize_setup_dialog_createstate",
+      "lib_widgets_personalize_setup_dialog_handlecontinue",
+      "lib_widgets_personalize_setup_dialog_handleusedefaults",
+      "lib_widgets_personalize_setup_dialog_id",
+      "lib_widgets_personalize_setup_dialog_initialappbarcolor",
+      "lib_widgets_personalize_setup_dialog_initialboardcolor",
+      "lib_widgets_personalize_setup_dialog_initiallanguage",
+      "lib_widgets_personalize_setup_dialog_initstate",
+      "lib_widgets_personalize_setup_dialog_isfirstlaunch",
+      "lib_widgets_personalize_setup_dialog_label",
+      "lib_widgets_personalize_setup_dialog_language",
+      "lib_widgets_personalize_setup_dialog_paint",
+      "lib_widgets_personalize_setup_dialog_personalizesetupresult",
+      "lib_widgets_personalize_setup_dialog_selectedappbarcolor",
+      "lib_widgets_personalize_setup_dialog_selectedboardcolor",
+      "lib_widgets_personalize_setup_dialog_selectedlanguage",
+      "lib_widgets_personalize_setup_dialog_shouldrepaint",
+      "lib_widgets_personalize_setup_dialog_show"
+    ],
+    "13": [
+      "int_get",
+      "lib_services_tutorial_service",
+      "lib_services_tutorial_service_completetour",
+      "lib_services_tutorial_service_currentstepnotifier",
+      "lib_services_tutorial_service_endtour",
+      "lib_services_tutorial_service_finishtour",
+      "lib_services_tutorial_service_getkey",
+      "lib_services_tutorial_service_init",
+      "lib_services_tutorial_service_instance",
+      "lib_services_tutorial_service_istouractive",
+      "lib_services_tutorial_service_iswelcomevisiblenotifier",
+      "lib_services_tutorial_service_nextstep",
+      "lib_services_tutorial_service_notifycardeditoropened",
+      "lib_services_tutorial_service_notifycardsaved",
+      "lib_services_tutorial_service_notifydrawerresized",
+      "lib_services_tutorial_service_notifyeditmodeenabled",
+      "lib_services_tutorial_service_notifymediaselected",
+      "lib_services_tutorial_service_notifymenuopened",
+      "lib_services_tutorial_service_notifynewcardtapped",
+      "lib_services_tutorial_service_prefcompleted",
+      "lib_services_tutorial_service_prefskipped",
+      "lib_services_tutorial_service_previousstep",
+      "lib_services_tutorial_service_registerkey",
+      "lib_services_tutorial_service_requestaction",
+      "lib_services_tutorial_service_resetandreplaytour",
+      "lib_services_tutorial_service_resetfortesting",
+      "lib_services_tutorial_service_skiptour",
+      "lib_services_tutorial_service_starttour",
+      "lib_services_tutorial_service_stepssequence",
+      "lib_services_tutorial_service_targetkeys",
+      "lib_services_tutorial_service_targetnewcardid",
+      "lib_services_tutorial_service_totalsteps",
+      "lib_services_tutorial_service_tutorialservice",
+      "static_tutorialservice",
+      "static_tutorialservice_get"
+    ],
+    "14": [
+      "audioplayer",
+      "fake",
+      "file",
+      "lib_services_network_policy_service_offlinemodeexception",
+      "lib_widgets_card_editor_dialog_cardeditoraction",
+      "package_audioplayers_audioplayers_dart",
+      "package_http_http_dart",
+      "package_http_testing_dart",
+      "package_simple_aac_app_services_network_policy_service_dart",
+      "package_simple_aac_app_utils_image_crop_helper_dart",
+      "package_simple_aac_app_widgets_card_editor_dialog_dart",
+      "package_simple_aac_app_widgets_manage_sub_cards_dialog_dart",
+      "package_simple_aac_app_widgets_smart_image_search_dialog_dart",
+      "test_animated_media_backup_test_fakeaudioplayer",
+      "test_camera_object_helper_test_fakeaudioplayer",
+      "test_card_duplication_test",
+      "test_card_duplication_test_fakeaudioplayer",
+      "test_card_duplication_test_main",
+      "test_card_duplication_test_tempdocsdir",
+      "test_card_editor_dialog_test",
+      "test_card_editor_dialog_test_fakeaudioplayer",
+      "test_card_editor_dialog_test_main",
+      "test_crop_zoom_test",
+      "test_crop_zoom_test_fakeaudioplayer",
+      "test_crop_zoom_test_main",
+      "test_crop_zoom_test_samplegiffile",
+      "test_crop_zoom_test_samplelandscapefile",
+      "test_crop_zoom_test_sampleportraitfile",
+      "test_crop_zoom_test_tempdir",
+      "test_network_policy_test",
+      "test_network_policy_test_main",
+      "test_subcards_management_safeguards_test",
+      "test_subcards_management_safeguards_test_fakeaudioplayer",
+      "test_subcards_management_safeguards_test_main"
+    ],
+    "15": [
+      "audioplayers_linux_plugin",
+      "file_selector_plugin",
+      "flpluginregistry",
+      "flutter_linux",
+      "flview",
+      "gapplication",
+      "gboolean",
+      "gchar",
+      "gdkx",
+      "gobject",
+      "gtk",
+      "gtkapplication",
+      "linux_flutter_generated_plugin_registrant_cc_linux_flutter_generated_plugin_registrant",
+      "linux_flutter_generated_plugin_registrant_fl_register_plugins",
+      "linux_flutter_generated_plugin_registrant_h_linux_flutter_generated_plugin_registrant",
+      "linux_runner_main",
+      "linux_runner_main_main",
+      "linux_runner_my_application_cc_linux_runner_my_application",
+      "linux_runner_my_application_first_frame_cb",
+      "linux_runner_my_application_h_linux_runner_my_application",
+      "linux_runner_my_application_my_application_activate",
+      "linux_runner_my_application_my_application_class_init",
+      "linux_runner_my_application_my_application_dispose",
+      "linux_runner_my_application_my_application_init",
+      "linux_runner_my_application_my_application_local_command_line",
+      "linux_runner_my_application_my_application_new",
+      "linux_runner_my_application_my_application_shutdown",
+      "linux_runner_my_application_my_application_startup",
+      "linux_runner_my_application_myapplication",
+      "linux_runner_my_application_myapplication_dart_entrypoint_arguments",
+      "linux_runner_my_application_myapplication_parent_instance",
+      "myapplicationclass",
+      "record_linux_plugin",
+      "url_launcher_plugin"
+    ],
+    "16": [
+      "lib_widgets_smart_image_search_dialog",
+      "lib_widgets_smart_image_search_dialog_build",
+      "lib_widgets_smart_image_search_dialog_buildcenteredstatus",
+      "lib_widgets_smart_image_search_dialog_buildconfirmationview",
+      "lib_widgets_smart_image_search_dialog_builddownloadingstate",
+      "lib_widgets_smart_image_search_dialog_builderrorstate",
+      "lib_widgets_smart_image_search_dialog_buildfilterchip",
+      "lib_widgets_smart_image_search_dialog_buildloadingstate",
+      "lib_widgets_smart_image_search_dialog_buildofflinewarning",
+      "lib_widgets_smart_image_search_dialog_buildresultsgrid",
+      "lib_widgets_smart_image_search_dialog_cardid",
+      "lib_widgets_smart_image_search_dialog_confirmanddownloadimage",
+      "lib_widgets_smart_image_search_dialog_createstate",
+      "lib_widgets_smart_image_search_dialog_dispose",
+      "lib_widgets_smart_image_search_dialog_errormessage",
+      "lib_widgets_smart_image_search_dialog_executesearch",
+      "lib_widgets_smart_image_search_dialog_filter",
+      "lib_widgets_smart_image_search_dialog_initialquery",
+      "lib_widgets_smart_image_search_dialog_initstate",
+      "lib_widgets_smart_image_search_dialog_isdownloading",
+      "lib_widgets_smart_image_search_dialog_isloading",
+      "lib_widgets_smart_image_search_dialog_isrefining",
+      "lib_widgets_smart_image_search_dialog_language",
+      "lib_widgets_smart_image_search_dialog_opengoogleimagesinbrowser",
+      "lib_widgets_smart_image_search_dialog_platformchannel",
+      "lib_widgets_smart_image_search_dialog_resultfilter",
+      "lib_widgets_smart_image_search_dialog_results",
+      "lib_widgets_smart_image_search_dialog_searchcontroller",
+      "lib_widgets_smart_image_search_dialog_searchprovider",
+      "lib_widgets_smart_image_search_dialog_searchsub",
+      "lib_widgets_smart_image_search_dialog_selectedimage",
+      "models_image_search_result_dart",
+      "services_openverse_search_provider_dart",
+      "streamsubscription"
+    ],
+    "17": [
+      "color",
+      "icon",
+      "lib_widgets_tutorial_tutorial_hand_pointer",
+      "lib_widgets_tutorial_tutorial_hand_pointer_animationvalue",
+      "lib_widgets_tutorial_tutorial_hand_pointer_build",
+      "lib_widgets_tutorial_tutorial_hand_pointer_pointsdown",
+      "package_flutter_material_dart",
+      "package_simple_aac_app_services_speech_engine_dart",
+      "package_simple_aac_app_services_storage_service_dart",
+      "package_simple_aac_app_utils_theme_accessibility_dart",
+      "package_simple_aac_app_widgets_color_vision_dialog_dart",
+      "package_simple_aac_app_widgets_home_drawer_dart",
+      "package_simple_aac_app_widgets_preview_grid_density_preview_dart",
+      "package_simple_aac_app_widgets_preview_live_preview_panel_dart",
+      "package_simple_aac_app_widgets_preview_tts_composer_preview_dart",
+      "package_simple_aac_app_widgets_preview_visible_cards_preview_dart",
+      "package_simple_aac_app_widgets_professional_color_picker_dialog_dart",
+      "package_simple_aac_app_widgets_select_grid_size_dialog_dart",
+      "package_simple_aac_app_widgets_styled_dialog_header_dart",
+      "package_simple_aac_app_widgets_visible_cards_dialog_dart",
+      "test_color_vision_accessibility_test",
+      "test_color_vision_accessibility_test_main",
+      "test_professional_color_picker_test",
+      "test_professional_color_picker_test_main",
+      "test_select_grid_size_test",
+      "test_select_grid_size_test_main",
+      "test_settings_live_preview_dialogs_test",
+      "test_settings_live_preview_dialogs_test_main",
+      "test_speech_engine_and_drawer_test",
+      "test_speech_engine_and_drawer_test_main",
+      "test_theme_accessibility_test",
+      "test_theme_accessibility_test_main",
+      "text"
+    ],
+    "18": [
+      "dart_convert",
+      "directory",
+      "package_archive_archive_dart",
+      "package_crypto_crypto_dart",
+      "package_simple_aac_app_data_default_seed_cards_dart",
+      "package_simple_aac_app_models_aac_card_model_dart",
+      "package_simple_aac_app_models_recycle_bin_entry_dart",
+      "package_simple_aac_app_pages_recycle_bin_page_dart",
+      "package_simple_aac_app_services_backup_service_dart",
+      "package_simple_aac_app_services_card_storage_service_dart",
+      "package_simple_aac_app_services_recycle_bin_service_dart",
+      "test_card_haptics_and_pop_test",
+      "test_card_haptics_and_pop_test_main",
+      "test_data_integrity_and_stress_test",
+      "test_data_integrity_and_stress_test_main",
+      "test_data_integrity_and_stress_test_sha256hex",
+      "test_data_integrity_and_stress_test_validgifheader",
+      "test_recycle_bin_audit_test",
+      "test_recycle_bin_audit_test_main",
+      "test_recycle_bin_audit_test_sha256bytes",
+      "test_recycle_bin_audit_test_sha256file",
+      "test_recycle_bin_audit_test_tempdir",
+      "test_recycle_bin_test",
+      "test_recycle_bin_test_main",
+      "test_recycle_bin_test_tempdir",
+      "test_release_qa_backup_restore_test",
+      "test_release_qa_backup_restore_test_main",
+      "test_release_qa_backup_restore_test_samplegif",
+      "test_starter_pack_integration_test",
+      "test_starter_pack_integration_test_main",
+      "test_starter_pack_integration_test_tempdir",
+      "test_starter_pack_service_test",
+      "test_starter_pack_service_test_main"
+    ],
+    "19": [
+      "globalkey",
+      "lib_widgets_home_app_bar",
+      "lib_widgets_home_app_bar_appbariconbutton",
+      "lib_widgets_home_app_bar_backgroundcolor",
+      "lib_widgets_home_app_bar_build",
+      "lib_widgets_home_app_bar_color",
+      "lib_widgets_home_app_bar_homeappbar",
+      "lib_widgets_home_app_bar_icon",
+      "lib_widgets_home_app_bar_iseditmode",
+      "lib_widgets_home_app_bar_ispinned",
+      "lib_widgets_home_app_bar_menubuttonkey",
+      "lib_widgets_home_app_bar_onback",
+      "lib_widgets_home_app_bar_onlongpress",
+      "lib_widgets_home_app_bar_onopenmenu",
+      "lib_widgets_home_app_bar_onpintapwhenpinned",
+      "lib_widgets_home_app_bar_onpressed",
+      "lib_widgets_home_app_bar_ontogglepin",
+      "lib_widgets_home_app_bar_onunpinlongpress",
+      "lib_widgets_home_app_bar_paint",
+      "lib_widgets_home_app_bar_preferredsize",
+      "lib_widgets_home_app_bar_shouldrepaint",
+      "lib_widgets_home_app_bar_showback",
+      "lib_widgets_home_app_bar_showmenu",
+      "lib_widgets_home_app_bar_showpin",
+      "lib_widgets_home_app_bar_title",
+      "lib_widgets_home_app_bar_titletextcolor",
+      "lib_widgets_home_app_bar_titlewidget",
+      "lib_widgets_home_app_bar_tooltip",
+      "lib_widgets_home_app_bar_wavecolor",
+      "preferredsizewidget",
+      "size_get"
+    ],
+    "20": [
+      "lib_utils_animated_media_helper",
+      "lib_utils_animated_media_helper_animatedmediahelper",
+      "lib_utils_animated_media_helper_animatedmediasource",
+      "lib_utils_animated_media_helper_confirmtrimlongvideo",
+      "lib_utils_animated_media_helper_convertvideotogif",
+      "lib_utils_animated_media_helper_defaultpicker",
+      "lib_utils_animated_media_helper_durationms",
+      "lib_utils_animated_media_helper_encodeddurationms",
+      "lib_utils_animated_media_helper_framecount",
+      "lib_utils_animated_media_helper_frommap",
+      "lib_utils_animated_media_helper_gifconversionresult",
+      "lib_utils_animated_media_helper_isbusy",
+      "lib_utils_animated_media_helper_isvalidgiffilesync",
+      "lib_utils_animated_media_helper_isvalidgifheader",
+      "lib_utils_animated_media_helper_maxclipdurationms",
+      "lib_utils_animated_media_helper_maxgiffilebytes",
+      "lib_utils_animated_media_helper_maxvideoduration",
+      "lib_utils_animated_media_helper_outputpath",
+      "lib_utils_animated_media_helper_persistgif",
+      "lib_utils_animated_media_helper_pickandconvertvideo",
+      "lib_utils_animated_media_helper_pickexistinggif",
+      "lib_utils_animated_media_helper_pickorcreateanimatedgif",
+      "lib_utils_animated_media_helper_probevideodurationms",
+      "lib_utils_animated_media_helper_showsnack",
+      "lib_utils_animated_media_helper_sizebytes",
+      "lib_utils_animated_media_helper_trimmed",
+      "lib_utils_animated_media_helper_visionchannel",
+      "package_file_picker_file_picker_dart",
+      "static_bool",
+      "static_const_duration",
+      "static_const_int"
+    ],
+    "21": [
+      "dart_io",
+      "dart_ui",
+      "lib_widgets_home_drawer_homedrawer",
+      "package_flutter_rendering_dart",
+      "package_flutter_test_flutter_test_dart",
+      "package_simple_aac_app_services_multilingual_concept_service_dart",
+      "package_simple_aac_app_services_personalize_service_dart",
+      "package_simple_aac_app_services_starter_pack_service_dart",
+      "package_simple_aac_app_utils_multilingual_speech_router_dart",
+      "package_simple_aac_app_widgets_crop_zoom_dialog_dart",
+      "package_simple_aac_app_widgets_personalize_setup_dialog_dart",
+      "package_simple_aac_app_widgets_tutorial_welcome_tour_dialog_dart",
+      "scaffoldstate",
+      "test_drawer_enhancement_test",
+      "test_drawer_enhancement_test_buildtestdrawer",
+      "test_drawer_enhancement_test_main",
+      "test_multilingual_concept_test",
+      "test_multilingual_concept_test_main",
+      "test_multilingual_speech_router_test",
+      "test_multilingual_speech_router_test_main",
+      "test_personalize_setup_test",
+      "test_personalize_setup_test_main",
+      "test_render_crop_zoom_preview_test",
+      "test_render_crop_zoom_preview_test_main",
+      "test_render_personalize_preview_test",
+      "test_render_personalize_preview_test_main",
+      "test_render_tiles_preview_test",
+      "test_render_tiles_preview_test_main",
+      "test_render_welcome_tour_preview_test",
+      "test_render_welcome_tour_preview_test_main"
+    ],
+    "22": [
+      "docs_qa_backup_restore_stress_test_report",
+      "lib_services_backup_service",
+      "lib_services_backup_service_archive",
+      "lib_services_backup_service_backuppayload",
+      "lib_services_backup_service_backupservice",
+      "lib_services_backup_service_basename",
+      "lib_services_backup_service_buildbackupzip",
+      "lib_services_backup_service_bytes",
+      "lib_services_backup_service_cards",
+      "lib_services_backup_service_channel",
+      "lib_services_backup_service_dir",
+      "lib_services_backup_service_encodezipdirectoryworker",
+      "lib_services_backup_service_extractzipargs",
+      "lib_services_backup_service_extractzipbytestodirectory",
+      "lib_services_backup_service_extractzipbytesworker",
+      "lib_services_backup_service_getsdkversion",
+      "lib_services_backup_service_isassetpath",
+      "lib_services_backup_service_readsettings",
+      "lib_services_backup_service_restorefrombackupdir",
+      "lib_services_backup_service_restorefromzipbytes",
+      "lib_services_backup_service_rootpath",
+      "lib_services_backup_service_saveziptoappdocs",
+      "lib_services_backup_service_saveziptodownloads",
+      "lib_services_backup_service_settings",
+      "lib_services_backup_service_target",
+      "lib_services_backup_service_targetpath",
+      "lib_services_backup_service_targetroot",
+      "lib_services_backup_service_writebackuptodirectory",
+      "starter_pack_service_dart"
+    ],
+    "23": [
+      "lib_widgets_add_category_dialog",
+      "lib_widgets_add_category_dialog_applypreset",
+      "lib_widgets_add_category_dialog_availablecards",
+      "lib_widgets_add_category_dialog_build",
+      "lib_widgets_add_category_dialog_categorypreset",
+      "lib_widgets_add_category_dialog_clearselected",
+      "lib_widgets_add_category_dialog_colorvalue",
+      "lib_widgets_add_category_dialog_createstate",
+      "lib_widgets_add_category_dialog_currentlanguage",
+      "lib_widgets_add_category_dialog_dispose",
+      "lib_widgets_add_category_dialog_emoji",
+      "lib_widgets_add_category_dialog_existingcategories",
+      "lib_widgets_add_category_dialog_icon",
+      "lib_widgets_add_category_dialog_initstate",
+      "lib_widgets_add_category_dialog_kavailablecolors",
+      "lib_widgets_add_category_dialog_kavailableicons",
+      "lib_widgets_add_category_dialog_kcategorypresets",
+      "lib_widgets_add_category_dialog_name",
+      "lib_widgets_add_category_dialog_namecontroller",
+      "lib_widgets_add_category_dialog_resetform",
+      "lib_widgets_add_category_dialog_searchcontroller",
+      "lib_widgets_add_category_dialog_searchkeywords",
+      "lib_widgets_add_category_dialog_searchquery",
+      "lib_widgets_add_category_dialog_selectallfiltered",
+      "lib_widgets_add_category_dialog_selectedcardids",
+      "lib_widgets_add_category_dialog_selectedcolorvalue",
+      "lib_widgets_add_category_dialog_selectedicon",
+      "lib_widgets_add_category_dialog_submit",
+      "lib_widgets_add_category_dialog_togglecardselection"
+    ],
+    "24": [
+      "animationcontroller",
+      "lib_widgets_tutorial_tutorial_overlay",
+      "lib_widgets_tutorial_tutorial_overlay_activetutorialoverlay",
+      "lib_widgets_tutorial_tutorial_overlay_activetutorialoverlaystate",
+      "lib_widgets_tutorial_tutorial_overlay_build",
+      "lib_widgets_tutorial_tutorial_overlay_createrenderobject",
+      "lib_widgets_tutorial_tutorial_overlay_createstate",
+      "lib_widgets_tutorial_tutorial_overlay_currentstep",
+      "lib_widgets_tutorial_tutorial_overlay_dialogsteps",
+      "lib_widgets_tutorial_tutorial_overlay_didupdatewidget",
+      "lib_widgets_tutorial_tutorial_overlay_dispose",
+      "lib_widgets_tutorial_tutorial_overlay_ensuretargetvisible",
+      "lib_widgets_tutorial_tutorial_overlay_getkeynameforstep",
+      "lib_widgets_tutorial_tutorial_overlay_hittest",
+      "lib_widgets_tutorial_tutorial_overlay_initstate",
+      "lib_widgets_tutorial_tutorial_overlay_isdialog",
+      "lib_widgets_tutorial_tutorial_overlay_ismanualadvanceallowed",
+      "lib_widgets_tutorial_tutorial_overlay_language",
+      "lib_widgets_tutorial_tutorial_overlay_measuretargetrect",
+      "lib_widgets_tutorial_tutorial_overlay_pulsecontroller",
+      "lib_widgets_tutorial_tutorial_overlay_targetrect",
+      "lib_widgets_tutorial_tutorial_overlay_tutorialoverlay",
+      "lib_widgets_tutorial_tutorial_overlay_updaterenderobject",
+      "singletickerproviderstatemixin",
+      "static_const_set",
+      "tutorial_hand_pointer_dart",
+      "tutorial_speech_bubble_dart",
+      "tutorial_spotlight_painter_dart"
+    ],
+    "25": [
+      "data_default_seed_cards_dart",
+      "lib_pages_home_page_openrecyclebin",
+      "lib_screens_home_page",
+      "lib_screens_home_page_addnewcard",
+      "lib_screens_home_page_addsubcard",
+      "lib_screens_home_page_audioplayer",
+      "lib_screens_home_page_build",
+      "lib_screens_home_page_buildgridoption",
+      "lib_screens_home_page_cards",
+      "lib_screens_home_page_createdefaultcards",
+      "lib_screens_home_page_createstate",
+      "lib_screens_home_page_dispose",
+      "lib_screens_home_page_gridcolumns",
+      "lib_screens_home_page_initializeapp",
+      "lib_screens_home_page_initstate",
+      "lib_screens_home_page_loaddata",
+      "lib_screens_home_page_savedata",
+      "lib_screens_home_page_showcardeditor",
+      "lib_screens_home_page_showgridoptions",
+      "lib_screens_home_page_showsubcards",
+      "lib_screens_home_page_speak",
+      "lib_screens_home_page_textcontroller",
+      "materialpageroute",
+      "services_card_storage_service_dart",
+      "services_speech_engine_dart",
+      "services_storage_service_dart",
+      "sub_card_page_dart",
+      "widgets_card_editor_dialog_dart"
+    ],
+    "26": [
+      "lib_pages_recycle_bin_page",
+      "lib_pages_recycle_bin_page_activecards",
+      "lib_pages_recycle_bin_page_build",
+      "lib_pages_recycle_bin_page_buildbottomactions",
+      "lib_pages_recycle_bin_page_buildemptystate",
+      "lib_pages_recycle_bin_page_buildentrycard",
+      "lib_pages_recycle_bin_page_buildheader",
+      "lib_pages_recycle_bin_page_buildinfopanel",
+      "lib_pages_recycle_bin_page_buildsectionheader",
+      "lib_pages_recycle_bin_page_confirmdeletepermanent",
+      "lib_pages_recycle_bin_page_confirmemptyrecyclebin",
+      "lib_pages_recycle_bin_page_createstate",
+      "lib_pages_recycle_bin_page_currentlanguage",
+      "lib_pages_recycle_bin_page_entries",
+      "lib_pages_recycle_bin_page_initialentriesfortesting",
+      "lib_pages_recycle_bin_page_initstate",
+      "lib_pages_recycle_bin_page_isdarkmode",
+      "lib_pages_recycle_bin_page_isloading",
+      "lib_pages_recycle_bin_page_loadentries",
+      "lib_pages_recycle_bin_page_paint",
+      "lib_pages_recycle_bin_page_recyclebinpage",
+      "lib_pages_recycle_bin_page_recyclebinpagestate",
+      "lib_pages_recycle_bin_page_restoreentry",
+      "lib_pages_recycle_bin_page_shouldrepaint",
+      "lib_pages_recycle_bin_page_themeprimary",
+      "lib_pages_recycle_bin_page_themetext",
+      "lib_pages_recycle_bin_page_wavecolor",
+      "services_recycle_bin_service_dart"
+    ],
+    "27": [
+      "app_permissions_helper_dart",
+      "lib_utils_camera_object_helper",
+      "lib_utils_camera_object_helper_analysis",
+      "lib_utils_camera_object_helper_analyzeimage",
+      "lib_utils_camera_object_helper_analyzeravailable",
+      "lib_utils_camera_object_helper_buildpreviewthumb",
+      "lib_utils_camera_object_helper_cameraanalysisresult",
+      "lib_utils_camera_object_helper_cameracaptureoutcome",
+      "lib_utils_camera_object_helper_cameraobjecthelper",
+      "lib_utils_camera_object_helper_captureandverify",
+      "lib_utils_camera_object_helper_defaultpicker",
+      "lib_utils_camera_object_helper_deletetempfilesilently",
+      "lib_utils_camera_object_helper_frommap",
+      "lib_utils_camera_object_helper_hasobject",
+      "lib_utils_camera_object_helper_imagepath",
+      "lib_utils_camera_object_helper_istoodarkorblank",
+      "lib_utils_camera_object_helper_labels",
+      "lib_utils_camera_object_helper_noobjectaction",
+      "lib_utils_camera_object_helper_objectcount",
+      "lib_utils_camera_object_helper_persistphoto",
+      "lib_utils_camera_object_helper_pickcameraphoto",
+      "lib_utils_camera_object_helper_shownoobjectdialog",
+      "lib_utils_camera_object_helper_topconfidence",
+      "lib_utils_camera_object_helper_unavailable",
+      "lib_utils_camera_object_helper_visionchannel",
+      "static_const_cameraanalysisresult",
+      "static_final_imagepicker"
+    ],
+    "28": [
+      "aac_cards_v1_json",
+      "data_aac_cards_v1_json",
+      "docs_user_guide_screenshots_16_settings_drawer_appearance_chips",
+      "docs_user_guide_screenshots_17_color_picker_app_color",
+      "docs_user_guide_screenshots_18_color_picker_text_color",
+      "docs_user_guide_screenshots_19_color_picker_board_background",
+      "docs_user_guide_screenshots_20_appearance_and_color_vision",
+      "docs_user_guide_screenshots_21_backup_export",
+      "docs_user_guide_screenshots_22_cloud_backup_sync",
+      "docs_user_guide_screenshots_23_backup_restore",
+      "docs_user_guide_screenshots_24_offline_speech_settings",
+      "docs_user_guide_screenshots_25_accessibility_haptics",
+      "docs_user_guide_sinhala_simple_aac_user_guide_si",
+      "docs_user_guide_sinhala_simple_aac_user_guide_si_md",
+      "docs_user_guide_tamil_simple_aac_user_guide_ta",
+      "docs_user_guide_tamil_simple_aac_user_guide_ta_md",
+      "feature_backup_restore",
+      "feature_edit_mode",
+      "feature_gif_support",
+      "feature_pin_lock",
+      "feature_tap_to_speak",
+      "ios_runner_assets_appicon_1024",
+      "simple_aac_app",
+      "ui_aac_card_grid",
+      "ui_sentence_composer",
+      "ui_top_app_bar"
+    ],
+    "29": [
+      "lib_utils_tutorial_strings",
+      "lib_utils_tutorial_strings_getbacklabel",
+      "lib_utils_tutorial_strings_getbackupguidedesc",
+      "lib_utils_tutorial_strings_getbackupguidetitle",
+      "lib_utils_tutorial_strings_getfinishlabel",
+      "lib_utils_tutorial_strings_getgifguidedesc",
+      "lib_utils_tutorial_strings_getgifguidetitle",
+      "lib_utils_tutorial_strings_getminiguidestitle",
+      "lib_utils_tutorial_strings_getnextlabel",
+      "lib_utils_tutorial_strings_getnotnowlabel",
+      "lib_utils_tutorial_strings_getpermissionsguidedesc",
+      "lib_utils_tutorial_strings_getpermissionsguidetitle",
+      "lib_utils_tutorial_strings_getpinguidedesc",
+      "lib_utils_tutorial_strings_getpinguidetitle",
+      "lib_utils_tutorial_strings_getsearchpickimagehint",
+      "lib_utils_tutorial_strings_getsearchsaveofflinehint",
+      "lib_utils_tutorial_strings_getskiplabel",
+      "lib_utils_tutorial_strings_getsmartsearchguidedesc",
+      "lib_utils_tutorial_strings_getsmartsearchguidetitle",
+      "lib_utils_tutorial_strings_getstarttourlabel",
+      "lib_utils_tutorial_strings_getstepdesc",
+      "lib_utils_tutorial_strings_getsteptitle",
+      "lib_utils_tutorial_strings_getwelcomedesc",
+      "lib_utils_tutorial_strings_getwelcometitle",
+      "lib_utils_tutorial_strings_tutorialstrings"
+    ],
+    "30": [
+      "lib_widgets_select_category_dialog",
+      "lib_widgets_select_category_dialog_availablecards",
+      "lib_widgets_select_category_dialog_build",
+      "lib_widgets_select_category_dialog_build4colorgridicon",
+      "lib_widgets_select_category_dialog_cardcountfor",
+      "lib_widgets_select_category_dialog_categories",
+      "lib_widgets_select_category_dialog_choosecategoriesdialog",
+      "lib_widgets_select_category_dialog_commitselection",
+      "lib_widgets_select_category_dialog_createstate",
+      "lib_widgets_select_category_dialog_currentlanguage",
+      "lib_widgets_select_category_dialog_custommetadata",
+      "lib_widgets_select_category_dialog_getuniquecardsforselection",
+      "lib_widgets_select_category_dialog_initstate",
+      "lib_widgets_select_category_dialog_isallcardsselected",
+      "lib_widgets_select_category_dialog_onapply",
+      "lib_widgets_select_category_dialog_onapplysingle",
+      "lib_widgets_select_category_dialog_pendingcategories",
+      "lib_widgets_select_category_dialog_removecategory",
+      "lib_widgets_select_category_dialog_resolvemeta",
+      "lib_widgets_select_category_dialog_selectcategorydialog",
+      "lib_widgets_select_category_dialog_selectcategorydialogstate",
+      "lib_widgets_select_category_dialog_selectedcategories",
+      "lib_widgets_select_category_dialog_selectedcategory",
+      "lib_widgets_select_category_dialog_toggleallcards",
+      "lib_widgets_select_category_dialog_togglecategory"
+    ],
+    "31": [
+      "dart_project",
+      "flutter_view_controller",
+      "flutter_windows",
+      "functional",
+      "in",
+      "in_opt",
+      "io",
+      "iostream",
+      "memory",
+      "stdio",
+      "string",
+      "vector",
+      "windows",
+      "windows_runner_flutter_window_h_windows_runner_flutter_window",
+      "windows_runner_main",
+      "windows_runner_main_wwinmain",
+      "windows_runner_utils_cpp_string",
+      "windows_runner_utils_cpp_wchar_t",
+      "windows_runner_utils_cpp_windows_runner_utils",
+      "windows_runner_utils_createandattachconsole",
+      "windows_runner_utils_getcommandlinearguments",
+      "windows_runner_utils_h_windows_runner_utils",
+      "windows_runner_utils_utf8fromutf16",
+      "windows_runner_win32_window_h_windows_runner_win32_window"
+    ],
+    "32": [
+      "lib_data_default_seed_cards",
+      "lib_data_default_seed_cards_createdefaultseedcards",
+      "lib_data_default_seed_cards_seedangryimage",
+      "lib_data_default_seed_cards_seedblocksimage",
+      "lib_data_default_seed_cards_seedgoodimage",
+      "lib_data_default_seed_cards_seedhappyimage",
+      "lib_data_default_seed_cards_seedhelloimage",
+      "lib_data_default_seed_cards_seedplayimage",
+      "lib_data_default_seed_cards_seedsadimage",
+      "lib_data_default_seed_cards_sinhalaangry",
+      "lib_data_default_seed_cards_sinhalagood",
+      "lib_data_default_seed_cards_sinhalahappy",
+      "lib_data_default_seed_cards_sinhalahello",
+      "lib_data_default_seed_cards_sinhalamore",
+      "lib_data_default_seed_cards_sinhalaplay",
+      "lib_data_default_seed_cards_sinhalasad",
+      "lib_data_default_seed_cards_tamilangry",
+      "lib_data_default_seed_cards_tamilgood",
+      "lib_data_default_seed_cards_tamilhappy",
+      "lib_data_default_seed_cards_tamilhello",
+      "lib_data_default_seed_cards_tamilmore",
+      "lib_data_default_seed_cards_tamilplay",
+      "lib_data_default_seed_cards_tamilsad",
+      "services_starter_pack_service_dart"
+    ],
+    "33": [
+      "lib_services_recycle_bin_service",
+      "lib_services_recycle_bin_service_cleanupunreferencedmedia",
+      "lib_services_recycle_bin_service_deduplicatecardids",
+      "lib_services_recycle_bin_service_emptyrecyclebin",
+      "lib_services_recycle_bin_service_filename",
+      "lib_services_recycle_bin_service_findcardbyid",
+      "lib_services_recycle_bin_service_getdocsdirectory",
+      "lib_services_recycle_bin_service_getentrycount",
+      "lib_services_recycle_bin_service_getfile",
+      "lib_services_recycle_bin_service_instance",
+      "lib_services_recycle_bin_service_isappownedmedia",
+      "lib_services_recycle_bin_service_loadentries",
+      "lib_services_recycle_bin_service_movetorecyclebin",
+      "lib_services_recycle_bin_service_now",
+      "lib_services_recycle_bin_service_purgeexpiredentries",
+      "lib_services_recycle_bin_service_recyclebinservice",
+      "lib_services_recycle_bin_service_removeentry",
+      "lib_services_recycle_bin_service_restoreentry",
+      "lib_services_recycle_bin_service_saveentries",
+      "models_recycle_bin_entry_dart",
+      "package_path_provider_path_provider_dart",
+      "static_datetime_get",
+      "static_final_recyclebinservice",
+      "static_recyclebinservice_get"
+    ],
+    "34": [
+      "docs_qa_camera_video_forensic_audit",
+      "lib_utils_app_permissions_helper",
+      "lib_utils_app_permissions_helper_apppermissionshelper",
+      "lib_utils_app_permissions_helper_build",
+      "lib_utils_app_permissions_helper_ensurecamerapermission",
+      "lib_utils_app_permissions_helper_ensurelegacystorageifneeded",
+      "lib_utils_app_permissions_helper_ensuremicrophonepermission",
+      "lib_utils_app_permissions_helper_ensurepermission",
+      "lib_utils_app_permissions_helper_ensurevideorecordingpermissions",
+      "lib_utils_app_permissions_helper_icon",
+      "lib_utils_app_permissions_helper_isallowed",
+      "lib_utils_app_permissions_helper_label",
+      "lib_utils_app_permissions_helper_onrequest",
+      "lib_utils_app_permissions_helper_opensettings",
+      "lib_utils_app_permissions_helper_permissionstatusrow",
+      "lib_utils_app_permissions_helper_requestallandshowstatus",
+      "lib_utils_app_permissions_helper_showopensettingsdialog",
+      "lib_utils_app_permissions_helper_status",
+      "lib_utils_app_permissions_helper_statuslabeloverride",
+      "lib_utils_app_permissions_helper_subtitle",
+      "permissionstatus",
+      "services_backup_service_dart",
+      "widgets_styled_dialog_header_dart"
+    ],
+    "35": [
+      "activity",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_mainactivity_onactivityresult",
+      "bitmapfactory",
+      "contentvalues",
+      "detectedobject",
+      "environment",
+      "executors",
+      "flutterengine",
+      "handler",
+      "imagelabel",
+      "imagelabeleroptions",
+      "imagelabeling",
+      "inputimage",
+      "intent",
+      "keyguardmanager",
+      "looper",
+      "mediastore",
+      "objectdetection",
+      "objectdetectoroptions",
+      "sqrt",
+      "tasks"
+    ],
+    "36": [
+      "app_processreleasemainmanifest",
+      "audioplayers_android_processreleasemanifest",
+      "com_baseflow_permissionhandler",
+      "com_example_simple_aac_app",
+      "com_llfbandit_record",
+      "com_mr_flutter_plugin_filepicker",
+      "com_tundralabs_fluttertts",
+      "dev_fluttercommunity_plus_share",
+      "file_picker_processreleasemanifest",
+      "flutter_plugin_android_lifecycle_processreleasemanifest",
+      "flutter_tts_processreleasemanifest",
+      "image_picker_android_processreleasemanifest",
+      "io_flutter_plugins_flutter_plugin_android_lifecycle",
+      "io_flutter_plugins_imagepicker",
+      "io_flutter_plugins_pathprovider",
+      "io_flutter_plugins_sharedpreferences",
+      "path_provider_android_processreleasemanifest",
+      "permission_handler_android_processreleasemanifest",
+      "record_android_processreleasemanifest",
+      "share_plus_processreleasemanifest",
+      "shared_preferences_android_processreleasemanifest",
+      "xyz_luan_audioplayers"
+    ],
+    "37": [
+      "dwmapi",
+      "windows_runner_resource",
+      "windows_runner_win32_window_cpp_hwnd",
+      "windows_runner_win32_window_cpp_lparam",
+      "windows_runner_win32_window_cpp_lresult",
+      "windows_runner_win32_window_cpp_uint",
+      "windows_runner_win32_window_cpp_windows_runner_win32_window",
+      "windows_runner_win32_window_cpp_windows_runner_win32_window_win32window_gethandle",
+      "windows_runner_win32_window_cpp_windows_runner_win32_window_win32window_show",
+      "windows_runner_win32_window_cpp_wparam",
+      "windows_runner_win32_window_enablefulldpisupportifavailable",
+      "windows_runner_win32_window_enablenonclientdpiscaling",
+      "windows_runner_win32_window_h_windows_runner_win32_window_win32window_destroy",
+      "windows_runner_win32_window_scale",
+      "windows_runner_win32_window_win32window_create",
+      "windows_runner_win32_window_win32window_getthisfromhandle",
+      "windows_runner_win32_window_win32window_messagehandler",
+      "windows_runner_win32_window_win32window_setquitonclose",
+      "windows_runner_win32_window_win32window_updatetheme",
+      "windows_runner_win32_window_win32window_win32window",
+      "windows_runner_win32_window_win32window_wndproc",
+      "wstring"
+    ],
+    "38": [
+      "lib_widgets_landscape_menu",
+      "lib_widgets_landscape_menu_basecolor",
+      "lib_widgets_landscape_menu_build",
+      "lib_widgets_landscape_menu_cangoback",
+      "lib_widgets_landscape_menu_color",
+      "lib_widgets_landscape_menu_icon",
+      "lib_widgets_landscape_menu_ispinned",
+      "lib_widgets_landscape_menu_label",
+      "lib_widgets_landscape_menu_landscapemenu",
+      "lib_widgets_landscape_menu_menubutton",
+      "lib_widgets_landscape_menu_ondown",
+      "lib_widgets_landscape_menu_ongoback",
+      "lib_widgets_landscape_menu_onhome",
+      "lib_widgets_landscape_menu_onlongpress",
+      "lib_widgets_landscape_menu_onopenmenu",
+      "lib_widgets_landscape_menu_onpintapwhenpinned",
+      "lib_widgets_landscape_menu_onsearch",
+      "lib_widgets_landscape_menu_ontap",
+      "lib_widgets_landscape_menu_ontogglepin",
+      "lib_widgets_landscape_menu_onunpinlongpress",
+      "lib_widgets_landscape_menu_onup",
+      "lib_widgets_landscape_menu_textcolor"
+    ],
+    "39": [
+      "lib_widgets_tts_bar",
+      "lib_widgets_tts_bar_backgroundcolor",
+      "lib_widgets_tts_bar_bordercolor",
+      "lib_widgets_tts_bar_build",
+      "lib_widgets_tts_bar_enabled",
+      "lib_widgets_tts_bar_icon",
+      "lib_widgets_tts_bar_istablet",
+      "lib_widgets_tts_bar_label",
+      "lib_widgets_tts_bar_onclear",
+      "lib_widgets_tts_bar_ondelete",
+      "lib_widgets_tts_bar_onspeak",
+      "lib_widgets_tts_bar_ontap",
+      "lib_widgets_tts_bar_showactions",
+      "lib_widgets_tts_bar_showclear",
+      "lib_widgets_tts_bar_showdelete",
+      "lib_widgets_tts_bar_showtext",
+      "lib_widgets_tts_bar_sizefactor",
+      "lib_widgets_tts_bar_speakercolor",
+      "lib_widgets_tts_bar_tokens",
+      "lib_widgets_tts_bar_ttsactionpill",
+      "lib_widgets_tts_bar_ttsbar",
+      "models_tts_token_dart"
+    ],
+    "40": [
+      "client",
+      "http_baseclient",
+      "lib_services_network_policy_service",
+      "lib_services_network_policy_service_close",
+      "lib_services_network_policy_service_creategatedclient",
+      "lib_services_network_policy_service_init",
+      "lib_services_network_policy_service_inner",
+      "lib_services_network_policy_service_instance",
+      "lib_services_network_policy_service_isonlineenabled",
+      "lib_services_network_policy_service_isonlineenablednotifier",
+      "lib_services_network_policy_service_message",
+      "lib_services_network_policy_service_networkpolicy",
+      "lib_services_network_policy_service_networkpolicyservice",
+      "lib_services_network_policy_service_offlinegatedhttpclient",
+      "lib_services_network_policy_service_prefkey",
+      "lib_services_network_policy_service_send",
+      "lib_services_network_policy_service_setonlineenabled",
+      "lib_services_network_policy_service_tostring",
+      "static_networkpolicyservice",
+      "static_networkpolicyservice_get",
+      "valuenotifier"
+    ],
+    "41": [
+      "focusnode",
+      "lib_widgets_select_grid_size_dialog",
+      "lib_widgets_select_grid_size_dialog_build",
+      "lib_widgets_select_grid_size_dialog_buildpresetbutton",
+      "lib_widgets_select_grid_size_dialog_cards",
+      "lib_widgets_select_grid_size_dialog_cardtextcolor",
+      "lib_widgets_select_grid_size_dialog_cardtextscale",
+      "lib_widgets_select_grid_size_dialog_createstate",
+      "lib_widgets_select_grid_size_dialog_currentcolumns",
+      "lib_widgets_select_grid_size_dialog_currentlanguage",
+      "lib_widgets_select_grid_size_dialog_dispose",
+      "lib_widgets_select_grid_size_dialog_focusnode",
+      "lib_widgets_select_grid_size_dialog_handleapply",
+      "lib_widgets_select_grid_size_dialog_initstate",
+      "lib_widgets_select_grid_size_dialog_isdarkmode",
+      "lib_widgets_select_grid_size_dialog_onapply",
+      "lib_widgets_select_grid_size_dialog_tempcolumns",
+      "lib_widgets_select_grid_size_dialog_textcontroller",
+      "lib_widgets_select_grid_size_dialog_updatecolumns",
+      "preview_grid_density_preview_dart",
+      "texteditingcontroller"
+    ],
+    "42": [
+      "image",
+      "package_image_picker_android_image_picker_android_dart",
+      "package_image_picker_platform_interface_image_picker_platform_interface_dart",
+      "package_simple_aac_app_main_dart",
+      "package_simple_aac_app_models_edit_session_snapshot_dart",
+      "package_simple_aac_app_pages_home_page_dart",
+      "package_simple_aac_app_utils_card_image_dart",
+      "package_simple_aac_app_widgets_edit_mode_bar_dart",
+      "package_simple_aac_app_widgets_home_app_bar_dart",
+      "package_simple_aac_app_widgets_landscape_menu_dart",
+      "resizeimage",
+      "test_edit_mode_drag_drop_test",
+      "test_edit_mode_drag_drop_test_main",
+      "test_edit_mode_transactional_session_test",
+      "test_edit_mode_transactional_session_test_createtestcard",
+      "test_edit_mode_transactional_session_test_main",
+      "test_edit_mode_transactional_session_test_tempdir",
+      "test_pin_press_and_hold_test",
+      "test_pin_press_and_hold_test_main",
+      "test_widget_test",
+      "test_widget_test_main"
+    ],
+    "43": [
+      "key",
+      "lib_widgets_edit_mode_bar",
+      "lib_widgets_edit_mode_bar_addkey",
+      "lib_widgets_edit_mode_bar_backgroundcolor",
+      "lib_widgets_edit_mode_bar_basecolor",
+      "lib_widgets_edit_mode_bar_bordercolor",
+      "lib_widgets_edit_mode_bar_build",
+      "lib_widgets_edit_mode_bar_cancelkey",
+      "lib_widgets_edit_mode_bar_donekey",
+      "lib_widgets_edit_mode_bar_editbarbutton",
+      "lib_widgets_edit_mode_bar_editmodebar",
+      "lib_widgets_edit_mode_bar_foregroundcolor",
+      "lib_widgets_edit_mode_bar_icon",
+      "lib_widgets_edit_mode_bar_label",
+      "lib_widgets_edit_mode_bar_onadd",
+      "lib_widgets_edit_mode_bar_oncancel",
+      "lib_widgets_edit_mode_bar_ondone",
+      "lib_widgets_edit_mode_bar_ontap",
+      "lib_widgets_edit_mode_bar_onundo",
+      "lib_widgets_edit_mode_bar_textcolor",
+      "lib_widgets_edit_mode_bar_undokey"
+    ],
+    "44": [
+      "flutterviewcontroller",
+      "optional",
+      "unique_ptr",
+      "windows_runner_flutter_window_cpp_dartproject",
+      "windows_runner_flutter_window_cpp_hwnd",
+      "windows_runner_flutter_window_cpp_lparam",
+      "windows_runner_flutter_window_cpp_lresult",
+      "windows_runner_flutter_window_cpp_uint",
+      "windows_runner_flutter_window_cpp_windows_runner_flutter_window",
+      "windows_runner_flutter_window_cpp_windows_runner_flutter_window_flutterwindow_ondestroy",
+      "windows_runner_flutter_window_cpp_wparam",
+      "windows_runner_flutter_window_flutterwindow",
+      "windows_runner_flutter_window_flutterwindow_flutter_controller",
+      "windows_runner_flutter_window_flutterwindow_flutterwindow",
+      "windows_runner_flutter_window_flutterwindow_messagehandler",
+      "windows_runner_flutter_window_flutterwindow_project",
+      "windows_runner_flutter_window_h_dartproject",
+      "windows_runner_flutter_window_h_windows_runner_flutter_window_flutterwindow_oncreate",
+      "windows_runner_flutter_window_h_windows_runner_flutter_window_flutterwindow_ondestroy",
+      "windows_runner_win32_window_cpp_windows_runner_win32_window_win32window_ondestroy"
+    ],
+    "45": [
+      "lib_services_multilingual_concept_service",
+      "lib_services_multilingual_concept_service_aactranslation",
+      "lib_services_multilingual_concept_service_category",
+      "lib_services_multilingual_concept_service_conceptmap",
+      "lib_services_multilingual_concept_service_english",
+      "lib_services_multilingual_concept_service_islatinscript",
+      "lib_services_multilingual_concept_service_lookuptranslations",
+      "lib_services_multilingual_concept_service_multilingualconceptservice",
+      "lib_services_multilingual_concept_service_normalizeconcept",
+      "lib_services_multilingual_concept_service_normalizevocabularylookup",
+      "lib_services_multilingual_concept_service_sinhala",
+      "lib_services_multilingual_concept_service_sortedentries",
+      "lib_services_multilingual_concept_service_tamil",
+      "lib_services_multilingual_concept_service_tosearchcore",
+      "lib_services_multilingual_concept_service_trilingualvocabulary",
+      "lib_services_multilingual_concept_service_verbosecoremap",
+      "lib_services_multilingual_concept_service_vocabularyaliases",
+      "static_const_map",
+      "static_final_list",
+      "static_map"
+    ],
+    "46": [
+      "lib_services_caregiver_lock_service",
+      "lib_services_caregiver_lock_service_authenticate",
+      "lib_services_caregiver_lock_service_caregiverlockservice",
+      "lib_services_caregiver_lock_service_channel",
+      "lib_services_caregiver_lock_service_defaultfallbackpin",
+      "lib_services_caregiver_lock_service_getfallbackpin",
+      "lib_services_caregiver_lock_service_init",
+      "lib_services_caregiver_lock_service_instance",
+      "lib_services_caregiver_lock_service_isdevicesecure",
+      "lib_services_caregiver_lock_service_isenabled",
+      "lib_services_caregiver_lock_service_prefenabled",
+      "lib_services_caregiver_lock_service_preffallbackpin",
+      "lib_services_caregiver_lock_service_resetfortesting",
+      "lib_services_caregiver_lock_service_setenabled",
+      "lib_services_caregiver_lock_service_setfallbackpin",
+      "lib_services_caregiver_lock_service_showfallbackpindialog",
+      "static_caregiverlockservice",
+      "static_caregiverlockservice_get",
+      "static_const_methodchannel"
+    ],
+    "47": [
+      "lib_widgets_manage_sub_cards_dialog",
+      "lib_widgets_manage_sub_cards_dialog_build",
+      "lib_widgets_manage_sub_cards_dialog_buildcardrow",
+      "lib_widgets_manage_sub_cards_dialog_buildpreviewcardthumbnail",
+      "lib_widgets_manage_sub_cards_dialog_buildpreviewsection",
+      "lib_widgets_manage_sub_cards_dialog_confirmdeletecard",
+      "lib_widgets_manage_sub_cards_dialog_confirmmovealltohome",
+      "lib_widgets_manage_sub_cards_dialog_counttotaldescendants",
+      "lib_widgets_manage_sub_cards_dialog_createstate",
+      "lib_widgets_manage_sub_cards_dialog_currentlanguage",
+      "lib_widgets_manage_sub_cards_dialog_custommetadata",
+      "lib_widgets_manage_sub_cards_dialog_foldercard",
+      "lib_widgets_manage_sub_cards_dialog_managesubcardsdialog",
+      "lib_widgets_manage_sub_cards_dialog_managesubcardsdialogstate",
+      "lib_widgets_manage_sub_cards_dialog_movecardtohome",
+      "lib_widgets_manage_sub_cards_dialog_oncardschanged",
+      "lib_widgets_manage_sub_cards_dialog_resolvemeta",
+      "lib_widgets_manage_sub_cards_dialog_rootcards",
+      "styled_dialog_header_dart"
+    ],
+    "48": [
+      "lib_widgets_styled_dialog_header",
+      "lib_widgets_styled_dialog_header_accentcolor",
+      "lib_widgets_styled_dialog_header_badgetext",
+      "lib_widgets_styled_dialog_header_build",
+      "lib_widgets_styled_dialog_header_color",
+      "lib_widgets_styled_dialog_header_dialogoptiontile",
+      "lib_widgets_styled_dialog_header_glossopacity",
+      "lib_widgets_styled_dialog_header_icon",
+      "lib_widgets_styled_dialog_header_iconwidget",
+      "lib_widgets_styled_dialog_header_ontap",
+      "lib_widgets_styled_dialog_header_paint",
+      "lib_widgets_styled_dialog_header_selected",
+      "lib_widgets_styled_dialog_header_shouldrepaint",
+      "lib_widgets_styled_dialog_header_size",
+      "lib_widgets_styled_dialog_header_smartsearchicon",
+      "lib_widgets_styled_dialog_header_styleddialogheader",
+      "lib_widgets_styled_dialog_header_subtitle",
+      "lib_widgets_styled_dialog_header_title",
+      "lib_widgets_styled_dialog_header_trailing"
+    ],
+    "49": [
+      "bool_get",
+      "lib_models_image_search_result",
+      "lib_models_image_search_result_creator",
+      "lib_models_image_search_result_creatorurl",
+      "lib_models_image_search_result_foreignlandingurl",
+      "lib_models_image_search_result_fromjson",
+      "lib_models_image_search_result_id",
+      "lib_models_image_search_result_imagesearchresult",
+      "lib_models_image_search_result_imageurl",
+      "lib_models_image_search_result_isphoto",
+      "lib_models_image_search_result_issymbol",
+      "lib_models_image_search_result_license",
+      "lib_models_image_search_result_licenseurl",
+      "lib_models_image_search_result_licenseversion",
+      "lib_models_image_search_result_mimetype",
+      "lib_models_image_search_result_thumbnail",
+      "lib_models_image_search_result_title",
+      "lib_models_image_search_result_tojson"
+    ],
+    "50": [
+      "boxfit",
+      "colorfilter_colorfilter_bool",
+      "double_height_int",
+      "lib_utils_card_image",
+      "lib_utils_card_image_autoapplycolorblindfilter",
+      "lib_utils_card_image_buildcardimage",
+      "lib_utils_card_image_cachewidth",
+      "lib_utils_card_image_effectivecachewidth",
+      "lib_utils_card_image_effectivefilter",
+      "lib_utils_card_image_endswith",
+      "lib_utils_card_image_fit",
+      "lib_utils_card_image_image",
+      "lib_utils_card_image_isassetimagepath",
+      "lib_utils_card_image_isgifimagepath",
+      "lib_utils_card_image_lower",
+      "package_flutter_widgets_dart",
+      "return",
+      "theme_accessibility_dart"
+    ],
+    "51": [
+      "lib_utils_multilingual_speech_router",
+      "lib_utils_multilingual_speech_router_appendormerge",
+      "lib_utils_multilingual_speech_router_englishinttowords",
+      "lib_utils_multilingual_speech_router_languagecode",
+      "lib_utils_multilingual_speech_router_multilingualspeechrouter",
+      "lib_utils_multilingual_speech_router_normalizeenglishtext",
+      "lib_utils_multilingual_speech_router_normalizeindictext",
+      "lib_utils_multilingual_speech_router_normalizelang",
+      "lib_utils_multilingual_speech_router_ones",
+      "lib_utils_multilingual_speech_router_route",
+      "lib_utils_multilingual_speech_router_scriptforrune",
+      "lib_utils_multilingual_speech_router_speechroutesegment",
+      "lib_utils_multilingual_speech_router_splitbyunicodescript",
+      "lib_utils_multilingual_speech_router_tens",
+      "lib_utils_multilingual_speech_router_text",
+      "lib_utils_multilingual_speech_router_tomap",
+      "lib_utils_multilingual_speech_router_unambiguousromanizedsinhala",
+      "lib_utils_multilingual_speech_router_unambiguousromanizedtamil"
+    ],
+    "52": [
+      "lib_widgets_visible_cards_dialog",
+      "lib_widgets_visible_cards_dialog_build",
+      "lib_widgets_visible_cards_dialog_cards",
+      "lib_widgets_visible_cards_dialog_categoryname",
+      "lib_widgets_visible_cards_dialog_clearall",
+      "lib_widgets_visible_cards_dialog_createstate",
+      "lib_widgets_visible_cards_dialog_currentlanguage",
+      "lib_widgets_visible_cards_dialog_gridcolumns",
+      "lib_widgets_visible_cards_dialog_initialselectedids",
+      "lib_widgets_visible_cards_dialog_initstate",
+      "lib_widgets_visible_cards_dialog_onsubmit",
+      "lib_widgets_visible_cards_dialog_selectall",
+      "lib_widgets_visible_cards_dialog_selectedids",
+      "lib_widgets_visible_cards_dialog_visiblecardsdialog",
+      "lib_widgets_visible_cards_dialog_visiblecardsdialogstate",
+      "preview_live_preview_panel_dart",
+      "preview_visible_cards_preview_dart",
+      "valuechanged"
+    ],
+    "53": [
+      "data_starter_pack_manifest_data_dart",
+      "lib_services_starter_pack_service",
+      "lib_services_starter_pack_service_alreadyinstalled",
+      "lib_services_starter_pack_service_assetimageprefix",
+      "lib_services_starter_pack_service_buildstarterpack",
+      "lib_services_starter_pack_service_cachedpackroot",
+      "lib_services_starter_pack_service_cardsadded",
+      "lib_services_starter_pack_service_findstarterpackroot",
+      "lib_services_starter_pack_service_getstarterpackrootclone",
+      "lib_services_starter_pack_service_importstarterpack",
+      "lib_services_starter_pack_service_importstarterpackresult",
+      "lib_services_starter_pack_service_isstarterpackinstalled",
+      "lib_services_starter_pack_service_parsehexcolor",
+      "lib_services_starter_pack_service_rootfolder",
+      "lib_services_starter_pack_service_starterpackrootid",
+      "lib_services_starter_pack_service_starterpackservice",
+      "static_aaccard"
+    ],
+    "54": [
+      "windows_runner_flutter_window_cpp_windows_runner_flutter_window_flutterwindow_oncreate",
+      "windows_runner_win32_window_cpp_rect",
+      "windows_runner_win32_window_cpp_windows_runner_win32_window_win32window_destroy",
+      "windows_runner_win32_window_cpp_windows_runner_win32_window_win32window_getclientarea",
+      "windows_runner_win32_window_cpp_windows_runner_win32_window_win32window_oncreate",
+      "windows_runner_win32_window_h_hwnd",
+      "windows_runner_win32_window_h_windows_runner_win32_window_win32window_getclientarea",
+      "windows_runner_win32_window_h_windows_runner_win32_window_win32window_gethandle",
+      "windows_runner_win32_window_h_windows_runner_win32_window_win32window_oncreate",
+      "windows_runner_win32_window_h_windows_runner_win32_window_win32window_ondestroy",
+      "windows_runner_win32_window_h_windows_runner_win32_window_win32window_show",
+      "windows_runner_win32_window_win32window",
+      "windows_runner_win32_window_win32window_child_content",
+      "windows_runner_win32_window_win32window_quit_on_close",
+      "windows_runner_win32_window_win32window_setchildcontent",
+      "windows_runner_win32_window_win32window_window_handle",
+      "windows_runner_win32_window_windowclassregistrar_getinstance"
+    ],
+    "55": [
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_kt_bytearray",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_kt_methodchannel",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_kt_rect",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_mainactivity",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_mainactivity_analyzeimageoffline",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_mainactivity_configureflutterengine",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_mainactivity_getdetector",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_mainactivity_getlabeler",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_mainactivity_isreasonableforegroundbox",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_mainactivity_lumastats",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_mainactivity_measurelumastats",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_mainactivity_ondestroy",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_mainactivity_mainactivity_savetodownloads",
+      "flutteractivity",
+      "imagelabeler",
+      "objectdetector"
+    ],
+    "56": [
+      "color_get",
+      "lib_models_category_metadata",
+      "lib_models_category_metadata_categorymetadata",
+      "lib_models_category_metadata_categorypresetitem",
+      "lib_models_category_metadata_color",
+      "lib_models_category_metadata_colorvalue",
+      "lib_models_category_metadata_defaultpresets",
+      "lib_models_category_metadata_emoji",
+      "lib_models_category_metadata_fromjson",
+      "lib_models_category_metadata_icon",
+      "lib_models_category_metadata_kallcategoryicons",
+      "lib_models_category_metadata_name",
+      "lib_models_category_metadata_resolve",
+      "lib_models_category_metadata_searchkeywords",
+      "lib_models_category_metadata_tojson",
+      "static_const_list"
+    ],
+    "57": [
+      "fileimage",
+      "filesystemexception",
+      "package_image_image_dart",
+      "package_image_picker_image_picker_dart",
+      "package_permission_handler_permission_handler_dart",
+      "package_simple_aac_app_utils_animated_media_helper_dart",
+      "package_simple_aac_app_utils_app_permissions_helper_dart",
+      "package_simple_aac_app_utils_camera_object_helper_dart",
+      "test_animated_media_backup_test",
+      "test_animated_media_backup_test_main",
+      "test_animated_media_backup_test_samplegifbytes",
+      "test_app_permissions_helper_test",
+      "test_app_permissions_helper_test_main",
+      "test_camera_object_helper_test",
+      "test_camera_object_helper_test_main",
+      "textfield"
+    ],
+    "58": [
+      "lib_pages_home_page_nestingconfirmationdialog",
+      "lib_widgets_card_editor_dialog_mediasourcetile",
+      "lib_widgets_home_drawer_backgroundcolorpreviewchip",
+      "lib_widgets_home_drawer_cardtextcolorpreviewchip",
+      "lib_widgets_home_drawer_colorblindradiooption",
+      "lib_widgets_home_drawer_colorvisionpreviewchip",
+      "lib_widgets_home_drawer_drawericonbadge",
+      "lib_widgets_home_drawer_minicard",
+      "lib_widgets_home_drawer_minicardwithtext",
+      "lib_widgets_home_drawer_personalizepreviewchip",
+      "lib_widgets_home_drawer_primarycolorpreviewchip",
+      "lib_widgets_home_drawer_textcolorpreviewchip",
+      "lib_widgets_professional_color_picker_dialog_hueslider",
+      "lib_widgets_professional_color_picker_dialog_satvalpalette",
+      "lib_widgets_tutorial_tutorial_hand_pointer_tutorialhandpointer",
+      "statelesswidget"
+    ],
+    "59": [
+      "lib_widgets_tutorial_tutorial_speech_bubble",
+      "lib_widgets_tutorial_tutorial_speech_bubble_allowsmanualadvance",
+      "lib_widgets_tutorial_tutorial_speech_bubble_arrowhorizontaloffset",
+      "lib_widgets_tutorial_tutorial_speech_bubble_build",
+      "lib_widgets_tutorial_tutorial_speech_bubble_isarrowup",
+      "lib_widgets_tutorial_tutorial_speech_bubble_language",
+      "lib_widgets_tutorial_tutorial_speech_bubble_onback",
+      "lib_widgets_tutorial_tutorial_speech_bubble_onnext",
+      "lib_widgets_tutorial_tutorial_speech_bubble_onskip",
+      "lib_widgets_tutorial_tutorial_speech_bubble_paint",
+      "lib_widgets_tutorial_tutorial_speech_bubble_shouldrepaint",
+      "lib_widgets_tutorial_tutorial_speech_bubble_stepindex",
+      "lib_widgets_tutorial_tutorial_speech_bubble_steptype",
+      "lib_widgets_tutorial_tutorial_speech_bubble_totalsteps",
+      "lib_widgets_tutorial_tutorial_speech_bubble_tutorialspeechbubble",
+      "models_tutorial_step_dart"
+    ],
+    "60": [
+      "package_shared_preferences_shared_preferences_dart",
+      "package_simple_aac_app_models_tutorial_step_dart",
+      "package_simple_aac_app_services_caregiver_lock_service_dart",
+      "package_simple_aac_app_services_tutorial_service_dart",
+      "package_simple_aac_app_utils_tutorial_strings_dart",
+      "package_simple_aac_app_widgets_tutorial_mini_guides_dialog_dart",
+      "package_simple_aac_app_widgets_tutorial_tutorial_overlay_dart",
+      "package_simple_aac_app_widgets_tutorial_tutorial_speech_bubble_dart",
+      "test_caregiver_lock_test",
+      "test_caregiver_lock_test_main",
+      "test_tutorial_flow_integration_test",
+      "test_tutorial_flow_integration_test_main",
+      "test_tutorial_overlay_test",
+      "test_tutorial_overlay_test_main",
+      "test_tutorial_service_test",
+      "test_tutorial_service_test_main"
+    ],
+    "61": [
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_kt_exception",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder_extractscaledframe",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videotoolongexception",
+      "bitmap",
+      "bufferedoutputstream",
+      "build",
+      "fileoutputstream",
+      "max",
+      "mediametadataretriever",
+      "min",
+      "outputstream",
+      "priorityqueue",
+      "roundtoint",
+      "uri"
+    ],
+    "62": [
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_kt_bytearray",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder_colorbox",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder_convertvideotogif",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder_encoderesult",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder_lzwgifwriter",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder_lzwgifwriter_encode",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder_probedurationms",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder_quantizemediancut",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder_writegifheader",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder_writegraphiccontrolext",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder_writeimagedescriptor",
+      "android_app_src_main_kotlin_com_example_simple_aac_app_videogifencoder_videogifencoder_writeshortle",
+      "context",
+      "intarray"
+    ],
+    "63": [
+      "datetime",
+      "lib_models_recycle_bin_entry",
+      "lib_models_recycle_bin_entry_card",
+      "lib_models_recycle_bin_entry_collectmediapaths",
+      "lib_models_recycle_bin_entry_deletedatutc",
+      "lib_models_recycle_bin_entry_entryid",
+      "lib_models_recycle_bin_entry_fromjson",
+      "lib_models_recycle_bin_entry_getdaysremaining",
+      "lib_models_recycle_bin_entry_getdeletionstatustext",
+      "lib_models_recycle_bin_entry_isexpired",
+      "lib_models_recycle_bin_entry_originalindex",
+      "lib_models_recycle_bin_entry_parentid",
+      "lib_models_recycle_bin_entry_recyclebinentry",
+      "lib_models_recycle_bin_entry_referencedmediapaths",
+      "lib_models_recycle_bin_entry_tojson"
+    ],
+    "64": [
+      "lib_models_aac_card_model",
+      "lib_models_aac_card_model_aaccard",
+      "lib_models_aac_card_model_category",
+      "lib_models_aac_card_model_colorvalue",
+      "lib_models_aac_card_model_fromjson",
+      "lib_models_aac_card_model_getlabel",
+      "lib_models_aac_card_model_id",
+      "lib_models_aac_card_model_imagepath",
+      "lib_models_aac_card_model_label",
+      "lib_models_aac_card_model_labelsinhala",
+      "lib_models_aac_card_model_labeltamil",
+      "lib_models_aac_card_model_subcards",
+      "lib_models_aac_card_model_tojson",
+      "lib_models_aac_card_model_type",
+      "lib_models_aac_card_model_voicepath"
+    ],
+    "65": [
+      "aaccard",
+      "lib_screens_sub_card_page",
+      "lib_screens_sub_card_page_build",
+      "lib_screens_sub_card_page_parentcard",
+      "lib_screens_sub_card_page_subcardpage",
+      "lib_widgets_aac_card_widget",
+      "lib_widgets_aac_card_widget_aaccardwidget",
+      "lib_widgets_aac_card_widget_build",
+      "lib_widgets_aac_card_widget_card",
+      "lib_widgets_aac_card_widget_onlongpress",
+      "lib_widgets_aac_card_widget_ontap",
+      "models_aac_card_model_dart",
+      "voidcallback",
+      "widgets_aac_card_widget_dart"
+    ],
+    "66": [
+      "edgeinsetsgeometry",
+      "icondata",
+      "lib_widgets_preview_live_preview_panel",
+      "lib_widgets_preview_live_preview_panel_accentcolor",
+      "lib_widgets_preview_live_preview_panel_build",
+      "lib_widgets_preview_live_preview_panel_child",
+      "lib_widgets_preview_live_preview_panel_icon",
+      "lib_widgets_preview_live_preview_panel_livepreviewpanel",
+      "lib_widgets_preview_live_preview_panel_maxheight",
+      "lib_widgets_preview_live_preview_panel_minheight",
+      "lib_widgets_preview_live_preview_panel_padding",
+      "lib_widgets_preview_live_preview_panel_title",
+      "lib_widgets_preview_live_preview_panel_trailing",
+      "widget"
+    ],
+    "67": [
+      "lib_models_edit_session_snapshot",
+      "lib_models_edit_session_snapshot_activeparentid",
+      "lib_models_edit_session_snapshot_allcategories",
+      "lib_models_edit_session_snapshot_cards",
+      "lib_models_edit_session_snapshot_customcategories",
+      "lib_models_edit_session_snapshot_customcategorymetadata",
+      "lib_models_edit_session_snapshot_editsessionsnapshot",
+      "lib_models_edit_session_snapshot_initialmediapaths",
+      "lib_models_edit_session_snapshot_parentstackids",
+      "lib_models_edit_session_snapshot_selectedcategories",
+      "lib_models_edit_session_snapshot_selectedcategory",
+      "lib_models_edit_session_snapshot_visiblecardidsbyparent",
+      "map",
+      "models_category_metadata_dart"
+    ],
+    "68": [
+      "lib_widgets_preview_grid_density_preview",
+      "lib_widgets_preview_grid_density_preview_build",
+      "lib_widgets_preview_grid_density_preview_buildcardicon",
+      "lib_widgets_preview_grid_density_preview_buildminicard",
+      "lib_widgets_preview_grid_density_preview_cards",
+      "lib_widgets_preview_grid_density_preview_cardtextcolor",
+      "lib_widgets_preview_grid_density_preview_cardtextscale",
+      "lib_widgets_preview_grid_density_preview_columns",
+      "lib_widgets_preview_grid_density_preview_defaultsamplecards",
+      "lib_widgets_preview_grid_density_preview_fallbackicon",
+      "lib_widgets_preview_grid_density_preview_griddensitypreview",
+      "lib_widgets_preview_grid_density_preview_isdarkmode",
+      "lib_widgets_preview_grid_density_preview_language",
+      "static_list"
+    ],
+    "69": [
+      "custompainter",
+      "lib_pages_recycle_bin_page_recyclebinwavepainter",
+      "lib_widgets_crop_zoom_dialog_cropoverlaypainter",
+      "lib_widgets_home_app_bar_headerwavepainter",
+      "lib_widgets_home_drawer_drawerheaderwavepainter",
+      "lib_widgets_home_drawer_ministickfigurepainter",
+      "lib_widgets_personalize_setup_dialog_happystickfigurepainter",
+      "lib_widgets_personalize_setup_dialog_hellostickfigurepainter",
+      "lib_widgets_personalize_setup_dialog_waterstickfigurepainter",
+      "lib_widgets_professional_color_picker_dialog_miniwavepainter",
+      "lib_widgets_professional_color_picker_dialog_stickfigurepainter",
+      "lib_widgets_styled_dialog_header_magnifierlenspainter",
+      "lib_widgets_tutorial_tutorial_speech_bubble_trianglearrowpainter"
+    ],
+    "70": [
+      "homepage",
+      "lib_pages_home_page_draganddropcarditem",
+      "lib_pages_home_page_draganddropcarditemstate",
+      "lib_pages_home_page_homepage",
+      "lib_pages_home_page_homepagestate",
+      "lib_screens_home_page_homepage",
+      "lib_screens_home_page_homepagestate",
+      "lib_widgets_add_category_dialog_addcategorydialog",
+      "lib_widgets_add_category_dialog_addcategorydialogstate",
+      "lib_widgets_select_grid_size_dialog_selectgridsizedialog",
+      "lib_widgets_select_grid_size_dialog_selectgridsizedialogstate",
+      "state",
+      "statefulwidget"
+    ],
+    "71": [
+      "lib_widgets_preview_tts_composer_preview",
+      "lib_widgets_preview_tts_composer_preview_build",
+      "lib_widgets_preview_tts_composer_preview_buildactionchips",
+      "lib_widgets_preview_tts_composer_preview_buildminichip",
+      "lib_widgets_preview_tts_composer_preview_buildsampleactionpill",
+      "lib_widgets_preview_tts_composer_preview_buildsampletoken",
+      "lib_widgets_preview_tts_composer_preview_showactions",
+      "lib_widgets_preview_tts_composer_preview_showclear",
+      "lib_widgets_preview_tts_composer_preview_showdelete",
+      "lib_widgets_preview_tts_composer_preview_showtext",
+      "lib_widgets_preview_tts_composer_preview_sizefactor",
+      "lib_widgets_preview_tts_composer_preview_speakercolor",
+      "lib_widgets_preview_tts_composer_preview_ttscomposerpreview"
+    ],
+    "72": [
+      "annotation_visiblefortesting",
+      "lib_main_buildtheme",
+      "lib_pages_home_page_enablehapticsfortesting",
+      "lib_pages_home_page_resetsettingsfortesting",
+      "lib_pages_home_page_useimageoverlaylabelfortesting",
+      "lib_services_card_storage_service_resettesthooks",
+      "lib_services_openverse_search_provider_resetcooldown",
+      "lib_services_recycle_bin_service_resettesthooks",
+      "lib_services_starter_pack_service_clearcache",
+      "lib_utils_animated_media_helper_resettesthooks",
+      "lib_utils_app_permissions_helper_resettesthooks",
+      "lib_utils_camera_object_helper_resettesthooks"
+    ],
+    "73": [
+      "app",
+      "audioplayers_android",
+      "com_llfbandit_record_recordplugin",
+      "file_picker",
+      "flutter_plugin_android_lifecycle",
+      "image_picker_android",
+      "io_flutter_plugins_sharedpreferences_sharedpreferencesplugin",
+      "path_provider_android",
+      "permission_handler_android",
+      "record_android",
+      "shared_preferences_android",
+      "xyz_luan_audioplayers_audiopluginsplugin"
+    ],
+    "74": [
+      "audioplayers_windows_plugin",
+      "file_selector_windows",
+      "flutter_tts_plugin",
+      "permission_handler_windows_plugin",
+      "plugin_registry",
+      "pluginregistry",
+      "record_windows_plugin_c_api",
+      "share_plus_windows_plugin_c_api",
+      "url_launcher_windows",
+      "windows_flutter_generated_plugin_registrant_cc_windows_flutter_generated_plugin_registrant",
+      "windows_flutter_generated_plugin_registrant_h_windows_flutter_generated_plugin_registrant",
+      "windows_flutter_generated_plugin_registrant_registerplugins"
+    ],
+    "75": [
+      "lib_widgets_preview_visible_cards_preview",
+      "lib_widgets_preview_visible_cards_preview_build",
+      "lib_widgets_preview_visible_cards_preview_buildcardicon",
+      "lib_widgets_preview_visible_cards_preview_cards",
+      "lib_widgets_preview_visible_cards_preview_columns",
+      "lib_widgets_preview_visible_cards_preview_fallbackicon",
+      "lib_widgets_preview_visible_cards_preview_isdarkmode",
+      "lib_widgets_preview_visible_cards_preview_language",
+      "lib_widgets_preview_visible_cards_preview_selectedids",
+      "lib_widgets_preview_visible_cards_preview_visiblecardspreview",
+      "set",
+      "utils_card_image_dart"
+    ],
+    "76": [
+      "audioplayers_darwin",
+      "com_tundralabs_fluttertts_flutterttsplugin",
+      "dev_fluttercommunity_plus_share_shareplusplugin",
+      "file_selector_macos",
+      "flutter_tts",
+      "foundation",
+      "macos_flutter_generatedpluginregistrant",
+      "path_provider_foundation",
+      "record_darwin",
+      "share_plus",
+      "shared_preferences_foundation"
+    ],
+    "77": [
+      "dart_math",
+      "lib_utils_image_crop_helper",
+      "lib_utils_image_crop_helper_cropsquare",
+      "lib_utils_image_crop_helper_imagecrophelper",
+      "lib_utils_image_crop_helper_resolvetempdir",
+      "lib_utils_ui_mode_helper",
+      "lib_utils_ui_mode_helper_applyorientation",
+      "lib_utils_ui_mode_helper_applysystemui",
+      "lib_utils_ui_mode_helper_uimodehelper",
+      "package_flutter_foundation_dart",
+      "package_flutter_services_dart"
+    ],
+    "78": [
+      "docs_design_design_system",
+      "docs_design_design_system__ref__lib_pages_home_page",
+      "docs_design_design_system__ref__lib_services_backup_service",
+      "docs_design_design_system__ref__lib_services_card_storage_service",
+      "docs_design_design_system__ref__lib_services_speech_engine",
+      "docs_design_design_system__ref__lib_utils_animated_media_helper",
+      "docs_design_design_system__ref__lib_utils_app_permissions_helper",
+      "docs_design_design_system__ref__lib_utils_camera_object_helper",
+      "docs_design_design_system__ref__lib_widgets_home_app_bar",
+      "docs_design_design_system__ref__lib_widgets_home_drawer",
+      "docs_design_design_system__ref__lib_widgets_professional_color_picker_dialog"
+    ],
+    "79": [
+      "lib_models_aac_card",
+      "lib_models_aac_card_aaccard",
+      "lib_models_aac_card_colorvalue",
+      "lib_models_aac_card_fromjson",
+      "lib_models_aac_card_id",
+      "lib_models_aac_card_imagepath",
+      "lib_models_aac_card_label",
+      "lib_models_aac_card_subcards",
+      "lib_models_aac_card_tojson",
+      "lib_models_aac_card_voicepath",
+      "list"
+    ],
+    "80": [
+      "web_manifest",
+      "web_manifest_background_color",
+      "web_manifest_description",
+      "web_manifest_display",
+      "web_manifest_icons",
+      "web_manifest_name",
+      "web_manifest_orientation",
+      "web_manifest_prefer_related_applications",
+      "web_manifest_short_name",
+      "web_manifest_start_url",
+      "web_manifest_theme_color"
+    ],
+    "81": [
+      "card_storage_service_dart",
+      "lib_services_storage_service",
+      "lib_services_storage_service_cardskey",
+      "lib_services_storage_service_gridcolumnskey",
+      "lib_services_storage_service_gridcolumnslegacykey",
+      "lib_services_storage_service_loadcards",
+      "lib_services_storage_service_loadgridcolumns",
+      "lib_services_storage_service_savecards",
+      "lib_services_storage_service_savegridcolumns",
+      "lib_services_storage_service_storageservice"
+    ],
+    "82": [
+      "flutter_launcher_icons",
+      "flutter_launcher_icons_flutter_launcher_icons",
+      "flutter_launcher_icons_flutter_launcher_icons_adaptive_icon_background",
+      "flutter_launcher_icons_flutter_launcher_icons_adaptive_icon_foreground",
+      "flutter_launcher_icons_flutter_launcher_icons_adaptive_icon_foreground_inset",
+      "flutter_launcher_icons_flutter_launcher_icons_android",
+      "flutter_launcher_icons_flutter_launcher_icons_image_path",
+      "flutter_launcher_icons_flutter_launcher_icons_ios",
+      "flutter_launcher_icons_flutter_launcher_icons_min_sdk_android",
+      "flutter_launcher_icons_flutter_launcher_icons_remove_alpha_ios"
+    ],
+    "83": [
+      "lib_widgets_tutorial_tutorial_spotlight_painter",
+      "lib_widgets_tutorial_tutorial_spotlight_painter_borderradius",
+      "lib_widgets_tutorial_tutorial_spotlight_painter_padding",
+      "lib_widgets_tutorial_tutorial_spotlight_painter_paint",
+      "lib_widgets_tutorial_tutorial_spotlight_painter_pulsecolor",
+      "lib_widgets_tutorial_tutorial_spotlight_painter_pulseprogress",
+      "lib_widgets_tutorial_tutorial_spotlight_painter_scrimcolor",
+      "lib_widgets_tutorial_tutorial_spotlight_painter_shouldrepaint",
+      "lib_widgets_tutorial_tutorial_spotlight_painter_targetrect",
+      "lib_widgets_tutorial_tutorial_spotlight_painter_tutorialspotlightpainter"
+    ],
+    "84": [
+      "analysis_options",
+      "analysis_options_analyzer",
+      "analysis_options_analyzer_errors",
+      "analysis_options_analyzer_exclude",
+      "analysis_options_errors_deprecated_member_use",
+      "analysis_options_errors_use_build_context_synchronously",
+      "analysis_options_include",
+      "analysis_options_linter",
+      "analysis_options_linter_rules"
+    ],
+    "85": [
+      "any",
+      "flutter",
+      "ios_runner_appdelegate",
+      "ios_runner_appdelegate_appdelegate",
+      "ios_runner_appdelegate_appdelegate_application",
+      "ios_runner_appdelegate_swift_bool",
+      "ios_runnertests_runnertests",
+      "uiapplication",
+      "uikit"
+    ],
+    "86": [
+      "app_assemble_release",
+      "app_package_release",
+      "audioplayers_android_mergereleaseresources",
+      "build_release_log",
+      "file_picker_mergereleaseresources",
+      "flutter_plugin_android_lifecycle_mergereleaseresources",
+      "flutter_tts_mergereleaseresources",
+      "image_picker_android_mergereleaseresources",
+      "shared_preferences_android_assemble_release"
+    ],
+    "87": [
+      "lib_models_tutorial_step",
+      "lib_models_tutorial_step_allowsmanualadvance",
+      "lib_models_tutorial_step_bubbleposition",
+      "lib_models_tutorial_step_keyname",
+      "lib_models_tutorial_step_showhandpointer",
+      "lib_models_tutorial_step_speechbubbleposition",
+      "lib_models_tutorial_step_tutorialstep",
+      "lib_models_tutorial_step_tutorialsteptype",
+      "lib_models_tutorial_step_type"
+    ],
+    "88": [
+      "agents_md",
+      "changelog_md",
+      "docs_design_design_system_md",
+      "docs_qa_camera_video_forensic_audit_md",
+      "lib_pages_home_page_dart",
+      "lib_utils_multilingual_speech_router_dart",
+      "nov14_play_release_readiness_report_md",
+      "nov16_play_release_sign_off_report_md"
+    ],
+    "89": [
+      "lib_services_personalize_service",
+      "lib_services_personalize_service_markcompleted",
+      "lib_services_personalize_service_personalizeservice",
+      "lib_services_personalize_service_prefpersonalizecompleted",
+      "lib_services_personalize_service_resetfortesting",
+      "lib_services_personalize_service_shouldshowfirstlaunchsetup",
+      "static_const_string",
+      "tutorial_service_dart"
+    ],
+    "90": [
+      "windows_runner_win32_window_cpp_wchar_t",
+      "windows_runner_win32_window_windowclassregistrar",
+      "windows_runner_win32_window_windowclassregistrar_class_registered",
+      "windows_runner_win32_window_windowclassregistrar_getwindowclass",
+      "windows_runner_win32_window_windowclassregistrar_instance",
+      "windows_runner_win32_window_windowclassregistrar_unregisterwindowclass",
+      "windows_runner_win32_window_windowclassregistrar_windowclassregistrar",
+      "windows_runner_win32_window_windowclassregistrar_windowclassregistrar_5b11e0"
+    ],
+    "91": [
+      "windows_runner_win32_window_win32window_point",
+      "windows_runner_win32_window_win32window_point_point",
+      "windows_runner_win32_window_win32window_point_x",
+      "windows_runner_win32_window_win32window_point_y",
+      "windows_runner_win32_window_win32window_size",
+      "windows_runner_win32_window_win32window_size_height",
+      "windows_runner_win32_window_win32window_size_size",
+      "windows_runner_win32_window_win32window_size_width"
+    ],
+    "92": [
+      "alertdialog",
+      "filledbutton",
+      "package_simple_aac_app_widgets_add_category_dialog_dart",
+      "row",
+      "test_add_category_dialog_test",
+      "test_add_category_dialog_test_main",
+      "test_add_category_dialog_test_samplecards"
+    ],
+    "93": [
+      "build_release_log_txt_bundle_release_aar",
+      "build_release_log_txt_merge_release_resources",
+      "build_release_log_txt_permission_handler_android",
+      "build_release_log_txt_record_android",
+      "build_release_log_txt_share_plus",
+      "build_release_log_txt_shared_preferences_android",
+      "build_release_log_txt_verify_release_resources"
+    ],
+    "94": [
+      "dart_async",
+      "lib_services_openverse_search_provider_searchratelimitexception",
+      "package_simple_aac_app_models_image_search_result_dart",
+      "package_simple_aac_app_services_openverse_search_provider_dart",
+      "response",
+      "test_openverse_search_test",
+      "test_openverse_search_test_main"
+    ],
+    "95": [
+      "lib_widgets_tutorial_mini_guides_dialog",
+      "lib_widgets_tutorial_mini_guides_dialog_build",
+      "lib_widgets_tutorial_mini_guides_dialog_buildguidecard",
+      "lib_widgets_tutorial_mini_guides_dialog_language",
+      "lib_widgets_tutorial_mini_guides_dialog_miniguidesdialog",
+      "lib_widgets_tutorial_mini_guides_dialog_show",
+      "utils_tutorial_strings_dart"
+    ],
+    "96": [
+      "lib_widgets_tutorial_welcome_tour_dialog",
+      "lib_widgets_tutorial_welcome_tour_dialog_build",
+      "lib_widgets_tutorial_welcome_tour_dialog_buildfeaturerow",
+      "lib_widgets_tutorial_welcome_tour_dialog_language",
+      "lib_widgets_tutorial_welcome_tour_dialog_show",
+      "lib_widgets_tutorial_welcome_tour_dialog_welcometourdialog",
+      "services_tutorial_service_dart"
+    ],
+    "97": [
+      "package_simple_aac_app_models_category_metadata_dart",
+      "package_simple_aac_app_widgets_select_category_dialog_dart",
+      "test_select_category_dialog_test",
+      "test_select_category_dialog_test_configurescreen",
+      "test_select_category_dialog_test_custommetadata",
+      "test_select_category_dialog_test_main",
+      "test_select_category_dialog_test_samplecards"
+    ],
+    "98": [
+      "screenshots_review_drawer_test",
+      "ui_audit_screenshots_01_home_screen_fixed",
+      "web_favicon",
+      "web_flutter_bootstrap",
+      "web_icons_icon192",
+      "web_index",
+      "web_index__ref__web_manifest"
+    ],
+    "99": [
+      "build_release_log_txt_app",
+      "build_release_log_txt_audioplayers_android",
+      "build_release_log_txt_manifest",
+      "build_release_log_txt_package_release",
+      "build_release_log_txt_profileinstaller",
+      "build_release_log_txt_r8"
+    ],
+    "100": [
+      "cocoa",
+      "fluttermacos",
+      "macos_runner_appdelegate",
+      "macos_runner_mainflutterwindow",
+      "macos_runnertests_runnertests",
+      "xctest"
+    ],
+    "101": [
+      "docs_research_medical_feasibility_evidence_01_application_feature_evidence__ref__lib_models_aac_card_model_dart",
+      "docs_research_medical_feasibility_evidence_01_application_feature_evidence__ref__lib_widgets_tts_bar_dart",
+      "docs_research_medical_feasibility_evidence_01_application_feature_evidence_md",
+      "docs_research_medical_feasibility_evidence_02_medical_feasibility_domain_mapping_md",
+      "docs_research_medical_feasibility_evidence_04_research_phase_status_md",
+      "docs_research_medical_feasibility_evidence_06_final_evidence_summary_for_research_writing_md"
+    ],
+    "102": [
+      "flutterappdelegate",
+      "macos_runner_appdelegate_appdelegate",
+      "macos_runner_appdelegate_appdelegate_applicationshouldterminateafterlastwindowclosed",
+      "macos_runner_appdelegate_appdelegate_applicationsupportssecurerestorablestate",
+      "macos_runner_appdelegate_swift_bool",
+      "nsapplication"
+    ],
+    "103": [
+      "flutterpluginregistry",
+      "macos_flutter_generatedpluginregistrant_registergeneratedplugins",
+      "macos_runner_mainflutterwindow_mainflutterwindow",
+      "macos_runner_mainflutterwindow_mainflutterwindow_awakefromnib",
+      "nswindow"
+    ],
+    "104": [
+      "ios_runnertests_runnertests_runnertests",
+      "ios_runnertests_runnertests_runnertests_testexample",
+      "macos_runnertests_runnertests_runnertests",
+      "macos_runnertests_runnertests_runnertests_testexample",
+      "xctestcase"
+    ],
+    "105": [
+      "lib_models_tts_token",
+      "lib_models_tts_token_imagepath",
+      "lib_models_tts_token_label",
+      "lib_models_tts_token_ttstoken",
+      "lib_models_tts_token_voicepath"
+    ],
+    "106": [
+      "windows_cmakelists",
+      "windows_flutter_cmakelists",
+      "windows_flutter_generated_plugins",
+      "windows_runner_cmakelists",
+      "windows_runner_cmakelists__ref__windows_runner_main"
+    ],
+    "107": [
+      "agents_skills_aac_accessibility_skill",
+      "agents_skills_design_system_skill",
+      "agents_skills_flutter_ui_ux_skill",
+      "android_app_src_main_res_drawable_hdpi_ic_launcher_foreground"
+    ],
+    "108": [
+      "assets_images_starter_pack_v8_family_brother",
+      "assets_images_starter_pack_v8_family_father",
+      "assets_images_starter_pack_v8_family_mother",
+      "assets_images_starter_pack_v8_family_people"
+    ],
+    "109": [
+      "ios_runner_assets_xcassets_launchimage_imageset_launchimage_2x_png",
+      "ios_runner_assets_xcassets_launchimage_imageset_launchimage_3x_png",
+      "ios_runner_assets_xcassets_launchimage_imageset_launchimage_png",
+      "ios_runner_assets_xcassets_launchimage_imageset_readme"
+    ],
+    "110": [
+      "agents_rules_flutter_rules",
+      "agents_skills_flutter_quality_skill",
+      "agents_skills_release_management_skill"
+    ],
+    "111": [
+      "android_app_build_gradle",
+      "fileinputstream",
+      "properties"
+    ],
+    "112": [
+      "android_app_src_main_res_drawable_xxxhdpi_ic_launcher_background",
+      "android_app_src_main_res_drawable_xxxhdpi_ic_launcher_foreground",
+      "android_app_src_main_res_mipmap_hdpi_ic_launcher"
+    ],
+    "113": [
+      "app_minifyreleasewithr8",
+      "proguard_rules",
+      "r8_compiler"
+    ],
+    "114": [
+      "assets_branding_preview_circle_launcher",
+      "assets_branding_preview_samsung_squircle_launcher",
+      "assets_branding_simple_aac_icon_1024"
+    ],
+    "115": [
+      "assets_images_starter_pack_v8_food_food",
+      "assets_images_starter_pack_v8_food_rice",
+      "assets_images_starter_pack_v8_needs_hungry"
+    ],
+    "116": [
+      "docs_ethics_ruhuna_erc_master_prompt",
+      "docs_ethics_ruhuna_erc_source_fact_matrix",
+      "docs_ethics_ruhuna_erc_source_register"
+    ],
+    "117": [
+      "docs_qa_welcome_tour_verification_welcome_tour_rendered_dialog_png",
+      "docs_superpowers_plans_2026_11_15_interactive_first_run_tutorial_md",
+      "lib_services_tutorial_service_dart"
+    ],
+    "118": [
+      "docs_releases_2026_11_14_v1_1_0_md",
+      "docs_releases_2026_11_16_v1_1_1_build9_md",
+      "docs_releases_2026_11_16_v1_1_2_build10_md"
+    ],
+    "119": [
+      "image_picker_android_merge_release_resources",
+      "image_picker_android_resources",
+      "image_picker_android_verify_release_resources"
+    ],
+    "120": [
+      "linux_cmakelists",
+      "linux_flutter_cmakelists",
+      "linux_runner_cmakelists"
+    ],
+    "121": [
+      "path_provider_android_merge_release_resources",
+      "path_provider_android_resources",
+      "path_provider_android_verify_release_resources"
+    ],
+    "122": [
+      "permission_handler_android_merge_release_resources",
+      "permission_handler_android_resources",
+      "permission_handler_android_verify_release_resources"
+    ],
+    "123": [
+      "assets_images_starter_pack_v8_food_milk",
+      "assets_images_starter_pack_v8_needs_thirsty"
+    ],
+    "124": [
+      "docs_ethics_ruhuna_erc_applicability_and_missing_info",
+      "docs_ethics_ruhuna_erc_readme"
+    ],
+    "125": [
+      "docs_ethics_ruhuna_erc_qa_git_delivery_log",
+      "docs_ethics_ruhuna_erc_qa_qa_report"
+    ],
+    "126": [
+      "docs_user_guide_english_simple_aac_user_guide_en_md",
+      "docs_user_guide_trilingual_document_qa_report_md"
+    ],
+    "127": [
+      "docs_user_guide_screenshots_06_card_editor_dialog",
+      "docs_user_guide_screenshots_14_multilingual_labels"
+    ],
+    "128": [
+      "docs_user_guide_screenshots_11_animated_gifs",
+      "docs_user_guide_screenshots_12_video_to_gif"
+    ],
+    "129": [
+      "docs_user_guide_screenshots_15_pin_dialog",
+      "docs_user_guide_screenshots_15_pin_mode_locked"
+    ],
+    "130": [
+      "docs_user_guide_screenshots_16_settings_drawer",
+      "docs_user_guide_screenshots_16_settings_drawer_appearance"
+    ],
+    "131": [
+      "flutter_tts_assemble_release",
+      "flutter_tts_resources"
+    ],
+    "132": [
+      "home_yasas_homecloud_transfer_personalprojects_simple_aac_simple_aac_play_release_ios_runner_generatedpluginregistrant_h",
+      "ios_runner_runner_bridging_header"
+    ],
+    "133": [
+      "lib_data_starter_pack_manifest_data",
+      "lib_data_starter_pack_manifest_data_starterpackmanifestjson"
+    ],
+    "134": [
+      "lib_widgets_card_editor_dialog_cardeditordialog",
+      "lib_widgets_card_editor_dialog_cardeditordialogstate"
+    ],
+    "135": [
+      "lib_widgets_home_drawer_drawergesturehandler",
+      "lib_widgets_home_drawer_drawergesturehandlerstate"
+    ],
+    "136": [
+      "lib_widgets_home_drawer_drawergesturehintbar",
+      "lib_widgets_home_drawer_drawergesturehintbarstate"
+    ],
+    "137": [
+      "lib_widgets_personalize_setup_dialog_personalizesetupdialog",
+      "lib_widgets_personalize_setup_dialog_personalizesetupdialogstate"
+    ],
+    "138": [
+      "lib_widgets_professional_color_picker_dialog_professionalcolorpickerdialog",
+      "lib_widgets_professional_color_picker_dialog_professionalcolorpickerdialogstate"
+    ],
+    "139": [
+      "lib_widgets_smart_image_search_dialog_smartimagesearchdialog",
+      "lib_widgets_smart_image_search_dialog_smartimagesearchdialogstate"
+    ],
+    "140": [
+      "lib_widgets_tutorial_tutorial_overlay_renderspotlighthittestblocker",
+      "renderproxybox"
+    ],
+    "141": [
+      "lib_widgets_tutorial_tutorial_overlay_spotlighthittestblocker",
+      "singlechildrenderobjectwidget"
+    ],
+    "142": [
+      "android_app_src_main_res_drawable_hdpi_ic_launcher_background"
+    ],
+    "143": [
+      "android_app_src_main_res_drawable_mdpi_ic_launcher_background"
+    ],
+    "144": [
+      "android_app_src_main_res_drawable_xhdpi_ic_launcher_background"
+    ],
+    "145": [
+      "android_app_src_main_res_drawable_xhdpi_ic_launcher_foreground"
+    ],
+    "146": [
+      "android_app_src_main_res_drawable_xxhdpi_ic_launcher_background"
+    ],
+    "147": [
+      "android_app_src_main_res_drawable_xxhdpi_ic_launcher_foreground"
+    ],
+    "148": [
+      "android_app_src_main_res_mipmap_hdpi_ic_launcher_round"
+    ],
+    "149": [
+      "android_app_src_main_res_mipmap_mdpi_ic_launcher"
+    ],
+    "150": [
+      "android_app_src_main_res_mipmap_mdpi_ic_launcher_round"
+    ],
+    "151": [
+      "android_app_src_main_res_mipmap_xhdpi_ic_launcher"
+    ],
+    "152": [
+      "android_app_src_main_res_mipmap_xhdpi_ic_launcher_round"
+    ],
+    "153": [
+      "android_app_src_main_res_mipmap_xxhdpi_ic_launcher"
+    ],
+    "154": [
+      "android_app_src_main_res_mipmap_xxhdpi_ic_launcher_round"
+    ],
+    "155": [
+      "android_app_src_main_res_mipmap_xxxhdpi_ic_launcher"
+    ],
+    "156": [
+      "android_app_src_main_res_mipmap_xxxhdpi_ic_launcher_round"
+    ],
+    "157": [
+      "android_build_gradle"
+    ],
+    "158": [
+      "android_settings_gradle"
+    ],
+    "159": [
+      "app_lint_vital_release"
+    ],
+    "160": [
+      "app_lintvitalanalyzerelease"
+    ],
+    "161": [
+      "app_mergereleaseresources"
+    ],
+    "162": [
+      "assets_branding_resolutions_simple_aac_1024x1024"
+    ],
+    "163": [
+      "assets_branding_resolutions_simple_aac_114x114"
+    ],
+    "164": [
+      "assets_branding_resolutions_simple_aac_120x120_logo"
+    ],
+    "165": [
+      "assets_branding_resolutions_simple_aac_128x128_logo"
+    ],
+    "166": [
+      "assets_branding_resolutions_simple_aac_144x144_logo"
+    ],
+    "167": [
+      "assets_branding_resolutions_simple_aac_152x152_logo"
+    ],
+    "168": [
+      "assets_branding_resolutions_simple_aac_167x167_logo"
+    ],
+    "169": [
+      "assets_branding_resolutions_simple_aac_16x16_logo"
+    ],
+    "170": [
+      "assets_branding_resolutions_simple_aac_180x180_logo"
+    ],
+    "171": [
+      "assets_branding_resolutions_simple_aac_192x192_logo"
+    ],
+    "172": [
+      "assets_branding_resolutions_simple_aac_20x20_logo"
+    ],
+    "173": [
+      "assets_branding_resolutions_simple_aac_256x256_logo"
+    ],
+    "174": [
+      "assets_branding_resolutions_simple_aac_29x29_logo"
+    ],
+    "175": [
+      "assets_branding_resolutions_simple_aac_40x40_logo"
+    ],
+    "176": [
+      "assets_branding_resolutions_simple_aac_48x48_logo"
+    ],
+    "177": [
+      "assets_branding_resolutions_simple_aac_512x512_logo"
+    ],
+    "178": [
+      "assets_branding_resolutions_simple_aac_58x58_logo"
+    ],
+    "179": [
+      "assets_branding_resolutions_simple_aac_60x60_logo"
+    ],
+    "180": [
+      "assets_branding_resolutions_simple_aac_72x72_logo"
+    ],
+    "181": [
+      "assets_branding_resolutions_simple_aac_76x76_logo"
+    ],
+    "182": [
+      "assets_branding_resolutions_simple_aac_80x80_logo"
+    ],
+    "183": [
+      "assets_branding_resolutions_simple_aac_87x87_logo"
+    ],
+    "184": [
+      "assets_branding_resolutions_simple_aac_96x96"
+    ],
+    "185": [
+      "assets_branding_simple_aac_adaptive_background_432"
+    ],
+    "186": [
+      "assets_branding_simple_aac_adaptive_foreground_432"
+    ],
+    "187": [
+      "assets_branding_simple_aac_original_1254"
+    ],
+    "188": [
+      "assets_images_placeholder_readme"
+    ],
+    "189": [
+      "assets_images_seed_angry"
+    ],
+    "190": [
+      "assets_images_seed_blocks"
+    ],
+    "191": [
+      "assets_images_seed_good"
+    ],
+    "192": [
+      "assets_images_seed_happy"
+    ],
+    "193": [
+      "assets_images_seed_hello"
+    ],
+    "194": [
+      "assets_images_seed_play"
+    ],
+    "195": [
+      "assets_images_seed_sad"
+    ],
+    "196": [
+      "assets_images_seed_turn"
+    ],
+    "197": [
+      "assets_images_starter_pack_v8_activities_drink"
+    ],
+    "198": [
+      "assets_images_starter_pack_v8_activities_eat"
+    ],
+    "199": [
+      "assets_images_starter_pack_v8_activities_play"
+    ],
+    "200": [
+      "assets_images_starter_pack_v8_activities_read"
+    ],
+    "201": [
+      "assets_images_starter_pack_v8_activities_walk"
+    ],
+    "202": [
+      "assets_images_starter_pack_v8_animals_bird"
+    ],
+    "203": [
+      "assets_images_starter_pack_v8_animals_butterfly"
+    ],
+    "204": [
+      "assets_images_starter_pack_v8_animals_cat"
+    ],
+    "205": [
+      "assets_images_starter_pack_v8_animals_chicken"
+    ],
+    "206": [
+      "assets_images_starter_pack_v8_animals_cow"
+    ],
+    "207": [
+      "assets_images_starter_pack_v8_animals_dog"
+    ],
+    "208": [
+      "assets_images_starter_pack_v8_animals_elephant"
+    ],
+    "209": [
+      "assets_images_starter_pack_v8_animals_fish"
+    ],
+    "210": [
+      "assets_images_starter_pack_v8_animals_monkey"
+    ],
+    "211": [
+      "assets_images_starter_pack_v8_animals_rabbit"
+    ],
+    "212": [
+      "assets_images_starter_pack_v8_basic_words_come"
+    ],
+    "213": [
+      "assets_images_starter_pack_v8_basic_words_finished"
+    ],
+    "214": [
+      "assets_images_starter_pack_v8_basic_words_hello"
+    ],
+    "215": [
+      "assets_images_starter_pack_v8_basic_words_more"
+    ],
+    "216": [
+      "assets_images_starter_pack_v8_basic_words_no"
+    ],
+    "217": [
+      "assets_images_starter_pack_v8_basic_words_please"
+    ],
+    "218": [
+      "assets_images_starter_pack_v8_colours_black"
+    ],
+    "219": [
+      "assets_images_starter_pack_v8_colours_blue"
+    ],
+    "220": [
+      "assets_images_starter_pack_v8_colours_green"
+    ],
+    "221": [
+      "assets_images_starter_pack_v8_colours_orange"
+    ],
+    "222": [
+      "assets_images_starter_pack_v8_colours_purple"
+    ],
+    "223": [
+      "assets_images_starter_pack_v8_colours_red"
+    ],
+    "224": [
+      "assets_images_starter_pack_v8_colours_white"
+    ],
+    "225": [
+      "assets_images_starter_pack_v8_colours_yellow"
+    ],
+    "226": [
+      "assets_images_starter_pack_v8_drinks_bottle"
+    ],
+    "227": [
+      "assets_images_starter_pack_v8_drinks_coconut_water"
+    ],
+    "228": [
+      "assets_images_starter_pack_v8_drinks_coffee"
+    ],
+    "229": [
+      "assets_images_starter_pack_v8_drinks_cup"
+    ],
+    "230": [
+      "assets_images_starter_pack_v8_drinks_juice"
+    ],
+    "231": [
+      "assets_images_starter_pack_v8_drinks_milk"
+    ],
+    "232": [
+      "assets_images_starter_pack_v8_drinks_soft_drink"
+    ],
+    "233": [
+      "assets_images_starter_pack_v8_drinks_straw"
+    ],
+    "234": [
+      "assets_images_starter_pack_v8_drinks_tea"
+    ],
+    "235": [
+      "assets_images_starter_pack_v8_drinks_water"
+    ],
+    "236": [
+      "assets_images_starter_pack_v8_family_doctor"
+    ],
+    "237": [
+      "assets_images_starter_pack_v8_family_friend"
+    ],
+    "238": [
+      "assets_images_starter_pack_v8_family_grandma"
+    ],
+    "239": [
+      "assets_images_starter_pack_v8_family_grandpa"
+    ],
+    "240": [
+      "assets_images_starter_pack_v8_family_sister"
+    ],
+    "241": [
+      "assets_images_starter_pack_v8_family_teacher"
+    ],
+    "242": [
+      "assets_images_starter_pack_v8_feelings_angry"
+    ],
+    "243": [
+      "assets_images_starter_pack_v8_feelings_calm"
+    ],
+    "244": [
+      "assets_images_starter_pack_v8_feelings_excited"
+    ],
+    "245": [
+      "assets_images_starter_pack_v8_feelings_happy"
+    ],
+    "246": [
+      "assets_images_starter_pack_v8_feelings_love"
+    ],
+    "247": [
+      "assets_images_starter_pack_v8_feelings_okay"
+    ],
+    "248": [
+      "assets_images_starter_pack_v8_feelings_sad"
+    ],
+    "249": [
+      "assets_images_starter_pack_v8_feelings_scared"
+    ],
+    "250": [
+      "assets_images_starter_pack_v8_feelings_tired"
+    ],
+    "251": [
+      "assets_images_starter_pack_v8_feelings_worried"
+    ],
+    "252": [
+      "assets_images_starter_pack_v8_food_apple"
+    ],
+    "253": [
+      "assets_images_starter_pack_v8_food_banana"
+    ],
+    "254": [
+      "assets_images_starter_pack_v8_food_biscuit"
+    ],
+    "255": [
+      "assets_images_starter_pack_v8_food_bread"
+    ],
+    "256": [
+      "assets_images_starter_pack_v8_food_butter"
+    ],
+    "257": [
+      "assets_images_starter_pack_v8_food_butter_bread"
+    ],
+    "258": [
+      "assets_images_starter_pack_v8_food_eat"
+    ],
+    "259": [
+      "assets_images_starter_pack_v8_food_egg"
+    ],
+    "260": [
+      "assets_images_starter_pack_v8_food_fish"
+    ],
+    "261": [
+      "assets_images_starter_pack_v8_food_hoppers"
+    ],
+    "262": [
+      "assets_images_starter_pack_v8_food_kottu"
+    ],
+    "263": [
+      "assets_images_starter_pack_v8_food_soup"
+    ],
+    "264": [
+      "assets_images_starter_pack_v8_food_string_hoppers"
+    ],
+    "265": [
+      "assets_images_starter_pack_v8_food_vegetables"
+    ],
+    "266": [
+      "assets_images_starter_pack_v8_needs_cold"
+    ],
+    "267": [
+      "assets_images_starter_pack_v8_needs_help"
+    ],
+    "268": [
+      "assets_images_starter_pack_v8_needs_hot"
+    ],
+    "269": [
+      "assets_images_starter_pack_v8_needs_needs"
+    ],
+    "270": [
+      "assets_images_starter_pack_v8_needs_pain"
+    ],
+    "271": [
+      "assets_images_starter_pack_v8_needs_rest"
+    ],
+    "272": [
+      "assets_images_starter_pack_v8_needs_sleep"
+    ],
+    "273": [
+      "assets_images_starter_pack_v8_needs_toilet"
+    ],
+    "274": [
+      "assets_images_starter_pack_v8_personal_care_brush_teeth"
+    ],
+    "275": [
+      "assets_images_starter_pack_v8_personal_care_toothbrush"
+    ],
+    "276": [
+      "assets_images_starter_pack_v8_personal_care_toothpaste"
+    ],
+    "277": [
+      "assets_images_starter_pack_v8_school_places_classroom"
+    ],
+    "278": [
+      "assets_images_starter_pack_v8_school_places_home"
+    ],
+    "279": [
+      "assets_images_starter_pack_v8_school_places_playground"
+    ],
+    "280": [
+      "assets_images_starter_pack_v8_school_places_school"
+    ],
+    "281": [
+      "assets_images_starter_pack_v8_shapes_circle"
+    ],
+    "282": [
+      "assets_images_starter_pack_v8_shapes_heart"
+    ],
+    "283": [
+      "assets_images_starter_pack_v8_shapes_rectangle"
+    ],
+    "284": [
+      "assets_images_starter_pack_v8_shapes_square"
+    ],
+    "285": [
+      "assets_images_starter_pack_v8_shapes_star"
+    ],
+    "286": [
+      "assets_images_starter_pack_v8_shapes_triangle"
+    ],
+    "287": [
+      "assets_images_starter_pack_v8_snacks_cake"
+    ],
+    "288": [
+      "assets_images_starter_pack_v8_snacks_candy"
+    ],
+    "289": [
+      "assets_images_starter_pack_v8_snacks_chips"
+    ],
+    "290": [
+      "assets_images_starter_pack_v8_snacks_cookies"
+    ],
+    "291": [
+      "assets_images_starter_pack_v8_snacks_ice_cream"
+    ],
+    "292": [
+      "assets_images_starter_pack_v8_snacks_milk_biscuit"
+    ],
+    "293": [
+      "assets_images_starter_pack_v8_snacks_patties"
+    ],
+    "294": [
+      "assets_images_starter_pack_v8_snacks_popcorn"
+    ],
+    "295": [
+      "assets_images_starter_pack_v8_snacks_rolls"
+    ],
+    "296": [
+      "assets_images_starter_pack_v8_snacks_samosa"
+    ],
+    "297": [
+      "assets_images_starter_pack_v8_snacks_yogurt"
+    ],
+    "298": [
+      "build_release_log_txt_file_picker"
+    ],
+    "299": [
+      "build_release_log_txt_flutter_tts"
+    ],
+    "300": [
+      "build_release_log_txt_image_picker_android"
+    ],
+    "301": [
+      "build_release_log_txt_path_provider_android"
+    ],
+    "302": [
+      "docs_ethics_ruhuna_erc_qa_document_inventory"
+    ],
+    "303": [
+      "docs_ethics_ruhuna_erc_qa_feasibility_guidance_gap_matrix"
+    ],
+    "304": [
+      "docs_ethics_ruhuna_erc_qa_pilot_build_technical_note"
+    ],
+    "305": [
+      "docs_ethics_ruhuna_erc_qa_production_log"
+    ],
+    "306": [
+      "docs_ethics_ruhuna_erc_qa_submission_checklist"
+    ],
+    "307": [
+      "docs_ethics_ruhuna_erc_qa_supervisor_review_summary"
+    ],
+    "308": [
+      "docs_ethics_ruhuna_erc_scripts_requirements"
+    ],
+    "309": [
+      "docs_qa_crop_zoom_verification_crop_zoom_rendered_dialog"
+    ],
+    "310": [
+      "docs_qa_cross_device_restore_report"
+    ],
+    "311": [
+      "docs_qa_grid_verification_01_1col_landscape_board"
+    ],
+    "312": [
+      "docs_qa_grid_verification_02_2col_portrait_board"
+    ],
+    "313": [
+      "docs_qa_grid_verification_03_4col_landscape_board"
+    ],
+    "314": [
+      "docs_qa_grid_verification_04_4col_portrait_board"
+    ],
+    "315": [
+      "docs_qa_grid_verification_05_8col_board"
+    ],
+    "316": [
+      "docs_qa_grid_verification_06_12col_custom_board"
+    ],
+    "317": [
+      "docs_qa_grid_verification_07_15col_board"
+    ],
+    "318": [
+      "docs_qa_grid_verification_09_high_density_horizontal_scroll"
+    ],
+    "319": [
+      "docs_qa_grid_verification_current_state"
+    ],
+    "320": [
+      "docs_qa_personalize_verification_personalize_rendered_dialog"
+    ],
+    "321": [
+      "docs_qa_starter_pack_verification_02_home_scrolled_default_folder"
+    ],
+    "322": [
+      "docs_qa_starter_pack_verification_03_inside_default_13_categories"
+    ],
+    "323": [
+      "docs_qa_starter_pack_verification_04_inside_food_folder_ready_colored_png"
+    ],
+    "324": [
+      "docs_qa_starter_pack_verification_05_food_folder_kottu_sri_lankan_png"
+    ],
+    "325": [
+      "docs_qa_starter_pack_verification_06_sentence_bar_kottu_png"
+    ],
+    "326": [
+      "docs_qa_starter_pack_verification_07_feelings_folder_colored_png"
+    ],
+    "327": [
+      "docs_qa_starter_pack_verification_preview_rendered_tiles_png"
+    ],
+    "328": [
+      "docs_releases_play_store_signing_and_identity_guide_md"
+    ],
+    "329": [
+      "docs_research_medical_feasibility_evidence_03_plain_english_clinical_app_summary_md"
+    ],
+    "330": [
+      "docs_research_medical_feasibility_evidence_05_clinical_team_questions_md"
+    ],
+    "331": [
+      "docs_user_guide_english_simple_aac_user_guide_en_html"
+    ],
+    "332": [
+      "docs_user_guide_gifs_card_tap_speak"
+    ],
+    "333": [
+      "docs_user_guide_gifs_color_picker_flow"
+    ],
+    "334": [
+      "docs_user_guide_readme_md"
+    ],
+    "335": [
+      "docs_user_guide_screenshots_01_home_screen"
+    ],
+    "336": [
+      "docs_user_guide_screenshots_02_aac_cards_grid"
+    ],
+    "337": [
+      "docs_user_guide_screenshots_03_speaking_card"
+    ],
+    "338": [
+      "docs_user_guide_screenshots_04_sentence_bar"
+    ],
+    "339": [
+      "docs_user_guide_screenshots_05_edit_mode_active"
+    ],
+    "340": [
+      "docs_user_guide_screenshots_07_folder_view"
+    ],
+    "341": [
+      "docs_user_guide_screenshots_08_camera_flow"
+    ],
+    "342": [
+      "docs_user_guide_screenshots_09_gallery_picker"
+    ],
+    "343": [
+      "docs_user_guide_screenshots_10_smart_image_search"
+    ],
+    "344": [
+      "docs_user_guide_screenshots_13_custom_voice_recorder"
+    ],
+    "345": [
+      "docs_user_guide_tamil_simple_aac_user_guide_ta_pdf"
+    ],
+    "346": [
+      "docs_user_guide_user_guide_layout_qa_md"
+    ],
+    "347": [
+      "docs_user_guide_user_guide_qa_report_md"
+    ],
+    "348": [
+      "feature_color_blind_mode"
+    ],
+    "349": [
+      "feature_smart_image_search"
+    ],
+    "350": [
+      "ios_runner_assets_xcassets_appicon_appiconset_icon_app_83_5x83_5_2x_png"
+    ],
+    "351": [
+      "macos_runner_assets_xcassets_appicon_appiconset_app_icon_1024_png"
+    ],
+    "352": [
+      "macos_runner_assets_xcassets_appicon_appiconset_app_icon_128_png"
+    ],
+    "353": [
+      "macos_runner_assets_xcassets_appicon_appiconset_app_icon_16_png"
+    ],
+    "354": [
+      "macos_runner_assets_xcassets_appicon_appiconset_app_icon_256_png"
+    ],
+    "355": [
+      "macos_runner_assets_xcassets_appicon_appiconset_app_icon_32_png"
+    ],
+    "356": [
+      "macos_runner_assets_xcassets_appicon_appiconset_app_icon_512_png"
+    ],
+    "357": [
+      "macos_runner_assets_xcassets_appicon_appiconset_app_icon_64_png"
+    ],
+    "358": [
+      "none_bool"
+    ],
+    "359": [
+      "none_exception"
+    ],
+    "360": [
+      "none_methodchannel"
+    ],
+    "361": [
+      "none_rect"
+    ],
+    "362": [
+      "none_string"
+    ],
+    "363": [
+      "path_provider_android_bundle_release_aar"
+    ],
+    "364": [
+      "permission_handler_android_bundle_release_aar"
+    ],
+    "365": [
+      "play_store_simple_aac_play_icon_512_png"
+    ],
+    "366": [
+      "readme_md"
+    ],
+    "367": [
+      "record_android_bundle_release_aar"
+    ],
+    "368": [
+      "record_android_merge_release_resources"
+    ],
+    "369": [
+      "screenshots_review_01_home_screen_png"
+    ],
+    "370": [
+      "screenshots_review_02_navigation_drawer_png"
+    ],
+    "371": [
+      "screenshots_review_02b_drawer_scrolled_png"
+    ],
+    "372": [
+      "screenshots_review_03_edit_mode_png"
+    ],
+    "373": [
+      "screenshots_review_04_add_card_dialog_png"
+    ],
+    "374": [
+      "screenshots_review_05_smart_search_opened_png"
+    ],
+    "375": [
+      "screenshots_review_06_smart_search_results_png"
+    ],
+    "376": [
+      "screenshots_review_current_screen_png"
+    ],
+    "377": [
+      "test_readme"
+    ],
+    "378": [
+      "ui_audit_screenshots_02_landscape_drawer"
+    ],
+    "379": [
+      "ui_audit_screenshots_03_smart_search_results_live"
+    ],
+    "380": [
+      "web_icons_icon512"
+    ],
+    "381": [
+      "web_icons_iconmaskable192"
+    ],
+    "382": [
+      "web_icons_iconmaskable512"
+    ]
+  },
+  "cohesion": {
+    "0": 0.008888888888888889,
+    "1": 0.06129032258064516,
+    "2": 0.017699115044247787,
+    "3": 0.023529411764705882,
+    "4": 0.034482758620689655,
+    "5": 0.03571428571428571,
+    "6": 0.03773584905660377,
+    "7": 0.045454545454545456,
+    "8": 0.046511627906976744,
+    "9": 0.05128205128205128,
+    "10": 0.05,
+    "11": 0.05128205128205128,
+    "12": 0.05405405405405406,
+    "13": 0.05714285714285714,
+    "14": 0.0873440285204991,
+    "15": 0.0748663101604278,
+    "16": 0.058823529411764705,
+    "17": 0.07575757575757576,
+    "18": 0.09848484848484848,
+    "19": 0.06451612903225806,
+    "20": 0.06451612903225806,
+    "21": 0.09655172413793103,
+    "22": 0.06896551724137931,
+    "23": 0.06896551724137931,
+    "24": 0.07407407407407407,
+    "25": 0.07142857142857142,
+    "26": 0.07407407407407407,
+    "27": 0.07407407407407407,
+    "28": 0.08,
+    "29": 0.08,
+    "30": 0.08666666666666667,
+    "31": 0.12318840579710146,
+    "32": 0.08333333333333333,
+    "33": 0.08333333333333333,
+    "34": 0.08695652173913043,
+    "35": 0.09090909090909091,
+    "36": 0.09090909090909091,
+    "37": 0.1645021645021645,
+    "38": 0.09090909090909091,
+    "39": 0.09090909090909091,
+    "40": 0.09523809523809523,
+    "41": 0.09523809523809523,
+    "42": 0.10476190476190476,
+    "43": 0.09523809523809523,
+    "44": 0.10526315789473684,
+    "45": 0.1,
+    "46": 0.10526315789473684,
+    "47": 0.1111111111111111,
+    "48": 0.10526315789473684,
+    "49": 0.1111111111111111,
+    "50": 0.1111111111111111,
+    "51": 0.1111111111111111,
+    "52": 0.11764705882352941,
+    "53": 0.11764705882352941,
+    "54": 0.14705882352941177,
+    "55": 0.19166666666666668,
+    "56": 0.125,
+    "57": 0.15,
+    "58": 0.125,
+    "59": 0.125,
+    "60": 0.2,
+    "61": 0.14285714285714285,
+    "62": 0.2571428571428571,
+    "63": 0.13333333333333333,
+    "64": 0.13333333333333333,
+    "65": 0.15384615384615385,
+    "66": 0.14285714285714285,
+    "67": 0.14285714285714285,
+    "68": 0.14285714285714285,
+    "69": 0.15384615384615385,
+    "70": 0.19230769230769232,
+    "71": 0.15384615384615385,
+    "72": 0.16666666666666666,
+    "73": 0.16666666666666666,
+    "74": 0.16666666666666666,
+    "75": 0.16666666666666666,
+    "76": 0.18181818181818182,
+    "77": 0.18181818181818182,
+    "78": 0.18181818181818182,
+    "79": 0.18181818181818182,
+    "80": 0.18181818181818182,
+    "81": 0.2,
+    "82": 0.2,
+    "83": 0.2,
+    "84": 0.2222222222222222,
+    "85": 0.25,
+    "86": 0.25,
+    "87": 0.2222222222222222,
+    "88": 0.25,
+    "89": 0.25,
+    "90": 0.25,
+    "91": 0.21428571428571427,
+    "92": 0.2857142857142857,
+    "93": 0.42857142857142855,
+    "94": 0.2857142857142857,
+    "95": 0.2857142857142857,
+    "96": 0.2857142857142857,
+    "97": 0.2857142857142857,
+    "98": 0.2857142857142857,
+    "99": 0.3333333333333333,
+    "100": 0.4666666666666667,
+    "101": 0.3333333333333333,
+    "102": 0.4666666666666667,
+    "103": 0.4,
+    "104": 0.4,
+    "105": 0.4,
+    "106": 0.5,
+    "107": 0.5,
+    "108": 0.5,
+    "109": 0.5,
+    "110": 0.6666666666666666,
+    "111": 0.6666666666666666,
+    "112": 0.6666666666666666,
+    "113": 0.6666666666666666,
+    "114": 0.6666666666666666,
+    "115": 0.6666666666666666,
+    "116": 0.6666666666666666,
+    "117": 0.6666666666666666,
+    "118": 0.6666666666666666,
+    "119": 0.6666666666666666,
+    "120": 1.0,
+    "121": 0.6666666666666666,
+    "122": 0.6666666666666666,
+    "123": 1.0,
+    "124": 1.0,
+    "125": 1.0,
+    "126": 1.0,
+    "127": 1.0,
+    "128": 1.0,
+    "129": 1.0,
+    "130": 1.0,
+    "131": 1.0,
+    "132": 1.0,
+    "133": 1.0,
+    "134": 1.0,
+    "135": 1.0,
+    "136": 1.0,
+    "137": 1.0,
+    "138": 1.0,
+    "139": 1.0,
+    "140": 1.0,
+    "141": 1.0,
+    "142": 1.0,
+    "143": 1.0,
+    "144": 1.0,
+    "145": 1.0,
+    "146": 1.0,
+    "147": 1.0,
+    "148": 1.0,
+    "149": 1.0,
+    "150": 1.0,
+    "151": 1.0,
+    "152": 1.0,
+    "153": 1.0,
+    "154": 1.0,
+    "155": 1.0,
+    "156": 1.0,
+    "157": 1.0,
+    "158": 1.0,
+    "159": 1.0,
+    "160": 1.0,
+    "161": 1.0,
+    "162": 1.0,
+    "163": 1.0,
+    "164": 1.0,
+    "165": 1.0,
+    "166": 1.0,
+    "167": 1.0,
+    "168": 1.0,
+    "169": 1.0,
+    "170": 1.0,
+    "171": 1.0,
+    "172": 1.0,
+    "173": 1.0,
+    "174": 1.0,
+    "175": 1.0,
+    "176": 1.0,
+    "177": 1.0,
+    "178": 1.0,
+    "179": 1.0,
+    "180": 1.0,
+    "181": 1.0,
+    "182": 1.0,
+    "183": 1.0,
+    "184": 1.0,
+    "185": 1.0,
+    "186": 1.0,
+    "187": 1.0,
+    "188": 1.0,
+    "189": 1.0,
+    "190": 1.0,
+    "191": 1.0,
+    "192": 1.0,
+    "193": 1.0,
+    "194": 1.0,
+    "195": 1.0,
+    "196": 1.0,
+    "197": 1.0,
+    "198": 1.0,
+    "199": 1.0,
+    "200": 1.0,
+    "201": 1.0,
+    "202": 1.0,
+    "203": 1.0,
+    "204": 1.0,
+    "205": 1.0,
+    "206": 1.0,
+    "207": 1.0,
+    "208": 1.0,
+    "209": 1.0,
+    "210": 1.0,
+    "211": 1.0,
+    "212": 1.0,
+    "213": 1.0,
+    "214": 1.0,
+    "215": 1.0,
+    "216": 1.0,
+    "217": 1.0,
+    "218": 1.0,
+    "219": 1.0,
+    "220": 1.0,
+    "221": 1.0,
+    "222": 1.0,
+    "223": 1.0,
+    "224": 1.0,
+    "225": 1.0,
+    "226": 1.0,
+    "227": 1.0,
+    "228": 1.0,
+    "229": 1.0,
+    "230": 1.0,
+    "231": 1.0,
+    "232": 1.0,
+    "233": 1.0,
+    "234": 1.0,
+    "235": 1.0,
+    "236": 1.0,
+    "237": 1.0,
+    "238": 1.0,
+    "239": 1.0,
+    "240": 1.0,
+    "241": 1.0,
+    "242": 1.0,
+    "243": 1.0,
+    "244": 1.0,
+    "245": 1.0,
+    "246": 1.0,
+    "247": 1.0,
+    "248": 1.0,
+    "249": 1.0,
+    "250": 1.0,
+    "251": 1.0,
+    "252": 1.0,
+    "253": 1.0,
+    "254": 1.0,
+    "255": 1.0,
+    "256": 1.0,
+    "257": 1.0,
+    "258": 1.0,
+    "259": 1.0,
+    "260": 1.0,
+    "261": 1.0,
+    "262": 1.0,
+    "263": 1.0,
+    "264": 1.0,
+    "265": 1.0,
+    "266": 1.0,
+    "267": 1.0,
+    "268": 1.0,
+    "269": 1.0,
+    "270": 1.0,
+    "271": 1.0,
+    "272": 1.0,
+    "273": 1.0,
+    "274": 1.0,
+    "275": 1.0,
+    "276": 1.0,
+    "277": 1.0,
+    "278": 1.0,
+    "279": 1.0,
+    "280": 1.0,
+    "281": 1.0,
+    "282": 1.0,
+    "283": 1.0,
+    "284": 1.0,
+    "285": 1.0,
+    "286": 1.0,
+    "287": 1.0,
+    "288": 1.0,
+    "289": 1.0,
+    "290": 1.0,
+    "291": 1.0,
+    "292": 1.0,
+    "293": 1.0,
+    "294": 1.0,
+    "295": 1.0,
+    "296": 1.0,
+    "297": 1.0,
+    "298": 1.0,
+    "299": 1.0,
+    "300": 1.0,
+    "301": 1.0,
+    "302": 1.0,
+    "303": 1.0,
+    "304": 1.0,
+    "305": 1.0,
+    "306": 1.0,
+    "307": 1.0,
+    "308": 1.0,
+    "309": 1.0,
+    "310": 1.0,
+    "311": 1.0,
+    "312": 1.0,
+    "313": 1.0,
+    "314": 1.0,
+    "315": 1.0,
+    "316": 1.0,
+    "317": 1.0,
+    "318": 1.0,
+    "319": 1.0,
+    "320": 1.0,
+    "321": 1.0,
+    "322": 1.0,
+    "323": 1.0,
+    "324": 1.0,
+    "325": 1.0,
+    "326": 1.0,
+    "327": 1.0,
+    "328": 1.0,
+    "329": 1.0,
+    "330": 1.0,
+    "331": 1.0,
+    "332": 1.0,
+    "333": 1.0,
+    "334": 1.0,
+    "335": 1.0,
+    "336": 1.0,
+    "337": 1.0,
+    "338": 1.0,
+    "339": 1.0,
+    "340": 1.0,
+    "341": 1.0,
+    "342": 1.0,
+    "343": 1.0,
+    "344": 1.0,
+    "345": 1.0,
+    "346": 1.0,
+    "347": 1.0,
+    "348": 1.0,
+    "349": 1.0,
+    "350": 1.0,
+    "351": 1.0,
+    "352": 1.0,
+    "353": 1.0,
+    "354": 1.0,
+    "355": 1.0,
+    "356": 1.0,
+    "357": 1.0,
+    "358": 1.0,
+    "359": 1.0,
+    "360": 1.0,
+    "361": 1.0,
+    "362": 1.0,
+    "363": 1.0,
+    "364": 1.0,
+    "365": 1.0,
+    "366": 1.0,
+    "367": 1.0,
+    "368": 1.0,
+    "369": 1.0,
+    "370": 1.0,
+    "371": 1.0,
+    "372": 1.0,
+    "373": 1.0,
+    "374": 1.0,
+    "375": 1.0,
+    "376": 1.0,
+    "377": 1.0,
+    "378": 1.0,
+    "379": 1.0,
+    "380": 1.0,
+    "381": 1.0,
+    "382": 1.0
+  },
+  "gods": [
+    {
+      "id": "docs_ethics_ruhuna_erc_scripts_docx_common_add_body",
+      "label": "add_body()",
+      "degree": 41
+    },
+    {
+      "id": "docs_ethics_ruhuna_erc_scripts_docx_common_add_heading",
+      "label": "add_heading()",
+      "degree": 34
+    },
+    {
+      "id": "windows_runner_win32_window_win32window",
+      "label": "Win32Window",
+      "degree": 27
+    },
+    {
+      "id": "docs_ethics_ruhuna_erc_scripts_generate_protocol_and_annexures_build_research_protocol",
+      "label": "build_research_protocol()",
+      "degree": 27
+    },
+    {
+      "id": "docs_ethics_ruhuna_erc_scripts_build_erc_package_main",
+      "label": "main()",
+      "degree": 23
+    },
+    {
+      "id": "simple_aac_app",
+      "label": "Simple AAC இலங்கை",
+      "degree": 23
+    },
+    {
+      "id": "docs_ethics_ruhuna_erc_scripts_docx_common_add_plain_table",
+      "label": "add_plain_table()",
+      "degree": 21
+    },
+    {
+      "id": "docs_ethics_ruhuna_erc_scripts_docx_common_save_doc",
+      "label": "save_doc()",
+      "degree": 21
+    },
+    {
+      "id": "lib_utils_multilingual_speech_router",
+      "label": "_",
+      "degree": 21
+    },
+    {
+      "id": "docs_ethics_ruhuna_erc_scripts_docx_common_setup_header_footer",
+      "label": "setup_header_footer()",
+      "degree": 19
+    }
+  ],
+  "surprises": [
+    {
+      "source": "App Icon (1024x1024)",
+      "target": "Simple AAC இலங்கை",
+      "source_files": [
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png",
+        "docs/user-guide/tamil/Simple_AAC_User_Guide_TA.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "references",
+      "why": "inferred connection - not explicitly stated in source; crosses file types (doc ↔ image); connects across different repos/directories; peripheral node `App Icon (1024x1024)` unexpectedly reaches hub `Simple AAC இலங்கை`"
+    },
+    {
+      "source": "UI Screenshot: Settings Drawer",
+      "target": "Web Index HTML",
+      "source_files": [
+        "screenshots_review/drawer_test.png",
+        "web/index.html"
+      ],
+      "confidence": "INFERRED",
+      "relation": "conceptually_related_to",
+      "why": "inferred connection - not explicitly stated in source; crosses file types (doc ↔ image); connects across different repos/directories; peripheral node `UI Screenshot: Settings Drawer` unexpectedly reaches hub `Web Index HTML`"
+    },
+    {
+      "source": "UI Screenshot: Home Screen Landscape",
+      "target": "Web Index HTML",
+      "source_files": [
+        "ui_audit/screenshots/01_home_screen_fixed.png",
+        "web/index.html"
+      ],
+      "confidence": "INFERRED",
+      "relation": "conceptually_related_to",
+      "why": "inferred connection - not explicitly stated in source; crosses file types (doc ↔ image); connects across different repos/directories; peripheral node `UI Screenshot: Home Screen Landscape` unexpectedly reaches hub `Web Index HTML`"
+    },
+    {
+      "source": "app",
+      "target": "file_picker",
+      "source_files": [
+        "build_release_log.txt",
+        "macos/Flutter/GeneratedPluginRegistrant.swift"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "crosses file types (code ↔ doc); connects across different repos/directories; peripheral node `file_picker` unexpectedly reaches hub `app`"
+    },
+    {
+      "source": "app",
+      "target": "flutter_tts",
+      "source_files": [
+        "build_release_log.txt",
+        "macos/Flutter/GeneratedPluginRegistrant.swift"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "crosses file types (code ↔ doc); connects across different repos/directories; bridges separate communities"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `TutorialStepType` connect `Tutorial Step Model` to `Tutorial Overlay Controller`, `Tutorial Speech Bubble`?",
+      "why": "High betweenness centrality (0.009) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `activeParentCard`, `activeParentId`, `_addNewCardKey` to the rest of the system?",
+      "why": "1880 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Home Screen Logic` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.008888888888888889 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `_SpotlightHitTestBlocker` connect `Spotlight UI Widget` to `Tutorial Overlay Controller`?",
+      "why": "High betweenness centrality (0.007) - this node is a cross-community bridge."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Document Generation Scripts` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.06129032258064516 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `VideoGifEncoder` connect `GIF Encoding Logic` to `Android Video Encoder`?",
+      "why": "High betweenness centrality (0.005) - this node is a cross-community bridge."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Grid Settings UI` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.017699115044247787 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

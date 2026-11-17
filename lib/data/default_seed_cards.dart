@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/aac_card_model.dart';
+import '../services/starter_pack_service.dart';
 
 const String seedHelloImage = 'assets/images/seed/hello.png';
 const String seedHappyImage = 'assets/images/seed/happy.png';
@@ -88,5 +89,6 @@ List<AACCard> createDefaultSeedCards() {
         ),
       ],
     ),
+    StarterPackService.getStarterPackRootClone(),
   ];
 }
