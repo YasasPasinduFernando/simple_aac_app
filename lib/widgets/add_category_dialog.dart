@@ -890,26 +890,33 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.library_add_check_rounded,
-                        size: 14,
-                        color: colorScheme.primary,
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        'ASSIGN CARDS TO CATEGORY',
-                        style: TextStyle(
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                          color:
-                              isDark ? Colors.white70 : const Color(0xFF475569),
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.library_add_check_rounded,
+                          size: 14,
+                          color: colorScheme.primary,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            'ASSIGN CARDS TO CATEGORY',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                              color:
+                                  isDark ? Colors.white70 : const Color(0xFF475569),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Text(
                     '${_selectedCardIds.length} of ${widget.availableCards.length}',
                     style: TextStyle(
@@ -1196,21 +1203,25 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
               child: const Text('Reset'),
             ),
             const Spacer(),
-            FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: accentColor,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            Flexible(
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: accentColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: Text(
+                  _selectedCardIds.isEmpty
+                      ? 'Add Category'
+                      : 'Add Category (${_selectedCardIds.length})',
+                  overflow: TextOverflow.ellipsis,
+                ),
+                onPressed: _canSubmit ? _submit : null,
               ),
-              icon: const Icon(Icons.add_rounded, size: 18),
-              label: Text(
-                _selectedCardIds.isEmpty
-                    ? 'Add Category'
-                    : 'Add Category (${_selectedCardIds.length})',
-              ),
-              onPressed: _canSubmit ? _submit : null,
             ),
           ],
         ),

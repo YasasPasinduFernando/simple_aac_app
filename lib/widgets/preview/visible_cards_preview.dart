@@ -27,35 +27,38 @@ class VisibleCardsPreview extends StatelessWidget {
 
     if (cards.isEmpty) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.style_outlined,
-                size: 28,
-                color: isDarkMode ? Colors.white38 : Colors.grey.shade400,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'No cards in this category',
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white70 : Colors.grey.shade700,
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.style_outlined,
+                  size: 24,
+                  color: isDarkMode ? Colors.white38 : Colors.grey.shade400,
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Create cards first in Edit Mode to manage visibility',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: isDarkMode ? Colors.white38 : Colors.grey.shade500,
+                const SizedBox(height: 4),
+                Text(
+                  'No cards in this category',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white70 : Colors.grey.shade700,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  'Create cards first in Edit Mode to manage visibility',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    color: isDarkMode ? Colors.white38 : Colors.grey.shade500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -63,35 +66,38 @@ class VisibleCardsPreview extends StatelessWidget {
 
     if (visibleList.isEmpty) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.visibility_off_rounded,
-                size: 28,
-                color: isDarkMode ? Colors.white38 : Colors.grey.shade400,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'No cards visible',
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white70 : Colors.grey.shade700,
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.visibility_off_rounded,
+                  size: 24,
+                  color: isDarkMode ? Colors.white38 : Colors.grey.shade400,
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'Tap "Select all" or check cards below to show them on your board',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: isDarkMode ? Colors.white38 : Colors.grey.shade500,
+                const SizedBox(height: 4),
+                Text(
+                  'No cards visible',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white70 : Colors.grey.shade700,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  'Tap "Select all" or check cards below to show them on your board',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    color: isDarkMode ? Colors.white38 : Colors.grey.shade500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -168,7 +174,8 @@ class VisibleCardsPreview extends StatelessWidget {
     }
 
     return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
+      primary: false,
+      physics: const ClampingScrollPhysics(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: rows,

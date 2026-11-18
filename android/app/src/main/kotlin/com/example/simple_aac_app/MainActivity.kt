@@ -5,6 +5,7 @@ import android.app.KeyguardManager
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
@@ -37,10 +38,51 @@ class MainActivity : FlutterActivity() {
     private val channelName = "aac_backup"
     private val visionChannelName = "aac_vision"
     private val authChannelName = "aac_auth"
+    private val orientationChannelName = "aac_orientation"
+    private var isLandscapeMode = false
     private val REQUEST_CODE_CONFIRM_CREDENTIAL = 9482
     private var pendingAuthResult: MethodChannel.Result? = null
     private val visionExecutor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
+
+    override fun setRequestedOrientation(requestedOrientation: Int) {
+        try {
+            // When in landscape mode, upgrade USER_LANDSCAPE requests (typically issued by
+            // Flutter's PlatformPlugin) to SENSOR_LANDSCAPE so 180° rotation works even
+            // when Android system Auto-rotate is locked/OFF.
+            val resolvedOrientation = if (isLandscapeMode && requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE) {
+                ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            } else {
+                requestedOrientation
+            }
+            super.setRequestedOrientation(resolvedOrientation)
+        } catch (_: Exception) {
+            super.setRequestedOrientation(requestedOrientation)
+        }
+    }
+
+    private fun applyOrientationMode(mode: String) {
+        try {
+            when (mode) {
+                "landscape" -> {
+                    isLandscapeMode = true
+                    super.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
+                }
+                "landscapeLeft" -> {
+                    isLandscapeMode = true
+                    super.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+                }
+                "landscapeRight" -> {
+                    isLandscapeMode = true
+                    super.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE)
+                }
+                else -> {
+                    isLandscapeMode = false
+                    super.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+                }
+            }
+        } catch (_: Exception) {}
+    }
 
     private var imageLabeler: ImageLabeler? = null
     private var objectDetector: ObjectDetector? = null
@@ -232,6 +274,22 @@ class MainActivity : FlutterActivity() {
                     }
                 } else {
                     result.notImplemented()
+                }
+            }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, orientationChannelName)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "setOrientation" -> {
+                        val mode = call.argument<String>("mode") ?: "portrait"
+                        applyOrientationMode(mode)
+                        result.success(true)
+                    }
+                    "getOrientation" -> {
+                        val currentMode = if (isLandscapeMode) "landscape" else "portrait"
+                        result.success(currentMode)
+                    }
+                    else -> result.notImplemented()
                 }
             }
     }

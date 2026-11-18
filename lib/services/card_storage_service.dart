@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/aac_card_model.dart';
 
 class CardStorageService {
-  static const int defaultCatalogVersion = 5;
+  static const int defaultCatalogVersion = 7;
 
   static const String _cardsFileName = 'aac_cards_v1.json';
   static const String _cardsBackupFileName = 'aac_cards_v1.json.bak';
@@ -562,11 +562,11 @@ class CardStorageService {
       changed = true;
     }
 
-    if (_shouldRefreshSeedImage(card.imagePath, defaultCard.imagePath)) {
+    if (_shouldRefreshSeedImage(card.id, card.imagePath, defaultCard.imagePath)) {
       card.imagePath = defaultCard.imagePath;
       changed = true;
       debugPrint(
-        '[CardStorage] refreshed bundled seed image path for ${card.id}',
+        '[CardStorage] refreshed bundled seed image path for ${card.id} to ${defaultCard.imagePath}',
       );
     }
 
@@ -604,14 +604,27 @@ class CardStorageService {
     return false;
   }
 
+  static const Map<String, String> _legacySeedImagePaths = {
+    'seed_hello': 'assets/images/seed/hello.png',
+    'seed_happy': 'assets/images/seed/happy.png',
+    'seed_sad': 'assets/images/seed/sad.png',
+    'seed_angry': 'assets/images/seed/angry.png',
+    'seed_more': 'assets/images/seed/blocks.png',
+  };
+
   static bool _shouldRefreshSeedImage(
+    String cardId,
     String? current,
     String? desired,
   ) {
     if (desired == null || desired.isEmpty) return false;
     if (current == null || current.isEmpty) return true;
     if (current == desired) return false;
-    return isAssetImagePath(current);
+    final legacy = _legacySeedImagePaths[cardId];
+    if (legacy != null && current == legacy) {
+      return true;
+    }
+    return false;
   }
 
   static Set<String> _previousSeedTextValues(String cardId, String field) {
@@ -880,7 +893,15 @@ class CardStorageService {
     final seededVersion = prefs.getInt(_seededDefaultVersionKey) ?? 0;
     if (seededVersion >= defaultCatalogVersion) return cards;
 
-    final changed = _mergeMissingDefaults(cards, defaultCards);
+    final hasSeeded = prefs.getBool(_hasSeededDefaultsKey) ?? false;
+    var changed = false;
+
+    // Only merge missing defaults on fresh installation where hasSeeded is false.
+    // For existing installations, never restore a deleted default card automatically.
+    if (!hasSeeded) {
+      changed = _mergeMissingDefaults(cards, defaultCards);
+    }
+
     await prefs.setInt(_seededDefaultVersionKey, defaultCatalogVersion);
     if (changed) {
       await _writeCardsFile(file, backupFile, cards);

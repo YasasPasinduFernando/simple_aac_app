@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/aac_card_model.dart';
 import '../models/category_metadata.dart';
 import '../utils/card_image.dart';
+import '../utils/category_helper.dart';
 import 'styled_dialog_header.dart';
 
 /// Redesigned, modern Multi-Category Selection Dialog ("Choose Categories")
@@ -67,64 +68,33 @@ class _SelectCategoryDialogState extends State<SelectCategoryDialog> {
       _pendingCategories.contains('All Cards');
 
   /// Total count of all cards (including root and subCards)
-  int get _totalAllCardCount {
-    int count = 0;
-    for (final card in widget.availableCards) {
-      count += 1 + card.subCards.length;
-    }
-    return count;
-  }
+  int get _totalAllCardCount =>
+      CategoryHelper.countWordCardsForCategory(widget.availableCards, 'All');
 
   /// Calculates card count for a specific category name
   int _cardCountFor(String category) {
     if (category == 'All' || category == 'All Cards') {
       return _totalAllCardCount;
     }
-    final clean = category.trim().toLowerCase();
-    int count = 0;
-    for (final card in widget.availableCards) {
-      if (card.category.trim().toLowerCase() == clean) {
-        count++;
-      }
-      for (final sub in card.subCards) {
-        if (sub.category.trim().toLowerCase() == clean) {
-          count++;
-        }
-      }
-    }
-    return count;
+    return CategoryHelper.countWordCardsForCategory(
+      widget.availableCards,
+      category,
+    );
   }
 
   /// Resolves the unique union of cards belonging to the selected categories.
   /// Guarantees zero duplicate cards (by ID).
   List<AACCard> _getUniqueCardsForSelection() {
     if (_isAllCardsSelected) {
-      return widget.availableCards;
+      return CategoryHelper.getWordCardsForCategories(widget.availableCards);
     }
     if (_pendingCategories.isEmpty) {
       return [];
     }
-    final cleanSelected =
-        _pendingCategories.map((c) => c.trim().toLowerCase()).toSet();
-    final seenIds = <String>{};
-    final result = <AACCard>[];
-
-    void addIfMatch(AACCard card) {
-      if (cleanSelected.contains(card.category.trim().toLowerCase())) {
-        if (!seenIds.contains(card.id)) {
-          seenIds.add(card.id);
-          result.add(card);
-        }
-      }
-      for (final sub in card.subCards) {
-        addIfMatch(sub);
-      }
-    }
-
-    for (final card in widget.availableCards) {
-      addIfMatch(card);
-    }
-    return result;
+    return CategoryHelper.getWordCardsForCategories(
+      widget.availableCards,
+      selectedCategories: _pendingCategories,
+    );
   }
 
   CategoryMetadata _resolveMeta(String categoryName) {
@@ -152,17 +122,25 @@ class _SelectCategoryDialogState extends State<SelectCategoryDialog> {
       _pendingCategories.remove('All');
       _pendingCategories.remove('All Cards');
 
-      if (_pendingCategories.contains(category)) {
-        _pendingCategories.remove(category);
+      final canonical = CategoryHelper.canonicalCategoryName(category);
+      final existing = _pendingCategories.firstWhere(
+        (c) => CategoryHelper.matchesCategory(c, category),
+        orElse: () => '',
+      );
+
+      if (existing.isNotEmpty) {
+        _pendingCategories.remove(existing);
       } else {
-        _pendingCategories.add(category);
+        _pendingCategories.add(canonical);
       }
     });
   }
 
   void _removeCategory(String category) {
     setState(() {
-      _pendingCategories.remove(category);
+      _pendingCategories.removeWhere(
+        (c) => CategoryHelper.matchesCategory(c, category),
+      );
     });
   }
 
@@ -247,10 +225,13 @@ class _SelectCategoryDialogState extends State<SelectCategoryDialog> {
     displayCategories.add('All Cards');
 
     for (final cat in widget.categories) {
-      final lower = cat.trim().toLowerCase();
+      final canonical = CategoryHelper.canonicalCategoryName(cat);
+      final lower = canonical.toLowerCase();
       if (lower == 'all' || lower == 'all cards') continue;
-      if (!displayCategories.any((c) => c.toLowerCase() == lower)) {
-        displayCategories.add(cat);
+      if (!displayCategories.any(
+        (c) => CategoryHelper.matchesCategory(c, canonical),
+      )) {
+        displayCategories.add(canonical);
       }
     }
 
@@ -639,7 +620,9 @@ class _SelectCategoryDialogState extends State<SelectCategoryDialog> {
                       final isAllCards = cat == 'All Cards';
                       final isChecked = isAllCards
                           ? _isAllCardsSelected
-                          : _pendingCategories.contains(cat);
+                          : _pendingCategories.any(
+                              (p) => CategoryHelper.matchesCategory(p, cat),
+                            );
 
                       final meta = _resolveMeta(cat);
                       final count = _cardCountFor(cat);

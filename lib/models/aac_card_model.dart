@@ -10,6 +10,8 @@ class AACCard {
   List<AACCard> subCards;
   String type; // 'word' or 'folder'
 
+  bool get isFolder => type == 'folder';
+
   AACCard({
     required this.id,
     required this.label,

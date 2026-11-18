@@ -37,7 +37,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "පෙරනිමි",
         "ta-LK": "இயல்புநிலை"
       },
-      "image": null,
+      "image": "images/starter_default.webp",
       "suggestedTileColor": "#228ED3",
       "positionWithinGroup": 0,
       "suggestedAction": "open_children",
@@ -67,7 +67,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "පවුල",
         "ta-LK": "குடும்பம்"
       },
-      "image": null,
+      "image": "images/family_people.webp",
       "suggestedTileColor": "#FFF1CE",
       "positionWithinGroup": 0,
       "suggestedAction": "open_children",
@@ -314,7 +314,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "වර්ණ",
         "ta-LK": "நிறங்கள்"
       },
-      "image": null,
+      "image": "images/starter_colours.webp",
       "suggestedTileColor": "#F2E4FF",
       "positionWithinGroup": 1,
       "suggestedAction": "open_children",
@@ -515,7 +515,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "හැඩ",
         "ta-LK": "வடிவங்கள்"
       },
-      "image": null,
+      "image": "images/starter_shapes.webp",
       "suggestedTileColor": "#DFF3F8",
       "positionWithinGroup": 2,
       "suggestedAction": "open_children",
@@ -670,7 +670,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "සතුන්",
         "ta-LK": "விலங்குகள்"
       },
-      "image": null,
+      "image": "images/animals_dog.webp",
       "suggestedTileColor": "#E8F4DD",
       "positionWithinGroup": 3,
       "suggestedAction": "open_children",
@@ -917,7 +917,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "ආහාර",
         "ta-LK": "உணவு"
       },
-      "image": null,
+      "image": "images/food_food.webp",
       "suggestedTileColor": "#FFF0B7",
       "positionWithinGroup": 4,
       "suggestedAction": "open_children",
@@ -1215,7 +1215,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "කෙටි ආහාර",
         "ta-LK": "சிற்றுண்டிகள்"
       },
-      "image": null,
+      "image": "images/snacks_cookies.webp",
       "suggestedTileColor": "#FFE6D4",
       "positionWithinGroup": 5,
       "suggestedAction": "open_children",
@@ -1397,7 +1397,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "පාන වර්ග",
         "ta-LK": "பானங்கள்"
       },
-      "image": null,
+      "image": "images/drinks_water.webp",
       "suggestedTileColor": "#D5EFFF",
       "positionWithinGroup": 6,
       "suggestedAction": "open_children",
@@ -1600,7 +1600,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "හැඟීම්",
         "ta-LK": "உணர்வுகள்"
       },
-      "image": null,
+      "image": "images/feelings_happy.webp",
       "suggestedTileColor": "#FFE3E7",
       "positionWithinGroup": 7,
       "suggestedAction": "open_children",
@@ -1847,7 +1847,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "අවශ්‍යතා",
         "ta-LK": "தேவைகள்"
       },
-      "image": null,
+      "image": "images/needs_needs.webp",
       "suggestedTileColor": "#DDF5ED",
       "positionWithinGroup": 8,
       "suggestedAction": "open_children",
@@ -2094,7 +2094,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "මූලික වචන",
         "ta-LK": "அடிப்படைச் சொற்கள்"
       },
-      "image": null,
+      "image": "images/starter_basic_words.webp",
       "suggestedTileColor": "#FFE79C",
       "positionWithinGroup": 9,
       "suggestedAction": "open_children",
@@ -2341,7 +2341,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "ක්‍රියාකාරකම්",
         "ta-LK": "செயல்பாடுகள்"
       },
-      "image": null,
+      "image": "images/activities_play.webp",
       "suggestedTileColor": "#E6E3FF",
       "positionWithinGroup": 10,
       "suggestedAction": "open_children",
@@ -2473,7 +2473,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "පාසල සහ ස්ථාන",
         "ta-LK": "பள்ளி மற்றும் இடங்கள்"
       },
-      "image": null,
+      "image": "images/school_places_school.webp",
       "suggestedTileColor": "#D9EDFF",
       "positionWithinGroup": 11,
       "suggestedAction": "open_children",
@@ -2583,7 +2583,7 @@ const String starterPackManifestJson = r'''
         "si-LK": "පුද්ගලික සනීපාරක්ෂාව",
         "ta-LK": "தனிப்பட்ட சுகாதாரம்"
       },
-      "image": null,
+      "image": "images/personal_care_brush_teeth.webp",
       "suggestedTileColor": "#D1F2E8",
       "suggestedAction": "open_children",
       "childrenIds": [
@@ -2922,5 +2922,4 @@ const String starterPackManifestJson = r'''
   "mustHaveCoverage": "See MUST_HAVE_CHECKLIST.tsv: 20 requested vocabulary concepts, 6 previously present and 14 newly added.",
   "backgroundRendering": "Images are fully opaque with their own pastel background. Do not create a color picker or overlay additional tiles. Preserve labels as separate Flutter text."
 }
-
 ''';

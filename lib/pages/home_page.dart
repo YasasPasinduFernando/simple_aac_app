@@ -38,6 +38,7 @@ import '../widgets/select_grid_size_dialog.dart';
 import '../widgets/color_vision_dialog.dart';
 import '../widgets/professional_color_picker_dialog.dart';
 
+import '../widgets/child_friendly_splash.dart';
 import '../widgets/edit_mode_bar.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/home_drawer.dart';
@@ -54,6 +55,7 @@ import '../utils/animated_media_helper.dart';
 import '../utils/app_permissions_helper.dart';
 import '../utils/camera_object_helper.dart';
 import '../utils/card_image.dart';
+import '../utils/category_helper.dart';
 import '../utils/theme_accessibility.dart';
 import '../utils/ui_mode_helper.dart';
 
@@ -77,6 +79,10 @@ class HomePage extends StatefulWidget {
   static bool enableTtsInit = true;
   static bool enableTutorialInit = false;
   static bool enablePersonalizeInit = false;
+  @visibleForTesting
+  static bool skipSplashForTesting = false;
+  @visibleForTesting
+  static bool forceSplashForTesting = false;
   @visibleForTesting
   static List<AACCard>? initialCardsForTesting;
 
@@ -131,6 +137,11 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController _gridController = ScrollController();
   final ScrollController _horizontalScrollController = ScrollController();
+  bool _hasHorizontalOverflow = false;
+  bool _canScrollHorizontallyLeft = false;
+  bool _canScrollHorizontallyRight = false;
+  bool _isInitialLoading = true;
+  bool _splashDismissed = false;
 
   List<AACCard> cards = [];
   int gridColumns = 2;
@@ -175,7 +186,10 @@ class _HomePageState extends State<HomePage> {
   final Set<String> _sessionRecycleBinEntryIds = <String>{};
   final List<EditUndoStep> _undoHistory = [];
   final List<AACCard> _parentStack = [];
+  final GlobalKey _gridAreaKey = GlobalKey();
   Timer? _autoScrollTimer;
+  double _autoScrollVelocityY = 0.0;
+  double _autoScrollVelocityX = 0.0;
   static const int _defaultPrimaryColorValue = 0xFF0277BD;
   int _themePrimaryColor = _defaultPrimaryColorValue;
   int _themeTextColor = Colors.white.value;
@@ -220,6 +234,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _horizontalScrollController.addListener(_handleHorizontalScroll);
     TutorialService.instance.registerKey('app_bar_menu_button', _menuButtonKey);
     TutorialService.instance
         .registerKey('drawer_resize_button', _drawerResizeKey);
@@ -252,8 +267,12 @@ class _HomePageState extends State<HomePage> {
       }
     };
 
-    if (HomePage.initialCardsForTesting != null) {
-      cards = List.of(HomePage.initialCardsForTesting!);
+    if (HomePage.skipSplashForTesting ||
+        (HomePage.initialCardsForTesting != null &&
+            !HomePage.forceSplashForTesting)) {
+      cards = List.of(HomePage.initialCardsForTesting ?? []);
+      _isInitialLoading = false;
+      _splashDismissed = true;
       _updateCategories();
     }
     _loadCardsFuture = _loadCards();
@@ -363,6 +382,7 @@ class _HomePageState extends State<HomePage> {
 
       setState(() {
         cards = loadedCards;
+        _isInitialLoading = false;
         gridColumns = nextGridColumns;
         _loadVisibleSelections(prefs);
         showTtsInput = nextShowTtsInput;
@@ -434,6 +454,11 @@ class _HomePageState extends State<HomePage> {
       unawaited(RecycleBinService.instance.purgeExpiredEntries(activeCards: loadedCards));
     } catch (e, st) {
       debugPrint('[_loadCards] ERROR: $e\n$st');
+      if (mounted) {
+        setState(() {
+          _isInitialLoading = false;
+        });
+      }
     }
   }
 
@@ -474,16 +499,26 @@ class _HomePageState extends State<HomePage> {
         base.take(legacyCount).map((c) => c.id).toSet();
   }
 
+  List<AACCard>? _cachedFilteredCards;
+  Set<String>? _cachedFilterCategories;
+
+  void _invalidateFilteredCardsCache() {
+    _cachedFilteredCards = null;
+    _cachedFilterCategories = null;
+  }
+
+  bool get _isCategoryFiltered =>
+      !selectedCategories.contains('All') &&
+      !selectedCategories.contains('All Cards') &&
+      selectedCategories.isNotEmpty;
+
   void _updateCategories() {
     allCategories.clear();
     allCategories.add('All');
-    for (var card in cards) {
-      allCategories.add(card.category);
-      for (var subCard in card.subCards) {
-        allCategories.add(subCard.category);
-      }
-    }
+    final discovered = CategoryHelper.discoverCategories(cards);
+    allCategories.addAll(discovered);
     allCategories.addAll(_customCategories);
+    _invalidateFilteredCardsCache();
   }
 
   Future<void> _saveCards() async {
@@ -940,13 +975,10 @@ class _HomePageState extends State<HomePage> {
 
         if (movedCardsToHome.isNotEmpty && mounted) {
           final hiddenCount = movedCardsToHome.where((c) {
-            if (selectedCategories.contains('All') ||
-                selectedCategories.isEmpty) {
-              return false;
-            }
-            final cleanSelected =
-                selectedCategories.map((s) => s.trim().toLowerCase()).toSet();
-            return !cleanSelected.contains(c.category.trim().toLowerCase());
+            return !CategoryHelper.matchesAnyCategory(
+              c.category,
+              selectedCategories,
+            );
           }).length;
 
           if (hiddenCount > 0) {
@@ -1208,7 +1240,6 @@ class _HomePageState extends State<HomePage> {
   void _showSubCards(AACCard card) {
     if (card.type != 'folder' && card.subCards.isEmpty) return;
     setState(() {
-      _resetTtsInput();
       if (!_parentStack.contains(card)) {
         _parentStack.add(card);
       }
@@ -1218,7 +1249,6 @@ class _HomePageState extends State<HomePage> {
 
   void _navigateBackFromSubCards() {
     setState(() {
-      _resetTtsInput();
       if (_parentStack.isNotEmpty) {
         _parentStack.removeLast();
         activeParentCard = _parentStack.isNotEmpty ? _parentStack.last : null;
@@ -1288,9 +1318,10 @@ class _HomePageState extends State<HomePage> {
                 '[HomePage] deleting card: id=${card.id}, '
                 'label=${card.label}, activeParentId=${activeParentCard?.id}',
               );
-              final parentId = activeParentCard?.id;
-              final originalIndex = activeParentCard != null
-                  ? activeParentCard!.subCards.indexOf(card)
+              final parentFolder = activeParentCard ?? _findParentFolderOf(card.id, cards);
+              final parentId = parentFolder?.id;
+              final originalIndex = parentFolder != null
+                  ? parentFolder.subCards.indexOf(card)
                   : cards.indexOf(card);
 
               // 1. Transactionally record into Recycle Bin
@@ -1311,8 +1342,8 @@ class _HomePageState extends State<HomePage> {
 
               // 3. Remove card from board
               setState(() {
-                if (activeParentCard != null) {
-                  activeParentCard!.subCards.remove(card);
+                if (parentFolder != null) {
+                  parentFolder.subCards.remove(card);
                 } else {
                   cards.remove(card);
                 }
@@ -1581,7 +1612,6 @@ class _HomePageState extends State<HomePage> {
         currentLanguage: currentLanguage,
         onAddCategory: (cleanName, selectedCardIds, colorValue, icon) async {
           setState(() {
-            allCategories.add(cleanName);
             _customCategories.add(cleanName);
             _customCategoryMetadata[cleanName] = CategoryMetadata(
               name: cleanName,
@@ -1604,10 +1634,12 @@ class _HomePageState extends State<HomePage> {
                 rootVisible.addAll(selectedCardIds);
               }
             }
-            selectedCategory = cleanName;
-            activeParentCard = null;
-            _resetTtsInput();
+            _updateCategories();
           });
+
+          _showMessage(selectedCardIds.isEmpty
+              ? 'Category "$cleanName" created!'
+              : 'Category "$cleanName" created with ${selectedCardIds.length} cards!');
 
           final prefs = await SharedPreferences.getInstance();
           await prefs.setStringList(
@@ -1620,10 +1652,6 @@ class _HomePageState extends State<HomePage> {
           );
 
           await _saveCards();
-
-          _showMessage(selectedCardIds.isEmpty
-              ? 'Category "$cleanName" created!'
-              : 'Category "$cleanName" created with ${selectedCardIds.length} cards!');
         },
       ),
     );
@@ -1890,18 +1918,44 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showVisibleCountDialog() {
-    final allCards = _getBaseDisplayedCards();
+    final currentCards = _getBaseDisplayedCards();
+    final parentKey = _visibleSelectionKey();
+    final currentVisible = visibleCardIdsByParent[parentKey];
+    final initialIds = currentVisible != null
+        ? currentVisible.toSet()
+        : currentCards.map((c) => c.id).toSet();
+
     showDialog(
       context: context,
       builder: (context) => VisibleCardsDialog(
-        cards: allCards,
+        cards: currentCards,
+        allCards: cards,
+        initialParentStack:
+            activeParentCard != null ? List<AACCard>.from(_parentStack) : null,
+        visibleCardIdsByParent: visibleCardIdsByParent,
         categoryName: selectedCategory,
         currentLanguage: currentLanguage,
-        initialSelectedIds: _getVisibleSelection().toSet(),
+        initialSelectedIds: initialIds,
         gridColumns: gridColumns,
         onSubmit: (selectedIds) {
           setState(() {
-            visibleCardIdsByParent[_visibleSelectionKey()] = selectedIds;
+            if (selectedIds.isEmpty) {
+              visibleCardIdsByParent.remove(parentKey);
+            } else {
+              visibleCardIdsByParent[parentKey] = selectedIds;
+            }
+          });
+          _saveCards();
+        },
+        onSaveMap: (updatedMap) {
+          setState(() {
+            visibleCardIdsByParent.clear();
+            for (final entry in updatedMap.entries) {
+              if (entry.value.isNotEmpty) {
+                visibleCardIdsByParent[entry.key] =
+                    Set<String>.from(entry.value);
+              }
+            }
           });
           _saveCards();
         },
@@ -2053,15 +2107,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<AACCard> _getFilteredCards() {
-    if (selectedCategories.contains('All') || selectedCategories.isEmpty) {
+    if (!_isCategoryFiltered) {
       return cards;
     }
-    final cleanSelected =
-        selectedCategories.map((c) => c.trim().toLowerCase()).toSet();
-    return cards
-        .where((card) =>
-            cleanSelected.contains(card.category.trim().toLowerCase()))
-        .toList();
+    if (_cachedFilteredCards != null &&
+        setEquals(_cachedFilterCategories, selectedCategories)) {
+      return _cachedFilteredCards!;
+    }
+    final result = CategoryHelper.getWordCardsForCategories(
+      cards,
+      selectedCategories: selectedCategories,
+    );
+    _cachedFilteredCards = result;
+    _cachedFilterCategories = Set<String>.from(selectedCategories);
+    return result;
   }
 
   List<AACCard> _getBaseDisplayedCards() {
@@ -2073,10 +2132,14 @@ class _HomePageState extends State<HomePage> {
 
   List<AACCard> _getDisplayedCards() {
     final base = _getBaseDisplayedCards();
-    final visibleIds = _getVisibleSelection();
-    if (visibleIds.isEmpty) {
+    if (_isCategoryFiltered && activeParentCard == null) {
       return _filterBySearch(base);
     }
+    final key = _visibleSelectionKey();
+    if (!visibleCardIdsByParent.containsKey(key)) {
+      return _filterBySearch(base);
+    }
+    final visibleIds = visibleCardIdsByParent[key]!;
     return _filterBySearch(
         base.where((card) => visibleIds.contains(card.id)).toList());
   }
@@ -2098,15 +2161,12 @@ class _HomePageState extends State<HomePage> {
     return activeParentCard?.id ?? '__root__';
   }
 
-  Set<String> _getVisibleSelection() {
-    return visibleCardIdsByParent[_visibleSelectionKey()] ?? {};
-  }
-
   String _getVisibleCardsLabel() {
-    final selected = _getVisibleSelection();
-    if (selected.isEmpty) {
+    final key = _visibleSelectionKey();
+    if (!visibleCardIdsByParent.containsKey(key)) {
       return 'All cards';
     }
+    final selected = visibleCardIdsByParent[key]!;
     return '${selected.length} selected';
   }
 
@@ -2690,46 +2750,141 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _checkAutoScroll(double globalY) {
-    if (!_gridController.hasClients) return;
-    final gridBox = _gridController
-        .position.context.notificationContext
-        ?.findRenderObject() as RenderBox?;
-    if (gridBox == null || !gridBox.hasSize) return;
-
-    final localY = gridBox.globalToLocal(Offset(0, globalY)).dy;
-    final gridHeight = gridBox.size.height;
-    const edgeMargin = 70.0;
-
-    if (localY < edgeMargin) {
-      final intensity = ((edgeMargin - localY) / edgeMargin).clamp(0.1, 1.0);
-      _startAutoScroll(-14.0 * intensity);
-    } else if (localY > gridHeight - edgeMargin) {
-      final intensity =
-          ((localY - (gridHeight - edgeMargin)) / edgeMargin).clamp(0.1, 1.0);
-      _startAutoScroll(14.0 * intensity);
-    } else {
-      _stopAutoScroll();
+  RenderBox? _findGridViewportBox() {
+    final areaBox =
+        _gridAreaKey.currentContext?.findRenderObject() as RenderBox?;
+    if (areaBox != null && areaBox.hasSize) return areaBox;
+    if (_gridController.hasClients) {
+      final gridBox = _gridController
+          .position.context.notificationContext
+          ?.findRenderObject() as RenderBox?;
+      if (gridBox != null && gridBox.hasSize) return gridBox;
     }
+    return null;
   }
 
-  void _startAutoScroll(double delta) {
-    _autoScrollTimer?.cancel();
-    _autoScrollTimer =
-        Timer.periodic(const Duration(milliseconds: 25), (timer) {
-      if (!_gridController.hasClients) {
-        timer.cancel();
-        return;
+  void _checkAutoScroll(Offset globalPosition) {
+    if (!isEditMode) {
+      _stopAutoScroll();
+      return;
+    }
+    final gridBox = _findGridViewportBox();
+    if (gridBox == null || !gridBox.hasSize) {
+      _stopAutoScroll();
+      return;
+    }
+
+    final localPos = gridBox.globalToLocal(globalPosition);
+    final width = gridBox.size.width;
+    final height = gridBox.size.height;
+    const edgeMargin = 72.0;
+    const maxSpeed = 14.0;
+
+    double vy = 0.0;
+    double vx = 0.0;
+
+    // Check vertical auto-scroll
+    if (_gridController.hasClients &&
+        _gridController.position.maxScrollExtent >
+            _gridController.position.minScrollExtent) {
+      if (localPos.dx >= -100.0 && localPos.dx <= width + 100.0) {
+        if (localPos.dy >= -100.0 && localPos.dy < edgeMargin) {
+          if (_gridController.offset > 0.0) {
+            final intensity =
+                ((edgeMargin - localPos.dy) / edgeMargin).clamp(0.15, 1.0);
+            vy = -maxSpeed * intensity;
+          }
+        } else if (localPos.dy > height - edgeMargin &&
+            localPos.dy <= height + 100.0) {
+          if (_gridController.offset <
+              _gridController.position.maxScrollExtent) {
+            final intensity =
+                ((localPos.dy - (height - edgeMargin)) / edgeMargin)
+                    .clamp(0.15, 1.0);
+            vy = maxSpeed * intensity;
+          }
+        }
       }
-      final newOffset = (_gridController.offset + delta)
-          .clamp(0.0, _gridController.position.maxScrollExtent);
-      _gridController.jumpTo(newOffset);
-    });
+    }
+
+    // Check horizontal auto-scroll (only if horizontal overflow actually exists!)
+    if (_horizontalScrollController.hasClients &&
+        _horizontalScrollController.position.maxScrollExtent >
+            _horizontalScrollController.position.minScrollExtent + 1.0) {
+      if (localPos.dy >= -100.0 && localPos.dy <= height + 100.0) {
+        if (localPos.dx >= -100.0 && localPos.dx < edgeMargin) {
+          if (_horizontalScrollController.offset > 0.0) {
+            final intensity =
+                ((edgeMargin - localPos.dx) / edgeMargin).clamp(0.15, 1.0);
+            vx = -maxSpeed * intensity;
+          }
+        } else if (localPos.dx > width - edgeMargin &&
+            localPos.dx <= width + 120.0) {
+          if (_horizontalScrollController.offset <
+              _horizontalScrollController.position.maxScrollExtent) {
+            final intensity =
+                ((localPos.dx - (width - edgeMargin)) / edgeMargin)
+                    .clamp(0.15, 1.0);
+            vx = maxSpeed * intensity;
+          }
+        }
+      }
+    }
+
+    if (vy == 0.0 && vx == 0.0) {
+      _stopAutoScroll();
+    } else {
+      _autoScrollVelocityY = vy;
+      _autoScrollVelocityX = vx;
+      if (_autoScrollTimer == null || !_autoScrollTimer!.isActive) {
+        _autoScrollTimer =
+            Timer.periodic(const Duration(milliseconds: 20), (timer) {
+          bool scrolled = false;
+
+          // Vertical scroll step
+          if (_autoScrollVelocityY != 0.0 && _gridController.hasClients) {
+            final pos = _gridController.position;
+            final currentOffset = _gridController.offset;
+            final targetOffset = (currentOffset + _autoScrollVelocityY)
+                .clamp(pos.minScrollExtent, pos.maxScrollExtent);
+            if ((targetOffset - currentOffset).abs() > 0.01) {
+              _gridController.jumpTo(targetOffset);
+              scrolled = true;
+            } else {
+              _autoScrollVelocityY = 0.0;
+            }
+          }
+
+          // Horizontal scroll step
+          if (_autoScrollVelocityX != 0.0 &&
+              _horizontalScrollController.hasClients) {
+            final pos = _horizontalScrollController.position;
+            final currentOffset = _horizontalScrollController.offset;
+            final targetOffset = (currentOffset + _autoScrollVelocityX)
+                .clamp(pos.minScrollExtent, pos.maxScrollExtent);
+            if ((targetOffset - currentOffset).abs() > 0.01) {
+              _horizontalScrollController.jumpTo(targetOffset);
+              scrolled = true;
+            } else {
+              _autoScrollVelocityX = 0.0;
+            }
+          }
+
+          if (!scrolled &&
+              _autoScrollVelocityY == 0.0 &&
+              _autoScrollVelocityX == 0.0) {
+            _stopAutoScroll();
+          }
+        });
+      }
+    }
   }
 
   void _stopAutoScroll() {
     _autoScrollTimer?.cancel();
     _autoScrollTimer = null;
+    _autoScrollVelocityY = 0.0;
+    _autoScrollVelocityX = 0.0;
   }
 
   List<AACCard> _cloneCards(List<AACCard> source) {
@@ -2753,7 +2908,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showOrientationDialog() {
-    Navigator.pop(context);
+    if (isPinned) {
+      _showPressAndHoldToUnpinNotice();
+      return;
+    }
+    _closeDrawerIfOpen();
     showDialog(
       context: context,
       builder: (context) {
@@ -3722,8 +3881,12 @@ class _HomePageState extends State<HomePage> {
     });
     unawaited(_initTts());
     _updateCategories();
-    if (!selectedCategories.contains('All')) {
-      selectedCategories.removeWhere((c) => !allCategories.contains(c));
+    if (!selectedCategories.contains('All') &&
+        !selectedCategories.contains('All Cards')) {
+      selectedCategories.removeWhere(
+        (c) =>
+            !allCategories.any((cat) => CategoryHelper.matchesCategory(c, cat)),
+      );
       if (selectedCategories.isEmpty) {
         setState(() {
           selectedCategories = {'All'};
@@ -4026,6 +4189,7 @@ class _HomePageState extends State<HomePage> {
                     isEditMode: isEditMode,
                     showMenu: !isPinned,
                     menuButtonKey: _menuButtonKey,
+                    onOrientation: _showOrientationDialog,
                     onOpenMenu: () {
                       TutorialService.instance.notifyMenuOpened();
                       if (_isDrawerExpanded) {
@@ -4231,6 +4395,9 @@ class _HomePageState extends State<HomePage> {
                           canGoBack: activeParentCard != null,
                           baseColor: themePrimary,
                           textColor: themeText,
+                          showHorizontalArrows: _hasHorizontalOverflow,
+                          canScrollLeft: _canScrollHorizontallyLeft,
+                          canScrollRight: _canScrollHorizontallyRight,
                           onTogglePin: _handleTogglePin,
                           onUnpinLongPress: _handleUnpinLongPress,
                           onPinTapWhenPinned: _showPressAndHoldToUnpinNotice,
@@ -4242,18 +4409,13 @@ class _HomePageState extends State<HomePage> {
                             }
                             _scaffoldKey.currentState?.openEndDrawer();
                           },
-                          onGoBack: () {
-                            setState(() {
-                              _resetTtsInput();
-                              activeParentCard = null;
-                            });
-                          },
+                          onGoBack: _navigateBackFromSubCards,
                           onHome: () {
                             setState(() {
                               selectedCategory = 'All';
+                              _parentStack.clear();
                               activeParentCard = null;
                               searchQuery = '';
-                              _resetTtsInput();
                             });
                           },
                           onUp: () {
@@ -4276,7 +4438,36 @@ class _HomePageState extends State<HomePage> {
                               curve: Curves.easeOut,
                             );
                           },
+                          onLeft: () {
+                            if (!_horizontalScrollController.hasClients) return;
+                            final pos = _horizontalScrollController.position;
+                            final step = pos.viewportDimension * 0.8;
+                            final next = (pos.pixels - step).clamp(
+                              pos.minScrollExtent,
+                              pos.maxScrollExtent,
+                            );
+                            _horizontalScrollController.animateTo(
+                              next,
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeOutCubic,
+                            );
+                          },
+                          onRight: () {
+                            if (!_horizontalScrollController.hasClients) return;
+                            final pos = _horizontalScrollController.position;
+                            final step = pos.viewportDimension * 0.8;
+                            final next = (pos.pixels + step).clamp(
+                              pos.minScrollExtent,
+                              pos.maxScrollExtent,
+                            );
+                            _horizontalScrollController.animateTo(
+                              next,
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeOutCubic,
+                            );
+                          },
                           onSearch: _showSearchDialog,
+                          onOrientation: _showOrientationDialog,
                         ),
                       ],
                     )
@@ -4288,6 +4479,26 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           TutorialOverlay(language: currentLanguage),
+          if (!_splashDismissed)
+            Positioned.fill(
+              child: AnimatedOpacity(
+                key: const ValueKey('home_animated_splash_layer'),
+                opacity: _isInitialLoading ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOut,
+                onEnd: () {
+                  if (!_isInitialLoading && mounted) {
+                    setState(() {
+                      _splashDismissed = true;
+                    });
+                  }
+                },
+                child: ChildFriendlySplash(
+                  key: const ValueKey('home_animated_splash'),
+                  language: currentLanguage,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -4380,8 +4591,163 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildEditBreadcrumbBar(Color themePrimary, Color themeText) {
+  Widget _buildBreadcrumbPill({
+    required Color themePrimary,
+    required bool isEditMode,
+  }) {
     final parentLabel = activeParentCard?.getLabel(currentLanguage) ?? 'Parent';
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        key: ValueKey(
+          isEditMode
+              ? 'edit_mode_breadcrumb_back'
+              : 'normal_mode_breadcrumb_back',
+        ),
+        onTap: _navigateBackFromSubCards,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          width: isEditMode ? null : double.infinity,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 5,
+          ),
+          decoration: BoxDecoration(
+            color: _isDarkMode ? const Color(0xFF0F172A) : Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: _isDarkMode
+                  ? Colors.white.withOpacity(0.18)
+                  : const Color(0xFFCBD5E1),
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(_isDarkMode ? 0.25 : 0.05),
+                blurRadius: 3,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const ClampingScrollPhysics(),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.arrow_back_rounded,
+                  size: 16,
+                  color: themePrimary,
+                ),
+                const SizedBox(width: 4),
+                InkWell(
+                  key: ValueKey(
+                    isEditMode
+                        ? 'edit_mode_breadcrumb_home'
+                        : 'normal_mode_breadcrumb_home',
+                  ),
+                  onTap: () {
+                    setState(() {
+                      _parentStack.clear();
+                      activeParentCard = null;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(4),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 2,
+                      vertical: 1,
+                    ),
+                    child: Text(
+                      'Home',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: _isDarkMode
+                            ? Colors.white70
+                            : const Color(0xFF475569),
+                      ),
+                    ),
+                  ),
+                ),
+                for (int i = 0; i < _parentStack.length - 1; i++) ...[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 2),
+                    child: Icon(
+                      Icons.chevron_right_rounded,
+                      size: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  InkWell(
+                    key: ValueKey('breadcrumb_item_${_parentStack[i].id}'),
+                    onTap: () {
+                      setState(() {
+                        final target = _parentStack[i];
+                        _parentStack.removeRange(
+                          i + 1,
+                          _parentStack.length,
+                        );
+                        activeParentCard = target;
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(4),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 2,
+                        vertical: 1,
+                      ),
+                      child: Text(
+                        _parentStack[i].getLabel(currentLanguage),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: _isDarkMode
+                              ? Colors.white70
+                              : const Color(0xFF475569),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 2),
+                  child: Icon(
+                    Icons.chevron_right_rounded,
+                    size: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+                Text(
+                  parentLabel,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: _isDarkMode ? Colors.white : const Color(0xFF0F172A),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNormalBreadcrumbBar(Color themePrimary) {
+    return Container(
+      key: const ValueKey('normal_mode_breadcrumb_bar'),
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(12, 6, 12, 4),
+      child: _buildBreadcrumbPill(
+        themePrimary: themePrimary,
+        isEditMode: false,
+      ),
+    );
+  }
+
+  Widget _buildEditBreadcrumbBar(Color themePrimary, Color themeText) {
     return DragTarget<DraggedCardData>(
       onWillAcceptWithDetails: (details) => true,
       onAcceptWithDetails: (details) {
@@ -4412,91 +4778,19 @@ class _HomePageState extends State<HomePage> {
           ),
           child: Row(
             children: [
-              InkWell(
-                onTap: _navigateBackFromSubCards,
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.chevron_left_rounded,
-                        size: 22,
-                        color: _isDarkMode ? Colors.white : Colors.black87,
-                      ),
-                      const SizedBox(width: 2),
-                    ],
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    _resetTtsInput();
-                    _parentStack.clear();
-                    activeParentCard = null;
-                  });
-                },
-                borderRadius: BorderRadius.circular(6),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                  child: Text(
-                    'Home',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: _isDarkMode ? Colors.white70 : Colors.black87,
-                    ),
-                  ),
-                ),
-              ),
-              for (int i = 0; i < _parentStack.length - 1; i++) ...[
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 2),
-                  child: Icon(Icons.chevron_right_rounded, size: 16, color: Colors.grey),
-                ),
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      _resetTtsInput();
-                      final target = _parentStack[i];
-                      _parentStack.removeRange(i + 1, _parentStack.length);
-                      activeParentCard = target;
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(6),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                    child: Text(
-                      _parentStack[i].getLabel(currentLanguage),
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: _isDarkMode ? Colors.white70 : Colors.black87,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 2),
-                child: Icon(Icons.chevron_right_rounded, size: 16, color: Colors.grey),
-              ),
               Expanded(
-                child: Text(
-                  parentLabel,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: _isDarkMode ? Colors.white : Colors.black,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: _buildBreadcrumbPill(
+                    themePrimary: themePrimary,
+                    isEditMode: true,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 8),
               if (isHovered)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: const Color(0xFF00E5FF),
                     borderRadius: BorderRadius.circular(8),
@@ -4512,7 +4806,7 @@ class _HomePageState extends State<HomePage> {
                 )
               else
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: _isDarkMode
                         ? const Color(0xFF0F172A)
@@ -4586,26 +4880,41 @@ class _HomePageState extends State<HomePage> {
             _buildEditHintBar(),
         ],
       );
-    } else if (showTtsInput) {
-      topBanner = TtsBar(
-        key: const ValueKey('tts_bar'),
-        tokens: _ttsTokens,
-        isTablet: isTablet,
-        onDelete: _deleteLastWord,
-        onClear: _clearTtsInput,
-        onSpeak: () async {
-          if (_ttsTokens.isNotEmpty) {
-            await _playTtsTokens();
-          }
-        },
-        speakerColor:
-            _isDarkMode ? Theme.of(context).colorScheme.primary : themePrimary,
-        sizeFactor: _ttsBarSize,
-        showActions: _showTtsDelete || _showTtsClear,
-        showDelete: _showTtsDelete,
-        showClear: _showTtsClear,
-        showText: !_hideTtsText,
-      );
+    } else {
+      final showBreadcrumb = activeParentCard != null;
+      if (!showTtsInput && !showBreadcrumb) {
+        topBanner = const SizedBox.shrink(key: ValueKey('no_banner'));
+      } else {
+        topBanner = Column(
+          key: const ValueKey('normal_top_banner'),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showTtsInput)
+              TtsBar(
+                key: const ValueKey('tts_bar'),
+                tokens: _ttsTokens,
+                isTablet: isTablet,
+                onDelete: _deleteLastWord,
+                onClear: _clearTtsInput,
+                onSpeak: () async {
+                  if (_ttsTokens.isNotEmpty) {
+                    await _playTtsTokens();
+                  }
+                },
+                speakerColor: _isDarkMode
+                    ? Theme.of(context).colorScheme.primary
+                    : themePrimary,
+                sizeFactor: _ttsBarSize,
+                showActions: _showTtsDelete || _showTtsClear,
+                showDelete: _showTtsDelete,
+                showClear: _showTtsClear,
+                showText: !_hideTtsText,
+              ),
+            if (showBreadcrumb)
+              _buildNormalBreadcrumbBar(themePrimary),
+          ],
+        );
+      }
     }
 
     return Column(
@@ -4622,8 +4931,10 @@ class _HomePageState extends State<HomePage> {
           child: topBanner,
         ),
         Expanded(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 220),
+          child: KeyedSubtree(
+            key: _gridAreaKey,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 220),
             switchInCurve: Curves.easeOutCubic,
             switchOutCurve: Curves.easeInCubic,
             transitionBuilder: (child, animation) => FadeTransition(
@@ -4681,7 +4992,9 @@ class _HomePageState extends State<HomePage> {
                       final effectiveCols = gridColumns.clamp(1, 30);
                       final padding = isTablet ? 20.0 : 12.0;
                       final spacing = isTablet ? 16.0 : 12.0;
-                      final minCardWidth = isTablet ? 90.0 : 76.0;
+                      final minCardWidth = isTablet
+                          ? (isEditMode ? 100.0 : 90.0)
+                          : (isEditMode ? 86.0 : 76.0);
                       final neededWidth = (effectiveCols * minCardWidth) +
                           ((effectiveCols - 1) * spacing) +
                           (padding * 2);
@@ -4690,23 +5003,76 @@ class _HomePageState extends State<HomePage> {
                       final double contentWidth =
                           needsHorizontalScroll ? neededWidth : constraints.maxWidth;
 
+                      // Schedule post-frame measurement using actual scroll controller metrics
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (!mounted) return;
+                        bool overflow = false;
+                        if (_horizontalScrollController.hasClients) {
+                          final pos = _horizontalScrollController.position;
+                          overflow = pos.maxScrollExtent > pos.minScrollExtent + 1.0;
+                        } else {
+                          overflow = needsHorizontalScroll;
+                        }
+                        final canLeft = _horizontalScrollController.hasClients
+                            ? _horizontalScrollController.position.pixels >
+                                _horizontalScrollController.position.minScrollExtent + 1.0
+                            : false;
+                        final canRight = _horizontalScrollController.hasClients
+                            ? _horizontalScrollController.position.pixels <
+                                _horizontalScrollController.position.maxScrollExtent - 1.0
+                            : overflow;
+                        if (_hasHorizontalOverflow != overflow ||
+                            _canScrollHorizontallyLeft != canLeft ||
+                            _canScrollHorizontallyRight != canRight) {
+                          setState(() {
+                            _hasHorizontalOverflow = overflow;
+                            _canScrollHorizontallyLeft = canLeft;
+                            _canScrollHorizontallyRight = canRight;
+                          });
+                        }
+                      });
+
+                      final double childAspectRatio;
+                      if (effectiveCols == 1) {
+                        childAspectRatio = isEditMode ? 1.8 : 2.2;
+                      } else {
+                        childAspectRatio = isEditMode
+                            ? (isTablet ? 0.84 : 0.78)
+                            : (isTablet ? 1.05 : 0.98);
+                      }
+
+                      final double cardLogicalWidth =
+                          ((contentWidth - (padding * 2) - ((effectiveCols - 1) * spacing)) /
+                                  effectiveCols)
+                              .clamp(40.0, 1200.0);
+
                       final gridView = GridView.builder(
                         key: viewKey,
                         controller: _gridController,
                         cacheExtent: 360,
-                        padding: EdgeInsets.all(padding),
+                        padding: EdgeInsets.fromLTRB(
+                          padding,
+                          padding,
+                          padding,
+                          padding + 24,
+                        ),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: effectiveCols,
                           crossAxisSpacing: spacing,
                           mainAxisSpacing: spacing,
-                          childAspectRatio: isTablet ? 1.05 : 0.98,
+                          childAspectRatio: childAspectRatio,
                         ),
                         itemCount: displayedCards.length,
                         itemBuilder: (context, i) {
                           final card = displayedCards[i];
                           return RepaintBoundary(
                             key: ValueKey(card.id),
-                            child: _buildCardWidget(card, isTablet, index: i),
+                            child: _buildCardWidget(
+                              card,
+                              isTablet,
+                              index: i,
+                              cardLogicalWidth: cardLogicalWidth,
+                            ),
                           );
                         },
                       );
@@ -4715,29 +5081,470 @@ class _HomePageState extends State<HomePage> {
                         return gridView;
                       }
 
-                      return Scrollbar(
-                        controller: _horizontalScrollController,
-                        thumbVisibility: true,
-                        child: SingleChildScrollView(
+                      final scrollbarTrackColor = _isDarkMode
+                          ? const Color(0xFF334155).withValues(alpha: 0.60)
+                          : const Color(0xFFE2E8F0).withValues(alpha: 0.85);
+                      final scrollbarThumbColor = themePrimary;
+
+                      return ScrollbarTheme(
+                        data: ScrollbarThemeData(
+                          thumbColor: WidgetStateProperty.all(scrollbarThumbColor),
+                          trackColor: WidgetStateProperty.all(scrollbarTrackColor),
+                          trackBorderColor: WidgetStateProperty.all(Colors.transparent),
+                          radius: const Radius.circular(8),
+                          thickness: WidgetStateProperty.all(6.0),
+                          trackVisibility: WidgetStateProperty.all(true),
+                          thumbVisibility: WidgetStateProperty.all(true),
+                          crossAxisMargin: 2.0,
+                          mainAxisMargin: padding,
+                        ),
+                        child: Scrollbar(
                           controller: _horizontalScrollController,
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          child: SizedBox(
-                            width: contentWidth,
-                            height: constraints.maxHeight,
-                            child: gridView,
+                          thumbVisibility: true,
+                          trackVisibility: true,
+                          interactive: true,
+                          child: SingleChildScrollView(
+                            controller: _horizontalScrollController,
+                            scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
+                            child: SizedBox(
+                              width: contentWidth,
+                              height: constraints.maxHeight,
+                              child: gridView,
+                            ),
                           ),
                         ),
                       );
                     },
                   ),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildCardWidget(AACCard card, bool isTablet, {int index = 0}) {
+  Widget _buildCardFace({
+    required AACCard card,
+    required bool isTablet,
+    required String displayLabel,
+    required Color cardSurfaceColor,
+    required Color cardTextColor,
+    required ColorFilter? cardImageFilter,
+    required bool useImageOverlay,
+    required bool useLightShadow,
+    BoxBorder? border,
+    bool isTapAnimated = false,
+    bool showMicIcon = true,
+    double? cardLogicalWidth,
+  }) {
+    final cardBorder = border ??
+        (highlightedCardId == card.id
+            ? Border.all(
+                color: _isColorBlindMode
+                    ? const Color(0xFF0072B2)
+                    : Colors.yellow.shade200,
+                width: 3,
+              )
+            : _isColorBlindMode
+                ? Border.all(
+                    color: ThemeAccessibility.resolveCardBorderColor(
+                      isDarkMode: _isDarkMode,
+                      isColorBlindMode: true,
+                    ),
+                    width: ThemeAccessibility.resolveCardBorderWidth(
+                      isColorBlindMode: true,
+                    ),
+                  )
+                : _isDarkMode
+                    ? Border.all(color: Colors.white24, width: 1.5)
+                    : Border.all(color: Colors.white, width: 3.5));
+
+    final borderRadius = BorderRadius.circular(isTablet ? 20 : 16);
+
+    // Distinct label zone background for Text OFF mode (preserves card outline & external size)
+    final labelZoneBg = _isDarkMode
+        ? (Color.lerp(cardSurfaceColor, Colors.black, 0.25) ?? cardSurfaceColor)
+        : (Color.lerp(cardSurfaceColor, Colors.black, 0.08) ?? cardSurfaceColor);
+
+    final isUserPhoto = card.imagePath != null &&
+        card.imagePath!.isNotEmpty &&
+        !isAssetImagePath(card.imagePath);
+
+    // For user-uploaded photographs, use a neutral dark/light surface behind the photo
+    // and neutral shadows, so no bright card background colors peek through.
+    final effectiveBgColor = isUserPhoto
+        ? (_isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9))
+        : cardSurfaceColor;
+
+    final effectiveShadowColor = isTapAnimated
+        ? (_isColorBlindMode
+            ? Colors.black.withValues(alpha: _isDarkMode ? 0.55 : 0.28)
+            : isUserPhoto
+                ? Colors.black.withValues(alpha: _isDarkMode ? 0.60 : 0.35)
+                : Color(card.colorValue)
+                    .withValues(alpha: _isDarkMode ? 0.60 : 0.40))
+        : Colors.black.withValues(alpha: _isDarkMode ? 0.30 : 0.08);
+
+    final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 2.0;
+
+    return AnimatedScale(
+      scale: isTapAnimated ? 1.08 : 1.0,
+      duration: Duration(milliseconds: isTapAnimated ? 110 : 160),
+      curve: isTapAnimated ? Curves.easeOutBack : Curves.easeInOut,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: isTapAnimated ? 110 : 160),
+        decoration: BoxDecoration(
+          color: effectiveBgColor,
+          borderRadius: borderRadius,
+          border: cardBorder,
+          boxShadow: [
+            BoxShadow(
+              color: effectiveShadowColor,
+              blurRadius: isTapAnimated ? 18 : 10,
+              spreadRadius: isTapAnimated ? 2 : 1,
+              offset: isTapAnimated ? const Offset(0, 8) : const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(isTablet ? 17 : 13),
+          child: Stack(
+            children: [
+              if (isUserPhoto) ...[
+                // User-uploaded photograph: Fills entire card face with BoxFit.cover
+                Positioned.fill(
+                  child: buildCardImage(
+                    card.imagePath!,
+                    fit: BoxFit.cover,
+                    targetLogicalWidth: cardLogicalWidth,
+                    devicePixelRatio: dpr,
+                    colorFilter: cardImageFilter,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          size: 48,
+                          color: Colors.white70,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                // Gradient overlay at bottom for readable label
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(
+                      6,
+                      isTablet ? 26 : 20,
+                      6,
+                      isTablet ? 10 : 8,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.40),
+                          Colors.black.withOpacity(0.78),
+                        ],
+                        stops: const [0.0, 0.40, 1.0],
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (card.subCards.isNotEmpty) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 1.5),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.60),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                '${card.subCards.length} ${card.subCards.length == 1 ? "sub-card" : "sub-cards"}',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize:
+                                      (isTablet ? 11 : 9.5) * _cardTextScale,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                          ],
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                displayLabel,
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize:
+                                      (isTablet ? 19 : 15) * _cardTextScale,
+                                  fontWeight: FontWeight.bold,
+                                  shadows: const [
+                                    Shadow(
+                                      blurRadius: 4,
+                                      color: Colors.black,
+                                      offset: Offset(0, 1.5),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (card.type == 'folder' ||
+                                  card.subCards.isNotEmpty) ...[
+                                const SizedBox(width: 5),
+                                Container(
+                                  width: (isTablet ? 22 : 18) * _cardTextScale,
+                                  height:
+                                      (isTablet ? 22 : 18) * _cardTextScale,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.60),
+                                    shape: BoxShape.circle,
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black38,
+                                        blurRadius: 3,
+                                        offset: Offset(0, 1),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    Icons.arrow_forward_rounded,
+                                    size: (isTablet ? 13 : 11) *
+                                        _cardTextScale,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ] else ...[
+                // Standard presentation for Starter Pack illustrations, default seed assets & icon/folder cards
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Upper Image Area (72% of card height) - unclipped, BoxFit.contain
+                    Expanded(
+                      flex: 72,
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          isTablet ? 8.0 : 6.0,
+                          isTablet ? 8.0 : 6.0,
+                          isTablet ? 8.0 : 6.0,
+                          2.0,
+                        ),
+                        child: Center(
+                          child: card.imagePath != null
+                              ? buildCardImage(
+                                  card.imagePath!,
+                                  fit: BoxFit.contain,
+                                  targetLogicalWidth: cardLogicalWidth,
+                                  devicePixelRatio: dpr,
+                                  colorFilter: cardImageFilter,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Center(
+                                      child: Icon(
+                                        Icons.broken_image,
+                                        size: 48,
+                                        color: Colors.white70,
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Center(
+                                  child: Icon(
+                                    card.isFolder ? Icons.folder_rounded : Icons.image,
+                                    size: isTablet ? 64 : 48,
+                                    color: Colors.white70,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                    // Lower Label Area (28% of card height) - ON: continuous; OFF: distinct deeper container
+                    Expanded(
+                      flex: 28,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: useImageOverlay ? Colors.transparent : labelZoneBg,
+                          border: useImageOverlay
+                              ? null
+                              : Border(
+                                  top: BorderSide(
+                                    color: _isDarkMode
+                                        ? Colors.white.withOpacity(0.08)
+                                        : Colors.black.withOpacity(0.06),
+                                    width: 1.0,
+                                  ),
+                                ),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 2),
+                        alignment: Alignment.center,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (card.subCards.isNotEmpty) ...[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.55),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    '${card.subCards.length} ${card.subCards.length == 1 ? "sub-card" : "sub-cards"}',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize:
+                                          (isTablet ? 11 : 9.5) * _cardTextScale,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                              ],
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    displayLabel,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: cardTextColor,
+                                      fontSize:
+                                          (isTablet ? 19 : 15) * _cardTextScale,
+                                      fontWeight: _isColorBlindMode &&
+                                              ThemeAccessibility
+                                                  .colorBlindBoldText
+                                          ? FontWeight.w900
+                                          : FontWeight.bold,
+                                      shadows: useImageOverlay
+                                          ? (_isColorBlindMode &&
+                                                  ThemeAccessibility
+                                                      .colorBlindBoldText
+                                              ? ThemeAccessibility
+                                                  .resolveCardTextShadow(
+                                                  cardSurface: Colors.black54,
+                                                  isColorBlindMode: true,
+                                                )
+                                              : const [
+                                                  Shadow(
+                                                    blurRadius: 4,
+                                                    color: Colors.black45,
+                                                    offset: Offset(0, 1.5),
+                                                  ),
+                                                ])
+                                          : ((_isColorBlindMode &&
+                                                  ThemeAccessibility
+                                                      .colorBlindBoldText)
+                                              ? ThemeAccessibility
+                                                  .resolveCardTextShadow(
+                                                  cardSurface: cardSurfaceColor,
+                                                  isColorBlindMode:
+                                                      _isColorBlindMode,
+                                                )
+                                              : (useLightShadow
+                                                  ? const [
+                                                      Shadow(
+                                                        blurRadius: 3,
+                                                        color: Colors.black26,
+                                                        offset: Offset(0, 1),
+                                                      ),
+                                                    ]
+                                                  : null)),
+                                    ),
+                                  ),
+                                  if (card.type == 'folder' ||
+                                      card.subCards.isNotEmpty) ...[
+                                    const SizedBox(width: 5),
+                                    Container(
+                                      width: (isTablet ? 22 : 18) * _cardTextScale,
+                                      height:
+                                          (isTablet ? 22 : 18) * _cardTextScale,
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.55),
+                                        shape: BoxShape.circle,
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 3,
+                                            offset: Offset(0, 1),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Icon(
+                                        Icons.arrow_forward_rounded,
+                                        size:
+                                            (isTablet ? 13 : 11) * _cardTextScale,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              if (showMicIcon && card.voicePath != null)
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.mic, color: Colors.white, size: 16),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCardWidget(
+    AACCard card,
+    bool isTablet, {
+    int index = 0,
+    double? cardLogicalWidth,
+  }) {
     final cardKey = _cardKeys.putIfAbsent(card.id, () => GlobalKey());
     TutorialService.instance.registerKey('aac_card_${card.id}', cardKey);
     final displayed = _getDisplayedCards();
@@ -4766,28 +5573,8 @@ class _HomePageState extends State<HomePage> {
     final cardImageFilter = ThemeAccessibility.resolveCardImageFilter(
       isColorBlindMode: _isColorBlindMode,
     );
-    final cardBorder = highlightedCardId == card.id
-        ? Border.all(
-            color: _isColorBlindMode
-                ? const Color(0xFF0072B2)
-                : Colors.yellow.shade200,
-            width: 3,
-          )
-        : _isColorBlindMode
-            ? Border.all(
-                color: ThemeAccessibility.resolveCardBorderColor(
-                  isDarkMode: _isDarkMode,
-                  isColorBlindMode: true,
-                ),
-                width: ThemeAccessibility.resolveCardBorderWidth(
-                  isColorBlindMode: true,
-                ),
-              )
-            : _isDarkMode
-                ? Border.all(color: Colors.white24, width: 1.5)
-                : Border.all(color: Colors.white, width: 3.5);
 
-    final normalCard = GestureDetector(
+    final cardFace = GestureDetector(
       key: cardKey,
       onTap: () {
         if (TutorialService.instance.currentStepNotifier.value ==
@@ -4822,9 +5609,9 @@ class _HomePageState extends State<HomePage> {
         }
         _triggerWordTapAnimation(card.id);
         if (card.type == 'folder' || card.subCards.isNotEmpty) {
-            _showSubCards(card);
-            unawaited(_speakOrPlayCard(card, displayLabel));
-            return;
+          _showSubCards(card);
+          unawaited(_speakOrPlayCard(card, displayLabel));
+          return;
         }
 
         _appendToTtsInput(
@@ -4834,345 +5621,24 @@ class _HomePageState extends State<HomePage> {
         );
         unawaited(_speakOrPlayCard(card, displayLabel));
       },
-      child: AnimatedScale(
-        scale: isTapAnimated ? 1.08 : 1.0,
-        duration: Duration(milliseconds: isTapAnimated ? 110 : 160),
-        curve: isTapAnimated ? Curves.easeOutBack : Curves.easeInOut,
-        child: AnimatedContainer(
-          duration: Duration(milliseconds: isTapAnimated ? 110 : 160),
-          decoration: BoxDecoration(
-            color: cardSurfaceColor,
-            borderRadius: BorderRadius.circular(isTablet ? 24 : 20),
-            border: cardBorder,
-            boxShadow: [
-              BoxShadow(
-                color: isTapAnimated
-                    ? (_isColorBlindMode
-                        ? Colors.black
-                            .withValues(alpha: _isDarkMode ? 0.55 : 0.28)
-                        : Color(card.colorValue)
-                            .withValues(alpha: _isDarkMode ? 0.60 : 0.40))
-                    : Colors.black.withValues(alpha: _isDarkMode ? 0.30 : 0.08),
-                blurRadius: isTapAnimated ? 18 : 10,
-                spreadRadius: isTapAnimated ? 2 : 1,
-                offset: isTapAnimated ? const Offset(0, 8) : const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              if (!useImageOverlay)
-                Column(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: card.imagePath != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(isTablet ? 20 : 16)),
-                              child: buildCardImage(
-                                card.imagePath!,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                colorFilter: cardImageFilter,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Center(
-                                    child: Icon(Icons.broken_image,
-                                        size: 60, color: Colors.white70),
-                                  );
-                                },
-                              ),
-                            )
-                          : Center(
-                              child: Icon(Icons.image,
-                                  size: isTablet ? 80 : 60,
-                                  color: Colors.white70),
-                            ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                        alignment: Alignment.center,
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.center,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (card.subCards.isNotEmpty) ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 1.5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.55),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Text(
-                                    '${card.subCards.length} ${card.subCards.length == 1 ? "sub-card" : "sub-cards"}',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: (isTablet ? 11 : 9.5) * _cardTextScale,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                              ],
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    displayLabel,
-                                    style: TextStyle(
-                                      color: cardTextColor,
-                                      fontSize: (isTablet ? 20 : 16) * _cardTextScale,
-                                      fontWeight: _isColorBlindMode && ThemeAccessibility.colorBlindBoldText
-                                          ? FontWeight.w900
-                                          : FontWeight.bold,
-                                      shadows: (_isColorBlindMode && ThemeAccessibility.colorBlindBoldText)
-                                          ? ThemeAccessibility.resolveCardTextShadow(
-                                              cardSurface: cardSurfaceColor,
-                                              isColorBlindMode: _isColorBlindMode,
-                                            )
-                                          : (useLightShadow
-                                              ? const [
-                                                  Shadow(
-                                                    blurRadius: 3,
-                                                    color: Colors.black26,
-                                                    offset: Offset(0, 1),
-                                                  ),
-                                                ]
-                                              : null),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
-                                    const SizedBox(width: 6),
-                                    Container(
-                                      width: (isTablet ? 24 : 20) * _cardTextScale,
-                                      height: (isTablet ? 24 : 20) * _cardTextScale,
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.55),
-                                        shape: BoxShape.circle,
-                                        boxShadow: const [
-                                          BoxShadow(
-                                            color: Colors.black26,
-                                            blurRadius: 3,
-                                            offset: Offset(0, 1),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Icon(
-                                        Icons.arrow_forward_rounded,
-                                        size: (isTablet ? 14 : 12) * _cardTextScale,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              if (useImageOverlay)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
-                  child: buildCardImage(
-                    card.imagePath!,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    colorFilter: cardImageFilter,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                        child: Icon(Icons.broken_image,
-                            size: 60, color: Colors.white70),
-                      );
-                    },
-                  ),
-                ),
-              if (useImageOverlay)
-                Positioned(
-                  left: 6,
-                  right: 6,
-                  bottom: 6,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (card.subCards.isNotEmpty) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 1.5),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.55),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              '${card.subCards.length} ${card.subCards.length == 1 ? "sub-card" : "sub-cards"}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: (isTablet ? 11 : 9.5) * _cardTextScale,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                        ],
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              displayLabel,
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: cardTextColor,
-                                fontSize: (isTablet ? 20 : 16) * _cardTextScale,
-                                fontWeight: _isColorBlindMode && ThemeAccessibility.colorBlindBoldText
-                                    ? FontWeight.w900
-                                    : FontWeight.bold,
-                                shadows: (_isColorBlindMode && ThemeAccessibility.colorBlindBoldText)
-                                    ? ThemeAccessibility.resolveCardTextShadow(
-                                        cardSurface: Colors.black54,
-                                        isColorBlindMode: true,
-                                      )
-                                    : const [
-                                        Shadow(
-                                          blurRadius: 6,
-                                          color: Colors.black54,
-                                          offset: Offset(0, 2),
-                                        ),
-                                      ],
-                              ),
-                            ),
-                            if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
-                              const SizedBox(width: 6),
-                              Container(
-                                width: (isTablet ? 24 : 20) * _cardTextScale,
-                                height: (isTablet ? 24 : 20) * _cardTextScale,
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.55),
-                                  shape: BoxShape.circle,
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 3,
-                                      offset: Offset(0, 1),
-                                    ),
-                                  ],
-                                ),
-                                child: Icon(
-                                  Icons.arrow_forward_rounded,
-                                  size: (isTablet ? 14 : 12) * _cardTextScale,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              if (isEditMode)
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    width: isTablet ? 38 : 32,
-                    height: isTablet ? 38 : 32,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E88E5),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.35),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1.5),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      key: ValueKey('card_edit_pencil_${card.id}'),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      icon: Icon(
-                        Icons.edit_rounded,
-                        color: Colors.white,
-                        size: isTablet ? 19 : 16,
-                      ),
-                      tooltip: 'Edit Card',
-                      onPressed: () => _editCard(card),
-                    ),
-                  ),
-                ),
-              if (card.voicePath != null)
-                Positioned(
-                  top: isEditMode ? null : 8,
-                  bottom: isEditMode ? 8 : null,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.mic, color: Colors.white, size: 16),
-                  ),
-                ),
-              if (isEditMode)
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    width: isTablet ? 38 : 32,
-                    height: isTablet ? 38 : 32,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.55),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1.5),
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      key: ValueKey('card_delete_btn_${card.id}'),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      icon: Icon(
-                        Icons.delete_outline_rounded,
-                        color: Colors.white,
-                        size: isTablet ? 19 : 16,
-                      ),
-                      tooltip: 'Delete',
-                      onPressed: () => _confirmDelete(card),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
+      child: _buildCardFace(
+        card: card,
+        isTablet: isTablet,
+        displayLabel: displayLabel,
+        cardSurfaceColor: cardSurfaceColor,
+        cardTextColor: cardTextColor,
+        cardImageFilter: cardImageFilter,
+        useImageOverlay: useImageOverlay,
+        useLightShadow: useLightShadow,
+        isTapAnimated: isTapAnimated,
+        cardLogicalWidth: cardLogicalWidth,
       ),
     );
 
     if (isEditMode) {
       final isSingleCol = gridColumns.clamp(1, 30) == 1;
+      final isVirtualCategoryView =
+          _isCategoryFiltered && activeParentCard == null;
       return _DragAndDropCardItem(
         key: ValueKey('drag_item_${card.id}'),
         card: card,
@@ -5183,8 +5649,9 @@ class _HomePageState extends State<HomePage> {
         cardSurfaceColor: cardSurfaceColor,
         cardTextColor: cardTextColor,
         currentLanguage: currentLanguage,
-        onReorder: _handleReorderCard,
-        onMoveInside: _requestNestingConfirmation,
+        onReorder: isVirtualCategoryView ? null : _handleReorderCard,
+        onMoveInside:
+            isVirtualCategoryView ? null : _requestNestingConfirmation,
         onAutoScroll: _checkAutoScroll,
         onStopAutoScroll: _stopAutoScroll,
         isDescendant: _isDescendantOf,
@@ -5197,11 +5664,14 @@ class _HomePageState extends State<HomePage> {
           cardImageFilter,
           useImageOverlay,
           useLightShadow,
+          cardLogicalWidth: cardLogicalWidth,
         ),
-        child: normalCard,
+        onEdit: () => _editCard(card),
+        onDelete: () => _confirmDelete(card),
+        child: cardFace,
       );
     }
-    return normalCard;
+    return cardFace;
   }
 
   Widget _buildCardContentOnly(
@@ -5212,302 +5682,21 @@ class _HomePageState extends State<HomePage> {
     Color cardTextColor,
     ColorFilter? cardImageFilter,
     bool useImageOverlay,
-    bool useLightShadow,
-  ) {
-    return Stack(
-      children: [
-        if (!useImageOverlay)
-          Column(
-            children: [
-              Expanded(
-                flex: 3,
-                child: card.imagePath != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(isTablet ? 20 : 16)),
-                        child: buildCardImage(
-                          card.imagePath!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          colorFilter: cardImageFilter,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Icon(Icons.broken_image,
-                                  size: 60, color: Colors.white70),
-                            );
-                          },
-                        ),
-                      )
-                    : Center(
-                        child: Icon(Icons.image,
-                            size: isTablet ? 80 : 60,
-                            color: Colors.white70),
-                      ),
-              ),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  alignment: Alignment.center,
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (card.subCards.isNotEmpty) ...[
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 1.5),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.55),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              '${card.subCards.length} ${card.subCards.length == 1 ? "sub-card" : "sub-cards"}',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: (isTablet ? 11 : 9.5) * _cardTextScale,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                        ],
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              displayLabel,
-                              style: TextStyle(
-                                color: cardTextColor,
-                                fontSize: (isTablet ? 20 : 16) * _cardTextScale,
-                                fontWeight: _isColorBlindMode &&
-                                        ThemeAccessibility.colorBlindBoldText
-                                    ? FontWeight.w900
-                                    : FontWeight.bold,
-                                shadows: (_isColorBlindMode &&
-                                        ThemeAccessibility.colorBlindBoldText)
-                                    ? ThemeAccessibility.resolveCardTextShadow(
-                                        cardSurface: cardSurfaceColor,
-                                        isColorBlindMode: _isColorBlindMode,
-                                      )
-                                    : (useLightShadow
-                                        ? const [
-                                            Shadow(
-                                              blurRadius: 3,
-                                              color: Colors.black26,
-                                              offset: Offset(0, 1),
-                                            ),
-                                          ]
-                                        : null),
-                              ),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
-                              const SizedBox(width: 6),
-                              Container(
-                                width: (isTablet ? 24 : 20) * _cardTextScale,
-                                height: (isTablet ? 24 : 20) * _cardTextScale,
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.55),
-                                  shape: BoxShape.circle,
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 3,
-                                      offset: Offset(0, 1),
-                                    ),
-                                  ],
-                                ),
-                                child: Icon(
-                                  Icons.arrow_forward_rounded,
-                                  size: (isTablet ? 14 : 12) * _cardTextScale,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        if (useImageOverlay)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(isTablet ? 20 : 16),
-            child: buildCardImage(
-              card.imagePath!,
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-              colorFilter: cardImageFilter,
-              errorBuilder: (context, error, stackTrace) {
-                return const Center(
-                  child: Icon(Icons.broken_image,
-                      size: 60, color: Colors.white70),
-                );
-              },
-            ),
-          ),
-        if (useImageOverlay)
-          Positioned(
-            left: 6,
-            right: 6,
-            bottom: 6,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (card.subCards.isNotEmpty) ...[
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 1.5),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.55),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        '${card.subCards.length} ${card.subCards.length == 1 ? "sub-card" : "sub-cards"}',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: (isTablet ? 11 : 9.5) * _cardTextScale,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                  ],
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        displayLabel,
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: cardTextColor,
-                          fontSize: (isTablet ? 20 : 16) * _cardTextScale,
-                          fontWeight: _isColorBlindMode &&
-                                  ThemeAccessibility.colorBlindBoldText
-                              ? FontWeight.w900
-                              : FontWeight.bold,
-                          shadows: (_isColorBlindMode &&
-                                  ThemeAccessibility.colorBlindBoldText)
-                              ? ThemeAccessibility.resolveCardTextShadow(
-                                  cardSurface: Colors.black54,
-                                  isColorBlindMode: true,
-                                )
-                              : const [
-                                  Shadow(
-                                    blurRadius: 6,
-                                    color: Colors.black54,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                        ),
-                      ),
-                      if (card.type == 'folder' || card.subCards.isNotEmpty) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          width: (isTablet ? 24 : 20) * _cardTextScale,
-                          height: (isTablet ? 24 : 20) * _cardTextScale,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.55),
-                            shape: BoxShape.circle,
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 3,
-                                offset: Offset(0, 1),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.arrow_forward_rounded,
-                            size: (isTablet ? 14 : 12) * _cardTextScale,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        Positioned(
-          top: 8,
-          left: 8,
-          child: Container(
-            width: isTablet ? 38 : 32,
-            height: isTablet ? 38 : 32,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E88E5),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.35),
-                  blurRadius: 4,
-                  offset: const Offset(0, 1.5),
-                ),
-              ],
-            ),
-            child: Icon(
-              Icons.edit_rounded,
-              color: Colors.white,
-              size: isTablet ? 19 : 16,
-            ),
-          ),
-        ),
-        if (card.voicePath != null)
-          Positioned(
-            bottom: 8,
-            left: 8,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.mic, color: Colors.white, size: 16),
-            ),
-          ),
-        Positioned(
-          top: 8,
-          right: 8,
-          child: Container(
-            width: isTablet ? 38 : 32,
-            height: isTablet ? 38 : 32,
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.55),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 4,
-                  offset: const Offset(0, 1.5),
-                ),
-              ],
-            ),
-            child: Icon(
-              Icons.delete_outline_rounded,
-              color: Colors.white,
-              size: isTablet ? 19 : 16,
-            ),
-          ),
-        ),
-      ],
+    bool useLightShadow, {
+    double? cardLogicalWidth,
+  }) {
+    return _buildCardFace(
+      card: card,
+      isTablet: isTablet,
+      displayLabel: displayLabel,
+      cardSurfaceColor: cardSurfaceColor,
+      cardTextColor: cardTextColor,
+      cardImageFilter: cardImageFilter,
+      useImageOverlay: useImageOverlay,
+      useLightShadow: useLightShadow,
+      border: Border.all(color: Colors.transparent),
+      showMicIcon: false,
+      cardLogicalWidth: cardLogicalWidth,
     );
   }
 
@@ -5562,6 +5751,25 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _handleHorizontalScroll() {
+    if (!_horizontalScrollController.hasClients) return;
+    final pos = _horizontalScrollController.position;
+    final overflow = pos.maxScrollExtent > pos.minScrollExtent + 1.0;
+    final canLeft = pos.pixels > pos.minScrollExtent + 1.0;
+    final canRight = pos.pixels < pos.maxScrollExtent - 1.0;
+    if (_hasHorizontalOverflow != overflow ||
+        _canScrollHorizontallyLeft != canLeft ||
+        _canScrollHorizontallyRight != canRight) {
+      if (mounted) {
+        setState(() {
+          _hasHorizontalOverflow = overflow;
+          _canScrollHorizontallyLeft = canLeft;
+          _canScrollHorizontallyRight = canRight;
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
     _stopAutoScroll();
@@ -5572,6 +5780,7 @@ class _HomePageState extends State<HomePage> {
     unawaited(SpeechEngine.instance.stop());
     _audioPlayer.dispose();
     _gridController.dispose();
+    _horizontalScrollController.removeListener(_handleHorizontalScroll);
     _horizontalScrollController.dispose();
     super.dispose();
   }
@@ -5586,13 +5795,15 @@ class _DragAndDropCardItem extends StatefulWidget {
   final Color cardSurfaceColor;
   final Color cardTextColor;
   final String currentLanguage;
-  final void Function(AACCard dragged, AACCard target, {required bool insertAfter}) onReorder;
-  final void Function(AACCard dragged, AACCard target) onMoveInside;
-  final void Function(double globalY) onAutoScroll;
+  final void Function(AACCard dragged, AACCard target, {required bool insertAfter})? onReorder;
+  final void Function(AACCard dragged, AACCard target)? onMoveInside;
+  final void Function(Offset globalPosition) onAutoScroll;
   final VoidCallback onStopAutoScroll;
   final bool Function(AACCard potentialDescendant, AACCard ancestor) isDescendant;
   final Widget contentOnly;
   final Widget child;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const _DragAndDropCardItem({
     super.key,
@@ -5604,13 +5815,15 @@ class _DragAndDropCardItem extends StatefulWidget {
     required this.cardSurfaceColor,
     required this.cardTextColor,
     required this.currentLanguage,
-    required this.onReorder,
-    required this.onMoveInside,
+    this.onReorder,
+    this.onMoveInside,
     required this.onAutoScroll,
     required this.onStopAutoScroll,
     required this.isDescendant,
     required this.contentOnly,
     required this.child,
+    required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -5619,6 +5832,179 @@ class _DragAndDropCardItem extends StatefulWidget {
 
 class _DragAndDropCardItemState extends State<_DragAndDropCardItem> {
   CardDropHoverState _hoverState = CardDropHoverState.none;
+  bool _isDragging = false;
+
+  Widget _buildFeedback() {
+    return Material(
+      color: Colors.transparent,
+      child: Transform.rotate(
+        angle: -0.04, // subtle -2.3° tilt
+        child: SizedBox(
+          width: widget.isTablet ? 200 : 160,
+          height: widget.isTablet ? 200 : 160,
+          child: Container(
+            decoration: BoxDecoration(
+              color: widget.cardSurfaceColor,
+              borderRadius: BorderRadius.circular(widget.isTablet ? 20 : 16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.4),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                  offset: const Offset(0, 10),
+                ),
+                BoxShadow(
+                  color: const Color(0xFF00E5FF).withOpacity(0.35),
+                  blurRadius: 12,
+                  spreadRadius: 1,
+                ),
+              ],
+              border: Border.all(
+                color: const Color(0xFF00E5FF),
+                width: 2,
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(widget.isTablet ? 19 : 15),
+              child: widget.contentOnly,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionTray() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isTablet = widget.isTablet;
+
+    return Container(
+      height: isTablet ? 38 : 32,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        borderRadius: BorderRadius.circular(isTablet ? 12 : 10),
+        border: Border.all(
+          color: isDark ? Colors.white12 : const Color(0xFFCBD5E1),
+          width: 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+            blurRadius: 4,
+            offset: const Offset(0, 1.5),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // 1. Drag Handle (Immediate Draggable)
+          Expanded(
+            child: widget.onReorder != null
+                ? Draggable<DraggedCardData>(
+                    key: ValueKey('card_drag_handle_${widget.card.id}'),
+                    data: DraggedCardData(
+                        card: widget.card, sourceIndex: widget.index),
+                    onDragStarted: () {
+                      HapticFeedback.mediumImpact();
+                      setState(() => _isDragging = true);
+                    },
+                    onDragUpdate: (details) {
+                      widget.onAutoScroll(details.globalPosition);
+                    },
+                    onDragEnd: (_) {
+                      widget.onStopAutoScroll();
+                      setState(() => _isDragging = false);
+                    },
+                    onDraggableCanceled: (_, __) {
+                      widget.onStopAutoScroll();
+                      setState(() => _isDragging = false);
+                    },
+                    onDragCompleted: () {
+                      widget.onStopAutoScroll();
+                      setState(() => _isDragging = false);
+                    },
+                    feedback: _buildFeedback(),
+                    childWhenDragging: Opacity(
+                      opacity: 0.35,
+                      child: Center(
+                        child: Icon(
+                          Icons.drag_indicator_rounded,
+                          color:
+                              isDark ? Colors.white54 : const Color(0xFF64748B),
+                          size: isTablet ? 20 : 17,
+                        ),
+                      ),
+                    ),
+                    child: Tooltip(
+                      message: 'Drag to reorder',
+                      child: Center(
+                        child: Icon(
+                          Icons.drag_indicator_rounded,
+                          color:
+                              isDark ? Colors.white70 : const Color(0xFF64748B),
+                          size: isTablet ? 20 : 17,
+                        ),
+                      ),
+                    ),
+                  )
+                : Tooltip(
+                    message: 'Reordering disabled in category views',
+                    child: Center(
+                      child: Icon(
+                        Icons.drag_indicator_rounded,
+                        color:
+                            isDark ? Colors.white24 : const Color(0xFFCBD5E1),
+                        size: isTablet ? 20 : 17,
+                      ),
+                    ),
+                  ),
+          ),
+          // Divider
+          Container(
+            width: 1,
+            height: isTablet ? 18 : 14,
+            color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+          ),
+          // 2. Edit Pencil
+          Expanded(
+            child: IconButton(
+              key: ValueKey('card_edit_pencil_${widget.card.id}'),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Icon(
+                Icons.edit_rounded,
+                color: const Color(0xFF1E88E5),
+                size: isTablet ? 18 : 15,
+              ),
+              tooltip: 'Edit Card',
+              onPressed: widget.onEdit,
+            ),
+          ),
+          // Divider
+          Container(
+            width: 1,
+            height: isTablet ? 18 : 14,
+            color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+          ),
+          // 3. Delete Button
+          Expanded(
+            child: IconButton(
+              key: ValueKey('card_delete_btn_${widget.card.id}'),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Icon(
+                Icons.delete_outline_rounded,
+                color: const Color(0xFFE53935),
+                size: isTablet ? 18 : 15,
+              ),
+              tooltip: 'Delete',
+              onPressed: widget.onDelete,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -5628,6 +6014,7 @@ class _DragAndDropCardItemState extends State<_DragAndDropCardItem> {
 
     return DragTarget<DraggedCardData>(
       onWillAcceptWithDetails: (details) {
+        if (widget.onReorder == null || widget.onMoveInside == null) return false;
         final dragged = details.data.card;
         if (dragged.id == widget.card.id) return false;
         // Don't accept if target is a descendant of dragged
@@ -5635,7 +6022,6 @@ class _DragAndDropCardItemState extends State<_DragAndDropCardItem> {
         return true;
       },
       onMove: (details) {
-        widget.onAutoScroll(details.offset.dy);
         final renderBox = context.findRenderObject() as RenderBox?;
         if (renderBox == null) return;
         final size = renderBox.size;
@@ -5674,7 +6060,6 @@ class _DragAndDropCardItemState extends State<_DragAndDropCardItem> {
         }
       },
       onLeave: (data) {
-        widget.onStopAutoScroll();
         if (_hoverState != CardDropHoverState.none) {
           setState(() => _hoverState = CardDropHoverState.none);
         }
@@ -5688,11 +6073,11 @@ class _DragAndDropCardItemState extends State<_DragAndDropCardItem> {
         if (dragged.id == widget.card.id) return;
 
         if (currentHover == CardDropHoverState.moveInside) {
-          widget.onMoveInside(dragged, widget.card);
+          widget.onMoveInside?.call(dragged, widget.card);
         } else if (currentHover == CardDropHoverState.reorderBefore) {
-          widget.onReorder(dragged, widget.card, insertAfter: false);
+          widget.onReorder?.call(dragged, widget.card, insertAfter: false);
         } else if (currentHover == CardDropHoverState.reorderAfter) {
-          widget.onReorder(dragged, widget.card, insertAfter: true);
+          widget.onReorder?.call(dragged, widget.card, insertAfter: true);
         } else {
           final renderBox = context.findRenderObject() as RenderBox?;
           if (renderBox != null) {
@@ -5708,81 +6093,78 @@ class _DragAndDropCardItemState extends State<_DragAndDropCardItem> {
               size.height - verticalInset,
             );
             if (centerRect.contains(localPos)) {
-              widget.onMoveInside(dragged, widget.card);
+              widget.onMoveInside?.call(dragged, widget.card);
             } else if (localPos.dx < size.width / 2) {
-              widget.onReorder(dragged, widget.card, insertAfter: false);
+              widget.onReorder?.call(dragged, widget.card, insertAfter: false);
             } else {
-              widget.onReorder(dragged, widget.card, insertAfter: true);
+              widget.onReorder?.call(dragged, widget.card, insertAfter: true);
             }
           }
         }
       },
       builder: (context, candidateData, rejectedData) {
         final isHovered = candidateData.isNotEmpty && _hoverState != CardDropHoverState.none;
+        final canDrag = widget.onReorder != null;
 
-        return LongPressDraggable<DraggedCardData>(
-          data: DraggedCardData(card: widget.card, sourceIndex: widget.index),
-          delay: const Duration(milliseconds: 300),
-          hapticFeedbackOnStart: true,
-          onDragStarted: () {
-            HapticFeedback.mediumImpact();
-          },
-          onDragEnd: (_) {
-            widget.onStopAutoScroll();
-          },
-          feedback: Material(
-            color: Colors.transparent,
-            child: Transform.rotate(
-              angle: -0.04, // subtle -2.3° tilt
-              child: SizedBox(
-                width: widget.isTablet ? 200 : 160,
-                height: widget.isTablet ? 200 : 160,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: widget.cardSurfaceColor,
-                    borderRadius: BorderRadius.circular(widget.isTablet ? 20 : 16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.4),
-                        blurRadius: 20,
-                        spreadRadius: 2,
-                        offset: const Offset(0, 10),
-                      ),
-                      BoxShadow(
-                        color: const Color(0xFF00E5FF).withOpacity(0.35),
-                        blurRadius: 12,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                    border: Border.all(
-                      color: const Color(0xFF00E5FF),
-                      width: 2,
-                    ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(widget.isTablet ? 19 : 15),
-                    child: widget.contentOnly,
-                  ),
+        final draggableCardFace = canDrag
+            ? LongPressDraggable<DraggedCardData>(
+                data: DraggedCardData(card: widget.card, sourceIndex: widget.index),
+                delay: const Duration(milliseconds: 300),
+                hapticFeedbackOnStart: true,
+                onDragStarted: () {
+                  HapticFeedback.mediumImpact();
+                  setState(() => _isDragging = true);
+                },
+                onDragUpdate: (details) {
+                  widget.onAutoScroll(details.globalPosition);
+                },
+                onDragEnd: (_) {
+                  widget.onStopAutoScroll();
+                  setState(() => _isDragging = false);
+                },
+                onDraggableCanceled: (_, __) {
+                  widget.onStopAutoScroll();
+                  setState(() => _isDragging = false);
+                },
+                onDragCompleted: () {
+                  widget.onStopAutoScroll();
+                  setState(() => _isDragging = false);
+                },
+                feedback: _buildFeedback(),
+                childWhenDragging: Opacity(
+                  opacity: 0.35,
+                  child: widget.child,
                 ),
-              ),
-            ),
-          ),
-          childWhenDragging: Opacity(
-            opacity: 0.35,
-            child: widget.child,
-          ),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              widget.child,
-              if (isHovered && _hoverState == CardDropHoverState.moveInside)
-                _buildMoveInsideOverlay(),
-              if (isHovered && _hoverState == CardDropHoverState.reorderBefore)
-                _buildInsertionLine(isBefore: true),
-              if (isHovered && _hoverState == CardDropHoverState.reorderAfter)
-                _buildInsertionLine(isBefore: false),
-            ],
-          ),
+                child: Opacity(
+                  opacity: _isDragging ? 0.35 : 1.0,
+                  child: widget.child,
+                ),
+              )
+            : widget.child;
+
+        final actionTray = _buildActionTray();
+
+        final tile = Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: draggableCardFace),
+            const SizedBox(height: 5),
+            actionTray,
+          ],
+        );
+
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            tile,
+            if (isHovered && _hoverState == CardDropHoverState.moveInside)
+              _buildMoveInsideOverlay(),
+            if (isHovered && _hoverState == CardDropHoverState.reorderBefore)
+              _buildInsertionLine(isBefore: true),
+            if (isHovered && _hoverState == CardDropHoverState.reorderAfter)
+              _buildInsertionLine(isBefore: false),
+          ],
         );
       },
     );
@@ -6021,7 +6403,11 @@ class _NestingConfirmationDialog extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: card.imagePath != null && card.imagePath!.isNotEmpty
-                  ? buildCardImage(card.imagePath!, fit: BoxFit.contain)
+                  ? buildCardImage(
+                      card.imagePath!,
+                      fit: BoxFit.contain,
+                      targetLogicalWidth: 76,
+                    )
                   : Container(
                       color: cardColor,
                       child: Center(

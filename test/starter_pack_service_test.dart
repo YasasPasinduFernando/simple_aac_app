@@ -22,6 +22,8 @@ void main() {
       expect(root.labelSinhala, equals('පෙරනිමි'));
       expect(root.labelTamil, equals('இயல்புநிலை'));
       expect(root.colorValue, equals(0xFF228ED3));
+      expect(root.imagePath, equals('assets/images/starter_pack_v8/starter_default.webp'));
+      expect(File(root.imagePath!).existsSync(), isTrue);
 
       // 13 category folders
       expect(root.subCards.length, equals(13));
@@ -52,6 +54,9 @@ void main() {
         expect(folder.labelSinhala, isNotNull);
         expect(folder.labelTamil, isNotNull);
         expect(folder.colorValue, isNot(equals(0)));
+        expect(folder.imagePath, isNotNull);
+        expect(folder.imagePath!.startsWith('assets/images/starter_pack_v8/'), isTrue);
+        expect(File(folder.imagePath!).existsSync(), isTrue);
 
         for (final word in folder.subCards) {
           totalWordCards++;

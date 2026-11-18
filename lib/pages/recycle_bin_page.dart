@@ -472,7 +472,11 @@ class _RecycleBinPageState extends State<RecycleBinPage> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: card.imagePath != null && card.imagePath!.isNotEmpty
-                  ? buildCardImage(card.imagePath!, fit: BoxFit.contain)
+                  ? buildCardImage(
+                      card.imagePath!,
+                      fit: BoxFit.contain,
+                      targetLogicalWidth: 52,
+                    )
                   : Center(
                       child: Icon(
                         isFolder ? Icons.folder_rounded : Icons.image_rounded,

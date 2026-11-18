@@ -16,6 +16,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? titleWidget;
   final Color? titleTextColor;
   final GlobalKey? menuButtonKey;
+  final VoidCallback? onOrientation;
 
   const HomeAppBar({
     Key? key,
@@ -34,6 +35,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.titleWidget,
     this.titleTextColor,
     this.menuButtonKey,
+    this.onOrientation,
   }) : super(key: key);
 
   @override
@@ -55,6 +57,10 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         : (screenWidth < 400 ? 23.0 : 25.0);
 
     final showLeading = showPin || showBack;
+
+    final showOrientationButton = onOrientation != null &&
+        screenWidth >= 320 &&
+        !(screenWidth < 360 && showPin && showBack);
 
     return AppBar(
       backgroundColor: base,
@@ -141,20 +147,29 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: isEditMode
           ? const []
-          : (showMenu
-              ? [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: _AppBarIconButton(
-                      key: menuButtonKey,
-                      icon: Icons.menu_rounded,
-                      color: fgColor,
-                      tooltip: 'Menu',
-                      onPressed: onOpenMenu,
-                    ),
+          : [
+              if (showOrientationButton)
+                _AppBarIconButton(
+                  key: const ValueKey('home_app_bar_orientation_button'),
+                  icon: Icons.screen_rotation_rounded,
+                  color: isPinned ? fgColor.withValues(alpha: 0.38) : fgColor,
+                  tooltip: isPinned
+                      ? 'Screen Orientation (Locked)'
+                      : 'Screen Orientation',
+                  onPressed: isPinned ? onPinTapWhenPinned : onOrientation,
+                ),
+              if (showMenu)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: _AppBarIconButton(
+                    key: menuButtonKey,
+                    icon: Icons.menu_rounded,
+                    color: fgColor,
+                    tooltip: 'Menu',
+                    onPressed: onOpenMenu,
                   ),
-                ]
-              : const []),
+                ),
+            ],
     );
   }
 }

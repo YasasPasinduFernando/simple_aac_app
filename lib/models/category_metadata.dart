@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/category_helper.dart';
+
 /// Pre-configured suggestion preset for quick category creation.
 class CategoryPresetItem {
   final String name;
@@ -34,6 +36,13 @@ const List<IconData> kAllCategoryIcons = [
   Icons.toys_rounded,
   Icons.music_note_rounded,
   Icons.local_hospital_rounded,
+  Icons.palette_rounded,
+  Icons.interests_rounded,
+  Icons.cookie_rounded,
+  Icons.local_cafe_rounded,
+  Icons.touch_app_rounded,
+  Icons.chat_bubble_outline_rounded,
+  Icons.clean_hands_rounded,
   Icons.folder_rounded,
   Icons.folder_outlined,
   Icons.grid_view_rounded,
@@ -133,9 +142,11 @@ class CategoryMetadata {
 
     // 3. Known preset defaults
     for (final preset in defaultPresets) {
-      if (preset.name.toLowerCase() == lower) {
+      if (preset.name.toLowerCase() == lower ||
+          preset.searchKeywords.contains(lower) ||
+          CategoryHelper.matchesCategory(preset.name, trimmed)) {
         return CategoryMetadata(
-          name: preset.name,
+          name: trimmed,
           icon: preset.icon,
           colorValue: preset.colorValue,
         );
@@ -307,9 +318,171 @@ class CategoryMetadata {
         'brother',
         'sister',
         'family',
+        'people',
         'අම්මා',
         'තාත්තා',
+        'පවුල',
         'குடும்பம்'
+      ],
+    ),
+    CategoryPresetItem(
+      name: 'Family',
+      icon: Icons.people_rounded,
+      colorValue: 0xFF5C6BC0, // Indigo
+      emoji: '👨‍👩‍👧',
+      searchKeywords: [
+        'family',
+        'people',
+        'father',
+        'mother',
+        'sister',
+        'brother',
+        'පවුල',
+        'குடும்பம்'
+      ],
+    ),
+    CategoryPresetItem(
+      name: 'Colours',
+      icon: Icons.palette_rounded,
+      colorValue: 0xFFE91E63, // Pink / Magenta
+      emoji: '🎨',
+      searchKeywords: [
+        'colours',
+        'colors',
+        'colour',
+        'color',
+        'red',
+        'blue',
+        'yellow',
+        'green',
+        'පාට',
+        'நிறங்கள்'
+      ],
+    ),
+    CategoryPresetItem(
+      name: 'Shapes',
+      icon: Icons.interests_rounded,
+      colorValue: 0xFF9C27B0, // Purple
+      emoji: '🔺',
+      searchKeywords: [
+        'shapes',
+        'shape',
+        'circle',
+        'square',
+        'triangle',
+        'හැඩතල',
+        'வடிவங்கள்'
+      ],
+    ),
+    CategoryPresetItem(
+      name: 'Snacks',
+      icon: Icons.cookie_rounded,
+      colorValue: 0xFFFB8C00, // Amber
+      emoji: '🍪',
+      searchKeywords: [
+        'snacks',
+        'snack',
+        'biscuit',
+        'chips',
+        'කෑම',
+        'සිற்றுண்டி'
+      ],
+    ),
+    CategoryPresetItem(
+      name: 'Drinks',
+      icon: Icons.local_cafe_rounded,
+      colorValue: 0xFF00ACC1, // Cyan
+      emoji: '🥤',
+      searchKeywords: [
+        'drinks',
+        'drink',
+        'water',
+        'tea',
+        'juice',
+        'milk',
+        'බීම',
+        'පාனங்கள்'
+      ],
+    ),
+    CategoryPresetItem(
+      name: 'Needs',
+      icon: Icons.touch_app_rounded,
+      colorValue: 0xFF43A047, // Green
+      emoji: '✋',
+      searchKeywords: [
+        'needs',
+        'need',
+        'help',
+        'want',
+        'more',
+        'stop',
+        'උවමනා',
+        'தேவைகள்'
+      ],
+    ),
+    CategoryPresetItem(
+      name: 'Basic Words',
+      icon: Icons.chat_bubble_outline_rounded,
+      colorValue: 0xFF1E88E5, // Blue
+      emoji: '💬',
+      searchKeywords: [
+        'basic words',
+        'basic_words',
+        'words',
+        'yes',
+        'no',
+        'please',
+        'thanks',
+        'වචන',
+        'வார்த்தைகள்'
+      ],
+    ),
+    CategoryPresetItem(
+      name: 'Activities',
+      icon: Icons.sports_soccer_rounded,
+      colorValue: 0xFF66BB6A, // Light Green
+      emoji: '⚽',
+      searchKeywords: [
+        'activities',
+        'activity',
+        'play',
+        'game',
+        'sport',
+        'ක්‍රියාකාරකම්',
+        'செயல்பாடுகள்'
+      ],
+    ),
+    CategoryPresetItem(
+      name: 'School & Places',
+      icon: Icons.school_rounded,
+      colorValue: 0xFF42A5F5, // Blue
+      emoji: '🏫',
+      searchKeywords: [
+        'school & places',
+        'school_places',
+        'places',
+        'school',
+        'park',
+        'hospital',
+        'ස්ථාන',
+        'இடங்கள்'
+      ],
+    ),
+    CategoryPresetItem(
+      name: 'Personal Care',
+      icon: Icons.clean_hands_rounded,
+      colorValue: 0xFF26A69A, // Teal
+      emoji: '🧼',
+      searchKeywords: [
+        'personal care',
+        'personal_care',
+        'care',
+        'toilet',
+        'wash',
+        'brush',
+        'bath',
+        'පුද්ගලික සත්කාර',
+        'தனிப்பட்ட பராமரிப்பு'
       ],
     ),
   ];

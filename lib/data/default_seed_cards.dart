@@ -3,13 +3,20 @@ import 'package:flutter/material.dart';
 import '../models/aac_card_model.dart';
 import '../services/starter_pack_service.dart';
 
-const String seedHelloImage = 'assets/images/seed/hello.png';
-const String seedHappyImage = 'assets/images/seed/happy.png';
-const String seedSadImage = 'assets/images/seed/sad.png';
-const String seedAngryImage = 'assets/images/seed/angry.png';
-const String seedBlocksImage = 'assets/images/seed/blocks.png';
+const String seedHelloImage = 'assets/images/starter_pack_v8/basic_words_hello.webp';
+const String seedHappyImage = 'assets/images/starter_pack_v8/feelings_happy.webp';
+const String seedSadImage = 'assets/images/starter_pack_v8/feelings_sad.webp';
+const String seedAngryImage = 'assets/images/starter_pack_v8/feelings_angry.webp';
+const String seedBlocksImage = 'assets/images/starter_pack_v8/basic_words_more.webp';
 const String seedGoodImage = 'assets/images/seed/good.png';
 const String seedPlayImage = 'assets/images/seed/play.png';
+
+// Legacy seed image paths for migration identification
+const String legacySeedHelloImage = 'assets/images/seed/hello.png';
+const String legacySeedHappyImage = 'assets/images/seed/happy.png';
+const String legacySeedSadImage = 'assets/images/seed/sad.png';
+const String legacySeedAngryImage = 'assets/images/seed/angry.png';
+const String legacySeedBlocksImage = 'assets/images/seed/blocks.png';
 
 const String sinhalaHello = '\u0dc4\u0dd9\u0dbd\u0ddd';
 const String sinhalaHappy = '\u0dc3\u0dad\u0dd4\u0da7\u0dd4\u0dba\u0dd2';

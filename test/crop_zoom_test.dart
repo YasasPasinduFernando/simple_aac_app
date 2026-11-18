@@ -138,9 +138,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Crop & Zoom'), findsOneWidget);
-      expect(find.text('Drag to position • Pinch to zoom'), findsOneWidget);
-      expect(find.textContaining('For Gallery and Camera still photos ONLY'), findsOneWidget);
-      expect(find.text('1:1 Card Image'), findsOneWidget);
+      expect(find.text('Pinch to zoom • Drag image or crop handles'), findsOneWidget);
+      expect(find.textContaining('Gallery and Camera photos only'), findsOneWidget);
+      expect(find.text('1:1 Card'), findsOneWidget);
+      expect(find.text('Free Crop'), findsOneWidget);
       expect(find.byType(Slider), findsOneWidget);
       expect(find.byIcon(Icons.remove_rounded), findsOneWidget);
       expect(find.byIcon(Icons.add_rounded), findsOneWidget);
