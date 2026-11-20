@@ -6,9 +6,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/aac_card_model.dart';
+import 'starter_pack_service.dart';
 
 class CardStorageService {
-  static const int defaultCatalogVersion = 7;
+  static const int defaultCatalogVersion = 11;
 
   static const String _cardsFileName = 'aac_cards_v1.json';
   static const String _cardsBackupFileName = 'aac_cards_v1.json.bak';
@@ -22,12 +23,15 @@ class CardStorageService {
   @visibleForTesting
   static void resetTestHooks() {
     docsDirectoryOverride = null;
+    _cachedDocsDir = null;
   }
 
-  static Future<Directory> _getDocsDirectory() {
+  static Directory? _cachedDocsDir;
+
+  static Future<Directory> _getDocsDirectory() async {
     final override = docsDirectoryOverride;
     if (override != null) return override();
-    return getApplicationDocumentsDirectory();
+    return _cachedDocsDir ??= await getApplicationDocumentsDirectory();
   }
 
   static String _join(String parent, String child) {
@@ -570,6 +574,31 @@ class CardStorageService {
       );
     }
 
+    if (_shouldRefreshCategoryFolderColor(card.id, card.colorValue, defaultCard.colorValue)) {
+      card.colorValue = defaultCard.colorValue;
+      changed = true;
+      debugPrint(
+        '[CardStorage] harmonized category folder color for ${card.id} to ${defaultCard.colorValue}',
+      );
+    }
+
+    final harmonizedSeedColor = StarterPackService.harmonizedSeedColors[card.id];
+    if (harmonizedSeedColor != null &&
+        (card.colorValue == defaultCard.colorValue ||
+            StarterPackService.legacySeedColorValues.contains(card.colorValue))) {
+      if (card.colorValue != harmonizedSeedColor) {
+        card.colorValue = harmonizedSeedColor;
+        changed = true;
+        debugPrint('[CardStorage] updated ${card.id} color to harmonized $harmonizedSeedColor');
+      }
+    }
+
+    if (card.id == 'seed_happy' && card.colorValue == 0xFF81D4FA) {
+      card.colorValue = defaultCard.colorValue;
+      changed = true;
+      debugPrint('[CardStorage] updated seed_happy color to match child art');
+    }
+
     if (card.id == 'seed_more' && card.type != defaultCard.type) {
       card.type = defaultCard.type;
       changed = true;
@@ -604,12 +633,29 @@ class CardStorageService {
     return false;
   }
 
-  static const Map<String, String> _legacySeedImagePaths = {
-    'seed_hello': 'assets/images/seed/hello.png',
-    'seed_happy': 'assets/images/seed/happy.png',
-    'seed_sad': 'assets/images/seed/sad.png',
-    'seed_angry': 'assets/images/seed/angry.png',
-    'seed_more': 'assets/images/seed/blocks.png',
+  static const Set<String> _legacySeedImages = {
+    'assets/images/seed/hello.png',
+    'assets/images/seed/happy.png',
+    'assets/images/seed/sad.png',
+    'assets/images/seed/angry.png',
+    'assets/images/seed/blocks.png',
+    'assets/images/seed/good.png',
+    'assets/images/seed/play.png',
+  };
+
+  static const Map<String, String> _mistakenStarterPackSeedImages = {
+    'seed_hello': 'assets/images/starter_pack_v8/basic_words_hello.webp',
+    'seed_happy': 'assets/images/starter_pack_v8/feelings_happy.webp',
+    'seed_sad': 'assets/images/starter_pack_v8/feelings_sad.webp',
+    'seed_angry': 'assets/images/starter_pack_v8/feelings_angry.webp',
+    'seed_more': 'assets/images/starter_pack_v8/basic_words_more.webp',
+  };
+
+  static const Map<String, String> _stickmanV2HomeImages = {
+    'seed_hello': 'assets/images/seed_v2/hello.webp',
+    'seed_happy': 'assets/images/seed_v2/happy.webp',
+    'seed_sad': 'assets/images/seed_v2/sad.webp',
+    'seed_angry': 'assets/images/seed_v2/angry.webp',
   };
 
   static bool _shouldRefreshSeedImage(
@@ -620,11 +666,38 @@ class CardStorageService {
     if (desired == null || desired.isEmpty) return false;
     if (current == null || current.isEmpty) return true;
     if (current == desired) return false;
-    final legacy = _legacySeedImagePaths[cardId];
-    if (legacy != null && current == legacy) {
+    // Restore child-style illustrations for Home cards if currently pointing to stickman v2
+    final stickman = _stickmanV2HomeImages[cardId];
+    if (stickman != null && current == stickman) {
+      return true;
+    }
+    // Restore original stick-figure seed cards that were either on legacy PNG or mistakenly migrated to starter_pack_v8
+    if (_legacySeedImages.contains(current)) {
+      return true;
+    }
+    final mistaken = _mistakenStarterPackSeedImages[cardId];
+    if (mistaken != null && current == mistaken) {
       return true;
     }
     return false;
+  }
+
+  static const Map<String, int> _mismatchedStarterPackCategoryColors = {
+    'simpleaac.starter.v2.family': 0xFFFFF1CE,
+    'simpleaac.starter.v2.personal_care': 0xFFD1F2E8,
+    'simpleaac.starter.v2.feelings': 0xFFFFE3E7,
+    'simpleaac.starter.v2.activities': 0xFFE6E3FF,
+    'simpleaac.starter.v2.drinks': 0xFFD5EFFF,
+  };
+
+  static bool _shouldRefreshCategoryFolderColor(
+    String cardId,
+    int currentColor,
+    int desiredColor,
+  ) {
+    if (currentColor == desiredColor) return false;
+    final mismatched = _mismatchedStarterPackCategoryColors[cardId];
+    return mismatched != null && currentColor == mismatched;
   }
 
   static Set<String> _previousSeedTextValues(String cardId, String field) {

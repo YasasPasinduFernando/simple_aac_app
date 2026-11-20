@@ -133,6 +133,8 @@ void main() {
     });
 
     testWidgets('HomePage: Tap pins board, tap while pinned shows notice, long press triggers haptic & unpins', (tester) async {
+      HomePage.skipSplashForTesting = true;
+      addTearDown(() => HomePage.skipSplashForTesting = false);
       int hapticCallCount = 0;
       HomePage.hapticPerformer = () async {
         hapticCallCount++;

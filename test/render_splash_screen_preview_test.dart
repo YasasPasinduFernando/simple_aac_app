@@ -88,7 +88,7 @@ void main() {
 
     // Precache assets to ensure decoded bitmaps are rendered
     await tester.runAsync(() async {
-      await precacheImage(const AssetImage('assets/images/starter_pack_v8/starter_default.webp'), repaintKey.currentContext!);
+      await precacheImage(const AssetImage('assets/images/simple_aac_logo_transparent.png'), repaintKey.currentContext!);
       await precacheImage(const AssetImage('assets/images/starter_pack_v8/feelings_happy.webp'), repaintKey.currentContext!);
       await precacheImage(const AssetImage('assets/images/starter_pack_v8/feelings_love.webp'), repaintKey.currentContext!);
       await precacheImage(const AssetImage('assets/images/starter_pack_v8/food_apple.webp'), repaintKey.currentContext!);

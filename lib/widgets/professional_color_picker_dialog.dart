@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 enum ColorPickerPreviewType {
   appHeader,
   textPreview,
-  backgroundPreview;
+  backgroundPreview,
+  globalTextPreview;
 
   // Backwards-compatible aliases
   static const textColor = textPreview;
   static const backgroundColor = backgroundPreview;
+  static const globalText = globalTextPreview;
 }
 
 class ProfessionalColorPickerDialog extends StatefulWidget {
@@ -16,6 +18,8 @@ class ProfessionalColorPickerDialog extends StatefulWidget {
   final String subtitle;
   final Color initialColor;
   final Color? defaultColor;
+  final Color? headerColor;
+  final String language;
   final ColorPickerPreviewType previewType;
   final ValueChanged<Color> onApply;
 
@@ -25,6 +29,8 @@ class ProfessionalColorPickerDialog extends StatefulWidget {
     required this.subtitle,
     required this.initialColor,
     this.defaultColor,
+    this.headerColor,
+    this.language = 'en',
     this.previewType = ColorPickerPreviewType.appHeader,
     required this.onApply,
   }) : super(key: key);
@@ -136,6 +142,7 @@ class _ProfessionalColorPickerDialogState
   List<PresetColorItem> get _activePresets {
     switch (widget.previewType) {
       case ColorPickerPreviewType.textPreview:
+      case ColorPickerPreviewType.globalTextPreview:
         return ProfessionalColorPickerDialog.textPresets;
       case ColorPickerPreviewType.backgroundPreview:
         return ProfessionalColorPickerDialog.backgroundPresets;
@@ -189,6 +196,22 @@ class _ProfessionalColorPickerDialogState
   }
 
   Widget _buildHeader(ColorScheme colorScheme, bool isDark) {
+    final IconData headerIcon;
+    switch (widget.previewType) {
+      case ColorPickerPreviewType.globalTextPreview:
+        headerIcon = Icons.text_fields_rounded;
+        break;
+      case ColorPickerPreviewType.textPreview:
+        headerIcon = Icons.format_color_text_rounded;
+        break;
+      case ColorPickerPreviewType.backgroundPreview:
+        headerIcon = Icons.format_paint_rounded;
+        break;
+      case ColorPickerPreviewType.appHeader:
+        headerIcon = Icons.palette_rounded;
+        break;
+    }
+
     return Row(
       children: [
         Container(
@@ -201,7 +224,7 @@ class _ProfessionalColorPickerDialogState
             borderRadius: BorderRadius.circular(14),
           ),
           child: Icon(
-            Icons.palette_rounded,
+            headerIcon,
             size: 24,
             color: isDark ? colorScheme.primary : const Color(0xFF0288D1),
           ),
@@ -260,22 +283,28 @@ class _ProfessionalColorPickerDialogState
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? colorScheme.primaryContainer.withValues(alpha: 0.5)
-                      : const Color(0xFFE0F2FE),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  'Preview',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
                     color: isDark
-                        ? colorScheme.onPrimaryContainer
-                        : const Color(0xFF0369A1),
+                        ? colorScheme.primaryContainer.withValues(alpha: 0.5)
+                        : const Color(0xFFE0F2FE),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    widget.previewType == ColorPickerPreviewType.globalTextPreview
+                        ? 'Live UI Preview'
+                        : 'Preview',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: isDark
+                          ? colorScheme.onPrimaryContainer
+                          : const Color(0xFF0369A1),
+                    ),
                   ),
                 ),
               ),
@@ -292,11 +321,197 @@ class _ProfessionalColorPickerDialogState
     switch (widget.previewType) {
       case ColorPickerPreviewType.appHeader:
         return _buildAppHeaderPreview();
+      case ColorPickerPreviewType.globalTextPreview:
+        return _buildGlobalTextPreview(colorScheme, isDark);
       case ColorPickerPreviewType.textPreview:
         return _buildTextPreview(colorScheme, isDark);
       case ColorPickerPreviewType.backgroundPreview:
         return _buildBackgroundPreview(colorScheme, isDark);
     }
+  }
+
+  /// Global Text Color Preview:
+  /// Demonstrates how the selected text color applies across the app header
+  /// (title, pin icon, menu icon, divider).
+  /// Also clarifies that card labels have an independent setting.
+  Widget _buildGlobalTextPreview(ColorScheme colorScheme, bool isDark) {
+    final baseBg = widget.headerColor ?? const Color(0xFF0288D1);
+    final lighter = Color.lerp(baseBg, Colors.white, 0.10)!;
+    final darker = Color.lerp(baseBg, Colors.black, 0.14)!;
+
+    final infoTextColor = isDark
+        ? const Color(0xFFCBD5E1)
+        : const Color(0xFF475569);
+    final hintTextColor = isDark
+        ? const Color(0xFF94A3B8)
+        : const Color(0xFF64748B);
+
+    final String appHeaderText;
+    final String cardLabelsNotice;
+    if (widget.language == 'si') {
+      appHeaderText = 'යෙදුම් ශීර්ෂ පෙළ සහ මෙවලම් අයිකන';
+      cardLabelsNotice = 'කාඩ්පත් ලේබල් සඳහා වෙනම වර්ණ සැකසුමක් ඇත';
+    } else if (widget.language == 'ta') {
+      appHeaderText = 'பயன்பாட்டு தலைப்பு உரை மற்றும் கருவி சின்னங்கள்';
+      cardLabelsNotice = 'அட்டை லேபிள்களுக்கு தனி வண்ண அமைப்பு உள்ளது';
+    } else {
+      appHeaderText = 'App header text and toolbar icons';
+      cardLabelsNotice = 'Card labels have a separate color setting';
+    }
+
+    return Column(
+      key: const ValueKey('global_text_preview_container'),
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // 1. Mini App Header Bar
+        Container(
+          key: const ValueKey('global_text_mini_header'),
+          height: 48,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [lighter, darker],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.12),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            children: [
+              const Positioned.fill(
+                child: CustomPaint(
+                  painter: _MiniWavePainter(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Row(
+                  children: [
+                    // Pin Button in Candidate Text Color
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: _currentColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(9),
+                        border: Border.all(
+                          color: _currentColor.withValues(alpha: 0.35),
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.push_pin,
+                        size: 16,
+                        color: _currentColor,
+                      ),
+                    ),
+                    // Divider in Candidate Text Color
+                    Container(
+                      height: 18,
+                      width: 1.2,
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: _currentColor.withValues(alpha: 0.40),
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                    ),
+                    // "Simple AAC" title in Candidate Text Color
+                    Expanded(
+                      child: Text(
+                        'Simple AAC',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: _currentColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ),
+                    // Menu Button in Candidate Text Color
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: _currentColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(9),
+                        border: Border.all(
+                          color: _currentColor.withValues(alpha: 0.35),
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.menu_rounded,
+                        size: 18,
+                        color: _currentColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // 2. Swatch Dot + Info Text Row
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              key: const ValueKey('global_text_swatch_dot'),
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: _currentColor,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.3)
+                      : Colors.black.withValues(alpha: 0.15),
+                  width: 1,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                appHeaderText,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: infoTextColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // 3. Card Labels Notice Caption
+        Center(
+          child: Text(
+            cardLabelsNotice,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w500,
+              color: hintTextColor,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildAppHeaderPreview() {

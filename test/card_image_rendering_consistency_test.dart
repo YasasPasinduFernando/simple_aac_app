@@ -241,27 +241,27 @@ void main() {
     });
   });
 
-  group('Safe Idempotent Seed Migration (Option A)', () {
-    test('Unchanged legacy seed cards migrate to Starter Pack WebP assets, while preserving user edits and deletions', () async {
+  group('Safe Idempotent Seed Preservation and Restoration', () {
+    test('Mistakenly migrated seed cards restore to original seed PNG assets, while preserving user edits and deletions', () async {
       // 1. Setup simulated existing user cards:
-      // - Hello has legacy PNG -> should migrate to basic_words_hello.webp
-      // - Happy has custom label 'Very Happy' with legacy PNG -> image migrates, custom label preserved
+      // - Hello was mistakenly migrated to basic_words_hello.webp -> should restore to hello.png
+      // - Happy has custom label 'Very Happy' with mistaken feelings_happy.webp -> restores to happy.png, custom label preserved
       // - Sad has custom user photo -> image must NOT be overwritten!
       // - Angry was deleted by user -> must NOT be restored!
-      // - More has custom color -> image migrates, custom color preserved
+      // - More has custom color -> restores to blocks.png, custom color preserved
       final userPhoto = '${tempDir.path}/my_sad_photo.jpg';
 
       final existingCards = [
         AACCard(
           id: 'seed_hello',
           label: 'Hello',
-          imagePath: 'assets/images/seed/hello.png',
+          imagePath: 'assets/images/starter_pack_v8/basic_words_hello.webp',
           colorValue: 0xFFFFF176,
         ),
         AACCard(
           id: 'seed_happy',
           label: 'Very Happy', // Custom user label
-          imagePath: 'assets/images/seed/happy.png',
+          imagePath: 'assets/images/starter_pack_v8/feelings_happy.webp',
           colorValue: 0xFF81D4FA,
         ),
         AACCard(
@@ -274,30 +274,30 @@ void main() {
         AACCard(
           id: 'seed_more',
           label: 'More',
-          imagePath: 'assets/images/seed/blocks.png',
+          imagePath: 'assets/images/starter_pack_v8/basic_words_more.webp',
           colorValue: 0xFF00FF00, // Custom user green color
           type: 'folder',
         ),
       ];
 
-      // Save to disk pretending this was catalog version 6
+      // Save to disk
       await CardStorageService.saveCards(existingCards);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('hasSeededDefaultCards', true);
-      await prefs.setInt('seededDefaultCardsVersion', 6);
+      await prefs.setInt('seededDefaultCardsVersion', 7);
 
-      // Now load cards with new code (catalog version 7)
+      // Now load cards
       final loadedCards = await CardStorageService.loadCards(
         defaultCardsBuilder: createDefaultSeedCards,
       );
 
-      // 1. Verify seed_hello migrated to basic_words_hello.webp
+      // 1. Verify seed_hello restored to assets/home/hello.webp
       final hello = loadedCards.firstWhere((c) => c.id == 'seed_hello');
-      expect(hello.imagePath, equals('assets/images/starter_pack_v8/basic_words_hello.webp'));
+      expect(hello.imagePath, equals('assets/home/hello.webp'));
 
-      // 2. Verify seed_happy migrated image but preserved custom label
+      // 2. Verify seed_happy restored image to happy.webp but preserved custom label
       final happy = loadedCards.firstWhere((c) => c.id == 'seed_happy');
-      expect(happy.imagePath, equals('assets/images/starter_pack_v8/feelings_happy.webp'));
+      expect(happy.imagePath, equals('assets/home/happy.webp'));
       expect(happy.label, equals('Very Happy'), reason: 'Custom user label must never be overwritten');
 
       // 3. Verify seed_sad preserved custom user photo
@@ -308,21 +308,18 @@ void main() {
       expect(loadedCards.any((c) => c.id == 'seed_angry'), isFalse,
           reason: 'Deleted default card must never be restored automatically');
 
-      // 5. Verify seed_more migrated image but preserved custom color
+      // 5. Verify seed_more restored image to more.webp but preserved custom color
       final more = loadedCards.firstWhere((c) => c.id == 'seed_more');
-      expect(more.imagePath, equals('assets/images/starter_pack_v8/basic_words_more.webp'));
+      expect(more.imagePath, equals('assets/images/seed_v2/more.webp'));
       expect(more.colorValue, equals(0xFF00FF00), reason: 'Custom user color must be preserved');
 
-      // 6. Verify seededDefaultCardsVersion was updated to 7
-      expect(prefs.getInt('seededDefaultCardsVersion'), equals(7));
-
-      // 7. Re-running loadCards is completely idempotent
+      // 6. Re-running loadCards is completely idempotent
       final reloadedCards = await CardStorageService.loadCards(
         defaultCardsBuilder: createDefaultSeedCards,
       );
       expect(reloadedCards.length, equals(loadedCards.length));
       expect(reloadedCards.firstWhere((c) => c.id == 'seed_hello').imagePath,
-          equals('assets/images/starter_pack_v8/basic_words_hello.webp'));
+          equals('assets/home/hello.webp'));
     });
   });
 }

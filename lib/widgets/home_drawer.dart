@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/tutorial_service.dart';
 import '../utils/theme_accessibility.dart';
 import 'tutorial/mini_guides_dialog.dart';
@@ -69,6 +72,8 @@ class HomeDrawer extends StatelessWidget {
   final bool? showGestureHint;
   final bool isCaregiverLockEnabled;
   final ValueChanged<bool>? onToggleCaregiverLock;
+  final bool disableBackCardInPinMode;
+  final ValueChanged<bool>? onToggleDisableBackCardInPinMode;
 
   const HomeDrawer({
     Key? key,
@@ -137,6 +142,8 @@ class HomeDrawer extends StatelessWidget {
     this.showGestureHint,
     this.isCaregiverLockEnabled = false,
     this.onToggleCaregiverLock,
+    this.disableBackCardInPinMode = false,
+    this.onToggleDisableBackCardInPinMode,
   }) : super(key: key);
 
   void _handleClose(BuildContext context) {
@@ -159,34 +166,42 @@ class HomeDrawer extends StatelessWidget {
     final standardWidth = (screenWidth * 0.82).clamp(280.0, 360.0);
     final drawerWidth = isExpanded ? screenWidth : standardWidth;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 240),
-      curve: Curves.easeOutCubic,
-      width: drawerWidth,
-      child: Drawer(
+    return _SettingsDrawerDiscoveryHost(
+      isExpanded: isExpanded,
+      onToggleExpanded: onToggleExpanded,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 240),
+        curve: Curves.easeOutCubic,
         width: drawerWidth,
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                _DrawerGestureHandler(
-                  isExpanded: isExpanded,
-                  onToggleExpanded: onToggleExpanded,
-                  onClose: () => _handleClose(context),
-                  child: _buildHeader(context),
-                ),
-                _DrawerGestureHandler(
-                  isExpanded: isExpanded,
-                  onToggleExpanded: onToggleExpanded,
-                  onClose: () => _handleClose(context),
-                  child: _DrawerGestureHintBar(
+        child: Drawer(
+          width: drawerWidth,
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  _DrawerGestureHandler(
                     isExpanded: isExpanded,
-                    forceShow: showGestureHint,
+                    onToggleExpanded: onToggleExpanded,
+                    onClose: () => _handleClose(context),
+                    child: _buildHeader(context),
                   ),
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  _DrawerGestureHandler(
+                    isExpanded: isExpanded,
+                    onToggleExpanded: onToggleExpanded,
+                    onClose: () => _handleClose(context),
+                    child: _DrawerGestureHintBar(
+                      isExpanded: isExpanded,
+                      forceShow: showGestureHint,
+                      onExpand: () {
+                        DrawerGestureHintHelper.markExpansionDiscovered();
+                        onToggleExpanded?.call(true);
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      key: const PageStorageKey('settings_drawer_list_view'),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 children: [
                 _buildSectionHeader(context, 'Connectivity & Privacy', Icons.wifi_protected_setup_rounded),
                 _buildOnlineSwitch(context),
@@ -215,6 +230,16 @@ class HomeDrawer extends StatelessWidget {
                       : 'Protect board & settings with phone fingerprint, face, pattern or PIN',
                   value: isCaregiverLockEnabled,
                   onChanged: (val) => onToggleCaregiverLock?.call(val),
+                ),
+                _buildSwitchItem(
+                  context,
+                  itemKey: const ValueKey('disable_back_card_in_pin_mode_switch'),
+                  icon: Icons.arrow_back_rounded,
+                  title: 'Disable Back Card in Pin Mode',
+                  subtitle: 'Hide folder Back cards while Pin Mode is active.',
+                  value: disableBackCardInPinMode,
+                  onChanged: (val) =>
+                      onToggleDisableBackCardInPinMode?.call(val),
                 ),
                 if (onShowOfflineSpeech != null)
                   _buildDrawerItem(
@@ -362,7 +387,7 @@ class HomeDrawer extends StatelessWidget {
                     itemKey: const ValueKey('drawer_starter_pack_item'),
                     icon: Icons.auto_awesome_rounded,
                     title: 'Starter Card Pack',
-                    subtitle: '114 cards in 13 categories (Sri Lanka)',
+                    subtitle: '128 cards in 13 categories (Sri Lanka)',
                     onTap: onShowStarterPack!,
                   ),
                 if (onOpenRecycleBin != null)
@@ -451,6 +476,7 @@ class HomeDrawer extends StatelessWidget {
     ],
   ),
 ),
+),
 );
   }
 
@@ -515,7 +541,8 @@ class HomeDrawer extends StatelessWidget {
                               child: InkWell(
                                 onTap: () {
                                   TutorialService.instance.notifyDrawerResized();
-                                  onToggleExpanded?.call(!isExpanded);
+                                  final next = !isExpanded;
+                                  onToggleExpanded?.call(next);
                                 },
                                 borderRadius: BorderRadius.circular(12),
                                 child: Container(
@@ -1194,6 +1221,7 @@ class HomeDrawer extends StatelessWidget {
 
   Widget _buildSwitchItem(
     BuildContext context, {
+    Key? itemKey,
     required IconData icon,
     required String title,
     String? subtitle,
@@ -1208,6 +1236,7 @@ class HomeDrawer extends StatelessWidget {
     final cardBorder = isDark ? const Color(0xFF2A3447) : const Color(0xFFE2E8F0);
 
     return Container(
+      key: itemKey,
       margin: const EdgeInsets.symmetric(vertical: 3),
       decoration: BoxDecoration(
         color: cardBg,
@@ -2187,36 +2216,389 @@ class _DrawerHeaderWavePainter extends CustomPainter {
 }
 
 /// Helper service for managing the Settings Drawer swipe hint.
-/// Shows every time the app is re-opened, but can be dismissed per-session via the 'x' button.
+/// Shows in compact mode for up to 2 distinct eligible app sessions,
+/// can be dismissed per-session via the 'x' button, and is permanently
+/// silenced once the swipe gesture or banner tap is performed.
 class DrawerGestureHintHelper {
-  static bool _sessionDismissed = false;
+  static const String prefKeyLegacyDiscoveredExpansion =
+      'has_discovered_drawer_expansion';
+  static const String prefKeyGestureDiscovered =
+      'has_discovered_drawer_gesture_v2';
+  static const String prefKeySessionCount =
+      'drawer_gesture_discovery_session_count_v2';
+  static const int maxEligibleSessions = 2;
 
-  /// Returns true if the user dismissed the swipe gesture guidance during this session.
-  /// Defaults to false so guidance reappears every time the app is re-opened.
+  static bool _sessionDismissed = false;
+  static bool _hasDiscoveredGesture = false;
+  static int _sessionCount = 0;
+  static bool _hasLoadedFromPrefs = false;
+  static bool _hasRecordedCurrentSession = false;
+
+  /// Loads persisted expansion discovery state and session count from SharedPreferences.
+  static Future<void> loadPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _hasDiscoveredGesture =
+          prefs.getBool(prefKeyGestureDiscovered) ?? false;
+      _sessionCount = prefs.getInt(prefKeySessionCount) ?? 0;
+      _hasLoadedFromPrefs = true;
+    } catch (_) {}
+  }
+
+  /// Synchronous check for session dismissal.
+  static bool get isSessionDismissed => _sessionDismissed;
+
+  /// Synchronous check for discovery state.
+  static bool get hasDiscoveredExpansion => _hasDiscoveredGesture;
+
+  /// Whether automatic discovery is exhausted (after maxEligibleSessions).
+  static bool get isDiscoveryExhausted => _sessionCount >= maxEligibleSessions;
+
+  /// Current recorded eligible session count.
+  static int get sessionCount => _sessionCount;
+
+  /// Synchronous check for whether this app session has already been counted.
+  static bool get hasRecordedCurrentSession => _hasRecordedCurrentSession;
+
+  /// Returns true if the user dismissed the swipe gesture guidance during this session
+  /// OR has already discovered drawer expansion
+  /// OR has completed the maximum allowed discovery sessions (2).
   static Future<bool> isDismissed() async {
-    return _sessionDismissed;
+    if (_sessionDismissed) return true;
+    if (!_hasLoadedFromPrefs) {
+      await loadPreferences();
+    }
+    if (_hasDiscoveredGesture) return true;
+    if (_sessionCount >= maxEligibleSessions) return true;
+    return false;
+  }
+
+  /// Records that the hint was genuinely eligible and displayed during this app session.
+  /// Only increments once per app session (in-memory process lifecycle).
+  static Future<void> recordEligibleSessionDisplayed() async {
+    if (_hasRecordedCurrentSession) return;
+    if (!_hasLoadedFromPrefs) {
+      await loadPreferences();
+    }
+    if (_hasDiscoveredGesture) return;
+    if (_sessionCount >= maxEligibleSessions) return;
+
+    _hasRecordedCurrentSession = true;
+    _sessionCount++;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(prefKeySessionCount, _sessionCount);
+    } catch (_) {}
   }
 
   /// Marks the gesture hint as dismissed for this session when the user taps 'x'.
-  static Future<void> setDismissed() async {
+  static void setDismissed() {
     _sessionDismissed = true;
   }
 
-  /// Resets the session dismissal flag (primarily for QA and automated test verification).
+  /// Marks expansion as successfully discovered and persists to SharedPreferences.
+  static Future<void> markExpansionDiscovered() async {
+    _hasDiscoveredGesture = true;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(prefKeyGestureDiscovered, true);
+      await prefs.setBool(prefKeyLegacyDiscoveredExpansion, true);
+    } catch (_) {}
+  }
+
+  /// Resets session-specific in-memory flags to simulate closing and relaunching the app.
+  @visibleForTesting
+  static void resetSessionForTesting() {
+    _sessionDismissed = false;
+    _hasRecordedCurrentSession = false;
+    _hasLoadedFromPrefs = false;
+  }
+
+  /// Resets the session dismissal, discovery flags, and session counts.
   static Future<void> reset() async {
     _sessionDismissed = false;
+    _hasDiscoveredGesture = false;
+    _hasRecordedCurrentSession = false;
+    _sessionCount = 0;
+    _hasLoadedFromPrefs = false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(prefKeyGestureDiscovered);
+      await prefs.remove(prefKeyLegacyDiscoveredExpansion);
+      await prefs.remove(prefKeySessionCount);
+    } catch (_) {}
   }
 }
 
-/// Dismissible onboarding hint showing "Swipe left to expand" or "Swipe right to shrink".
+/// InheritedWidget providing discovery animation state and actions to child widgets.
+class _SettingsDrawerDiscoveryScope extends InheritedWidget {
+  final Animation<double> nudgeAnimation;
+  final VoidCallback triggerNudge;
+  final VoidCallback expandDrawer;
+
+  const _SettingsDrawerDiscoveryScope({
+    Key? key,
+    required this.nudgeAnimation,
+    required this.triggerNudge,
+    required this.expandDrawer,
+    required Widget child,
+  }) : super(key: key, child: child);
+
+  static _SettingsDrawerDiscoveryScope? of(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<_SettingsDrawerDiscoveryScope>();
+  }
+
+  @override
+  bool updateShouldNotify(_SettingsDrawerDiscoveryScope oldWidget) => false;
+}
+
+/// Host widget that detects sustained active scrolling (~3 seconds) and plays a gentle,
+/// 400ms spring-back nudge animation moving the drawer 12 logical pixels to the left.
+class _SettingsDrawerDiscoveryHost extends StatefulWidget {
+  final bool isExpanded;
+  final ValueChanged<bool>? onToggleExpanded;
+  final Widget child;
+
+  @visibleForTesting
+  static Duration activeScrollThreshold = const Duration(milliseconds: 2800);
+
+  const _SettingsDrawerDiscoveryHost({
+    Key? key,
+    required this.isExpanded,
+    required this.onToggleExpanded,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  State<_SettingsDrawerDiscoveryHost> createState() =>
+      _SettingsDrawerDiscoveryHostState();
+}
+
+class _SettingsDrawerDiscoveryHostState
+    extends State<_SettingsDrawerDiscoveryHost>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _nudgeController;
+  late final Animation<double> _nudgeAnimation;
+
+  bool _hasNudgedThisSession = false;
+  bool _isUserScrolling = false;
+  bool _sustainedScrollReached = false;
+  Timer? _activeScrollTimer;
+  Timer? _idleResetTimer;
+  DateTime? _activeScrollStartTime;
+
+  @override
+  void initState() {
+    super.initState();
+    DrawerGestureHintHelper.loadPreferences();
+
+    _nudgeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+
+    _nudgeAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(begin: 0.0, end: -12.0)
+            .chain(CurveTween(curve: Curves.easeOutQuad)),
+        weight: 40.0,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(begin: -12.0, end: 0.0)
+            .chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 60.0,
+      ),
+    ]).animate(_nudgeController);
+  }
+
+  @override
+  void dispose() {
+    _activeScrollTimer?.cancel();
+    _idleResetTimer?.cancel();
+    _nudgeController.dispose();
+    super.dispose();
+  }
+
+  bool get _isNudgeEligible {
+    if (widget.isExpanded) return false;
+    if (_hasNudgedThisSession) return false;
+    if (DrawerGestureHintHelper.hasDiscoveredExpansion) return false;
+    if (DrawerGestureHintHelper.isSessionDismissed) return false;
+    if (DrawerGestureHintHelper.isDiscoveryExhausted) return false;
+    if (MediaQuery.maybeOf(context)?.disableAnimations ?? false) return false;
+    final route = ModalRoute.of(context);
+    if (route != null && !route.isCurrent) return false;
+    return true;
+  }
+
+  void _triggerNudge() {
+    if (!mounted || !_isNudgeEligible) return;
+    _hasNudgedThisSession = true;
+    _nudgeController.forward(from: 0.0);
+  }
+
+  void _onScrollStart() {
+    _idleResetTimer?.cancel();
+    _isUserScrolling = true;
+
+    if (!_isNudgeEligible) return;
+
+    if (_activeScrollStartTime == null) {
+      _activeScrollStartTime = DateTime.now();
+      _activeScrollTimer?.cancel();
+      _activeScrollTimer =
+          Timer(_SettingsDrawerDiscoveryHost.activeScrollThreshold, () {
+        if (!mounted) return;
+        _sustainedScrollReached = true;
+        // If the user already stopped touching/scrolling when threshold was reached
+        if (!_isUserScrolling && _isNudgeEligible) {
+          _triggerNudge();
+        }
+      });
+    }
+  }
+
+  void _onScrollUpdate() {
+    _idleResetTimer?.cancel();
+    _isUserScrolling = true;
+  }
+
+  void _onScrollEnd() {
+    _isUserScrolling = false;
+
+    if (_sustainedScrollReached) {
+      if (_isNudgeEligible) {
+        _triggerNudge();
+      }
+      _sustainedScrollReached = false;
+      _activeScrollStartTime = null;
+      _activeScrollTimer?.cancel();
+      return;
+    }
+
+    // Reset after 1.2s of inactivity if sustained duration was not met
+    _idleResetTimer?.cancel();
+    _idleResetTimer = Timer(const Duration(milliseconds: 1200), () {
+      if (!mounted) return;
+      if (!_isUserScrolling) {
+        _activeScrollStartTime = null;
+        _activeScrollTimer?.cancel();
+        _sustainedScrollReached = false;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _SettingsDrawerDiscoveryScope(
+      nudgeAnimation: _nudgeAnimation,
+      triggerNudge: _triggerNudge,
+      expandDrawer: () {
+        DrawerGestureHintHelper.markExpansionDiscovered();
+        widget.onToggleExpanded?.call(true);
+      },
+      child: NotificationListener<ScrollNotification>(
+        onNotification: (notification) {
+          if (notification is ScrollStartNotification) {
+            if (notification.dragDetails != null) {
+              _onScrollStart();
+            }
+          } else if (notification is ScrollUpdateNotification) {
+            if (notification.dragDetails != null) {
+              _onScrollUpdate();
+            }
+          } else if (notification is ScrollEndNotification) {
+            _onScrollEnd();
+          } else if (notification is UserScrollNotification) {
+            if (notification.direction == ScrollDirection.idle) {
+              _onScrollEnd();
+            } else {
+              _onScrollUpdate();
+            }
+          }
+          return false;
+        },
+        child: AnimatedBuilder(
+          animation: _nudgeAnimation,
+          builder: (context, child) {
+            final disableAnimations =
+                MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+            final offset = disableAnimations
+                ? Offset.zero
+                : Offset(_nudgeAnimation.value, 0);
+            return Transform.translate(
+              offset: offset,
+              child: child,
+            );
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              widget.child,
+              if (!widget.isExpanded)
+                Positioned(
+                  left: 0,
+                  top: MediaQuery.of(context).padding.top + 76,
+                  child: AnimatedBuilder(
+                    animation: _nudgeAnimation,
+                    builder: (context, _) {
+                      final disableAnimations =
+                          MediaQuery.maybeOf(context)?.disableAnimations ??
+                              false;
+                      final progress =
+                          (_nudgeAnimation.value.abs() / 12.0).clamp(0.0, 1.0);
+                      if (progress <= 0.05 || disableAnimations) {
+                        return const SizedBox.shrink();
+                      }
+                      return Opacity(
+                        opacity: progress,
+                        child: Transform.translate(
+                          offset: Offset(-8 * progress, 0),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: const Color(0xFF0267C1),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF0267C1)
+                                      .withValues(alpha: 0.45),
+                                  blurRadius: 8,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back_rounded,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Dismissible onboarding hint showing "Swipe left to expand".
 class _DrawerGestureHintBar extends StatefulWidget {
   final bool isExpanded;
   final bool? forceShow;
+  final VoidCallback? onExpand;
 
   const _DrawerGestureHintBar({
     Key? key,
     required this.isExpanded,
     this.forceShow,
+    this.onExpand,
   }) : super(key: key);
 
   @override
@@ -2236,7 +2618,8 @@ class _DrawerGestureHintBarState extends State<_DrawerGestureHintBar> {
   @override
   void didUpdateWidget(covariant _DrawerGestureHintBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.forceShow != oldWidget.forceShow) {
+    if (widget.forceShow != oldWidget.forceShow ||
+        widget.isExpanded != oldWidget.isExpanded) {
       _checkPref();
     }
   }
@@ -2252,6 +2635,9 @@ class _DrawerGestureHintBarState extends State<_DrawerGestureHintBar> {
       return;
     }
     final dismissed = await DrawerGestureHintHelper.isDismissed();
+    if (!dismissed && !widget.isExpanded) {
+      await DrawerGestureHintHelper.recordEligibleSessionDisplayed();
+    }
     if (mounted) {
       setState(() {
         _dismissed = dismissed;
@@ -2269,136 +2655,172 @@ class _DrawerGestureHintBarState extends State<_DrawerGestureHintBar> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isExpanded) {
+      return const SizedBox.shrink();
+    }
     if (!_loaded || _dismissed) {
       return const SizedBox.shrink();
     }
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final scope = _SettingsDrawerDiscoveryScope.of(context);
 
-    return Semantics(
-      container: true,
-      label: widget.isExpanded
-          ? 'Gesture hint: Swipe right to shrink'
-          : 'Gesture hint: Swipe left to expand',
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE8F1FC),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isDark ? const Color(0xFF334155) : const Color(0xFFD0E2F9),
-            width: 1,
+    Widget buildBarContent(double nudgeProgress) {
+      final isNudging = nudgeProgress > 0.05;
+      final borderColor = isNudging
+          ? Color.lerp(
+              isDark ? const Color(0xFF334155) : const Color(0xFFD0E2F9),
+              isDark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB),
+              nudgeProgress,
+            )!
+          : (isDark ? const Color(0xFF334155) : const Color(0xFFD0E2F9));
+
+      final backgroundColor = isNudging
+          ? Color.lerp(
+              isDark ? const Color(0xFF1E293B) : const Color(0xFFE8F1FC),
+              isDark ? const Color(0xFF1E3A8A) : const Color(0xFFDBEAFE),
+              nudgeProgress,
+            )!
+          : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE8F1FC));
+
+      return Semantics(
+        container: true,
+        button: true,
+        label: 'Gesture hint: Swipe left or tap to expand Settings to full screen',
+        hint: 'Expands settings drawer to full screen',
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: borderColor,
+              width: isNudging ? 1.5 : 1.0,
+            ),
+            boxShadow: isNudging
+                ? [
+                    BoxShadow(
+                      color: (isDark
+                              ? const Color(0xFF60A5FA)
+                              : const Color(0xFF2563EB))
+                          .withValues(alpha: 0.25 * nudgeProgress),
+                      blurRadius: 8 * nudgeProgress,
+                      spreadRadius: 1 * nudgeProgress,
+                    ),
+                  ]
+                : null,
           ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              widget.isExpanded
-                  ? Icons.swipe_right_rounded
-                  : Icons.swipe_left_rounded,
-              color: isDark ? const Color(0xFF93C5FD) : const Color(0xFF155799),
-              size: 24,
-            ),
-            Container(
-              height: 22,
-              width: 1,
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              color: isDark ? const Color(0xFF475569) : const Color(0xFFB0CBEA),
-            ),
-            Expanded(
-              child: widget.isExpanded
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Flexible(
-                              child: Text(
-                                'Swipe right to shrink',
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: TextStyle(
-                                  color: isDark ? Colors.white : const Color(0xFF0F3B7A),
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.bold,
-                                ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              key: const ValueKey('drawer_gesture_hint_bar_tap'),
+              onTap: () {
+                if (widget.onExpand != null) {
+                  widget.onExpand!();
+                } else {
+                  scope?.expandDrawer();
+                }
+              },
+              borderRadius: BorderRadius.circular(14),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.swipe_left_rounded,
+                      color: isDark
+                          ? const Color(0xFF93C5FD)
+                          : const Color(0xFF155799),
+                      size: 24,
+                    ),
+                    Container(
+                      height: 22,
+                      width: 1,
+                      margin: const EdgeInsets.symmetric(horizontal: 10),
+                      color: isDark
+                          ? const Color(0xFF475569)
+                          : const Color(0xFFB0CBEA),
+                    ),
+                    Expanded(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              'Swipe left to expand',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: TextStyle(
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF0F3B7A),
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.arrow_forward_rounded,
-                              size: 13,
-                              color: isDark ? Colors.white : const Color(0xFF0F3B7A),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 1),
-                        Text(
-                          'Swipe right again to close',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                            color: isDark ? Colors.white70 : const Color(0xFF336699),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
                           ),
-                        ),
-                      ],
-                    )
-                  : Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            'Swipe left to expand',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(
-                              color: isDark ? Colors.white : const Color(0xFF0F3B7A),
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.arrow_back_rounded,
+                            size: 13,
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF0F3B7A),
                           ),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_back_rounded,
-                          size: 13,
-                          color: isDark ? Colors.white : const Color(0xFF0F3B7A),
-                        ),
-                      ],
-                    ),
-            ),
-            Semantics(
-              button: true,
-              label: 'Dismiss gesture hint',
-              child: Tooltip(
-                message: 'Dismiss hint',
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: _dismiss,
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: Icon(
-                        Icons.close_rounded,
-                        size: 18,
-                        color: isDark ? Colors.white60 : const Color(0xFF5A7CA5),
+                        ],
                       ),
                     ),
-                  ),
+                    Semantics(
+                      button: true,
+                      label: 'Dismiss gesture hint',
+                      child: Tooltip(
+                        message: 'Dismiss hint',
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            key: const ValueKey(
+                                'drawer_gesture_hint_dismiss_button'),
+                            onTap: _dismiss,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4),
+                              child: Icon(
+                                Icons.close_rounded,
+                                size: 18,
+                                color: isDark
+                                    ? Colors.white60
+                                    : const Color(0xFF5A7CA5),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
+          ),
         ),
-      ),
-    );
+      );
+    }
+
+    if (scope?.nudgeAnimation != null) {
+      return AnimatedBuilder(
+        animation: scope!.nudgeAnimation,
+        builder: (context, _) {
+          final progress =
+              (scope.nudgeAnimation.value.abs() / 12.0).clamp(0.0, 1.0);
+          return buildBarContent(progress);
+        },
+      );
+    }
+
+    return buildBarContent(0.0);
   }
 }
 
@@ -2436,6 +2858,7 @@ class _DrawerGestureHandlerState extends State<_DrawerGestureHandler> {
         if (_accumulatedDelta <= -40 && !widget.isExpanded) {
           _accumulatedDelta = 0.0;
           TutorialService.instance.notifyDrawerResized();
+          DrawerGestureHintHelper.markExpansionDiscovered();
           widget.onToggleExpanded?.call(true);
         } else if (_accumulatedDelta >= 40 && widget.isExpanded) {
           _accumulatedDelta = 0.0;
@@ -2445,8 +2868,10 @@ class _DrawerGestureHandlerState extends State<_DrawerGestureHandler> {
       },
       onHorizontalDragEnd: (details) {
         final velocity = details.primaryVelocity ?? 0.0;
-        if ((velocity < -200 || _accumulatedDelta <= -30) && !widget.isExpanded) {
+        if ((velocity < -200 || _accumulatedDelta <= -30) &&
+            !widget.isExpanded) {
           TutorialService.instance.notifyDrawerResized();
+          DrawerGestureHintHelper.markExpansionDiscovered();
           widget.onToggleExpanded?.call(true);
         } else if (velocity > 200 || _accumulatedDelta >= 30) {
           if (widget.isExpanded) {

@@ -48,7 +48,7 @@ void main() {
       final testCard = AACCard(
         id: 'card_equal_dim',
         label: 'Hello',
-        imagePath: 'assets/images/happy.png',
+        imagePath: 'assets/home/happy.webp',
         colorValue: 0xFFFEE685,
       );
 
@@ -98,7 +98,7 @@ void main() {
       final testCard = AACCard(
         id: 'card_contain_test',
         label: 'Water',
-        imagePath: 'assets/images/water.png',
+        imagePath: 'assets/images/starter_pack_v8/drinks_water.webp',
         colorValue: 0xFFB9DCFE,
       );
       HomePage.initialCardsForTesting = [testCard];
@@ -151,7 +151,7 @@ void main() {
       final testCard = AACCard(
         id: 'card_edit_mode_tray',
         label: 'Eat',
-        imagePath: 'assets/images/eat.png',
+        imagePath: 'assets/images/starter_pack_v8/activities_eat.webp',
         colorValue: 0xFFBBF7D0,
       );
       HomePage.initialCardsForTesting = [testCard];

@@ -128,7 +128,19 @@ class ImageCropHelper {
       resized = cropped;
     }
 
-    final encoded = img.encodeJpg(resized, quality: params.quality);
+    img.Image finalImage = resized;
+    if (finalImage.hasAlpha) {
+      final solidBg = img.Image(
+        width: finalImage.width,
+        height: finalImage.height,
+        numChannels: 3,
+      );
+      img.fill(solidBg, color: img.ColorRgb8(255, 255, 255));
+      img.compositeImage(solidBg, finalImage);
+      finalImage = solidBg;
+    }
+
+    final encoded = img.encodeJpg(finalImage, quality: params.quality);
     final outFile = File(params.outputPath);
     outFile.writeAsBytesSync(encoded);
 
@@ -250,9 +262,9 @@ class ImageCropHelper {
       }
     }
 
-    // Handle transparent PNGs by compositing onto a crisp white background
+    // Handle transparent images (PNG, WebP, etc.) by compositing onto a crisp white background
     img.Image finalImage = resized;
-    if (params.sourcePath.toLowerCase().endsWith('.png') && finalImage.hasAlpha) {
+    if (finalImage.hasAlpha) {
       final solidBg = img.Image(
         width: finalImage.width,
         height: finalImage.height,

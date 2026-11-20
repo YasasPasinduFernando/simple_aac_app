@@ -58,7 +58,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     final showLeading = showPin || showBack;
 
-    final showOrientationButton = onOrientation != null &&
+    final showOrientationButton = !isPinned &&
+        onOrientation != null &&
         screenWidth >= 320 &&
         !(screenWidth < 360 && showPin && showBack);
 
@@ -128,7 +129,9 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: fgColor.withValues(alpha: 0.35),
                 borderRadius: BorderRadius.circular(1),
               ),
-            ),
+            )
+          else
+            const SizedBox(width: 16),
           Expanded(
             child: titleWidget ??
                 Text(

@@ -20,6 +20,66 @@ class StarterPackService {
   static const String starterPackRootId = 'simpleaac.starter.v2.default';
   static const String assetImagePrefix = 'assets/images/starter_pack_v8/';
 
+  /// Exact background colors matching the solid edge pixels of built-in category folder assets.
+  /// Eliminates visible inner rectangles without cropping illustrations.
+  static const Map<String, int> harmonizedCategoryFolderColors = {
+    'simpleaac.starter.v2.animals': 0xFFE0EED0,
+    'simpleaac.starter.v2.food': 0xFFFEE2A0,
+    'simpleaac.starter.v2.snacks': 0xFFFFD8BC,
+    'simpleaac.starter.v2.needs': 0xFFBFE6D5,
+    'simpleaac.starter.v2.school_places': 0xFFD1E2FA,
+  };
+
+  /// Exact background colors matching the solid edge pixels of built-in seed cards (More folder).
+  static const Map<String, int> harmonizedSeedColors = {
+    'seed_more': 0xFF475CC5,
+    'seed_good': 0xFF7CCA7E,
+    'seed_play': 0xFFFEAE3E,
+    'seed_yes': 0xFF9ADEA7,
+    'seed_no': 0xFFEB9698,
+    'seed_please': 0xFFCF99DB,
+    'seed_thank_you': 0xFFFDE473,
+    'seed_help': 0xFF70E3EC,
+    'seed_stop': 0xFFFC877C,
+  };
+
+  static const Set<int> legacySeedColorValues = {
+    0xFF3F51B5, // seed_more legacy (indigo.shade500)
+    0xFF81C784, // seed_good legacy (green.shade300)
+    0xFFFFB74D, // seed_play legacy (orange.shade300)
+    0xFFA5D6A7, // seed_yes legacy
+    0xFFEF9A9A, // seed_no legacy
+    0xFFCE93D8, // seed_please legacy
+    0xFFFFE082, // seed_thank_you legacy
+    0xFF80DEEA, // seed_help legacy
+    0xFFFF8A80, // seed_stop legacy
+  };
+
+  /// Resolves the effective presentation color for a card, ensuring built-in category folders
+  /// and seed cards match their native illustration background across fresh and existing installations.
+  static int resolveCardColorValue(AACCard card) {
+    final harmonized = harmonizedCategoryFolderColors[card.id] ?? harmonizedSeedColors[card.id];
+    if (harmonized != null) {
+      final img = card.imagePath;
+      final isBuiltIn = img == null ||
+          img.isEmpty ||
+          img.contains('assets/images/starter_pack_v8/') ||
+          img.contains('assets/images/seed_v2/') ||
+          img.contains('images/');
+      if (isBuiltIn) {
+        // If it's a seed card and user customized the color away from legacy defaults, keep custom color
+        if (card.id.startsWith('seed_')) {
+          if (card.colorValue != harmonized &&
+              !legacySeedColorValues.contains(card.colorValue)) {
+            return card.colorValue;
+          }
+        }
+        return harmonized;
+      }
+    }
+    return card.colorValue;
+  }
+
   static AACCard? _cachedPackRoot;
 
   /// Clear the in-memory cache (e.g. for testing)

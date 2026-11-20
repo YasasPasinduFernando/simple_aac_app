@@ -53,8 +53,8 @@ void main() {
       expect(defaultFolder.labelSinhala, equals('පෙරනිමි'));
       expect(defaultFolder.labelTamil, equals('இயல்புநிலை'));
 
-      // Total cards counted: 5 demo cards (with 2 subcards) + 128 starter pack nodes = 135 total
-      expect(CardStorageService.countCards(seeded), equals(135));
+      // Total cards counted: 5 demo cards (with 8 More subcards) + 128 starter pack nodes = 141 total
+      expect(CardStorageService.countCards(seeded), equals(141));
     });
 
     test('Existing user cards are loaded without unrequested injection', () async {
@@ -287,7 +287,7 @@ void main() {
       );
 
       expect(find.text('Starter Card Pack'), findsOneWidget);
-      expect(find.text('114 cards in 13 categories (Sri Lanka)'), findsOneWidget);
+      expect(find.text('128 cards in 13 categories (Sri Lanka)'), findsOneWidget);
 
       // Tap Starter Card Pack
       await tester.tap(find.text('Starter Card Pack'));

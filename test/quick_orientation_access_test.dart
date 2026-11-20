@@ -317,13 +317,8 @@ void main() {
         final pinnedFinder = find.byIcon(Icons.push_pin);
         expect(pinnedFinder, findsOneWidget);
 
-        // Tapping orientation button while locked must NOT open dialog
-        final orientationBtn = find.byKey(const ValueKey('home_app_bar_orientation_button'));
-        await tester.tap(orientationBtn);
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 100));
-
-        expect(find.text('Screen Orientation'), findsNothing);
+        // While pinned, orientation button is completely hidden from header
+        expect(find.byKey(const ValueKey('home_app_bar_orientation_button')), findsNothing);
 
         // Unlock the board by long pressing pin
         await tester.longPress(pinnedFinder);
@@ -332,7 +327,9 @@ void main() {
         expect(hapticCount, greaterThanOrEqualTo(1));
         expect(find.byIcon(Icons.push_pin_outlined), findsOneWidget);
 
-        // Tapping orientation now opens dialog
+        // Once unpinned, orientation button is restored
+        final orientationBtn = find.byKey(const ValueKey('home_app_bar_orientation_button'));
+        expect(orientationBtn, findsOneWidget);
         await tester.tap(orientationBtn);
         await tester.pumpAndSettle();
         expect(find.text('Screen Orientation'), findsOneWidget);

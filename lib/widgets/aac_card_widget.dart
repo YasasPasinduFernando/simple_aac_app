@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/aac_card_model.dart';
+import '../services/starter_pack_service.dart';
 import '../utils/card_image.dart';
 import '../utils/theme_accessibility.dart';
 
@@ -20,8 +21,9 @@ class AACCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final isColorBlind = ThemeAccessibility.colorBlindMode;
     final isDark = ThemeAccessibility.darkModeNotifier.value;
+    final effectiveColorValue = StarterPackService.resolveCardColorValue(card);
     final surfaceColor = ThemeAccessibility.resolveCardSurface(
-      Color(card.colorValue),
+      Color(effectiveColorValue),
       isDarkMode: isDark,
       isColorBlindMode: isColorBlind,
     );
@@ -45,11 +47,38 @@ class AACCardWidget extends StatelessWidget {
       isBold: ThemeAccessibility.colorBlindBoldText,
     );
 
-    final isUserPhoto = card.imagePath != null &&
-        card.imagePath!.isNotEmpty &&
-        !isAssetImagePath(card.imagePath);
+    final isDefaultFolderCover = card.id == 'simpleaac.starter.v2.default' &&
+        (card.imagePath == null ||
+            card.imagePath!.isEmpty ||
+            card.imagePath == 'assets/images/starter_pack_v8/starter_default.webp' ||
+            card.imagePath == 'assets/home/default_folder_cover.webp');
 
-    final effectiveSurfaceColor = isUserPhoto
+    final effectiveImagePath = isDefaultFolderCover
+        ? 'assets/home/default_folder_cover.webp'
+        : card.imagePath;
+
+    final isUserPhoto = effectiveImagePath != null &&
+        effectiveImagePath.isNotEmpty &&
+        !isAssetImagePath(effectiveImagePath);
+
+    final isHomeChildCard = (card.id == 'seed_hello' ||
+            card.id == 'seed_happy' ||
+            card.id == 'seed_sad' ||
+            card.id == 'seed_angry' ||
+            card.id == 'seed_more') &&
+        (effectiveImagePath != null &&
+            (effectiveImagePath.startsWith('assets/home/') ||
+                effectiveImagePath.contains('home/hello') ||
+                effectiveImagePath.contains('home/happy') ||
+                effectiveImagePath.contains('home/sad') ||
+                effectiveImagePath.contains('home/angry') ||
+                effectiveImagePath.contains('seed_v2/more') ||
+                effectiveImagePath.contains('seed/blocks')));
+
+    final isFullBleedCard =
+        isUserPhoto || isDefaultFolderCover || isHomeChildCard;
+
+    final effectiveSurfaceColor = isFullBleedCard
         ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9))
         : surfaceColor;
 
@@ -76,12 +105,12 @@ class AACCardWidget extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
-          child: isUserPhoto
+          child: isFullBleedCard && effectiveImagePath != null
               ? Stack(
                   children: [
                     Positioned.fill(
                       child: buildCardImage(
-                        card.imagePath!,
+                        effectiveImagePath,
                         fit: BoxFit.cover,
                         targetLogicalWidth: 160,
                         errorBuilder: (context, error, stackTrace) {

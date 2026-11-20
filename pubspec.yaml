@@ -10,8 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   google_fonts: ^6.1.0
-  flutter_colorpicker: ^1.0.3
-  cupertino_icons: ^1.0.2
   
   # Image picker for camera and gallery
   image_picker: ^1.0.4
@@ -56,8 +54,11 @@ flutter:
   uses-material-design: true
   
   assets:
+    - assets/home/
+    - assets/loading/
     - assets/images/
     - assets/images/seed/
+    - assets/images/seed_v2/
     - assets/images/starter_pack_v8/
     - assets/data/starter_pack_v8/
     - assets/sounds/

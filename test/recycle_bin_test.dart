@@ -454,6 +454,8 @@ void main() {
       // Find Recycle Bin item
       final recycleBinFinder = find.byKey(const ValueKey('drawer_recycle_bin_item'));
       await tester.scrollUntilVisible(recycleBinFinder, 150);
+      await tester.ensureVisible(recycleBinFinder);
+      await tester.pumpAndSettle();
       expect(recycleBinFinder, findsOneWidget);
       expect(find.text('Recycle Bin'), findsOneWidget);
       expect(find.text('Recover deleted cards for up to 30 days'), findsOneWidget);

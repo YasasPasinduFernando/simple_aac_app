@@ -376,5 +376,210 @@ void main() {
         }
       }
     });
+
+    testWidgets(
+        'Global text color preview displays header bar preview, swatch dot, and separate card label notice',
+        (tester) async {
+      Color? appliedColor;
+      const initialTextColor = Colors.white;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => ProfessionalColorPickerDialog(
+                      title: 'Global Text Color',
+                      subtitle: 'App-wide text and icons',
+                      initialColor: initialTextColor,
+                      defaultColor: Colors.white,
+                      headerColor: const Color(0xFF0288D1),
+                      previewType: ColorPickerPreviewType.globalTextPreview,
+                      onApply: (color) => appliedColor = color,
+                    ),
+                  );
+                },
+                child: const Text('Open Global Text Picker'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open Global Text Picker'));
+      await tester.pumpAndSettle();
+
+      // Verify header icon is text_fields_rounded
+      expect(find.byIcon(Icons.text_fields_rounded), findsOneWidget);
+
+      // Verify title & subtitle
+      expect(find.text('Global Text Color'), findsOneWidget);
+      expect(find.text('App-wide text and icons'), findsOneWidget);
+
+      // Verify chip says 'Live UI Preview'
+      expect(find.text('Live UI Preview'), findsOneWidget);
+
+      // Verify mini header elements exist
+      expect(find.byKey(const ValueKey('global_text_mini_header')), findsOneWidget);
+      expect(find.text('Simple AAC'), findsWidgets);
+      expect(find.byIcon(Icons.push_pin), findsOneWidget);
+      expect(find.byIcon(Icons.menu_rounded), findsOneWidget);
+
+      // Verify initial title text color is white
+      final initialTitleText = tester.widget<Text>(
+        find.descendant(
+          of: find.byKey(const ValueKey('global_text_mini_header')),
+          matching: find.text('Simple AAC'),
+        ),
+      );
+      expect(initialTitleText.style?.color, equals(Colors.white));
+
+      // Verify swatch dot and labels exist
+      expect(find.byKey(const ValueKey('global_text_swatch_dot')), findsOneWidget);
+      expect(find.text('App header text and toolbar icons'), findsOneWidget);
+      expect(find.text('Card labels have a separate color setting'), findsOneWidget);
+
+      // Tap Green preset (Color(0xFF00C853))
+      await tester.tap(find.bySemanticsLabel('Preset color Green'));
+      await tester.pumpAndSettle();
+
+      // Mini header title, pin icon, and menu icon should instantly update to Green
+      final greenTitleText = tester.widget<Text>(
+        find.descendant(
+          of: find.byKey(const ValueKey('global_text_mini_header')),
+          matching: find.text('Simple AAC'),
+        ),
+      );
+      expect(greenTitleText.style?.color, equals(const Color(0xFF00C853)));
+
+      final greenPinIcon = tester.widget<Icon>(find.byIcon(Icons.push_pin));
+      expect(greenPinIcon.color, equals(const Color(0xFF00C853)));
+
+      final greenMenuIcon = tester.widget<Icon>(find.byIcon(Icons.menu_rounded));
+      expect(greenMenuIcon.color, equals(const Color(0xFF00C853)));
+
+      // Enter hex 00F193
+      final textField = find.byType(TextField);
+      expect(textField, findsOneWidget);
+      await tester.enterText(textField, '00F193');
+      await tester.pumpAndSettle();
+
+      // Title should now reflect #00F193
+      final hexTitleText = tester.widget<Text>(
+        find.descendant(
+          of: find.byKey(const ValueKey('global_text_mini_header')),
+          matching: find.text('Simple AAC'),
+        ),
+      );
+      expect(hexTitleText.style?.color?.value, equals(const Color(0xFF00F193).value));
+
+      // Scroll into view & Tap Apply
+      await tester.ensureVisible(find.text('Apply'));
+      await tester.tap(find.text('Apply'));
+      await tester.pumpAndSettle();
+
+      expect(appliedColor, isNotNull);
+      expect(appliedColor!.value, equals(const Color(0xFF00F193).value));
+    });
+
+    testWidgets('Global text color preview supports reset to defaultColor',
+        (tester) async {
+      Color? appliedColor;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => ProfessionalColorPickerDialog(
+                      title: 'Global Text Color',
+                      subtitle: 'App-wide text and icons',
+                      initialColor: const Color(0xFF00C853),
+                      defaultColor: Colors.white,
+                      previewType: ColorPickerPreviewType.globalTextPreview,
+                      onApply: (color) => appliedColor = color,
+                    ),
+                  );
+                },
+                child: const Text('Open'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open'));
+      await tester.pumpAndSettle();
+
+      // Tap Reset
+      await tester.ensureVisible(find.text('Reset'));
+      await tester.tap(find.text('Reset'));
+      await tester.pumpAndSettle();
+
+      // Should be reset to default white
+      final resetTitleText = tester.widget<Text>(
+        find.descendant(
+          of: find.byKey(const ValueKey('global_text_mini_header')),
+          matching: find.text('Simple AAC'),
+        ),
+      );
+      expect(resetTitleText.style?.color, equals(Colors.white));
+
+      // Tap Apply
+      await tester.ensureVisible(find.text('Apply'));
+      await tester.tap(find.text('Apply'));
+      await tester.pumpAndSettle();
+
+      expect(appliedColor, equals(Colors.white));
+    });
+
+    testWidgets('Global text color preview supports Sinhala and Tamil localized captions',
+        (tester) async {
+      // 1. Sinhala
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ProfessionalColorPickerDialog(
+              title: 'Global Text Color',
+              subtitle: 'App-wide text and icons',
+              initialColor: Colors.white,
+              language: 'si',
+              previewType: ColorPickerPreviewType.globalTextPreview,
+              onApply: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('යෙදුම් ශීර්ෂ පෙළ සහ මෙවලම් අයිකන'), findsOneWidget);
+      expect(find.text('කාඩ්පත් ලේබල් සඳහා වෙනම වර්ණ සැකසුමක් ඇත'), findsOneWidget);
+
+      // 2. Tamil
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ProfessionalColorPickerDialog(
+              title: 'Global Text Color',
+              subtitle: 'App-wide text and icons',
+              initialColor: Colors.white,
+              language: 'ta',
+              previewType: ColorPickerPreviewType.globalTextPreview,
+              onApply: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('பயன்பாட்டு தலைப்பு உரை மற்றும் கருவி சின்னங்கள்'), findsOneWidget);
+      expect(find.text('அட்டை லேபிள்களுக்கு தனி வண்ண அமைப்பு உள்ளது'), findsOneWidget);
+    });
   });
 }

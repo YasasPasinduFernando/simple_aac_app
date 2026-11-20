@@ -170,6 +170,9 @@ void main() {
     await tester.pump();
     expect(tappedText, isTrue);
 
+    await tester.drag(find.byType(ListView), const Offset(0, -200));
+    await tester.pumpAndSettle();
+
     // Verify Board Background Color row
     expect(find.text('Board Background Color'), findsOneWidget);
     expect(find.text('Background of communication boards'), findsOneWidget);
@@ -339,6 +342,7 @@ void main() {
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     HomePage.enableTtsInit = false;
+    HomePage.skipSplashForTesting = true;
     HomePage.speakPerformer = (_) async {};
 
     tester.view.physicalSize = const Size(400, 900);
@@ -347,6 +351,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(() {
       HomePage.enableTtsInit = true;
+      HomePage.skipSplashForTesting = false;
       HomePage.speakPerformer = null;
     });
 
@@ -576,14 +581,16 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('Show Sentence Bar'), 100);
+    await tester.drag(find.byType(ListView), const Offset(0, -250));
+    await tester.pumpAndSettle();
     expect(find.text('Show Sentence Bar'), findsOneWidget);
     expect(find.text('Show the top bar for building and speaking sentences'), findsOneWidget);
     await tester.tap(find.text('Show Sentence Bar'));
     await tester.pump();
     expect(ttsInputToggled, isTrue);
 
-    await tester.scrollUntilVisible(find.text('Hide Text in Sentence Bar'), 100);
+    await tester.drag(find.byType(ListView), const Offset(0, -100));
+    await tester.pumpAndSettle();
     expect(find.text('Hide Text in Sentence Bar'), findsOneWidget);
     expect(find.text('Show only card pictures in the sentence bar'), findsOneWidget);
     await tester.tap(find.text('Hide Text in Sentence Bar'));

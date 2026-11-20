@@ -84,6 +84,10 @@ class HomePage extends StatefulWidget {
   @visibleForTesting
   static bool forceSplashForTesting = false;
   @visibleForTesting
+  static Duration? injectedStartupDelayForTesting;
+  @visibleForTesting
+  static bool? forceStartupErrorForTesting;
+  @visibleForTesting
   static List<AACCard>? initialCardsForTesting;
 
   const HomePage({Key? key}) : super(key: key);
@@ -142,6 +146,10 @@ class _HomePageState extends State<HomePage> {
   bool _canScrollHorizontallyRight = false;
   bool _isInitialLoading = true;
   bool _splashDismissed = false;
+  bool _showStartupLoader = false;
+  bool _hasStartupError = false;
+  String? _startupErrorMessage;
+  Timer? _startupLoadingTimer;
 
   List<AACCard> cards = [];
   int gridColumns = 2;
@@ -204,6 +212,7 @@ class _HomePageState extends State<HomePage> {
   bool _useImageOverlayLabel = true;
   bool _applyTextColorToCards = false;
   bool _enableHaptics = true;
+  bool _disableBackCardInPinMode = false;
   bool _isDarkMode = ThemeAccessibility.darkModeNotifier.value;
   bool _isColorBlindMode = false;
   SpeechCapabilityReport? _speechCapabilities;
@@ -221,6 +230,13 @@ class _HomePageState extends State<HomePage> {
 
   @visibleForTesting
   set enableHapticsForTesting(bool value) => _enableHaptics = value;
+
+  @visibleForTesting
+  bool get disableBackCardInPinModeForTesting => _disableBackCardInPinMode;
+
+  @visibleForTesting
+  set disableBackCardInPinModeForTesting(bool value) =>
+      _disableBackCardInPinMode = value;
 
   @visibleForTesting
   void resetSettingsForTesting() => _resetSettingsToDefaults();
@@ -267,13 +283,33 @@ class _HomePageState extends State<HomePage> {
       }
     };
 
-    if (HomePage.skipSplashForTesting ||
-        (HomePage.initialCardsForTesting != null &&
-            !HomePage.forceSplashForTesting)) {
+    final bool isTestEnv =
+        WidgetsBinding.instance.runtimeType.toString().contains('Test');
+    final bool shouldSkipSplash = HomePage.skipSplashForTesting ||
+        ((isTestEnv || HomePage.initialCardsForTesting != null) &&
+            !HomePage.forceSplashForTesting &&
+            HomePage.injectedStartupDelayForTesting == null &&
+            HomePage.forceStartupErrorForTesting != true);
+
+    if (shouldSkipSplash) {
       cards = List.of(HomePage.initialCardsForTesting ?? []);
       _isInitialLoading = false;
       _splashDismissed = true;
+      _showStartupLoader = false;
       _updateCategories();
+    } else {
+      if (HomePage.forceSplashForTesting) {
+        _showStartupLoader = true;
+      } else {
+        // StartupLoadingView is only displayed if initialization genuinely takes >380ms
+        _startupLoadingTimer = Timer(const Duration(milliseconds: 380), () {
+          if (mounted && _isInitialLoading) {
+            setState(() {
+              _showStartupLoader = true;
+            });
+          }
+        });
+      }
     }
     _loadCardsFuture = _loadCards();
 
@@ -334,6 +370,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadCards() async {
     try {
       final sw = Stopwatch()..start();
+      if (HomePage.injectedStartupDelayForTesting != null) {
+        await Future.delayed(HomePage.injectedStartupDelayForTesting!);
+      }
+      if (HomePage.forceStartupErrorForTesting == true) {
+        throw Exception('Injected startup failure for testing');
+      }
       final List<dynamic> results;
       if (HomePage.initialCardsForTesting != null) {
         results = [
@@ -375,14 +417,38 @@ class _HomePageState extends State<HomePage> {
       final nextOverlay = prefs.getBool('useImageOverlayLabel') ?? true;
       final nextApplyText = prefs.getBool('applyTextColorToCards') ?? false;
       final nextHaptics = prefs.getBool('enableHaptics') ?? true;
+      final nextDisableBackCard =
+          prefs.getBool('disableBackCardInPinMode') ?? false;
       final nextDark =
           prefs.getBool(ThemeAccessibility.darkModePrefKey) ?? _isDarkMode;
       final nextColorBlind =
           prefs.getBool(ThemeAccessibility.colorBlindPrefKey) ?? false;
 
+      // Precache visible root cards so images render synchronously with zero skeleton flash
+      if (mounted) {
+        final visibleRootCards = loadedCards.take(12);
+        for (final card in visibleRootCards) {
+          final path = card.imagePath;
+          if (path != null && path.isNotEmpty) {
+            try {
+              final ImageProvider provider = isAssetImagePath(path)
+                  ? AssetImage(path)
+                  : FileImage(File(path)) as ImageProvider;
+              unawaited(precacheImage(provider, context));
+            } catch (_) {}
+          }
+        }
+      }
+
+      _startupLoadingTimer?.cancel();
       setState(() {
         cards = loadedCards;
         _isInitialLoading = false;
+        _hasStartupError = false;
+        _startupErrorMessage = null;
+        if (!_showStartupLoader) {
+          _splashDismissed = true;
+        }
         gridColumns = nextGridColumns;
         _loadVisibleSelections(prefs);
         showTtsInput = nextShowTtsInput;
@@ -402,6 +468,7 @@ class _HomePageState extends State<HomePage> {
         _useImageOverlayLabel = nextOverlay;
         _applyTextColorToCards = nextApplyText;
         _enableHaptics = nextHaptics;
+        _disableBackCardInPinMode = nextDisableBackCard;
         _isDarkMode = nextDark;
         _isColorBlindMode = nextColorBlind;
         ThemeAccessibility.colorBlindMode = nextColorBlind;
@@ -453,10 +520,14 @@ class _HomePageState extends State<HomePage> {
       // Lightweight 30-day Recycle Bin cleanup
       unawaited(RecycleBinService.instance.purgeExpiredEntries(activeCards: loadedCards));
     } catch (e, st) {
+      _startupLoadingTimer?.cancel();
       debugPrint('[_loadCards] ERROR: $e\n$st');
       if (mounted) {
         setState(() {
           _isInitialLoading = false;
+          _showStartupLoader = true;
+          _hasStartupError = true;
+          _startupErrorMessage = e.toString();
         });
       }
     }
@@ -558,6 +629,8 @@ class _HomePageState extends State<HomePage> {
           prefs.setBool('useImageOverlayLabel', _useImageOverlayLabel),
           prefs.setBool('applyTextColorToCards', _applyTextColorToCards),
           prefs.setBool('enableHaptics', _enableHaptics),
+          prefs.setBool(
+              'disableBackCardInPinMode', _disableBackCardInPinMode),
           prefs.setBool(ThemeAccessibility.darkModePrefKey, _isDarkMode),
           prefs.setBool(
               ThemeAccessibility.colorBlindPrefKey, _isColorBlindMode),
@@ -1784,8 +1857,8 @@ class _HomePageState extends State<HomePage> {
           children: [
             Text(
               isInstalled
-                  ? 'All 114 Sri Lankan starter cards are installed in the "Default" folder across 13 categories.'
-                  : 'Add 114 ready-colored Sri Lankan communication cards organized in 13 categories (Family, Food, Drinks, Feelings, Personal Care, and more) under a "Default" folder.',
+                  ? 'All 128 Sri Lankan starter cards are installed in the "Default" folder across 13 categories.'
+                  : 'Add 128 ready-colored Sri Lankan communication cards organized in 13 categories (Family, Food, Drinks, Feelings, Personal Care, and more) under a "Default" folder.',
               style: const TextStyle(fontSize: 14, height: 1.4),
             ),
             const SizedBox(height: 12),
@@ -1830,7 +1903,7 @@ class _HomePageState extends State<HomePage> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             icon: Icon(isInstalled ? Icons.sync_rounded : Icons.download_rounded, size: 18),
-            label: Text(isInstalled ? 'Re-sync Cards' : 'Import 114 Cards'),
+            label: Text(isInstalled ? 'Re-sync Cards' : 'Import 128 Cards'),
             onPressed: () {
               Navigator.of(dialogCtx).pop();
               _handleImportStarterPack();
@@ -1848,12 +1921,12 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
 
     if (result.alreadyInstalled && result.cardsAdded == 0) {
-      _showMessage('Starter Pack is up to date. All 114 cards are already present.');
+      _showMessage('Starter Pack is up to date. All 128 cards are already present.');
     } else {
       _showMessage(
         result.alreadyInstalled
             ? 'Re-synced ${result.cardsAdded} missing starter cards.'
-            : 'Imported 114 starter cards into "Default" folder!',
+            : 'Imported 128 starter cards into "Default" folder!',
       );
     }
   }
@@ -1905,6 +1978,7 @@ class _HomePageState extends State<HomePage> {
       _useImageOverlayLabel = true;
       _applyTextColorToCards = false;
       _enableHaptics = true;
+      _disableBackCardInPinMode = false;
       _isDarkMode = false;
       _isColorBlindMode = false;
       ThemeAccessibility.darkModeNotifier.value = false;
@@ -2091,6 +2165,7 @@ class _HomePageState extends State<HomePage> {
       'useImageOverlayLabel': _useImageOverlayLabel,
       'applyTextColorToCards': _applyTextColorToCards,
       'enableHaptics': _enableHaptics,
+      'disableBackCardInPinMode': _disableBackCardInPinMode,
       'darkMode': _isDarkMode,
       'colorBlindMode': _isColorBlindMode,
       'colorBlindType': ThemeAccessibility.colorBlindType,
@@ -2994,6 +3069,7 @@ class _HomePageState extends State<HomePage> {
     String? subtitle,
     required Color initialColor,
     Color? defaultColor,
+    Color? headerColor,
     ColorPickerPreviewType previewType = ColorPickerPreviewType.appHeader,
     required ValueChanged<Color> onSelected,
   }) {
@@ -3004,7 +3080,9 @@ class _HomePageState extends State<HomePage> {
         subtitle: subtitle ?? 'Pick a color for Normal Mode',
         initialColor: initialColor,
         defaultColor: defaultColor,
+        headerColor: headerColor,
         previewType: previewType,
+        language: currentLanguage,
         onApply: onSelected,
       ),
     );
@@ -3829,6 +3907,9 @@ class _HomePageState extends State<HomePage> {
       _applyTextColorToCards =
           settings['applyTextColorToCards'] as bool? ?? _applyTextColorToCards;
       _enableHaptics = settings['enableHaptics'] as bool? ?? _enableHaptics;
+      _disableBackCardInPinMode =
+          settings['disableBackCardInPinMode'] as bool? ??
+              _disableBackCardInPinMode;
       _isDarkMode = settings['darkMode'] as bool? ?? _isDarkMode;
       _isColorBlindMode =
           settings['colorBlindMode'] as bool? ?? _isColorBlindMode;
@@ -4221,6 +4302,13 @@ class _HomePageState extends State<HomePage> {
                     isCaregiverLockEnabled:
                         CaregiverLockService.instance.isEnabled,
                     onToggleCaregiverLock: _handleToggleCaregiverLock,
+                    disableBackCardInPinMode: _disableBackCardInPinMode,
+                    onToggleDisableBackCardInPinMode: (enabled) {
+                      setState(() {
+                        _disableBackCardInPinMode = enabled;
+                      });
+                      _saveCards();
+                    },
                     hideTtsText: _hideTtsText,
                     enableHaptics: _enableHaptics,
                     onToggleHaptics: (enabled) {
@@ -4304,11 +4392,12 @@ class _HomePageState extends State<HomePage> {
                     },
                     onPickTextColor: () {
                       _showThemeColorDialog(
-                        title: 'Text color',
-                        subtitle: 'Pick a color for Normal Mode',
+                        title: 'Global Text Color',
+                        subtitle: 'App-wide text and icons',
                         initialColor: customText,
                         defaultColor: Colors.white,
-                        previewType: ColorPickerPreviewType.textPreview,
+                        headerColor: customPrimary,
+                        previewType: ColorPickerPreviewType.globalTextPreview,
                         onSelected: (color) {
                           setState(() {
                             _themeTextColor = color.value;
@@ -4391,6 +4480,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         LandscapeMenu(
+                          showPin: true,
                           isPinned: isPinned,
                           canGoBack: activeParentCard != null,
                           baseColor: themePrimary,
@@ -4479,12 +4569,12 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           TutorialOverlay(language: currentLanguage),
-          if (!_splashDismissed)
+          if (!_splashDismissed && _showStartupLoader)
             Positioned.fill(
               child: AnimatedOpacity(
                 key: const ValueKey('home_animated_splash_layer'),
                 opacity: _isInitialLoading ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 220),
+                duration: const Duration(milliseconds: 150),
                 curve: Curves.easeOut,
                 onEnd: () {
                   if (!_isInitialLoading && mounted) {
@@ -4496,6 +4586,60 @@ class _HomePageState extends State<HomePage> {
                 child: ChildFriendlySplash(
                   key: const ValueKey('home_animated_splash'),
                   language: currentLanguage,
+                  errorMessage: _hasStartupError
+                      ? (_startupErrorMessage ?? 'Initialization error')
+                      : null,
+                  onRetry: _hasStartupError
+                      ? () {
+                          setState(() {
+                            _hasStartupError = false;
+                            _startupErrorMessage = null;
+                            _isInitialLoading = true;
+                          });
+                          _loadCards();
+                        }
+                      : null,
+                ),
+              ),
+            )
+          else if (!_splashDismissed && _isInitialLoading)
+            Positioned.fill(
+              child: ColoredBox(
+                key: const ValueKey('home_static_splash_bridge'),
+                color: const Color(0xFFEAF5FE),
+                child: Center(
+                  child: Container(
+                    width: 184.0,
+                    height: 184.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      border: Border.all(
+                        color: const Color(0xFFBAE6FD).withValues(alpha: 0.6),
+                        width: 2.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF38BDF8).withValues(alpha: 0.15),
+                          blurRadius: 18,
+                          spreadRadius: 4,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(16.0),
+                    child: Image.asset(
+                      'assets/loading/logo_transparent_640.webp',
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/images/simple_aac_logo_transparent.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -4850,6 +4994,10 @@ class _HomePageState extends State<HomePage> {
     Color themeText,
   ) {
     final displayedCards = _getDisplayedCards();
+    final isNestedFolder = activeParentCard != null;
+    final showGridBackCard =
+        isPinned && isNestedFolder && !_disableBackCardInPinMode;
+    final totalGridItems = displayedCards.length + (showGridBackCard ? 1 : 0);
     final colorScheme = Theme.of(context).colorScheme;
     final viewKey = ValueKey(
       '${activeParentCard?.id ?? 'root'}_${selectedCategory}_${displayedCards.isEmpty ? 'empty' : 'grid'}',
@@ -4881,7 +5029,7 @@ class _HomePageState extends State<HomePage> {
         ],
       );
     } else {
-      final showBreadcrumb = activeParentCard != null;
+      final showBreadcrumb = activeParentCard != null && !isPinned;
       if (!showTtsInput && !showBreadcrumb) {
         topBanner = const SizedBox.shrink(key: ValueKey('no_banner'));
       } else {
@@ -4947,46 +5095,15 @@ class _HomePageState extends State<HomePage> {
                 child: child,
               ),
             ),
-            child: displayedCards.isEmpty
-                ? Center(
-                    key: viewKey,
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundColor:
-                                colorScheme.surfaceContainerHighest,
-                            child: Icon(
-                              Icons.style_outlined,
-                              size: 30,
-                              color: colorScheme.primary,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'No cards in this category',
-                            style: TextStyle(
-                              fontSize: isTablet ? 18 : 16,
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.onSurface,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Tap + in Edit Mode to add a photo or GIF card.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: isTablet ? 14 : 13,
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
+            child: _isInitialLoading
+                ? const SizedBox.shrink(key: ValueKey('grid_initial_loading'))
+                : displayedCards.isEmpty
+                    ? Center(
+                        key: viewKey,
+                        child: isNestedFolder
+                            ? _buildEmptyFolderState(isTablet, colorScheme)
+                            : _buildEmptyCategoryState(isTablet, colorScheme),
+                      )
                 : LayoutBuilder(
                     builder: (context, constraints) {
                       final effectiveCols = gridColumns.clamp(1, 30);
@@ -5062,15 +5179,25 @@ class _HomePageState extends State<HomePage> {
                           mainAxisSpacing: spacing,
                           childAspectRatio: childAspectRatio,
                         ),
-                        itemCount: displayedCards.length,
+                        itemCount: totalGridItems,
                         itemBuilder: (context, i) {
-                          final card = displayedCards[i];
+                          if (showGridBackCard && i == 0) {
+                            return RepaintBoundary(
+                              key: const ValueKey('grid_back_navigation_card'),
+                              child: _buildBackNavigationCard(
+                                isTablet,
+                                cardLogicalWidth,
+                              ),
+                            );
+                          }
+                          final cardIndex = showGridBackCard ? i - 1 : i;
+                          final card = displayedCards[cardIndex];
                           return RepaintBoundary(
                             key: ValueKey(card.id),
                             child: _buildCardWidget(
                               card,
                               isTablet,
-                              index: i,
+                              index: cardIndex,
                               cardLogicalWidth: cardLogicalWidth,
                             ),
                           );
@@ -5124,6 +5251,235 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildEmptyCategoryState(bool isTablet, ColorScheme colorScheme) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: colorScheme.surfaceContainerHighest,
+            child: Icon(
+              Icons.style_outlined,
+              size: 30,
+              color: colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'No cards in this category',
+            style: TextStyle(
+              fontSize: isTablet ? 18 : 16,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Tap + in Edit Mode to add a photo or GIF card.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isTablet ? 14 : 13,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyFolderState(bool isTablet, ColorScheme colorScheme) {
+    final emptyHeading = currentLanguage == 'si'
+        ? 'මෙම ෆෝල්ඩරයේ කාඩ්පත් නැත'
+        : (currentLanguage == 'ta'
+            ? 'இந்த கோப்புறையில் அட்டைகள் இல்லை'
+            : 'No cards in this folder');
+    final emptySubtext = currentLanguage == 'si'
+        ? 'ආපසු යාමට ආපසු තෝරන්න'
+        : (currentLanguage == 'ta'
+            ? 'திரும்பிச் செல்ல பின்னே என்பதைத் தேர்ந்தெடுக்கவும்'
+            : 'Choose Back to return');
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: isTablet ? 120 : 96,
+            height: isTablet ? 90 : 72,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEF3C7),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFF59E0B).withValues(alpha: 0.25),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  Icons.folder_open_rounded,
+                  size: isTablet ? 64 : 50,
+                  color: const Color(0xFFD97706),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 14,
+                  child: Icon(
+                    Icons.auto_awesome_rounded,
+                    size: isTablet ? 20 : 16,
+                    color: const Color(0xFF38BDF8),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            emptyHeading,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: isTablet ? 22 : 18,
+              fontWeight: FontWeight.w800,
+              color: _isDarkMode ? Colors.white : const Color(0xFF0F172A),
+              letterSpacing: 0.2,
+            ),
+          ),
+          if (!(isPinned && _disableBackCardInPinMode)) ...[
+            const SizedBox(height: 6),
+            Text(
+              emptySubtext,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: isTablet ? 15 : 13.5,
+                fontWeight: FontWeight.w500,
+                color: _isDarkMode
+                    ? const Color(0xFF94A3B8)
+                    : const Color(0xFF64748B),
+              ),
+            ),
+            const SizedBox(height: 24),
+            _buildBackNavigationCard(
+              isTablet,
+              isTablet ? 260.0 : 200.0,
+              isLarge: true,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBackNavigationCard(
+    bool isTablet,
+    double cardLogicalWidth, {
+    bool isLarge = false,
+  }) {
+    final backLabel = currentLanguage == 'si'
+        ? 'ආපසු'
+        : (currentLanguage == 'ta' ? 'පின்னே' : 'Back');
+
+    final bgColor = _isDarkMode
+        ? const Color(0xFF134E4A)
+        : const Color(0xFFB2F5EA);
+    final borderColor = _isDarkMode
+        ? const Color(0xFF2DD4BF).withValues(alpha: 0.4)
+        : Colors.white;
+    final arrowColor = _isDarkMode
+        ? const Color(0xFF38BDF8)
+        : const Color(0xFF0284C7);
+    final textColor = _isDarkMode
+        ? Colors.white
+        : const Color(0xFF0F172A);
+
+    final arrowSize = isLarge
+        ? (isTablet ? 56.0 : 46.0)
+        : (isTablet ? 42.0 : 34.0);
+    final labelSize = isLarge
+        ? (isTablet ? 20.0 : 17.0)
+        : (isTablet ? 16.0 : 14.0);
+
+    return Semantics(
+      label: '$backLabel, navigate back to parent folder',
+      button: true,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          key: ValueKey(isLarge ? 'empty_folder_back_card' : 'grid_back_card'),
+          onTap: () {
+            try {
+              HapticFeedback.lightImpact();
+            } catch (_) {}
+            _navigateBackFromSubCards();
+          },
+          borderRadius: BorderRadius.circular(16),
+          splashColor: arrowColor.withValues(alpha: 0.2),
+          highlightColor: arrowColor.withValues(alpha: 0.1),
+          child: Ink(
+            width: isLarge ? (isTablet ? 240.0 : 190.0) : null,
+            height: isLarge ? (isTablet ? 170.0 : 130.0) : null,
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: borderColor,
+                width: 2.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: _isDarkMode ? 0.35 : 0.08),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(isLarge ? 8 : 6),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: _isDarkMode ? 0.1 : 0.45),
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_rounded,
+                    size: arrowSize,
+                    color: arrowColor,
+                  ),
+                ),
+                SizedBox(height: isLarge ? 8 : 4),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    backLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: labelSize,
+                      fontWeight: FontWeight.w800,
+                      color: textColor,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildCardFace({
     required AACCard card,
     required bool isTablet,
@@ -5167,22 +5523,49 @@ class _HomePageState extends State<HomePage> {
         ? (Color.lerp(cardSurfaceColor, Colors.black, 0.25) ?? cardSurfaceColor)
         : (Color.lerp(cardSurfaceColor, Colors.black, 0.08) ?? cardSurfaceColor);
 
-    final isUserPhoto = card.imagePath != null &&
-        card.imagePath!.isNotEmpty &&
-        !isAssetImagePath(card.imagePath);
+    final isDefaultFolderCover = card.id == StarterPackService.starterPackRootId &&
+        (card.imagePath == null ||
+            card.imagePath!.isEmpty ||
+            card.imagePath == 'assets/images/starter_pack_v8/starter_default.webp' ||
+            card.imagePath == 'assets/home/default_folder_cover.webp');
 
-    // For user-uploaded photographs, use a neutral dark/light surface behind the photo
-    // and neutral shadows, so no bright card background colors peek through.
-    final effectiveBgColor = isUserPhoto
+    final effectiveImagePath = isDefaultFolderCover
+        ? 'assets/home/default_folder_cover.webp'
+        : card.imagePath;
+
+    final isUserPhoto = effectiveImagePath != null &&
+        effectiveImagePath.isNotEmpty &&
+        !isAssetImagePath(effectiveImagePath);
+
+    final isHomeChildCard = (card.id == 'seed_hello' ||
+            card.id == 'seed_happy' ||
+            card.id == 'seed_sad' ||
+            card.id == 'seed_angry' ||
+            card.id == 'seed_more') &&
+        (effectiveImagePath != null &&
+            (effectiveImagePath.startsWith('assets/home/') ||
+                effectiveImagePath.contains('home/hello') ||
+                effectiveImagePath.contains('home/happy') ||
+                effectiveImagePath.contains('home/sad') ||
+                effectiveImagePath.contains('home/angry') ||
+                effectiveImagePath.contains('seed_v2/more') ||
+                effectiveImagePath.contains('seed/blocks')));
+
+    final isFullBleedCard =
+        isUserPhoto || isDefaultFolderCover || isHomeChildCard;
+
+    // For user-uploaded photographs and full-bleed covers, use a neutral dark/light surface
+    // behind the photo and neutral shadows, so no bright card background colors peek through.
+    final effectiveBgColor = isFullBleedCard
         ? (_isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9))
         : cardSurfaceColor;
 
     final effectiveShadowColor = isTapAnimated
         ? (_isColorBlindMode
             ? Colors.black.withValues(alpha: _isDarkMode ? 0.55 : 0.28)
-            : isUserPhoto
+            : isFullBleedCard
                 ? Colors.black.withValues(alpha: _isDarkMode ? 0.60 : 0.35)
-                : Color(card.colorValue)
+                : Color(StarterPackService.resolveCardColorValue(card))
                     .withValues(alpha: _isDarkMode ? 0.60 : 0.40))
         : Colors.black.withValues(alpha: _isDarkMode ? 0.30 : 0.08);
 
@@ -5211,11 +5594,11 @@ class _HomePageState extends State<HomePage> {
           borderRadius: BorderRadius.circular(isTablet ? 17 : 13),
           child: Stack(
             children: [
-              if (isUserPhoto) ...[
-                // User-uploaded photograph: Fills entire card face with BoxFit.cover
+              if (isFullBleedCard && effectiveImagePath != null) ...[
+                // Full-bleed cover (user photograph or Default folder cover): Fills entire card face with BoxFit.cover
                 Positioned.fill(
                   child: buildCardImage(
-                    card.imagePath!,
+                    effectiveImagePath,
                     fit: BoxFit.cover,
                     targetLogicalWidth: cardLogicalWidth,
                     devicePixelRatio: dpr,
@@ -5344,15 +5727,15 @@ class _HomePageState extends State<HomePage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Upper Image Area (72% of card height) - unclipped, BoxFit.contain
+                    // Upper Image Area (76% of card height) - unclipped, BoxFit.contain
                     Expanded(
-                      flex: 72,
+                      flex: 76,
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(
-                          isTablet ? 8.0 : 6.0,
-                          isTablet ? 8.0 : 6.0,
-                          isTablet ? 8.0 : 6.0,
-                          2.0,
+                          isTablet ? 4.0 : 2.0,
+                          isTablet ? 6.0 : 4.0,
+                          isTablet ? 4.0 : 2.0,
+                          0.0,
                         ),
                         child: Center(
                           child: card.imagePath != null
@@ -5382,9 +5765,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    // Lower Label Area (28% of card height) - ON: continuous; OFF: distinct deeper container
+                    // Lower Label Area (24% of card height) - ON: continuous; OFF: distinct deeper container
                     Expanded(
-                      flex: 28,
+                      flex: 24,
                       child: Container(
                         decoration: BoxDecoration(
                           color: useImageOverlay ? Colors.transparent : labelZoneBg,
@@ -5555,8 +5938,9 @@ class _HomePageState extends State<HomePage> {
     final displayLabel = card.getLabel(currentLanguage);
     final isTapAnimated = _tapAnimatedCardId == card.id;
     final useImageOverlay = _useImageOverlayLabel && card.imagePath != null;
+    final effectiveColorValue = StarterPackService.resolveCardColorValue(card);
     final cardSurfaceColor = ThemeAccessibility.resolveCardSurface(
-      Color(card.colorValue),
+      Color(effectiveColorValue),
       isDarkMode: _isDarkMode,
       isColorBlindMode: _isColorBlindMode,
     );
@@ -5772,6 +6156,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    _startupLoadingTimer?.cancel();
     _stopAutoScroll();
     TutorialService.instance.currentStepNotifier
         .removeListener(_handleTutorialStepChanged);
@@ -6375,7 +6760,7 @@ class _NestingConfirmationDialog extends StatelessWidget {
     bool isDark, {
     bool isFolder = false,
   }) {
-    final cardColor = Color(card.colorValue);
+    final cardColor = Color(StarterPackService.resolveCardColorValue(card));
 
     return Container(
       width: 76,

@@ -92,6 +92,8 @@ void main() {
 
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.text('Haptic Feedback'), 100);
+    await tester.ensureVisible(find.text('Haptic Feedback'));
+    await tester.pumpAndSettle();
 
     expect(find.text('Haptic Feedback'), findsOneWidget);
     expect(find.text('Vibration and pop feel when tapping cards'), findsOneWidget);

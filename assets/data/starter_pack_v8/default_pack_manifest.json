@@ -669,7 +669,7 @@
         "ta-LK": "விலங்குகள்"
       },
       "image": "images/animals_dog.webp",
-      "suggestedTileColor": "#E8F4DD",
+      "suggestedTileColor": "#E0EED0",
       "positionWithinGroup": 3,
       "suggestedAction": "open_children",
       "childrenIds": [
@@ -833,7 +833,7 @@
         "useSelectedLanguageLabel": true
       },
       "image": "images/animals_rabbit.webp",
-      "imageSha256": "91a5cc78a26951da0baa889476732aa93acb984357f7c35e8dc6b73fb9026556",
+      "imageSha256": "4db2c3200d5c5c2123fb23d49836a7671a36179db9a72c00775b261fbbf82ca1",
       "suggestedTileColor": "#DFEECF",
       "suggestedAction": "speak_label",
       "colorPersistence": "baked_in_image_pixels_no_picker_required",
@@ -916,7 +916,7 @@
         "ta-LK": "உணவு"
       },
       "image": "images/food_food.webp",
-      "suggestedTileColor": "#FFF0B7",
+      "suggestedTileColor": "#FEE2A0",
       "positionWithinGroup": 4,
       "suggestedAction": "open_children",
       "childrenIds": [
@@ -1214,7 +1214,7 @@
         "ta-LK": "சிற்றுண்டிகள்"
       },
       "image": "images/snacks_cookies.webp",
-      "suggestedTileColor": "#FFE6D4",
+      "suggestedTileColor": "#FFD8BC",
       "positionWithinGroup": 5,
       "suggestedAction": "open_children",
       "childrenIds": [
@@ -1247,7 +1247,7 @@
         "useSelectedLanguageLabel": true
       },
       "image": "images/snacks_ice_cream.webp",
-      "imageSha256": "bf394c2f6c951d68f715fc14c00e4993d27d7f5644e0f463b8d41c7b206b83f9",
+      "imageSha256": "8b88ed67ebbcc58322deb9a4eda7b411680f1671211d5797796b050b117fcdf7",
       "suggestedTileColor": "#FFD9BD",
       "suggestedAction": "speak_label",
       "colorPersistence": "baked_in_image_pixels_no_picker_required",
@@ -1379,7 +1379,7 @@
         "useSelectedLanguageLabel": true
       },
       "image": "images/snacks_candy.webp",
-      "imageSha256": "21818d510c4b42aabc304ba315990472ebcb9e882c7fd3086cf707750b0b8e8b",
+      "imageSha256": "b10ab0829856d6ec9b89d485e6b72259105317b37935e301eaeead2ffd20b123",
       "suggestedTileColor": "#FFD9BD",
       "suggestedAction": "speak_label",
       "colorPersistence": "baked_in_image_pixels_no_picker_required",
@@ -1846,7 +1846,7 @@
         "ta-LK": "தேவைகள்"
       },
       "image": "images/needs_needs.webp",
-      "suggestedTileColor": "#DDF5ED",
+      "suggestedTileColor": "#BFE6D5",
       "positionWithinGroup": 8,
       "suggestedAction": "open_children",
       "childrenIds": [
@@ -2472,7 +2472,7 @@
         "ta-LK": "பள்ளி மற்றும் இடங்கள்"
       },
       "image": "images/school_places_school.webp",
-      "suggestedTileColor": "#D9EDFF",
+      "suggestedTileColor": "#D1E2FA",
       "positionWithinGroup": 11,
       "suggestedAction": "open_children",
       "childrenIds": [
@@ -2672,7 +2672,7 @@
         "useSelectedLanguageLabel": true
       },
       "image": "images/food_butter.webp",
-      "imageSha256": "b50d90f982085b3515a8206359b5206cfe43d5e8dd53f55bd6b43765ea0d140e",
+      "imageSha256": "deaf682ccd7cdc8c2b3e03073b6c35f882e2f2803aaa5b3ccd68e40e1a7da7a4",
       "suggestedTileColor": "#FFEDB0",
       "colorPersistence": "baked_in_image_pixels_no_picker_required",
       "suggestedAction": "speak_label",
@@ -2760,7 +2760,7 @@
         "useSelectedLanguageLabel": true
       },
       "image": "images/snacks_patties.webp",
-      "imageSha256": "3f1bfe5e69bde1ecef1ae1d79a1810c92b0425d504e7dfd530937dfd574fa233",
+      "imageSha256": "617675fa53d96553813929a05fcdd1e32a2dd79af6ceb53a399917209c8cc827",
       "suggestedTileColor": "#FFD9BD",
       "colorPersistence": "baked_in_image_pixels_no_picker_required",
       "suggestedAction": "speak_label",
@@ -2782,7 +2782,7 @@
         "useSelectedLanguageLabel": true
       },
       "image": "images/snacks_milk_biscuit.webp",
-      "imageSha256": "bcf20dc56548de9960129fea37aa7c3fdedc296512bd0a00e50a2145290ce905",
+      "imageSha256": "b29c1946e2fd6be86b5b5778d4d50d2d737f99fda6b41f2841935522d36edead",
       "suggestedTileColor": "#FCE6BC",
       "colorPersistence": "baked_in_image_pixels_no_picker_required",
       "suggestedAction": "speak_label",
@@ -2826,7 +2826,7 @@
         "useSelectedLanguageLabel": true
       },
       "image": "images/drinks_soft_drink.webp",
-      "imageSha256": "172df7094b55184ae9f6648df054251c5e56d87036a4c67dd565893c3fdaa2d8",
+      "imageSha256": "7517bced2e98c59f7537751dfaa497dd61bd15f0595df787c545723df82b2c32",
       "suggestedTileColor": "#F6C1B5",
       "colorPersistence": "baked_in_image_pixels_no_picker_required",
       "suggestedAction": "speak_label",

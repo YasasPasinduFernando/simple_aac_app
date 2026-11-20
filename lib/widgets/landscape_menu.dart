@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class LandscapeMenu extends StatelessWidget {
+  final bool showPin;
   final bool isPinned;
   final bool canGoBack;
   final Color? baseColor;
@@ -23,6 +24,7 @@ class LandscapeMenu extends StatelessWidget {
 
   const LandscapeMenu({
     Key? key,
+    this.showPin = true,
     required this.isPinned,
     required this.canGoBack,
     this.baseColor,
@@ -61,16 +63,17 @@ class LandscapeMenu extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Column(
               children: [
-                _MenuButton(
-                  key: const ValueKey('landscape_nav_pin'),
-                  icon: isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                  label: isPinned ? 'Pinned' : 'Pin',
-                  onTap: isPinned ? onPinTapWhenPinned : onTogglePin,
-                  onLongPress: isPinned ? onUnpinLongPress : null,
-                  color: resolvedBaseColor,
-                  textColor: resolvedTextColor,
-                  width: showHorizontalArrows ? 96 : 84,
-                ),
+                if (showPin)
+                  _MenuButton(
+                    key: const ValueKey('landscape_nav_pin'),
+                    icon: isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                    label: isPinned ? 'Pinned' : 'Pin',
+                    onTap: isPinned ? onPinTapWhenPinned : onTogglePin,
+                    onLongPress: isPinned ? onUnpinLongPress : null,
+                    color: resolvedBaseColor,
+                    textColor: resolvedTextColor,
+                    width: showHorizontalArrows ? 96 : 84,
+                  ),
                 _MenuButton(
                   key: const ValueKey('landscape_nav_menu'),
                   icon: Icons.menu_rounded,
@@ -187,15 +190,16 @@ class LandscapeMenu extends StatelessWidget {
                   textColor: isPinned ? disabledTextColor : resolvedTextColor,
                   width: showHorizontalArrows ? 96 : 84,
                 ),
-                _MenuButton(
-                  key: const ValueKey('landscape_nav_orientation'),
-                  icon: Icons.screen_rotation_rounded,
-                  label: 'Orientation',
-                  onTap: isPinned ? null : onOrientation,
-                  color: isPinned ? disabledColor : resolvedBaseColor,
-                  textColor: isPinned ? disabledTextColor : resolvedTextColor,
-                  width: showHorizontalArrows ? 96 : 84,
-                ),
+                if (!isPinned)
+                  _MenuButton(
+                    key: const ValueKey('landscape_nav_orientation'),
+                    icon: Icons.screen_rotation_rounded,
+                    label: 'Orientation',
+                    onTap: onOrientation,
+                    color: resolvedBaseColor,
+                    textColor: resolvedTextColor,
+                    width: showHorizontalArrows ? 96 : 84,
+                  ),
               ],
             ),
           ),

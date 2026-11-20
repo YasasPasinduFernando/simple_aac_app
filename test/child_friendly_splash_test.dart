@@ -109,8 +109,10 @@ void main() {
       );
       await tester.pump(const Duration(milliseconds: 100));
 
-      // Circular Logo container exists
-      expect(find.byType(ClipOval), findsOneWidget);
+      // Circular Logo container and unclipped transparent image exist
+      expect(find.byKey(const ValueKey('splash_logo_container')), findsOneWidget);
+      expect(find.byKey(const ValueKey('splash_logo_image')), findsOneWidget);
+      expect(find.byType(ClipOval), findsNothing); // Wordmark is not clipped by ClipOval
 
       // Loading text exists with expected content
       final textFinder = find.byKey(const ValueKey('splash_loading_text'));
