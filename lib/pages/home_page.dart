@@ -222,8 +222,15 @@ class _HomePageState extends State<HomePage> {
   bool get useImageOverlayLabelForTesting => _useImageOverlayLabel;
 
   @visibleForTesting
-  set useImageOverlayLabelForTesting(bool value) =>
+  set useImageOverlayLabelForTesting(bool value) {
+    if (mounted) {
+      setState(() {
+        _useImageOverlayLabel = value;
+      });
+    } else {
       _useImageOverlayLabel = value;
+    }
+  }
 
   @visibleForTesting
   bool get enableHapticsForTesting => _enableHaptics;
@@ -5541,11 +5548,8 @@ class _HomePageState extends State<HomePage> {
         effectiveImagePath.isNotEmpty &&
         !isAssetImagePath(effectiveImagePath);
 
-    final isHomeChildCard = (card.id == 'seed_hello' ||
-            card.id == 'seed_happy' ||
-            card.id == 'seed_sad' ||
-            card.id == 'seed_angry' ||
-            card.id == 'seed_more') &&
+    final isCoverImage = isUserPhoto ||
+        isDefaultFolderCover ||
         (effectiveImagePath != null &&
             (effectiveImagePath.startsWith('assets/home/') ||
                 effectiveImagePath.contains('home/hello') ||
@@ -5555,19 +5559,16 @@ class _HomePageState extends State<HomePage> {
                 effectiveImagePath.contains('seed_v2/more') ||
                 effectiveImagePath.contains('seed/blocks')));
 
-    final isFullBleedCard =
-        isUserPhoto || isDefaultFolderCover || isHomeChildCard;
-
-    // For user-uploaded photographs and full-bleed covers, use a neutral dark/light surface
+    // For user-uploaded photographs and full-bleed covers in overlay mode, use a neutral dark/light surface
     // behind the photo and neutral shadows, so no bright card background colors peek through.
-    final effectiveBgColor = isFullBleedCard
+    final effectiveBgColor = (useImageOverlay && (isUserPhoto || isDefaultFolderCover))
         ? (_isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9))
         : cardSurfaceColor;
 
     final effectiveShadowColor = isTapAnimated
         ? (_isColorBlindMode
             ? Colors.black.withValues(alpha: _isDarkMode ? 0.55 : 0.28)
-            : isFullBleedCard
+            : (useImageOverlay && (isUserPhoto || isDefaultFolderCover))
                 ? Colors.black.withValues(alpha: _isDarkMode ? 0.60 : 0.35)
                 : Color(StarterPackService.resolveCardColorValue(card))
                     .withValues(alpha: _isDarkMode ? 0.60 : 0.40))
@@ -5598,24 +5599,36 @@ class _HomePageState extends State<HomePage> {
           borderRadius: BorderRadius.circular(isTablet ? 17 : 13),
           child: Stack(
             children: [
-              if (isFullBleedCard && effectiveImagePath != null) ...[
-                // Full-bleed cover (user photograph or Default folder cover): Fills entire card face with BoxFit.cover
+              if (useImageOverlay &&
+                  effectiveImagePath != null &&
+                  effectiveImagePath.isNotEmpty) ...[
+                // Image overlay presentation: image fills or centers on card with bottom gradient
                 Positioned.fill(
-                  child: buildCardImage(
-                    effectiveImagePath,
-                    fit: BoxFit.cover,
-                    targetLogicalWidth: cardLogicalWidth,
-                    devicePixelRatio: dpr,
-                    colorFilter: cardImageFilter,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Center(
-                        child: Icon(
-                          Icons.broken_image,
-                          size: 48,
-                          color: Colors.white70,
-                        ),
-                      );
-                    },
+                  child: Padding(
+                    padding: isCoverImage
+                        ? EdgeInsets.zero
+                        : EdgeInsets.fromLTRB(
+                            isTablet ? 6.0 : 4.0,
+                            isTablet ? 8.0 : 6.0,
+                            isTablet ? 6.0 : 4.0,
+                            isTablet ? 28.0 : 22.0,
+                          ),
+                    child: buildCardImage(
+                      effectiveImagePath,
+                      fit: isCoverImage ? BoxFit.cover : BoxFit.contain,
+                      targetLogicalWidth: cardLogicalWidth,
+                      devicePixelRatio: dpr,
+                      colorFilter: cardImageFilter,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            size: 48,
+                            color: Colors.white70,
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 // Gradient overlay at bottom for readable label
@@ -5742,9 +5755,10 @@ class _HomePageState extends State<HomePage> {
                           0.0,
                         ),
                         child: Center(
-                          child: card.imagePath != null
+                          child: effectiveImagePath != null &&
+                                  effectiveImagePath.isNotEmpty
                               ? buildCardImage(
-                                  card.imagePath!,
+                                  effectiveImagePath,
                                   fit: BoxFit.contain,
                                   targetLogicalWidth: cardLogicalWidth,
                                   devicePixelRatio: dpr,
@@ -5769,22 +5783,20 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    // Lower Label Area (24% of card height) - ON: continuous; OFF: distinct deeper container
+                    // Lower Label Area (24% of card height) - dedicated footer container
                     Expanded(
                       flex: 24,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: useImageOverlay ? Colors.transparent : labelZoneBg,
-                          border: useImageOverlay
-                              ? null
-                              : Border(
-                                  top: BorderSide(
-                                    color: _isDarkMode
-                                        ? Colors.white.withOpacity(0.08)
-                                        : Colors.black.withOpacity(0.06),
-                                    width: 1.0,
-                                  ),
-                                ),
+                          color: labelZoneBg,
+                          border: Border(
+                            top: BorderSide(
+                              color: _isDarkMode
+                                  ? Colors.white.withOpacity(0.08)
+                                  : Colors.black.withOpacity(0.06),
+                              width: 1.0,
+                            ),
+                          ),
                         ),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 4, vertical: 2),
@@ -5834,40 +5846,24 @@ class _HomePageState extends State<HomePage> {
                                                   .colorBlindBoldText
                                           ? FontWeight.w900
                                           : FontWeight.bold,
-                                      shadows: useImageOverlay
-                                          ? (_isColorBlindMode &&
-                                                  ThemeAccessibility
-                                                      .colorBlindBoldText
-                                              ? ThemeAccessibility
-                                                  .resolveCardTextShadow(
-                                                  cardSurface: Colors.black54,
-                                                  isColorBlindMode: true,
-                                                )
-                                              : const [
+                                      shadows: (_isColorBlindMode &&
+                                              ThemeAccessibility
+                                                  .colorBlindBoldText)
+                                          ? ThemeAccessibility
+                                              .resolveCardTextShadow(
+                                              cardSurface: cardSurfaceColor,
+                                              isColorBlindMode:
+                                                  _isColorBlindMode,
+                                            )
+                                          : (useLightShadow
+                                              ? const [
                                                   Shadow(
-                                                    blurRadius: 4,
-                                                    color: Colors.black45,
-                                                    offset: Offset(0, 1.5),
+                                                    blurRadius: 3,
+                                                    color: Colors.black26,
+                                                    offset: Offset(0, 1),
                                                   ),
-                                                ])
-                                          : ((_isColorBlindMode &&
-                                                  ThemeAccessibility
-                                                      .colorBlindBoldText)
-                                              ? ThemeAccessibility
-                                                  .resolveCardTextShadow(
-                                                  cardSurface: cardSurfaceColor,
-                                                  isColorBlindMode:
-                                                      _isColorBlindMode,
-                                                )
-                                              : (useLightShadow
-                                                  ? const [
-                                                      Shadow(
-                                                        blurRadius: 3,
-                                                        color: Colors.black26,
-                                                        offset: Offset(0, 1),
-                                                      ),
-                                                    ]
-                                                  : null)),
+                                                ]
+                                              : null),
                                     ),
                                   ),
                                   if (card.type == 'folder' ||
@@ -5941,7 +5937,16 @@ class _HomePageState extends State<HomePage> {
 
     final displayLabel = card.getLabel(currentLanguage);
     final isTapAnimated = _tapAnimatedCardId == card.id;
-    final useImageOverlay = _useImageOverlayLabel && card.imagePath != null;
+    final isDefaultFolderCover = card.id == StarterPackService.starterPackRootId &&
+        (card.imagePath == null ||
+            card.imagePath!.isEmpty ||
+            card.imagePath == 'assets/images/starter_pack_v8/starter_default.webp' ||
+            card.imagePath == 'assets/home/default_folder_cover.webp');
+    final effectiveImagePath = isDefaultFolderCover
+        ? 'assets/home/default_folder_cover.webp'
+        : card.imagePath;
+    final hasImage = effectiveImagePath != null && effectiveImagePath.isNotEmpty;
+    final useImageOverlay = _useImageOverlayLabel && hasImage;
     final effectiveColorValue = StarterPackService.resolveCardColorValue(card);
     final cardSurfaceColor = ThemeAccessibility.resolveCardSurface(
       Color(effectiveColorValue),
