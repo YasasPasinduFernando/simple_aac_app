@@ -8,7 +8,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:simple_aac_app/data/default_seed_cards.dart';
 import 'package:simple_aac_app/models/aac_card_model.dart';
 import 'package:simple_aac_app/pages/home_page.dart';
 import 'package:simple_aac_app/services/card_storage_service.dart';
