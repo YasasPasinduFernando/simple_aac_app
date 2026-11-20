@@ -440,6 +440,10 @@ class _CropZoomDialogState extends State<CropZoomDialog> {
 
     try {
       final imageRect = _calculateImageRect(viewportWidth, viewportHeight);
+      if (imageRect.width <= 0 || imageRect.height <= 0) {
+        setState(() => _isProcessing = false);
+        return;
+      }
 
       final normLeft = ((_cropRect!.left - imageRect.left) / imageRect.width).clamp(0.0, 1.0);
       final normTop = ((_cropRect!.top - imageRect.top) / imageRect.height).clamp(0.0, 1.0);
@@ -487,32 +491,35 @@ class _CropZoomDialogState extends State<CropZoomDialog> {
 
     _initCropRectIfNeeded(viewportWidth, viewportHeight);
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: dialogWidth),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildHeader(colorScheme, isDark),
-              const SizedBox(height: 12),
-              _buildInfoBanner(colorScheme, isDark),
-              const SizedBox(height: 14),
-              _buildCropViewport(viewportWidth, viewportHeight, isDark),
-              const SizedBox(height: 12),
-              _buildModeToggle(viewportWidth, viewportHeight, isDark),
-              const SizedBox(height: 12),
-              _buildZoomControls(viewportWidth, viewportHeight, colorScheme, isDark),
-              const SizedBox(height: 6),
-              _buildResetButton(viewportWidth, viewportHeight, colorScheme),
-              const SizedBox(height: 14),
-              _buildFooterActions(viewportWidth, viewportHeight, colorScheme),
-            ],
+    return PopScope(
+      canPop: !_isProcessing,
+      child: Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: dialogWidth),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildHeader(colorScheme, isDark),
+                const SizedBox(height: 12),
+                _buildInfoBanner(colorScheme, isDark),
+                const SizedBox(height: 14),
+                _buildCropViewport(viewportWidth, viewportHeight, isDark),
+                const SizedBox(height: 12),
+                _buildModeToggle(viewportWidth, viewportHeight, isDark),
+                const SizedBox(height: 12),
+                _buildZoomControls(viewportWidth, viewportHeight, colorScheme, isDark),
+                const SizedBox(height: 6),
+                _buildResetButton(viewportWidth, viewportHeight, colorScheme),
+                const SizedBox(height: 14),
+                _buildFooterActions(viewportWidth, viewportHeight, colorScheme),
+              ],
+            ),
           ),
         ),
       ),
@@ -705,11 +712,13 @@ class _CropZoomDialogState extends State<CropZoomDialog> {
                         widget.imagePath,
                         fit: BoxFit.fill,
                         gaplessPlayback: true,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                       )
                     : Image.file(
                         File(widget.imagePath),
                         fit: BoxFit.fill,
                         gaplessPlayback: true,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                       ),
               ),
               // 2. Dimmed overlay, rule-of-thirds grid, and 8 circular handles
@@ -926,7 +935,7 @@ class _CropZoomDialogState extends State<CropZoomDialog> {
         const SizedBox(width: 14),
         Expanded(
           child: ElevatedButton(
-            onPressed: (_isLoading || _isProcessing || _errorMessage != null)
+            onPressed: (_isLoading || _isProcessing || _errorMessage != null || _srcWidth == null || _srcHeight == null || _srcWidth! <= 0 || _srcHeight! <= 0)
                 ? null
                 : () => _handleUsePhoto(viewportWidth, viewportHeight),
             style: ElevatedButton.styleFrom(

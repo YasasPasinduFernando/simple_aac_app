@@ -200,6 +200,8 @@ class CameraObjectHelper {
     return _defaultPicker.pickImage(
       source: ImageSource.camera,
       imageQuality: imageQuality,
+      maxWidth: 2048,
+      maxHeight: 2048,
     );
   }
 

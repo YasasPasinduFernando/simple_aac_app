@@ -73,6 +73,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   DateTime? _recordStart;
   bool _isPlaying = false;
   bool _isClosing = false;
+  bool _isSaving = false;
   bool _isMediaBusy = false;
   String _detectedConcept = '';
   CameraAnalysisResult? _cameraAnalysis;
@@ -166,12 +167,15 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   void _revertUnsavedImage() {
     widget.card.imagePath = _initialImagePath;
     for (final path in _temporaryCroppedPaths) {
-      try {
-        final f = File(path);
-        if (f.existsSync()) {
-          f.deleteSync();
-        }
-      } catch (_) {}
+      if (path != _initialImagePath) {
+        try {
+          PaintingBinding.instance.imageCache.evict(FileImage(File(path)));
+          final f = File(path);
+          if (f.existsSync()) {
+            f.deleteSync();
+          }
+        } catch (_) {}
+      }
     }
     _temporaryCroppedPaths.clear();
   }
@@ -179,18 +183,28 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
   Future<void> _adjustCurrentImage() async {
     final currentPath = widget.card.imagePath;
     if (currentPath == null || currentPath.isEmpty || isGifImagePath(currentPath)) return;
-    final cropped = await CropZoomDialog.show(context, imagePath: currentPath);
-    if (cropped != null && mounted) {
-      _temporaryCroppedPaths.add(cropped);
-      setState(() {
-        widget.card.imagePath = cropped;
-      });
+    if (_isMediaBusy || _isClosing || _isSaving) return;
+    setState(() => _isMediaBusy = true);
+    try {
+      final cropped = await CropZoomDialog.show(context, imagePath: currentPath);
+      if (cropped != null && mounted) {
+        _temporaryCroppedPaths.add(cropped);
+        setState(() {
+          widget.card.imagePath = cropped;
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isMediaBusy = false);
+      } else {
+        _isMediaBusy = false;
+      }
     }
   }
 
   Future<void> _pickFromGallery() async {
-    if (_isMediaBusy || _isClosing) return;
-    _isMediaBusy = true;
+    if (_isMediaBusy || _isClosing || _isSaving) return;
+    setState(() => _isMediaBusy = true);
     try {
       final allowed = await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
       if (!allowed || !mounted) return;
@@ -198,13 +212,19 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       final picked = await _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 85,
+        maxWidth: 2048,
+        maxHeight: 2048,
       );
       if (picked == null || !mounted) return;
 
       String finalPath = picked.path;
       if (!isGifImagePath(picked.path)) {
+        _temporaryCroppedPaths.add(picked.path);
         final cropped = await CropZoomDialog.show(context, imagePath: picked.path);
-        if (cropped == null || !mounted) return;
+        if (cropped == null || !mounted) {
+          _temporaryCroppedPaths.remove(picked.path);
+          return;
+        }
         _temporaryCroppedPaths.add(cropped);
         finalPath = cropped;
       }
@@ -224,13 +244,17 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         ),
       );
     } finally {
-      _isMediaBusy = false;
+      if (mounted) {
+        setState(() => _isMediaBusy = false);
+      } else {
+        _isMediaBusy = false;
+      }
     }
   }
 
   Future<void> _pickFromCamera() async {
-    if (_isMediaBusy || _isClosing) return;
-    _isMediaBusy = true;
+    if (_isMediaBusy || _isClosing || _isSaving) return;
+    setState(() => _isMediaBusy = true);
     try {
       final outcome = await CameraObjectHelper.captureAndVerify(
         context,
@@ -241,8 +265,17 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
 
       String finalPath = outcome.imagePath;
       if (!isGifImagePath(outcome.imagePath)) {
+        _temporaryCroppedPaths.add(outcome.imagePath);
         final cropped = await CropZoomDialog.show(context, imagePath: outcome.imagePath);
-        if (cropped == null || !mounted) return;
+        if (cropped == null || !mounted) {
+          try {
+            PaintingBinding.instance.imageCache.evict(FileImage(File(outcome.imagePath)));
+            final f = File(outcome.imagePath);
+            if (f.existsSync()) f.deleteSync();
+          } catch (_) {}
+          _temporaryCroppedPaths.remove(outcome.imagePath);
+          return;
+        }
         _temporaryCroppedPaths.add(cropped);
         finalPath = cropped;
       }
@@ -285,13 +318,17 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         ),
       );
     } finally {
-      _isMediaBusy = false;
+      if (mounted) {
+        setState(() => _isMediaBusy = false);
+      } else {
+        _isMediaBusy = false;
+      }
     }
   }
 
   Future<void> _pickAnimatedClip() async {
-    if (_isMediaBusy || _isClosing) return;
-    _isMediaBusy = true;
+    if (_isMediaBusy || _isClosing || _isSaving) return;
+    setState(() => _isMediaBusy = true);
     try {
       final savedPath = await AnimatedMediaHelper.pickOrCreateAnimatedGif(
         context,
@@ -304,13 +341,17 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       });
       TutorialService.instance.notifyMediaSelected();
     } finally {
-      _isMediaBusy = false;
+      if (mounted) {
+        setState(() => _isMediaBusy = false);
+      } else {
+        _isMediaBusy = false;
+      }
     }
   }
 
   Future<void> _openSmartSearch() async {
-    if (_isMediaBusy || _isClosing) return;
-    _isMediaBusy = true;
+    if (_isMediaBusy || _isClosing || _isSaving) return;
+    setState(() => _isMediaBusy = true);
     try {
       final query = _detectedConcept.isNotEmpty
           ? _detectedConcept
@@ -335,7 +376,11 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         TutorialService.instance.notifyMediaSelected();
       }
     } finally {
-      _isMediaBusy = false;
+      if (mounted) {
+        setState(() => _isMediaBusy = false);
+      } else {
+        _isMediaBusy = false;
+      }
     }
   }
 
@@ -978,8 +1023,9 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       widget.card.imagePath = permanentPath;
     }
     for (final path in _temporaryCroppedPaths) {
-      if (path != widget.card.imagePath) {
+      if (path != widget.card.imagePath && path != _initialImagePath) {
         try {
+          PaintingBinding.instance.imageCache.evict(FileImage(File(path)));
           final f = File(path);
           if (f.existsSync()) {
             f.deleteSync();
@@ -994,6 +1040,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       if (choice == _FolderToWordChoice.cancel || choice == null) {
         setState(() {
           _selectedType = 'folder';
+          _isSaving = false;
         });
         return;
       }
@@ -1048,7 +1095,8 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
+        if (didPop || _isSaving || _isClosing) return;
+        _isClosing = true;
         await _stopAll();
         _revertUnsavedImage();
         if (context.mounted) {
@@ -1072,15 +1120,17 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
           trailing: IconButton(
             tooltip: 'Close',
             icon: const Icon(Icons.close_rounded),
-            onPressed: () async {
-              if (_isClosing) return;
-              _isClosing = true;
-              await _stopAll();
-              _revertUnsavedImage();
-              if (mounted) {
-                Navigator.pop(context);
-              }
-            },
+            onPressed: (_isSaving || _isClosing)
+                ? null
+                : () async {
+                    if (_isClosing || _isSaving) return;
+                    _isClosing = true;
+                    await _stopAll();
+                    _revertUnsavedImage();
+                    if (mounted) {
+                      Navigator.pop(context);
+                    }
+                  },
           ),
         ),
         content: SizedBox(
@@ -1210,15 +1260,17 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         ),
         actions: [
           TextButton(
-            onPressed: () async {
-              if (_isClosing) return;
-              _isClosing = true;
-              await _stopAll();
-              _revertUnsavedImage();
-              if (mounted) {
-                Navigator.pop(context);
-              }
-            },
+            onPressed: (_isSaving || _isClosing)
+                ? null
+                : () async {
+                    if (_isClosing || _isSaving) return;
+                    _isClosing = true;
+                    await _stopAll();
+                    _revertUnsavedImage();
+                    if (mounted) {
+                      Navigator.pop(context);
+                    }
+                  },
             child: const Text('Cancel'),
           ),
           FilledButton(
@@ -1229,12 +1281,17 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: () async {
-              if (_isClosing) return;
-              await _stopAll();
-              if (!mounted) return;
-              await _saveCard();
-            },
+            onPressed: (_isMediaBusy || _isSaving || _isClosing)
+                ? null
+                : () async {
+                    if (_isClosing || _isSaving || _isMediaBusy) return;
+                    setState(() {
+                      _isSaving = true;
+                    });
+                    await _stopAll();
+                    if (!mounted) return;
+                    await _saveCard();
+                  },
             child: const Text(
               'Save Card',
               style: TextStyle(fontWeight: FontWeight.w700),
@@ -1275,7 +1332,29 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
               ),
             ),
             clipBehavior: Clip.antiAlias,
-            child: hasImage
+            child: _isMediaBusy
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.hourglass_top_rounded,
+                          size: 28,
+                          color: colorScheme.primary,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Processing photo...',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : hasImage
                 ? Stack(
                     fit: StackFit.expand,
                     children: [

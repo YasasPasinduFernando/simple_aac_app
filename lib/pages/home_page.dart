@@ -916,7 +916,11 @@ class _HomePageState extends State<HomePage> {
 
       try {
         final image = await _picker.pickImage(
-            source: ImageSource.gallery, imageQuality: 80);
+          source: ImageSource.gallery,
+          imageQuality: 80,
+          maxWidth: 2048,
+          maxHeight: 2048,
+        );
         if (image != null && mounted) {
           final cropped = await CropZoomDialog.show(context, imagePath: image.path);
           if (cropped == null || !mounted) return;

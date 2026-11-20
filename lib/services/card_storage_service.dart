@@ -281,8 +281,8 @@ class CardStorageService {
     final docsDir = await _getDocsDirectory();
     final mediaDir =
         Directory(_join(_join(docsDir.path, 'aac_media'), mediaType));
-    if (!await mediaDir.exists()) {
-      await mediaDir.create(recursive: true);
+    if (!mediaDir.existsSync()) {
+      mediaDir.createSync(recursive: true);
     }
     return mediaDir;
   }
@@ -295,10 +295,10 @@ class CardStorageService {
     required String mediaType,
   }) async {
     final sourceFile = File(sourcePath);
-    if (!await sourceFile.exists()) {
+    if (!sourceFile.existsSync()) {
       throw FileSystemException('Source media file not found', sourcePath);
     }
-    if (await sourceFile.length() <= 0) {
+    if (sourceFile.lengthSync() <= 0) {
       throw FileSystemException('Source media file is empty', sourcePath);
     }
 
@@ -318,13 +318,13 @@ class CardStorageService {
     var fileName =
         '${mediaType}_${safeId}_${timestamp}_${_mediaCounter++}$extension';
     var targetPath = _join(mediaDir.path, fileName);
-    while (await File(targetPath).exists()) {
+    while (File(targetPath).existsSync()) {
       fileName =
           '${mediaType}_${safeId}_${timestamp}_${_mediaCounter++}$extension';
       targetPath = _join(mediaDir.path, fileName);
     }
 
-    await sourceFile.copy(targetPath);
+    sourceFile.copySync(targetPath);
     debugPrint(
       '[CardStorage] persisted $mediaType file: source=$sourcePath, '
       'target=$targetPath',

@@ -359,7 +359,12 @@ class ImageCropHelper {
     try {
       return await compute(_decodeDimensionsWorker, bytes);
     } catch (_) {
-      return _decodeDimensionsWorker(bytes);
+      try {
+        return _decodeDimensionsWorker(bytes);
+      } catch (e) {
+        debugPrint('[ImageCropHelper] decodeDimensions fallback failed: $e');
+        return const ImageDimensions(width: 640, height: 640);
+      }
     }
   }
 
