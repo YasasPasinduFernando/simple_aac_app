@@ -12,6 +12,7 @@ class HomeDrawer extends StatelessWidget {
   final int gridColumns;
   final String visibleCardsLabel;
   final bool isEditMode;
+  final bool showCardLabels;
   final bool showTtsInput;
   final String orientationLabel;
   final bool fullScreen;
@@ -34,6 +35,7 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onSelectCategory;
   final VoidCallback onAddCategory;
   final VoidCallback onToggleEdit;
+  final VoidCallback? onToggleShowCardLabels;
   final VoidCallback onToggleTtsInput;
   final VoidCallback onToggleTtsText;
   final VoidCallback onToggleCardImageLabel;
@@ -82,6 +84,8 @@ class HomeDrawer extends StatelessWidget {
     required this.gridColumns,
     required this.visibleCardsLabel,
     required this.isEditMode,
+    this.showCardLabels = true,
+    this.onToggleShowCardLabels,
     required this.showTtsInput,
     required this.orientationLabel,
     required this.fullScreen,
@@ -251,6 +255,14 @@ class HomeDrawer extends StatelessWidget {
                   ),
                 _buildSwitchItem(
                   context,
+                  icon: Icons.label_rounded,
+                  title: 'Show Card Labels',
+                  subtitle: 'Show or hide text labels on all cards',
+                  value: showCardLabels,
+                  onChanged: (_) => onToggleShowCardLabels?.call(),
+                ),
+                _buildSwitchItem(
+                  context,
                   icon: Icons.view_headline_rounded,
                   title: 'Show Sentence Bar',
                   subtitle: 'Show the top bar for building and speaking sentences',
@@ -278,8 +290,9 @@ class HomeDrawer extends StatelessWidget {
                 _buildSwitchItem(
                   context,
                   icon: Icons.layers_rounded,
-                  title: 'Text on Card Image',
-                  subtitle: 'Show label overlaid on image',
+                  title: 'Overlay Card Labels on Images',
+                  subtitle:
+                      'Show card labels over images instead of below them',
                   value: useImageOverlayLabel,
                   onChanged: (_) => onToggleCardImageLabel(),
                 ),

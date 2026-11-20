@@ -188,7 +188,7 @@ void main() {
     expect(tappedCardText, isTrue);
 
     // Scroll further down to Color Vision Support
-    await tester.drag(find.byType(ListView), const Offset(0, -250));
+    await tester.drag(find.byType(ListView), const Offset(0, -320));
     await tester.pumpAndSettle();
     expect(find.text('Color Vision Support'), findsOneWidget);
     expect(find.text('Normal (Custom Colors)'), findsOneWidget);
@@ -365,9 +365,13 @@ void main() {
 
     expect(find.byType(HomeDrawer), findsOneWidget);
 
-    // Tap 'Text on Card Image'
-    await tester.scrollUntilVisible(find.text('Text on Card Image'), 100);
-    await tester.tap(find.text('Text on Card Image'), warnIfMissed: false);
+    // Tap 'Overlay Card Labels on Images'
+    final overlayToggleFinder = find.byWidgetPredicate((w) =>
+        w is Text &&
+        (w.data == 'Overlay Card Labels on Images' ||
+            w.data == 'Text on Card Image'));
+    await tester.scrollUntilVisible(overlayToggleFinder, 100);
+    await tester.tap(overlayToggleFinder, warnIfMissed: false);
     await tester.pumpAndSettle();
 
     // Drawer must remain open!
@@ -581,7 +585,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.drag(find.byType(ListView), const Offset(0, -250));
+    await tester.drag(find.byType(ListView), const Offset(0, -320));
     await tester.pumpAndSettle();
     expect(find.text('Show Sentence Bar'), findsOneWidget);
     expect(find.text('Show the top bar for building and speaking sentences'), findsOneWidget);
@@ -589,7 +593,7 @@ void main() {
     await tester.pump();
     expect(ttsInputToggled, isTrue);
 
-    await tester.drag(find.byType(ListView), const Offset(0, -100));
+    await tester.drag(find.byType(ListView), const Offset(0, -180));
     await tester.pumpAndSettle();
     expect(find.text('Hide Text in Sentence Bar'), findsOneWidget);
     expect(find.text('Show only card pictures in the sentence bar'), findsOneWidget);

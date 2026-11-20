@@ -209,6 +209,7 @@ class _HomePageState extends State<HomePage> {
   bool _showTtsDelete = true;
   bool _showTtsClear = true;
   bool _hideTtsText = false;
+  bool _showCardLabels = true;
   bool _useImageOverlayLabel = true;
   bool _applyTextColorToCards = false;
   bool _enableHaptics = true;
@@ -217,6 +218,20 @@ class _HomePageState extends State<HomePage> {
   bool _isColorBlindMode = false;
   SpeechCapabilityReport? _speechCapabilities;
   bool _isBusyOperation = false;
+
+  @visibleForTesting
+  bool get showCardLabelsForTesting => _showCardLabels;
+
+  @visibleForTesting
+  set showCardLabelsForTesting(bool value) {
+    if (mounted) {
+      setState(() {
+        _showCardLabels = value;
+      });
+    } else {
+      _showCardLabels = value;
+    }
+  }
 
   @visibleForTesting
   bool get useImageOverlayLabelForTesting => _useImageOverlayLabel;
@@ -421,6 +436,7 @@ class _HomePageState extends State<HomePage> {
       final nextShowDelete = prefs.getBool('showTtsDelete') ?? nextShowActions;
       final nextShowClear = prefs.getBool('showTtsClear') ?? nextShowActions;
       final nextHideTts = prefs.getBool('hideTtsText') ?? false;
+      final nextShowCardLabels = prefs.getBool('showCardLabels') ?? true;
       final nextOverlay = prefs.getBool('useImageOverlayLabel') ?? true;
       final nextApplyText = prefs.getBool('applyTextColorToCards') ?? false;
       final nextHaptics = prefs.getBool('enableHaptics') ?? true;
@@ -472,6 +488,7 @@ class _HomePageState extends State<HomePage> {
         _showTtsDelete = nextShowDelete;
         _showTtsClear = nextShowClear;
         _hideTtsText = nextHideTts;
+        _showCardLabels = nextShowCardLabels;
         _useImageOverlayLabel = nextOverlay;
         _applyTextColorToCards = nextApplyText;
         _enableHaptics = nextHaptics;
@@ -633,6 +650,7 @@ class _HomePageState extends State<HomePage> {
           prefs.setBool('showTtsDelete', _showTtsDelete),
           prefs.setBool('showTtsClear', _showTtsClear),
           prefs.setBool('hideTtsText', _hideTtsText),
+          prefs.setBool('showCardLabels', _showCardLabels),
           prefs.setBool('useImageOverlayLabel', _useImageOverlayLabel),
           prefs.setBool('applyTextColorToCards', _applyTextColorToCards),
           prefs.setBool('enableHaptics', _enableHaptics),
@@ -1986,6 +2004,7 @@ class _HomePageState extends State<HomePage> {
       _showTtsDelete = true;
       _showTtsClear = true;
       _hideTtsText = false;
+      _showCardLabels = true;
       _useImageOverlayLabel = true;
       _applyTextColorToCards = false;
       _enableHaptics = true;
@@ -2173,6 +2192,7 @@ class _HomePageState extends State<HomePage> {
       'showTtsDelete': _showTtsDelete,
       'showTtsClear': _showTtsClear,
       'hideTtsText': _hideTtsText,
+      'showCardLabels': _showCardLabels,
       'useImageOverlayLabel': _useImageOverlayLabel,
       'applyTextColorToCards': _applyTextColorToCards,
       'enableHaptics': _enableHaptics,
@@ -3913,6 +3933,8 @@ class _HomePageState extends State<HomePage> {
       _showTtsClear =
           settings['showTtsClear'] as bool? ?? importedShowActions;
       _hideTtsText = settings['hideTtsText'] as bool? ?? _hideTtsText;
+      _showCardLabels =
+          settings['showCardLabels'] as bool? ?? _showCardLabels;
       _useImageOverlayLabel =
           settings['useImageOverlayLabel'] as bool? ?? _useImageOverlayLabel;
       _applyTextColorToCards =
@@ -4321,6 +4343,13 @@ class _HomePageState extends State<HomePage> {
                       _saveCards();
                     },
                     hideTtsText: _hideTtsText,
+                    showCardLabels: _showCardLabels,
+                    onToggleShowCardLabels: () {
+                      setState(() {
+                        _showCardLabels = !_showCardLabels;
+                      });
+                      _saveCards();
+                    },
                     enableHaptics: _enableHaptics,
                     onToggleHaptics: (enabled) {
                       setState(() {
@@ -5467,22 +5496,24 @@ class _HomePageState extends State<HomePage> {
                     color: arrowColor,
                   ),
                 ),
-                SizedBox(height: isLarge ? 8 : 4),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    backLabel,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: labelSize,
-                      fontWeight: FontWeight.w800,
-                      color: textColor,
-                      letterSpacing: 0.3,
+                if (_showCardLabels) ...[
+                  SizedBox(height: isLarge ? 8 : 4),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      backLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: labelSize,
+                        fontWeight: FontWeight.w800,
+                        color: textColor,
+                        letterSpacing: 0.3,
+                      ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -5500,6 +5531,7 @@ class _HomePageState extends State<HomePage> {
     required ColorFilter? cardImageFilter,
     required bool useImageOverlay,
     required bool useLightShadow,
+    bool showCardLabels = true,
     BoxBorder? border,
     bool isTapAnimated = false,
     bool showMicIcon = true,
@@ -5559,16 +5591,16 @@ class _HomePageState extends State<HomePage> {
                 effectiveImagePath.contains('seed_v2/more') ||
                 effectiveImagePath.contains('seed/blocks')));
 
-    // For user-uploaded photographs and full-bleed covers in overlay mode, use a neutral dark/light surface
+    // For user-uploaded photographs and full-bleed covers in overlay or image-only mode, use a neutral dark/light surface
     // behind the photo and neutral shadows, so no bright card background colors peek through.
-    final effectiveBgColor = (useImageOverlay && (isUserPhoto || isDefaultFolderCover))
+    final effectiveBgColor = ((useImageOverlay || !showCardLabels) && (isUserPhoto || isDefaultFolderCover))
         ? (_isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9))
         : cardSurfaceColor;
 
     final effectiveShadowColor = isTapAnimated
         ? (_isColorBlindMode
             ? Colors.black.withValues(alpha: _isDarkMode ? 0.55 : 0.28)
-            : (useImageOverlay && (isUserPhoto || isDefaultFolderCover))
+            : ((useImageOverlay || !showCardLabels) && (isUserPhoto || isDefaultFolderCover))
                 ? Colors.black.withValues(alpha: _isDarkMode ? 0.60 : 0.35)
                 : Color(StarterPackService.resolveCardColorValue(card))
                     .withValues(alpha: _isDarkMode ? 0.60 : 0.40))
@@ -5599,7 +5631,69 @@ class _HomePageState extends State<HomePage> {
           borderRadius: BorderRadius.circular(isTablet ? 17 : 13),
           child: Stack(
             children: [
-              if (useImageOverlay &&
+              if (!showCardLabels) ...[
+                // Image-only presentation: image fills the available card display area
+                if (effectiveImagePath != null &&
+                    effectiveImagePath.isNotEmpty) ...[
+                  Positioned.fill(
+                    child: Padding(
+                      padding: isCoverImage
+                          ? EdgeInsets.zero
+                          : EdgeInsets.all(isTablet ? 12.0 : 8.0),
+                      child: buildCardImage(
+                        effectiveImagePath,
+                        fit: isCoverImage ? BoxFit.cover : BoxFit.contain,
+                        targetLogicalWidth: cardLogicalWidth,
+                        devicePixelRatio: dpr,
+                        colorFilter: cardImageFilter,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              size: 48,
+                              color: Colors.white70,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  Center(
+                    child: Icon(
+                      card.isFolder ? Icons.folder_rounded : Icons.image,
+                      size: isTablet ? 64 : 48,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
+                // Existing non-text navigation icon for folders
+                if (card.type == 'folder' || card.subCards.isNotEmpty)
+                  Positioned(
+                    right: isTablet ? 10 : 8,
+                    bottom: isTablet ? 10 : 8,
+                    child: Container(
+                      width: (isTablet ? 24 : 20) * _cardTextScale,
+                      height: (isTablet ? 24 : 20) * _cardTextScale,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.55),
+                        shape: BoxShape.circle,
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black38,
+                            blurRadius: 3,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.arrow_forward_rounded,
+                        size: (isTablet ? 14 : 12) * _cardTextScale,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+              ] else if (useImageOverlay &&
                   effectiveImagePath != null &&
                   effectiveImagePath.isNotEmpty) ...[
                 // Image overlay presentation: image fills or centers on card with bottom gradient
@@ -5967,9 +6061,12 @@ class _HomePageState extends State<HomePage> {
       isColorBlindMode: _isColorBlindMode,
     );
 
-    final cardFace = GestureDetector(
-      key: cardKey,
-      onTap: () {
+    final cardFace = Semantics(
+      label: displayLabel,
+      button: true,
+      child: GestureDetector(
+        key: cardKey,
+        onTap: () {
         if (TutorialService.instance.currentStepNotifier.value ==
             TutorialStepType.testNewCard) {
           setState(() {
@@ -6023,8 +6120,10 @@ class _HomePageState extends State<HomePage> {
         cardImageFilter: cardImageFilter,
         useImageOverlay: useImageOverlay,
         useLightShadow: useLightShadow,
+        showCardLabels: _showCardLabels,
         isTapAnimated: isTapAnimated,
         cardLogicalWidth: cardLogicalWidth,
+      ),
       ),
     );
 
@@ -6057,6 +6156,7 @@ class _HomePageState extends State<HomePage> {
           cardImageFilter,
           useImageOverlay,
           useLightShadow,
+          showCardLabels: _showCardLabels,
           cardLogicalWidth: cardLogicalWidth,
         ),
         onEdit: () => _editCard(card),
@@ -6076,6 +6176,7 @@ class _HomePageState extends State<HomePage> {
     ColorFilter? cardImageFilter,
     bool useImageOverlay,
     bool useLightShadow, {
+    bool showCardLabels = true,
     double? cardLogicalWidth,
   }) {
     return _buildCardFace(
@@ -6087,6 +6188,7 @@ class _HomePageState extends State<HomePage> {
       cardImageFilter: cardImageFilter,
       useImageOverlay: useImageOverlay,
       useLightShadow: useLightShadow,
+      showCardLabels: showCardLabels,
       border: Border.all(color: Colors.transparent),
       showMicIcon: false,
       cardLogicalWidth: cardLogicalWidth,
