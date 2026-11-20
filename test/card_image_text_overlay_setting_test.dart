@@ -331,11 +331,24 @@ void main() {
             reason: '${card.label} must have a valid text style color');
       }
 
-      // Verify all card images use BoxFit.contain in footer mode so they remain unclipped
+      // Verify card images use the appropriate fit:
+      // - User photographs and default folder cover fill their upper viewport with BoxFit.cover
+      // - Illustrations use BoxFit.contain so that character artwork is preserved without clipping
       final imageWidgets = tester.widgetList<Image>(find.byType(Image)).toList();
       for (final img in imageWidgets) {
-        expect(img.fit, equals(BoxFit.contain),
-            reason: 'Every card image must be BoxFit.contain when setting is OFF');
+        if (img.image is FileImage) {
+          expect(img.fit, equals(BoxFit.cover),
+              reason: 'User photograph must fill its card viewport with BoxFit.cover');
+        } else if (img.image is AssetImage) {
+          final asset = img.image as AssetImage;
+          if (asset.assetName.contains('default_folder_cover')) {
+            expect(img.fit, equals(BoxFit.cover),
+                reason: 'Default folder cover fills its card viewport with BoxFit.cover');
+          } else {
+            expect(img.fit, equals(BoxFit.contain),
+                reason: 'Illustrations must be BoxFit.contain to preserve visual content');
+          }
+        }
       }
 
       // Save screenshot for visual artifact

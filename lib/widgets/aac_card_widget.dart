@@ -199,7 +199,9 @@ class AACCardWidget extends StatelessWidget {
                                 ),
                                 child: buildCardImage(
                                   card.imagePath!,
-                                  fit: BoxFit.contain,
+                                  fit: (isUserPhoto || isDefaultFolderCover)
+                                      ? BoxFit.cover
+                                      : BoxFit.contain,
                                   width: double.infinity,
                                   targetLogicalWidth: 160,
                                   errorBuilder: (context, error, stackTrace) {

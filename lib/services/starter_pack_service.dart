@@ -30,8 +30,12 @@ class StarterPackService {
     'simpleaac.starter.v2.school_places': 0xFFD1E2FA,
   };
 
-  /// Exact background colors matching the solid edge pixels of built-in seed cards (More folder).
+  /// Exact background colors matching the solid edge pixels of built-in seed cards.
   static const Map<String, int> harmonizedSeedColors = {
+    'seed_hello': 0xFFFDE466,
+    'seed_happy': 0xFFFDE16C,
+    'seed_sad': 0xFFA1D1F6,
+    'seed_angry': 0xFFF8A19F,
     'seed_more': 0xFF475CC5,
     'seed_good': 0xFF7CCA7E,
     'seed_play': 0xFFFEAE3E,
@@ -44,6 +48,9 @@ class StarterPackService {
   };
 
   static const Set<int> legacySeedColorValues = {
+    0xFFFFF176, // seed_hello & seed_happy legacy (yellow.shade300)
+    0xFF4FC3F7, // seed_sad legacy (lightBlue.shade300)
+    0xFFE57373, // seed_angry legacy (red.shade300)
     0xFF3F51B5, // seed_more legacy (indigo.shade500)
     0xFF81C784, // seed_good legacy (green.shade300)
     0xFFFFB74D, // seed_play legacy (orange.shade300)
@@ -65,6 +72,7 @@ class StarterPackService {
           img.isEmpty ||
           img.contains('assets/images/starter_pack_v8/') ||
           img.contains('assets/images/seed_v2/') ||
+          img.contains('assets/home/') ||
           img.contains('images/');
       if (isBuiltIn) {
         // If it's a seed card and user customized the color away from legacy defaults, keep custom color

@@ -5838,44 +5838,76 @@ class _HomePageState extends State<HomePage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Upper Image Area (76% of card height) - unclipped, BoxFit.contain
+                    // Upper Image Area (76% of card height):
+                    // - For user camera/gallery photos and cover cards: fills the upper area with BoxFit.cover
+                    // - For illustrations and icon cards: unclipped, centered with BoxFit.contain to preserve artwork
                     Expanded(
                       flex: 76,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          isTablet ? 4.0 : 2.0,
-                          isTablet ? 6.0 : 4.0,
-                          isTablet ? 4.0 : 2.0,
-                          0.0,
-                        ),
-                        child: Center(
-                          child: effectiveImagePath != null &&
-                                  effectiveImagePath.isNotEmpty
-                              ? buildCardImage(
-                                  effectiveImagePath,
-                                  fit: BoxFit.contain,
-                                  targetLogicalWidth: cardLogicalWidth,
-                                  devicePixelRatio: dpr,
-                                  colorFilter: cardImageFilter,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Center(
+                      child: (isUserPhoto || isDefaultFolderCover)
+                          ? SizedBox.expand(
+                              child: effectiveImagePath != null &&
+                                      effectiveImagePath.isNotEmpty
+                                  ? buildCardImage(
+                                      effectiveImagePath,
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      targetLogicalWidth: cardLogicalWidth,
+                                      devicePixelRatio: dpr,
+                                      colorFilter: cardImageFilter,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return const Center(
+                                          child: Icon(
+                                            Icons.broken_image,
+                                            size: 48,
+                                            color: Colors.white70,
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Center(
                                       child: Icon(
-                                        Icons.broken_image,
-                                        size: 48,
+                                        card.isFolder ? Icons.folder_rounded : Icons.image,
+                                        size: isTablet ? 64 : 48,
                                         color: Colors.white70,
                                       ),
-                                    );
-                                  },
-                                )
-                              : Center(
-                                  child: Icon(
-                                    card.isFolder ? Icons.folder_rounded : Icons.image,
-                                    size: isTablet ? 64 : 48,
-                                    color: Colors.white70,
-                                  ),
-                                ),
-                        ),
-                      ),
+                                    ),
+                            )
+                          : Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                isTablet ? 4.0 : 2.0,
+                                isTablet ? 6.0 : 4.0,
+                                isTablet ? 4.0 : 2.0,
+                                0.0,
+                              ),
+                              child: Center(
+                                child: effectiveImagePath != null &&
+                                        effectiveImagePath.isNotEmpty
+                                    ? buildCardImage(
+                                        effectiveImagePath,
+                                        fit: BoxFit.contain,
+                                        targetLogicalWidth: cardLogicalWidth,
+                                        devicePixelRatio: dpr,
+                                        colorFilter: cardImageFilter,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return const Center(
+                                            child: Icon(
+                                              Icons.broken_image,
+                                              size: 48,
+                                              color: Colors.white70,
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : Center(
+                                        child: Icon(
+                                          card.isFolder ? Icons.folder_rounded : Icons.image,
+                                          size: isTablet ? 64 : 48,
+                                          color: Colors.white70,
+                                        ),
+                                      ),
+                              ),
+                            ),
                     ),
                     // Lower Label Area (24% of card height) - dedicated footer container
                     Expanded(
