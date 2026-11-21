@@ -27,6 +27,7 @@ class HomeDrawer extends StatelessWidget {
   final Color textColorSwatch;
   final Color backgroundColorSwatch;
   final Color cardTextColorSwatch;
+  final Color cardLabelBgColorSwatch;
   final bool isOnlineEnabled;
   final ValueChanged<bool> onToggleOnline;
   final ValueChanged<bool> onToggleDarkMode;
@@ -46,6 +47,7 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback onPickBackgroundColor;
   final VoidCallback? onOpenPersonalizeSetup;
   final VoidCallback? onPickCardTextColor;
+  final VoidCallback? onPickCardLabelBgColor;
   final VoidCallback onShowTtsBarSize;
   final VoidCallback onToggleFullScreen;
   final VoidCallback onShowLanguage;
@@ -100,6 +102,7 @@ class HomeDrawer extends StatelessWidget {
     required this.textColorSwatch,
     required this.backgroundColorSwatch,
     this.cardTextColorSwatch = const Color(0xFF111827),
+    this.cardLabelBgColorSwatch = const Color(0xFFF4F1EB),
     required this.isOnlineEnabled,
     required this.onToggleOnline,
     required this.onToggleDarkMode,
@@ -118,6 +121,7 @@ class HomeDrawer extends StatelessWidget {
     required this.onPickBackgroundColor,
     this.onOpenPersonalizeSetup,
     this.onPickCardTextColor,
+    this.onPickCardLabelBgColor,
     required this.onShowTtsBarSize,
     required this.onToggleFullScreen,
     required this.onShowLanguage,
@@ -852,6 +856,19 @@ class HomeDrawer extends StatelessWidget {
               isDarkMode: isDark,
             ),
             onTap: onPickCardTextColor ?? () {},
+          ),
+
+          // Row 5: Card Label Background Color with Sample Label Preview
+          _buildColorPickerRow(
+            context,
+            icon: Icons.label_outline_rounded,
+            title: 'Card Label Color (Global)',
+            subtitle: isDarkMode ? 'Saved for Normal Mode' : 'Background color of the text label on cards',
+            previewChip: _CardLabelColorPreviewChip(
+              color: cardLabelBgColorSwatch,
+              isDarkMode: isDark,
+            ),
+            onTap: onPickCardLabelBgColor ?? () {},
           ),
 
           // Row 5: Board Background Color with 3 AAC Cards Canvas Preview
@@ -1735,6 +1752,59 @@ class _MiniCardWithText extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Card label background color preview chip displaying a compact sample label
+class _CardLabelColorPreviewChip extends StatelessWidget {
+  final Color color;
+  final bool isDarkMode;
+
+  const _CardLabelColorPreviewChip({
+    required this.color,
+    required this.isDarkMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor = ThemeData.estimateBrightnessForColor(color) == Brightness.light
+        ? const Color(0xFF252B32)
+        : Colors.white;
+
+    return Semantics(
+      label: 'Card label background color preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
+      child: Container(
+        width: 68,
+        height: 32,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.black.withValues(alpha: 0.18),
+            width: 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDarkMode ? 0.25 : 0.06),
+              blurRadius: 2,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: Text(
+            'Hello',
+            style: TextStyle(
+              color: textColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
       ),
     );
   }

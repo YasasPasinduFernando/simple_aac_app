@@ -5,12 +5,14 @@ enum ColorPickerPreviewType {
   appHeader,
   textPreview,
   backgroundPreview,
-  globalTextPreview;
+  globalTextPreview,
+  labelBackgroundPreview;
 
   // Backwards-compatible aliases
   static const textColor = textPreview;
   static const backgroundColor = backgroundPreview;
   static const globalText = globalTextPreview;
+  static const labelBackground = labelBackgroundPreview;
 }
 
 class ProfessionalColorPickerDialog extends StatefulWidget {
@@ -66,6 +68,16 @@ class ProfessionalColorPickerDialog extends StatefulWidget {
     PresetColorItem('Soft Yellow', Color(0xFFFFF176)),
     PresetColorItem('Soft Pink', Color(0xFFF48FB1)),
     PresetColorItem('Lavender', Color(0xFFCE93D8)),
+  ];
+
+  static const List<PresetColorItem> labelBackgroundPresets = [
+    PresetColorItem('Warm Ivory', Color(0xFFF4F1EB)),
+    PresetColorItem('Soft Blue', Color(0xFFDFEFFA)),
+    PresetColorItem('Mint Green', Color(0xFFDFF2E4)),
+    PresetColorItem('Blush Pink', Color(0xFFF9E3E5)),
+    PresetColorItem('Lavender', Color(0xFFEDE5F8)),
+    PresetColorItem('Light Yellow', Color(0xFFFAEDB9)),
+    PresetColorItem('Light Gray', Color(0xFFECEFF1)),
   ];
 
   @override
@@ -146,6 +158,8 @@ class _ProfessionalColorPickerDialogState
         return ProfessionalColorPickerDialog.textPresets;
       case ColorPickerPreviewType.backgroundPreview:
         return ProfessionalColorPickerDialog.backgroundPresets;
+      case ColorPickerPreviewType.labelBackgroundPreview:
+        return ProfessionalColorPickerDialog.labelBackgroundPresets;
       case ColorPickerPreviewType.appHeader:
         return ProfessionalColorPickerDialog.presets;
     }
@@ -206,6 +220,9 @@ class _ProfessionalColorPickerDialogState
         break;
       case ColorPickerPreviewType.backgroundPreview:
         headerIcon = Icons.format_paint_rounded;
+        break;
+      case ColorPickerPreviewType.labelBackgroundPreview:
+        headerIcon = Icons.label_outline_rounded;
         break;
       case ColorPickerPreviewType.appHeader:
         headerIcon = Icons.palette_rounded;
@@ -327,7 +344,132 @@ class _ProfessionalColorPickerDialogState
         return _buildTextPreview(colorScheme, isDark);
       case ColorPickerPreviewType.backgroundPreview:
         return _buildBackgroundPreview(colorScheme, isDark);
+      case ColorPickerPreviewType.labelBackgroundPreview:
+        return _buildLabelBackgroundPreview(colorScheme, isDark);
     }
+  }
+
+  /// Global Card Label Background Color Preview:
+  /// Demonstrates multiple distinct cards with different card body colors
+  /// all sharing the SAME candidate label background color.
+  Widget _buildLabelBackgroundPreview(ColorScheme colorScheme, bool isDark) {
+    return Container(
+      key: const ValueKey('label_background_preview_container'),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+          width: 1.0,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildLabelBgSampleCard(
+              label: 'Hello',
+              icon: Icons.waving_hand_rounded,
+              cardColor: const Color(0xFFE1F5FE),
+              footerBg: _currentColor,
+              isDark: isDark,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildLabelBgSampleCard(
+              label: 'Eat',
+              icon: Icons.restaurant_rounded,
+              cardColor: const Color(0xFFFFEBEE),
+              footerBg: _currentColor,
+              isDark: isDark,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildLabelBgSampleCard(
+              label: 'Play',
+              icon: Icons.sports_esports_rounded,
+              cardColor: const Color(0xFFF3E5F5),
+              footerBg: _currentColor,
+              isDark: isDark,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLabelBgSampleCard({
+    required String label,
+    required IconData icon,
+    required Color cardColor,
+    required Color footerBg,
+    required bool isDark,
+  }) {
+    final textColor = ThemeData.estimateBrightnessForColor(footerBg) == Brightness.light
+        ? const Color(0xFF252B32)
+        : Colors.white;
+
+    return Container(
+      constraints: const BoxConstraints(minHeight: 88),
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Colors.black.withValues(alpha: 0.12),
+          width: 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Center(
+              child: Icon(
+                icon,
+                size: 26,
+                color: const Color(0xFF252B32),
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            decoration: BoxDecoration(
+              color: footerBg,
+              border: Border(
+                top: BorderSide(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  width: 1.0,
+                ),
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                color: textColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Global Text Color Preview:

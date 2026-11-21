@@ -203,6 +203,7 @@ class _HomePageState extends State<HomePage> {
   int _themeTextColor = Colors.white.value;
   int _themeBackgroundColor = Colors.white.value;
   int _cardTextColor = const Color(0xFF111827).value;
+  int _cardLabelBgColor = const Color(0xFFF4F1EB).value;
   double _ttsBarSize = 1.0;
   double _cardTextScale = 1.0;
   bool _isDrawerExpanded = false;
@@ -429,6 +430,10 @@ class _HomePageState extends State<HomePage> {
       final nextBg = prefs.getInt('themeBackgroundColor') ?? Colors.white.value;
       final nextCardText =
           prefs.getInt('cardTextColor') ?? const Color(0xFF111827).value;
+      final nextCardLabelBg =
+          prefs.getInt('globalCardLabelBackgroundColor') ??
+          prefs.getInt('cardLabelBackgroundColor') ??
+          const Color(0xFFF4F1EB).value;
       final nextTtsSize = prefs.getDouble('ttsBarSize') ?? 1.0;
       final nextCardTextScale = prefs.getDouble('cardTextScale') ?? 1.0;
       final nextDrawerExpanded = prefs.getBool('drawerFullScreen') ?? false;
@@ -482,6 +487,7 @@ class _HomePageState extends State<HomePage> {
         _themeTextColor = nextText;
         _themeBackgroundColor = nextBg;
         _cardTextColor = nextCardText;
+        _cardLabelBgColor = nextCardLabelBg;
         _ttsBarSize = nextTtsSize;
         _cardTextScale = nextCardTextScale;
         _isDrawerExpanded = nextDrawerExpanded;
@@ -643,6 +649,7 @@ class _HomePageState extends State<HomePage> {
           prefs.setInt('themeTextColor', _themeTextColor),
           prefs.setInt('themeBackgroundColor', _themeBackgroundColor),
           prefs.setInt('cardTextColor', _cardTextColor),
+          prefs.setInt('globalCardLabelBackgroundColor', _cardLabelBgColor),
           prefs.setDouble('ttsBarSize', _ttsBarSize),
           prefs.setDouble('cardTextScale', _cardTextScale),
           prefs.setBool('drawerFullScreen', _isDrawerExpanded),
@@ -1998,6 +2005,7 @@ class _HomePageState extends State<HomePage> {
       _themeTextColor = Colors.white.value;
       _themeBackgroundColor = Colors.white.value;
       _cardTextColor = const Color(0xFF111827).value;
+      _cardLabelBgColor = const Color(0xFFF4F1EB).value;
       _ttsBarSize = 1.0;
       _cardTextScale = 1.0;
       _isDrawerExpanded = false;
@@ -2185,6 +2193,7 @@ class _HomePageState extends State<HomePage> {
       'themeTextColor': _themeTextColor,
       'themeBackgroundColor': _themeBackgroundColor,
       'cardTextColor': _cardTextColor,
+      'globalCardLabelBackgroundColor': _cardLabelBgColor,
       'ttsBarSize': _ttsBarSize,
       'cardTextScale': _cardTextScale,
       'drawerFullScreen': _isDrawerExpanded,
@@ -3348,6 +3357,22 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showCardLabelBgColorDialog() {
+    _showThemeColorDialog(
+      title: 'Card label color',
+      subtitle: 'Pick a background color for card labels',
+      initialColor: Color(_cardLabelBgColor),
+      defaultColor: const Color(0xFFF4F1EB),
+      previewType: ColorPickerPreviewType.labelBackgroundPreview,
+      onSelected: (color) {
+        setState(() {
+          _cardLabelBgColor = color.value;
+        });
+        _saveCards();
+      },
+    );
+  }
+
   void _showCardTextSizeDialog() {
     double tempScale = _cardTextScale;
     final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
@@ -3921,6 +3946,10 @@ class _HomePageState extends State<HomePage> {
               _themeBackgroundColor;
       _cardTextColor =
           (settings['cardTextColor'] as num?)?.toInt() ?? _cardTextColor;
+      _cardLabelBgColor =
+          (settings['globalCardLabelBackgroundColor'] as num?)?.toInt() ??
+          (settings['cardLabelBackgroundColor'] as num?)?.toInt() ??
+          _cardLabelBgColor;
       _ttsBarSize = (settings['ttsBarSize'] as num?)?.toDouble() ?? _ttsBarSize;
       _cardTextScale =
           (settings['cardTextScale'] as num?)?.toDouble() ?? _cardTextScale;
@@ -4365,6 +4394,7 @@ class _HomePageState extends State<HomePage> {
                     textColorSwatch: customText,
                     backgroundColorSwatch: customBackground,
                     cardTextColorSwatch: Color(_cardTextColor),
+                    cardLabelBgColorSwatch: Color(_cardLabelBgColor),
                     isOnlineEnabled:
                         NetworkPolicyService.instance.isOnlineEnabled,
                     onToggleOnline: (enabled) async {
@@ -4464,6 +4494,7 @@ class _HomePageState extends State<HomePage> {
                     },
                     onOpenPersonalizeSetup: _openPersonalizeSetup,
                     onPickCardTextColor: _showCardTextColorDialog,
+                    onPickCardLabelBgColor: _showCardLabelBgColorDialog,
                     onShowTtsBarSize: _showTtsBarSizeDialog,
                     cardTextScaleLabel: _getCardTextScaleLabel(),
                     onShowCardTextSize: _showCardTextSizeDialog,
@@ -5561,10 +5592,11 @@ class _HomePageState extends State<HomePage> {
 
     final borderRadius = BorderRadius.circular(isTablet ? 20 : 16);
 
-    // Distinct label zone background for Text OFF mode (preserves card outline & external size)
+    // Global Card Label Background Color (Overlay OFF mode)
+    final globalLabelBg = Color(_cardLabelBgColor);
     final labelZoneBg = _isDarkMode
-        ? (Color.lerp(cardSurfaceColor, Colors.black, 0.25) ?? cardSurfaceColor)
-        : (Color.lerp(cardSurfaceColor, Colors.black, 0.08) ?? cardSurfaceColor);
+        ? (Color.lerp(globalLabelBg, const Color(0xFF1E293B), 0.6) ?? globalLabelBg)
+        : globalLabelBg;
 
     final isDefaultFolderCover = card.id == StarterPackService.starterPackRootId &&
         (card.imagePath == null ||
@@ -5977,7 +6009,7 @@ class _HomePageState extends State<HomePage> {
                                                   .colorBlindBoldText)
                                           ? ThemeAccessibility
                                               .resolveCardTextShadow(
-                                              cardSurface: cardSurfaceColor,
+                                              cardSurface: labelZoneBg,
                                               isColorBlindMode:
                                                   _isColorBlindMode,
                                             )
@@ -6079,15 +6111,17 @@ class _HomePageState extends State<HomePage> {
       isDarkMode: _isDarkMode,
       isColorBlindMode: _isColorBlindMode,
     );
+    final globalLabelBg = Color(_cardLabelBgColor);
+    final labelZoneBg = _isDarkMode
+        ? (Color.lerp(globalLabelBg, const Color(0xFF1E293B), 0.6) ?? globalLabelBg)
+        : globalLabelBg;
     final cardTextColor = useImageOverlay
         ? (_applyTextColorToCards ? Color(_cardTextColor) : Colors.white)
-        : ThemeAccessibility.resolveCardTextColor(
-            cardSurfaceColor,
-            isDarkMode: _isDarkMode,
-            isColorBlindMode: _isColorBlindMode,
-            applyCustomTextColor: _applyTextColorToCards,
-            customTextColor: Color(_cardTextColor),
-          );
+        : (_applyTextColorToCards
+            ? Color(_cardTextColor)
+            : (ThemeData.estimateBrightnessForColor(labelZoneBg) == Brightness.light
+                ? const Color(0xFF252B32)
+                : Colors.white));
     final useLightShadow = cardTextColor.computeLuminance() > 0.5;
     final cardImageFilter = ThemeAccessibility.resolveCardImageFilter(
       isColorBlindMode: _isColorBlindMode,
