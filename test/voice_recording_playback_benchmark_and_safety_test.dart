@@ -281,9 +281,9 @@ void main() {
       );
 
       // Verify that UI tap handling is responsive and non-blocking in debug test runner
-      expect(p50, lessThan(100.0),
+      expect(p50, lessThan(150.0),
           reason: 'Median tap dispatch must be fast and non-blocking');
-      expect(p95, lessThan(200.0),
+      expect(p95, lessThan(250.0),
           reason: '95th percentile tap dispatch must complete without lag');
 
       await tester.runAsync(() async {

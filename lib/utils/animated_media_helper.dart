@@ -388,6 +388,7 @@ class AnimatedMediaHelper {
         trimToLimit = true;
       }
 
+      var isCancelled = false;
       workDir = Directory.systemTemp.createTempSync('aac_video_gif_');
       final outGifPath = '${workDir.path}/clip.gif';
 
@@ -401,30 +402,78 @@ class AnimatedMediaHelper {
           builder: (ctx) => PopScope(
             canPop: false,
             child: AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
               insetPadding:
-                  const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-              content: Row(
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              title: Row(
                 children: [
-                  const SizedBox(
-                    width: 28,
-                    height: 28,
-                    child: CircularProgressIndicator(strokeWidth: 3),
+                  Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: Theme.of(ctx)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.movie_creation_outlined,
+                      color: Theme.of(ctx).colorScheme.primary,
+                      size: 20,
+                    ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      trim
-                          ? 'Trimming first 30s into GIF...\n(Offline • compact quality)'
-                          : 'Creating offline GIF clip...\n(Max 30s • compact quality)',
-                      style: TextStyle(
-                        fontSize: 13,
-                        height: 1.35,
-                        color: Theme.of(ctx).colorScheme.onSurface,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          trim
+                              ? 'Trimming first 30s into GIF...'
+                              : 'Creating offline GIF clip...',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          trim
+                              ? 'Offline • Compact quality'
+                              : 'Max 30s • Compact quality',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: const LinearProgressIndicator(minHeight: 6),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    isCancelled = true;
+                    closeProgress();
+                  },
+                  child: const Text('Cancel'),
+                ),
+              ],
             ),
           ),
         );
@@ -440,6 +489,7 @@ class AnimatedMediaHelper {
         result = await runConversion(trimToLimit);
       } on PlatformException catch (e) {
         closeProgress();
+        if (isCancelled) return null;
         if (e.code == 'VIDEO_TOO_LONG' && !trimToLimit && context.mounted) {
           final rawDuration =
               (e.details is Map ? (e.details['durationMs'] as num?)?.toInt() : null) ??
@@ -457,6 +507,13 @@ class AnimatedMediaHelper {
       }
 
       closeProgress();
+
+      if (isCancelled) {
+        try {
+          workDir.deleteSync(recursive: true);
+        } catch (_) {}
+        return null;
+      }
 
       final outFile = File(result.outputPath);
       if (!isValidGifFileSync(outFile)) {

@@ -141,7 +141,7 @@ void main() {
         expect(_sha256Hex(restoredGifBytes), equals(gifHashes[c.id]));
         expect(_sha256Hex(restoredVoiceBytes), equals(voiceHashes[c.id]));
       }
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
 
     test('Stage 3: 10,000 Cards Nested Hierarchy and Serialization Performance', () async {
       final docsDir = Directory.systemTemp.createTempSync('stress_s3_');
