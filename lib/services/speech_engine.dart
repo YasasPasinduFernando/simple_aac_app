@@ -96,6 +96,7 @@ class SpeechEngine {
   String? _activeLanguageTag;
   String? _activeVoiceKey;
   double? _activeRateFlutter;
+  bool? _activeAwaitSpeakCompletion;
   Future<void>? _initFuture;
   Future<void>? _voicesFuture;
   Future<SpeechCapabilityReport?>? _probeFuture;
@@ -156,12 +157,25 @@ class SpeechEngine {
       await _tts.setSpeechRate(_tunedRatesFlutter['en']!);
       await _tts.setVolume(1.0);
       await _tts.setPitch(1.0);
-      await _tts.awaitSpeakCompletion(true);
+      await _tts.awaitSpeakCompletion(false);
       _activeLanguageTag = 'en-US';
       _activeRateFlutter = _tunedRatesFlutter['en']!;
+      _activeAwaitSpeakCompletion = false;
       _initialized = true;
     } catch (e) {
       debugPrint('[SpeechEngine] initialize failed: $e');
+    }
+  }
+
+  /// Safely pre-warms the SpeechEngine asynchronously during app startup:
+  /// 1. Initializes base engine parameters without blocking UI.
+  /// 2. Preloads the voice catalog so the first card tap is never blocked by getVoices IPC.
+  /// 3. Pre-configures the active language/voice for [preferredLanguage].
+  Future<void> prewarm({String? preferredLanguage}) async {
+    await initialize();
+    await _ensureVoiceCatalogLoaded();
+    if (preferredLanguage != null && preferredLanguage.isNotEmpty) {
+      await _configureLanguage(preferredLanguage);
     }
   }
 
@@ -350,9 +364,13 @@ class SpeechEngine {
     }
 
     final isMixed = segments.length > 1;
-    try {
-      await _tts.awaitSpeakCompletion(waitForCompletion || isMixed);
-    } catch (_) {}
+    final targetAwait = waitForCompletion || isMixed;
+    if (_activeAwaitSpeakCompletion != targetAwait) {
+      try {
+        await _tts.awaitSpeakCompletion(targetAwait);
+        _activeAwaitSpeakCompletion = targetAwait;
+      } catch (_) {}
+    }
 
     final unsupported = <String>[];
     for (final seg in segments) {

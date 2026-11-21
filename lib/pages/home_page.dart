@@ -380,7 +380,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _initTts() async {
     if (!HomePage.enableTtsInit) return;
-    await SpeechEngine.instance.initialize();
+    await SpeechEngine.instance.prewarm(preferredLanguage: currentLanguage);
     final report = await SpeechEngine.instance.probeCapabilities();
     if (mounted && report != null) {
       setState(() {
