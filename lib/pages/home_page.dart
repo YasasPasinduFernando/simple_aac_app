@@ -150,6 +150,7 @@ class _HomePageState extends State<HomePage> {
   bool _hasStartupError = false;
   String? _startupErrorMessage;
   Timer? _startupLoadingTimer;
+  Timer? _splashDismissFallbackTimer;
 
   List<AACCard> cards = [];
   int gridColumns = 2;
@@ -476,6 +477,18 @@ class _HomePageState extends State<HomePage> {
         _startupErrorMessage = null;
         if (!_showStartupLoader) {
           _splashDismissed = true;
+        } else {
+          // Safety fallback: ensure splash layer is dismissed even if vsync ticker was suspended while backgrounded
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && !_splashDismissed && !_isInitialLoading) {
+              _splashDismissFallbackTimer?.cancel();
+              _splashDismissFallbackTimer = Timer(const Duration(milliseconds: 200), () {
+                if (mounted && !_splashDismissed) {
+                  setState(() => _splashDismissed = true);
+                }
+              });
+            }
+          });
         }
         gridColumns = nextGridColumns;
         _loadVisibleSelections(prefs);
@@ -4650,34 +4663,37 @@ class _HomePageState extends State<HomePage> {
           TutorialOverlay(language: currentLanguage),
           if (!_splashDismissed && _showStartupLoader)
             Positioned.fill(
-              child: AnimatedOpacity(
-                key: const ValueKey('home_animated_splash_layer'),
-                opacity: _isInitialLoading ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 150),
-                curve: Curves.easeOut,
-                onEnd: () {
-                  if (!_isInitialLoading && mounted) {
-                    setState(() {
-                      _splashDismissed = true;
-                    });
-                  }
-                },
-                child: ChildFriendlySplash(
-                  key: const ValueKey('home_animated_splash'),
-                  language: currentLanguage,
-                  errorMessage: _hasStartupError
-                      ? (_startupErrorMessage ?? 'Initialization error')
-                      : null,
-                  onRetry: _hasStartupError
-                      ? () {
-                          setState(() {
-                            _hasStartupError = false;
-                            _startupErrorMessage = null;
-                            _isInitialLoading = true;
-                          });
-                          _loadCards();
-                        }
-                      : null,
+              child: IgnorePointer(
+                ignoring: !_isInitialLoading && !_hasStartupError,
+                child: AnimatedOpacity(
+                  key: const ValueKey('home_animated_splash_layer'),
+                  opacity: _isInitialLoading ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 150),
+                  curve: Curves.easeOut,
+                  onEnd: () {
+                    if (mounted) {
+                      setState(() {
+                        _splashDismissed = true;
+                      });
+                    }
+                  },
+                  child: ChildFriendlySplash(
+                    key: const ValueKey('home_animated_splash'),
+                    language: currentLanguage,
+                    errorMessage: _hasStartupError
+                        ? (_startupErrorMessage ?? 'Initialization error')
+                        : null,
+                    onRetry: _hasStartupError
+                        ? () {
+                            setState(() {
+                              _hasStartupError = false;
+                              _startupErrorMessage = null;
+                              _isInitialLoading = true;
+                            });
+                            _loadCards();
+                          }
+                        : null,
+                  ),
                 ),
               ),
             )
@@ -5245,6 +5261,7 @@ class _HomePageState extends State<HomePage> {
                       final gridView = GridView.builder(
                         key: viewKey,
                         controller: _gridController,
+                        physics: const AlwaysScrollableScrollPhysics(),
                         cacheExtent: 360,
                         padding: EdgeInsets.fromLTRB(
                           padding,
@@ -6342,6 +6359,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _startupLoadingTimer?.cancel();
+    _splashDismissFallbackTimer?.cancel();
     _stopAutoScroll();
     TutorialService.instance.currentStepNotifier
         .removeListener(_handleTutorialStepChanged);

@@ -7,7 +7,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:audioplayers_platform_interface/audioplayers_platform_interface.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,7 +15,6 @@ import 'package:simple_aac_app/pages/home_page.dart';
 import 'package:simple_aac_app/services/backup_service.dart';
 import 'package:simple_aac_app/services/card_storage_service.dart';
 import 'package:simple_aac_app/services/network_policy_service.dart';
-import 'package:simple_aac_app/services/speech_engine.dart';
 import 'package:simple_aac_app/services/starter_pack_service.dart';
 import 'package:simple_aac_app/widgets/card_editor_dialog.dart';
 
