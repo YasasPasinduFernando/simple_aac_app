@@ -71,17 +71,32 @@ The following key issues were diagnosed, resolved, and verified since Build 14 (
 - **Root Cause:** Google TTS voice catalog query (`getVoices`) was deferred to the first card tap, producing a 300–700ms binder IPC pause while serializing 500+ installed system voices.
 - **Fix:** Added asynchronous background pre-warming via `SpeechEngine.instance.prewarm({String? preferredLanguage})` scheduled via `addPostFrameCallback` after splash handoff. Voice catalog and active language are pre-loaded in the background without impacting UI or startup time. Dispatch latency on first card tap dropped from ~600ms to ~10ms.
 
+### 6. Global Card Label Background Color
+- **Feature:** Implemented ONE global card label background color setting for the entire application, defaulting to `#F4F1EB` (Warm Ivory).
+- **Behavior:**
+  - In Mode B (Show Card Labels = ON, Overlay = OFF), every card across Home, Default, More, subfolders, and custom user cards uses the exact same background color for the text footer.
+  - In Settings, the dialog provides Quick Colors, an HSV custom color picker with Hex input, and interactive preview cards (`Hello`, `Eat`, `Play`) whose footers fill the entire bottom section.
+  - Setting persists safely across application restarts and round-trips seamlessly through backup & restore.
+
+### 7. Intermittent Scroll Lock Resolution
+- **Root Cause:** When the application cold-loaded (taking >380ms in Debug JIT or during resource-heavy launches), the `ChildFriendlySplash` animated opacity overlay remained mounted at `opacity: 0.0`. In Flutter, transparent render objects still intercept pointer events unless explicitly ignored, causing all vertical drag gestures to be swallowed.
+- **Fix:** Wrapped the animated splash layer in `IgnorePointer(ignoring: !_isInitialLoading && !_hasStartupError)`, added an unconditional `_splashDismissed` cleanup with a 200ms post-frame safety timer fallback, and configured `GridView.builder` with `physics: const AlwaysScrollableScrollPhysics()`. Verified across 10 lifecycle scenarios.
+
+### 8. Voice Recording Playback Performance
+- **Investigation & Benchmark:** Verified custom voice recording playback response on device. Cold tap playback starts in ~32.99ms; warm taps average 53.49ms (p50) and 92.28ms (p95).
+- **Audio Cleanliness:** Seamlessly switches between custom voice recordings and multilingual TTS (en, si, ta) with zero audio overlapping, memory leaks, or player desynchronization.
+
 ---
 
 ## D. Automated Quality Assurance & Verification Metrics
 
 | Test Layer | Test Metric | Measured Result | Evaluation |
 | :--- | :--- | :---: | :---: |
-| **Flutter Test Suite** | Total Tests Executed | **651** | **PASS** |
-| | Passed Tests | **651** | **100% Pass Rate** |
+| **Flutter Test Suite** | Total Tests Executed | **708** | **PASS** |
+| | Passed Tests | **708** | **100% Pass Rate** |
 | | Failed Tests | **0** | **0 Failures** |
-| | Skipped Tests | **0** | **0 Skipped** |
-| **Static Code Analysis** | `flutter analyze` | **0 issues** | **Clean** (ran in 3.5s) |
+| | Skipped Tests | **6** | **Manifest Skips** |
+| **Static Code Analysis** | `flutter analyze` | **0 issues** | **Clean** (ran in 3.9s) |
 | **Cryptographic Signatures** | `apksigner verify --verbose` | **Verified (v2 Scheme)** | **PASS** (3072-bit RSA) |
 | **Bundle Validation** | `bundletool validate` | **Valid AAB structure** | **PASS** |
 | **Target SDK Policy** | Android Target API | **API Level 36** | **Compliant** |
