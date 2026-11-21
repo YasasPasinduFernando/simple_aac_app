@@ -353,50 +353,39 @@ class _ProfessionalColorPickerDialogState
   /// Demonstrates multiple distinct cards with different card body colors
   /// all sharing the SAME candidate label background color.
   Widget _buildLabelBackgroundPreview(ColorScheme colorScheme, bool isDark) {
-    return Container(
-      key: const ValueKey('label_background_preview_container'),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.7),
-          width: 1.0,
+    return Row(
+      key: const ValueKey('label_background_preview_row'),
+      children: [
+        Expanded(
+          child: _buildLabelBgSampleCard(
+            label: 'Hello',
+            icon: Icons.waving_hand_rounded,
+            cardColor: const Color(0xFFE1F5FE),
+            footerBg: _currentColor,
+            isDark: isDark,
+          ),
         ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildLabelBgSampleCard(
-              label: 'Hello',
-              icon: Icons.waving_hand_rounded,
-              cardColor: const Color(0xFFE1F5FE),
-              footerBg: _currentColor,
-              isDark: isDark,
-            ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _buildLabelBgSampleCard(
+            label: 'Eat',
+            icon: Icons.restaurant_rounded,
+            cardColor: const Color(0xFFFFEBEE),
+            footerBg: _currentColor,
+            isDark: isDark,
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _buildLabelBgSampleCard(
-              label: 'Eat',
-              icon: Icons.restaurant_rounded,
-              cardColor: const Color(0xFFFFEBEE),
-              footerBg: _currentColor,
-              isDark: isDark,
-            ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _buildLabelBgSampleCard(
+            label: 'Play',
+            icon: Icons.sports_esports_rounded,
+            cardColor: const Color(0xFFF3E5F5),
+            footerBg: _currentColor,
+            isDark: isDark,
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _buildLabelBgSampleCard(
-              label: 'Play',
-              icon: Icons.sports_esports_rounded,
-              cardColor: const Color(0xFFF3E5F5),
-              footerBg: _currentColor,
-              isDark: isDark,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -412,17 +401,16 @@ class _ProfessionalColorPickerDialogState
         : Colors.white;
 
     return Container(
-      constraints: const BoxConstraints(minHeight: 88),
+      height: 80,
       decoration: BoxDecoration(
-        color: cardColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.black.withValues(alpha: 0.12),
+          color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.10),
           width: 1.0,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
             blurRadius: 3,
             offset: const Offset(0, 1),
           ),
@@ -430,40 +418,47 @@ class _ProfessionalColorPickerDialogState
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Center(
+          // Upper icon/image area with card body color
+          Expanded(
+            flex: 58,
+            child: Container(
+              color: cardColor,
+              alignment: Alignment.center,
               child: Icon(
                 icon,
-                size: 26,
-                color: const Color(0xFF252B32),
+                size: 25,
+                color: const Color(0xFF1E293B),
               ),
             ),
           ),
+          // Subtle hairline border between icon area and footer
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-            decoration: BoxDecoration(
+            height: 1.0,
+            color: Colors.black.withValues(alpha: 0.06),
+          ),
+          // Bottom label footer filling the entire bottom section down to rounded corners
+          Expanded(
+            flex: 42,
+            child: Container(
               color: footerBg,
-              border: Border(
-                top: BorderSide(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  width: 1.0,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.center,
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: textColor,
+                    letterSpacing: 0.1,
+                  ),
                 ),
-              ),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w700,
-                color: textColor,
               ),
             ),
           ),

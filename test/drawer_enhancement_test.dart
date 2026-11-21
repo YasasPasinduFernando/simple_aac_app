@@ -170,7 +170,7 @@ void main() {
     await tester.pump();
     expect(tappedText, isTrue);
 
-    await tester.drag(find.byType(ListView), const Offset(0, -200));
+    await tester.scrollUntilVisible(find.text('Board Background Color'), 100);
     await tester.pumpAndSettle();
 
     // Verify Board Background Color row
