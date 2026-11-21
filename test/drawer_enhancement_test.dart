@@ -115,7 +115,7 @@ void main() {
 
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Simple AAC Sri Lanka'), findsOneWidget);
-    expect(find.text('v1.1.5'), findsOneWidget);
+    expect(find.text('v1.1.6'), findsOneWidget);
     expect(find.byIcon(Icons.close_rounded), findsWidgets);
     expect(find.byIcon(Icons.chat_bubble_rounded), findsNothing);
     expect(tester.takeException(), isNull);
