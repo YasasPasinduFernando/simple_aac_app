@@ -127,7 +127,7 @@ void main() {
   }
 
   group('Default Folder Cover Visual Update & Functional Parity', () {
-    test('1. Image asset exists on disk and is 768x768 WebP', () {
+    test('1. Image asset exists on disk and is valid WebP', () {
       final file = File('assets/home/default_folder_cover.webp');
       expect(file.existsSync(), isTrue, reason: 'assets/home/default_folder_cover.webp must exist');
       expect(file.lengthSync(), greaterThan(10000));
