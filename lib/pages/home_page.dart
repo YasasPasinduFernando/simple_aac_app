@@ -3946,10 +3946,18 @@ class _HomePageState extends State<HomePage> {
               _themeBackgroundColor;
       _cardTextColor =
           (settings['cardTextColor'] as num?)?.toInt() ?? _cardTextColor;
-      _cardLabelBgColor =
-          (settings['globalCardLabelBackgroundColor'] as num?)?.toInt() ??
-          (settings['cardLabelBackgroundColor'] as num?)?.toInt() ??
-          _cardLabelBgColor;
+      final rawLabelBg = settings['globalCardLabelBackgroundColor'] ??
+          settings['cardLabelBackgroundColor'];
+      if (rawLabelBg is num) {
+        _cardLabelBgColor = rawLabelBg.toInt();
+      } else if (rawLabelBg is String) {
+        final hexClean = rawLabelBg.replaceAll('#', '').replaceAll('0x', '').trim();
+        final parsed = int.tryParse(
+          hexClean.length == 6 ? 'FF$hexClean' : hexClean,
+          radix: 16,
+        );
+        if (parsed != null) _cardLabelBgColor = parsed;
+      }
       _ttsBarSize = (settings['ttsBarSize'] as num?)?.toDouble() ?? _ttsBarSize;
       _cardTextScale =
           (settings['cardTextScale'] as num?)?.toDouble() ?? _cardTextScale;

@@ -55,7 +55,16 @@ class AACCard {
       imagePath: json['imagePath']?.toString(),
       voicePath: json['voicePath']?.toString(),
       category: json['category']?.toString() ?? 'General',
-      colorValue: (json['colorValue'] as num?)?.toInt() ?? 0xFF90CAF9,
+      colorValue: (json['colorValue'] is num)
+          ? (json['colorValue'] as num).toInt()
+          : (json['colorValue'] is String
+              ? int.tryParse(
+                    (json['colorValue'] as String)
+                        .replaceAll('#', '')
+                        .replaceAll('0x', ''),
+                    radix: 16) ??
+                0xFF90CAF9
+              : 0xFF90CAF9),
       subCards: subCards,
       type: json['type']?.toString() ?? (hasSubCards ? 'folder' : 'word'),
     );
