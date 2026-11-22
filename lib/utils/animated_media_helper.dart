@@ -61,11 +61,10 @@ class AnimatedMediaHelper {
   static Future<int?> Function(String inputPath)? durationProbeOverride;
 
   @visibleForTesting
-  static Future<GifConversionResult> Function({
-    required String inputPath,
-    required String outputPath,
-    bool trimToLimit,
-  })? converterOverride;
+  static Function? converterOverride;
+
+  @visibleForTesting
+  static Future<void> Function(String sessionId)? cancelOverride;
 
   @visibleForTesting
   static Future<String> Function(String sourcePath, {required String cardId})?
@@ -78,6 +77,7 @@ class AnimatedMediaHelper {
     gifFilePickerOverride = null;
     durationProbeOverride = null;
     converterOverride = null;
+    cancelOverride = null;
     persistMediaOverride = null;
   }
 
@@ -390,6 +390,14 @@ class AnimatedMediaHelper {
 
       workDir = Directory.systemTemp.createTempSync('aac_video_gif_');
       final outGifPath = '${workDir.path}/clip.gif';
+      final sessionId = 'gif_${DateTime.now().microsecondsSinceEpoch}';
+      var isCancelled = false;
+
+      Future<void> requestCancel() async {
+        if (isCancelled) return;
+        isCancelled = true;
+        await _cancelVideoToGif(sessionId);
+      }
 
       Future<GifConversionResult> runConversion(bool trim) {
         rootNavigator = Navigator.of(context, rootNavigator: true);
@@ -398,79 +406,16 @@ class AnimatedMediaHelper {
           context: context,
           barrierDismissible: false,
           useRootNavigator: true,
-          builder: (ctx) => PopScope(
-            canPop: false,
-            child: AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              insetPadding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              title: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(9),
-                    decoration: BoxDecoration(
-                      color: Theme.of(ctx)
-                          .colorScheme
-                          .primary
-                          .withValues(alpha: 0.14),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.movie_creation_outlined,
-                      color: Theme.of(ctx).colorScheme.primary,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          trim
-                              ? 'Trimming first 30s into GIF...'
-                              : 'Creating offline GIF clip...',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          trim
-                              ? 'Offline • Compact quality'
-                              : 'Max 30s • Compact quality',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: const LinearProgressIndicator(minHeight: 6),
-                  ),
-                ],
-              ),
-            ),
+          builder: (ctx) => _GifProgressDialog(
+            trim: trim,
+            onCancel: requestCancel,
           ),
         );
         return _convertVideoToGif(
           inputPath: pickedFile.path,
           outputPath: outGifPath,
           trimToLimit: trim,
+          sessionId: sessionId,
         );
       }
 
@@ -479,6 +424,10 @@ class AnimatedMediaHelper {
         result = await runConversion(trimToLimit);
       } on PlatformException catch (e) {
         closeProgress();
+        if (e.code == 'CANCELLED' || isCancelled) {
+          debugPrint('[AnimatedMediaHelper] GIF conversion cancelled by user.');
+          return null;
+        }
         if (e.code == 'VIDEO_TOO_LONG' && !trimToLimit && context.mounted) {
           final rawDuration =
               (e.details is Map ? (e.details['durationMs'] as num?)?.toInt() : null) ??
@@ -496,6 +445,7 @@ class AnimatedMediaHelper {
       }
 
       closeProgress();
+      if (isCancelled) return null;
 
       final outFile = File(result.outputPath);
       if (!isValidGifFileSync(outFile)) {
@@ -512,6 +462,7 @@ class AnimatedMediaHelper {
       return savedPath;
     } on PlatformException catch (e) {
       closeProgress();
+      if (e.code == 'CANCELLED') return null;
       if (!context.mounted) return null;
       _showSnack(
         context,
@@ -526,6 +477,7 @@ class AnimatedMediaHelper {
       }
       return null;
     } finally {
+      closeProgress();
       if (workDir != null) {
         try {
           workDir.deleteSync(recursive: true);
@@ -538,14 +490,24 @@ class AnimatedMediaHelper {
     required String inputPath,
     required String outputPath,
     bool trimToLimit = false,
+    String? sessionId,
   }) async {
     final custom = converterOverride;
     if (custom != null) {
-      return custom(
-        inputPath: inputPath,
-        outputPath: outputPath,
-        trimToLimit: trimToLimit,
-      );
+      try {
+        return await (custom as dynamic)(
+          inputPath: inputPath,
+          outputPath: outputPath,
+          trimToLimit: trimToLimit,
+          sessionId: sessionId,
+        );
+      } on NoSuchMethodError {
+        return await (custom as dynamic)(
+          inputPath: inputPath,
+          outputPath: outputPath,
+          trimToLimit: trimToLimit,
+        );
+      }
     }
     if (!Platform.isAndroid) {
       throw PlatformException(
@@ -559,6 +521,7 @@ class AnimatedMediaHelper {
         'inputPath': inputPath,
         'outputPath': outputPath,
         'trimToLimit': trimToLimit,
+        'sessionId': sessionId,
       },
     );
     if (raw == null) {
@@ -568,6 +531,23 @@ class AnimatedMediaHelper {
       );
     }
     return GifConversionResult.fromMap(raw);
+  }
+
+  static Future<void> _cancelVideoToGif(String sessionId) async {
+    final custom = cancelOverride;
+    if (custom != null) {
+      await custom(sessionId);
+      return;
+    }
+    if (!Platform.isAndroid) return;
+    try {
+      await _visionChannel.invokeMethod<void>(
+        'cancelVideoToGif',
+        {'sessionId': sessionId},
+      );
+    } catch (e) {
+      debugPrint('[AnimatedMediaHelper] cancel invocation failed: $e');
+    }
   }
 
   static Future<String> _persistGif(
@@ -588,6 +568,141 @@ class AnimatedMediaHelper {
   static void _showSnack(BuildContext context, String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(msg)),
+    );
+  }
+}
+
+class _GifProgressDialog extends StatefulWidget {
+  final bool trim;
+  final Future<void> Function() onCancel;
+
+  const _GifProgressDialog({
+    Key? key,
+    required this.trim,
+    required this.onCancel,
+  }) : super(key: key);
+
+  @override
+  State<_GifProgressDialog> createState() => _GifProgressDialogState();
+}
+
+class _GifProgressDialogState extends State<_GifProgressDialog> {
+  bool _isStopping = false;
+
+  Future<void> _triggerCancel() async {
+    if (_isStopping) return;
+    setState(() {
+      _isStopping = true;
+    });
+    await widget.onCancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return PopScope(
+      canPop: false,
+      child: AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        titlePadding: const EdgeInsets.fromLTRB(20, 20, 16, 0),
+        contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(9),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.movie_creation_outlined,
+                color: theme.colorScheme.primary,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.trim
+                        ? 'Trimming first 30s into GIF...'
+                        : 'Creating offline GIF clip...',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    widget.trim
+                        ? 'Offline • Compact quality'
+                        : 'Max 30s • Compact quality',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.close_rounded, size: 20),
+              tooltip: 'Cancel',
+              visualDensity: VisualDensity.compact,
+              onPressed: _isStopping ? null : _triggerCancel,
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              _isStopping ? 'Stopping processing…' : 'Processing video...',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: _isStopping
+                    ? theme.colorScheme.error
+                    : theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: const LinearProgressIndicator(minHeight: 6),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _isStopping ? null : _triggerCancel,
+              icon: _isStopping
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.close_rounded, size: 16),
+              label: Text(
+                _isStopping ? 'Stopping processing…' : 'Cancel processing',
+                style: const TextStyle(fontSize: 13),
+              ),
+              style: OutlinedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

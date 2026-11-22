@@ -10,6 +10,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
 import java.util.PriorityQueue
+import java.util.concurrent.CancellationException
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -63,8 +64,12 @@ object VideoGifEncoder {
         context: Context,
         inputPath: String,
         outputPath: String,
-        trimToLimit: Boolean = false
+        trimToLimit: Boolean = false,
+        isCancelled: (() -> Boolean)? = null
     ): EncodeResult {
+        if (isCancelled?.invoke() == true || Thread.currentThread().isInterrupted) {
+            throw CancellationException("Operation cancelled before start")
+        }
         val inputFile = File(inputPath)
         if (!inputFile.exists() || inputFile.length() <= 0L) {
             throw IllegalArgumentException("Video file not found or empty")
@@ -88,6 +93,10 @@ object VideoGifEncoder {
                 throw VideoTooLongException(durationMs, 30_000L)
             }
             val encodeDurationMs = if (wasTrimmed) 30_000L else durationMs
+
+            if (isCancelled?.invoke() == true || Thread.currentThread().isInterrupted) {
+                throw CancellationException("Operation cancelled before frame extraction")
+            }
 
             val firstRaw = retriever.getFrameAtTime(0L, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
                 ?: retriever.getFrameAtTime(-1L)
@@ -122,42 +131,58 @@ object VideoGifEncoder {
             val indexBuffer = ByteArray(outW * outH)
             var writtenFrames = 0
 
-            BufferedOutputStream(FileOutputStream(outFile), 32 * 1024).use { out ->
-                writeGifHeader(out, outW, outH)
+            try {
+                BufferedOutputStream(FileOutputStream(outFile), 32 * 1024).use { out ->
+                    writeGifHeader(out, outW, outH)
 
-                val stepUs = (encodeDurationMs * 1000L) / frameCount
-                for (i in 0 until frameCount) {
-                    val timeUs = (i * stepUs).coerceIn(0L, max(0L, (encodeDurationMs - 50L) * 1000L))
-                    val bmp = extractScaledFrame(retriever, timeUs, outW, outH) ?: continue
-                    try {
-                        val prepared = if (bmp.width == outW && bmp.height == outH) {
-                            bmp
-                        } else {
-                            Bitmap.createScaledBitmap(bmp, outW, outH, true)
+                    val stepUs = (encodeDurationMs * 1000L) / frameCount
+                    for (i in 0 until frameCount) {
+                        if (isCancelled?.invoke() == true || Thread.currentThread().isInterrupted) {
+                            throw CancellationException("Operation cancelled at frame $i")
                         }
+                        val timeUs = (i * stepUs).coerceIn(0L, max(0L, (encodeDurationMs - 50L) * 1000L))
+                        val bmp = extractScaledFrame(retriever, timeUs, outW, outH) ?: continue
                         try {
-                            prepared.getPixels(argbBuffer, 0, outW, 0, 0, outW, outH)
-                            val palette = quantizeMedianCut(argbBuffer, indexBuffer)
-                            writeGraphicControlExt(out, delayCs)
-                            writeImageDescriptor(out, outW, outH)
-                            out.write(palette)
-                            LzwGifWriter.encode(out, indexBuffer)
-                            writtenFrames++
-                        } finally {
-                            if (prepared !== bmp) {
-                                prepared.recycle()
+                            if (isCancelled?.invoke() == true || Thread.currentThread().isInterrupted) {
+                                throw CancellationException("Operation cancelled before frame preparation")
                             }
+                            val prepared = if (bmp.width == outW && bmp.height == outH) {
+                                bmp
+                            } else {
+                                Bitmap.createScaledBitmap(bmp, outW, outH, true)
+                            }
+                            try {
+                                prepared.getPixels(argbBuffer, 0, outW, 0, 0, outW, outH)
+                                val palette = quantizeMedianCut(argbBuffer, indexBuffer)
+                                if (isCancelled?.invoke() == true || Thread.currentThread().isInterrupted) {
+                                    throw CancellationException("Operation cancelled before frame encode")
+                                }
+                                writeGraphicControlExt(out, delayCs)
+                                writeImageDescriptor(out, outW, outH)
+                                out.write(palette)
+                                LzwGifWriter.encode(out, indexBuffer)
+                                writtenFrames++
+                            } finally {
+                                if (prepared !== bmp) {
+                                    prepared.recycle()
+                                }
+                            }
+                        } finally {
+                            bmp.recycle()
                         }
-                    } finally {
-                        bmp.recycle()
                     }
-                }
 
-                if (writtenFrames == 0) {
-                    throw IllegalStateException("No decodable frames extracted from video")
+                    if (writtenFrames == 0) {
+                        throw IllegalStateException("No decodable frames extracted from video")
+                    }
+                    out.write(0x3B) // GIF Trailer
+                    out.flush()
                 }
-                out.write(0x3B) // GIF Trailer
-                out.flush()
+            } catch (e: CancellationException) {
+                try {
+                    outFile.delete()
+                } catch (_: Exception) {}
+                throw e
             }
 
             return EncodeResult(

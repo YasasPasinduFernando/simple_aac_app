@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -43,7 +44,8 @@ void main() {
     } catch (_) {}
   });
 
-  testWidgets('GIF processing dialog displays title, subtitle, LinearProgressIndicator and non-dismissible modal',
+  testWidgets(
+      'GIF processing dialog displays title, subtitle, LinearProgressIndicator, close X, and Cancel processing button',
       (WidgetTester tester) async {
     final completer = Completer<GifConversionResult>();
 
@@ -54,6 +56,7 @@ void main() {
       required inputPath,
       required outputPath,
       bool trimToLimit = false,
+      sessionId,
     }) {
       return completer.future;
     };
@@ -93,9 +96,10 @@ void main() {
     final processingDialogFinder = find.byType(AlertDialog).last;
     expect(find.descendant(of: processingDialogFinder, matching: find.text('Trimming first 30s into GIF...')), findsOneWidget);
     expect(find.descendant(of: processingDialogFinder, matching: find.text('Offline • Compact quality')), findsOneWidget);
+    expect(find.descendant(of: processingDialogFinder, matching: find.text('Processing video...')), findsOneWidget);
     expect(find.descendant(of: processingDialogFinder, matching: find.byType(LinearProgressIndicator)), findsOneWidget);
-    // Unsafe fake cancel button is deliberately NOT present
-    expect(find.descendant(of: processingDialogFinder, matching: find.text('Cancel')), findsNothing);
+    expect(find.descendant(of: processingDialogFinder, matching: find.text('Cancel processing')), findsOneWidget);
+    expect(find.descendant(of: processingDialogFinder, matching: find.byIcon(Icons.close_rounded)), findsNWidgets(2)); // Close icon in title and button
 
     // Complete the conversion successfully
     completer.complete(
@@ -120,24 +124,33 @@ void main() {
     expect(result, contains('persisted.gif'));
   });
 
-  testWidgets('GIF processing dialog maintains modal lock and cleans up temporary work directory after completion',
+  testWidgets(
+      'User can cancel GIF processing via Cancel processing button safely and cleanly',
       (WidgetTester tester) async {
     final completer = Completer<GifConversionResult>();
-    var persistCalled = false;
+    String? capturedCancelledSessionId;
 
     AnimatedMediaHelper.videoPickerOverride = (source, {maxDuration}) async =>
         XFile(sampleVideo.path);
-    AnimatedMediaHelper.durationProbeOverride = (_) async => 20000; // <=30s, no trim warning
+    AnimatedMediaHelper.durationProbeOverride = (_) async => 20000;
     AnimatedMediaHelper.converterOverride = ({
       required inputPath,
       required outputPath,
       bool trimToLimit = false,
+      sessionId,
     }) {
       return completer.future;
     };
-    AnimatedMediaHelper.persistMediaOverride = (sourcePath, {required cardId}) async {
-      persistCalled = true;
-      return '${testDir.path}/persisted_short.gif';
+    AnimatedMediaHelper.cancelOverride = (sessionId) async {
+      capturedCancelledSessionId = sessionId;
+      // Simulate native delay while worker is terminating
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (!completer.isCompleted) {
+          completer.completeError(
+            PlatformException(code: 'CANCELLED', message: 'Conversion cancelled'),
+          );
+        }
+      });
     };
 
     late BuildContext savedContext;
@@ -156,44 +169,162 @@ void main() {
 
     final future = AnimatedMediaHelper.pickOrCreateAnimatedGif(
       savedContext,
-      cardId: 'card_modal_test',
+      cardId: 'card_cancel_button_test',
     );
     await tester.pumpAndSettle();
 
     // Select "Choose Video"
     await tester.tap(find.text('Choose Video (Max 30s)'));
-    await tester.pump(); // Advance to display processing dialog
+    await tester.pump(); // Show progress dialog
 
-    final processingDialogFinder = find.byType(AlertDialog).last;
-    expect(find.descendant(of: processingDialogFinder, matching: find.text('Creating offline GIF clip...')), findsOneWidget);
-    expect(find.descendant(of: processingDialogFinder, matching: find.text('Max 30s • Compact quality')), findsOneWidget);
-    expect(find.descendant(of: processingDialogFinder, matching: find.byType(LinearProgressIndicator)), findsOneWidget);
-    expect(find.descendant(of: processingDialogFinder, matching: find.text('Cancel')), findsNothing);
+    expect(find.text('Cancel processing'), findsOneWidget);
 
-    // Native worker completes
-    completer.complete(
-      GifConversionResult(
+    // Tap "Cancel processing"
+    await tester.tap(find.text('Cancel processing'));
+    await tester.pump(); // Rebuild with stopping state
+
+    // Button should now indicate stopping
+    expect(find.text('Stopping processing…'), findsAtLeastNWidgets(1));
+    expect(capturedCancelledSessionId, isNotNull);
+
+    await tester.pumpAndSettle();
+
+    final result = await future;
+    expect(result, isNull); // Safely returned null without corrupting card
+    expect(sampleVideo.existsSync(), isTrue); // Original video preserved
+  });
+
+  testWidgets(
+      'User can cancel GIF processing via top-right close X button',
+      (WidgetTester tester) async {
+    final completer = Completer<GifConversionResult>();
+    var cancelCalled = false;
+
+    AnimatedMediaHelper.videoPickerOverride = (source, {maxDuration}) async =>
+        XFile(sampleVideo.path);
+    AnimatedMediaHelper.durationProbeOverride = (_) async => 20000;
+    AnimatedMediaHelper.converterOverride = ({
+      required inputPath,
+      required outputPath,
+      bool trimToLimit = false,
+      sessionId,
+    }) {
+      return completer.future;
+    };
+    AnimatedMediaHelper.cancelOverride = (sessionId) async {
+      cancelCalled = true;
+      completer.completeError(
+        PlatformException(code: 'CANCELLED', message: 'Conversion cancelled'),
+      );
+    };
+
+    late BuildContext savedContext;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (ctx) {
+              savedContext = ctx;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      ),
+    );
+
+    final future = AnimatedMediaHelper.pickOrCreateAnimatedGif(
+      savedContext,
+      cardId: 'card_cancel_x_test',
+    );
+    await tester.pumpAndSettle();
+
+    // Select "Choose Video"
+    await tester.tap(find.text('Choose Video (Max 30s)'));
+    await tester.pump();
+
+    // Find the top-right close button (IconButton)
+    final closeButtonFinder = find.widgetWithIcon(IconButton, Icons.close_rounded);
+    expect(closeButtonFinder, findsOneWidget);
+
+    await tester.tap(closeButtonFinder);
+    await tester.pump();
+
+    expect(cancelCalled, isTrue);
+    await tester.pumpAndSettle();
+
+    final result = await future;
+    expect(result, isNull);
+    expect(sampleVideo.existsSync(), isTrue);
+  });
+
+  testWidgets(
+      'Cancelled session does not prevent subsequent conversion session from succeeding',
+      (WidgetTester tester) async {
+    int sessionCount = 0;
+    AnimatedMediaHelper.videoPickerOverride = (source, {maxDuration}) async =>
+        XFile(sampleVideo.path);
+    AnimatedMediaHelper.durationProbeOverride = (_) async => 20000;
+    AnimatedMediaHelper.persistMediaOverride = (sourcePath, {required cardId}) async =>
+        '${testDir.path}/persisted_retry.gif';
+
+    AnimatedMediaHelper.converterOverride = ({
+      required inputPath,
+      required outputPath,
+      bool trimToLimit = false,
+      sessionId,
+    }) async {
+      sessionCount++;
+      if (sessionCount == 1) {
+        throw PlatformException(code: 'CANCELLED', message: 'First session cancelled');
+      }
+      return GifConversionResult(
         outputPath: sampleGif.path,
         durationMs: 20000,
         encodedDurationMs: 20000,
         trimmed: false,
-        frameCount: 40,
+        frameCount: 30,
         sizeBytes: sampleGif.lengthSync(),
+      );
+    };
+
+    late BuildContext savedContext;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (ctx) {
+              savedContext = ctx;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
       ),
     );
 
-    await tester.pump();
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    // Session 1: Cancelled
+    final future1 = AnimatedMediaHelper.pickOrCreateAnimatedGif(
+      savedContext,
+      cardId: 'card_retry_test',
     );
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Choose Video (Max 30s)'));
+    await tester.pumpAndSettle();
 
-    final result = await future;
+    final result1 = await future1;
+    expect(result1, isNull);
 
-    // Must return valid saved path and preserve original video
-    expect(result, isNotNull);
-    expect(result, contains('persisted_short.gif'));
-    expect(persistCalled, isTrue);
-    expect(sampleVideo.existsSync(), isTrue); // Original input preserved
+    // Session 2: Immediate retry succeeding
+    final future2 = AnimatedMediaHelper.pickOrCreateAnimatedGif(
+      savedContext,
+      cardId: 'card_retry_test',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Choose Video (Max 30s)'));
+    await tester.pumpAndSettle();
+
+    final result2 = await future2;
+    expect(result2, isNotNull);
+    expect(result2, contains('persisted_retry.gif'));
+    expect(sessionCount, 2);
   });
 }

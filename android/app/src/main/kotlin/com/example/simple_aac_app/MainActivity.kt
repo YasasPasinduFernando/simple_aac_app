@@ -30,7 +30,11 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.CancellationException
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
+import java.util.concurrent.Future
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.max
 import kotlin.math.sqrt
 
@@ -44,6 +48,12 @@ class MainActivity : FlutterActivity() {
     private var pendingAuthResult: MethodChannel.Result? = null
     private val visionExecutor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
+
+    private data class ActiveGifSession(
+        val isCancelled: AtomicBoolean,
+        val future: Future<*>
+    )
+    private val activeGifSessions = ConcurrentHashMap<String, ActiveGifSession>()
 
     override fun setRequestedOrientation(requestedOrientation: Int) {
         try {
@@ -236,19 +246,24 @@ class MainActivity : FlutterActivity() {
                     val inputPath = call.argument<String>("inputPath")
                     val outputPath = call.argument<String>("outputPath")
                     val trimToLimit = call.argument<Boolean>("trimToLimit") ?: false
+                    val sessionId = call.argument<String>("sessionId") ?: System.currentTimeMillis().toString()
                     if (inputPath.isNullOrBlank() || outputPath.isNullOrBlank()) {
                         result.error("INVALID_ARGS", "inputPath and outputPath are required", null)
                         return@setMethodCallHandler
                     }
-                    visionExecutor.execute {
+                    val isCancelled = AtomicBoolean(false)
+                    lateinit var future: Future<*>
+                    future = visionExecutor.submit {
                         try {
                             val res = VideoGifEncoder.convertVideoToGif(
                                 applicationContext,
                                 inputPath,
                                 outputPath,
-                                trimToLimit
+                                trimToLimit,
+                                isCancelled = { isCancelled.get() }
                             )
                             mainHandler.post {
+                                activeGifSessions.remove(sessionId)
                                 result.success(
                                     mapOf(
                                         "outputPath" to res.outputPath,
@@ -264,14 +279,36 @@ class MainActivity : FlutterActivity() {
                             }
                         } catch (e: VideoTooLongException) {
                             mainHandler.post {
+                                activeGifSessions.remove(sessionId)
                                 result.error("VIDEO_TOO_LONG", e.message, mapOf("durationMs" to e.durationMs))
+                            }
+                        } catch (e: CancellationException) {
+                            mainHandler.post {
+                                activeGifSessions.remove(sessionId)
+                                result.error("CANCELLED", "GIF conversion was cancelled", null)
                             }
                         } catch (e: Exception) {
                             mainHandler.post {
-                                result.error("GIF_ENCODE_FAILED", e.message ?: "Failed to convert video to GIF", null)
+                                activeGifSessions.remove(sessionId)
+                                if (isCancelled.get() || Thread.currentThread().isInterrupted) {
+                                    result.error("CANCELLED", "GIF conversion was cancelled", null)
+                                } else {
+                                    result.error("GIF_ENCODE_FAILED", e.message ?: "Failed to convert video to GIF", null)
+                                }
                             }
                         }
                     }
+                    activeGifSessions[sessionId] = ActiveGifSession(isCancelled, future)
+                } else if (call.method == "cancelVideoToGif") {
+                    val sessionId = call.argument<String>("sessionId")
+                    if (!sessionId.isNullOrBlank()) {
+                        val session = activeGifSessions[sessionId]
+                        if (session != null) {
+                            session.isCancelled.set(true)
+                            session.future.cancel(true)
+                        }
+                    }
+                    result.success(true)
                 } else {
                     result.notImplemented()
                 }
@@ -435,6 +472,11 @@ class MainActivity : FlutterActivity() {
         objectDetector?.close()
         imageLabeler = null
         objectDetector = null
+        for (session in activeGifSessions.values) {
+            session.isCancelled.set(true)
+            session.future.cancel(true)
+        }
+        activeGifSessions.clear()
         visionExecutor.shutdown()
         super.onDestroy()
     }
