@@ -388,7 +388,6 @@ class AnimatedMediaHelper {
         trimToLimit = true;
       }
 
-      var isCancelled = false;
       workDir = Directory.systemTemp.createTempSync('aac_video_gif_');
       final outGifPath = '${workDir.path}/clip.gif';
 
@@ -465,15 +464,6 @@ class AnimatedMediaHelper {
                   ),
                 ],
               ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    isCancelled = true;
-                    closeProgress();
-                  },
-                  child: const Text('Cancel'),
-                ),
-              ],
             ),
           ),
         );
@@ -489,7 +479,6 @@ class AnimatedMediaHelper {
         result = await runConversion(trimToLimit);
       } on PlatformException catch (e) {
         closeProgress();
-        if (isCancelled) return null;
         if (e.code == 'VIDEO_TOO_LONG' && !trimToLimit && context.mounted) {
           final rawDuration =
               (e.details is Map ? (e.details['durationMs'] as num?)?.toInt() : null) ??
@@ -507,13 +496,6 @@ class AnimatedMediaHelper {
       }
 
       closeProgress();
-
-      if (isCancelled) {
-        try {
-          workDir.deleteSync(recursive: true);
-        } catch (_) {}
-        return null;
-      }
 
       final outFile = File(result.outputPath);
       if (!isValidGifFileSync(outFile)) {

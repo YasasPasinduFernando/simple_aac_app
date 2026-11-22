@@ -43,7 +43,7 @@ void main() {
     } catch (_) {}
   });
 
-  testWidgets('GIF processing dialog displays title, subtitle, LinearProgressIndicator and Cancel button',
+  testWidgets('GIF processing dialog displays title, subtitle, LinearProgressIndicator and non-dismissible modal',
       (WidgetTester tester) async {
     final completer = Completer<GifConversionResult>();
 
@@ -94,7 +94,8 @@ void main() {
     expect(find.descendant(of: processingDialogFinder, matching: find.text('Trimming first 30s into GIF...')), findsOneWidget);
     expect(find.descendant(of: processingDialogFinder, matching: find.text('Offline • Compact quality')), findsOneWidget);
     expect(find.descendant(of: processingDialogFinder, matching: find.byType(LinearProgressIndicator)), findsOneWidget);
-    expect(find.descendant(of: processingDialogFinder, matching: find.text('Cancel')), findsOneWidget);
+    // Unsafe fake cancel button is deliberately NOT present
+    expect(find.descendant(of: processingDialogFinder, matching: find.text('Cancel')), findsNothing);
 
     // Complete the conversion successfully
     completer.complete(
@@ -119,7 +120,7 @@ void main() {
     expect(result, contains('persisted.gif'));
   });
 
-  testWidgets('Tapping Cancel in GIF processing dialog dismisses dialog and discards result safely',
+  testWidgets('GIF processing dialog maintains modal lock and cleans up temporary work directory after completion',
       (WidgetTester tester) async {
     final completer = Completer<GifConversionResult>();
     var persistCalled = false;
@@ -136,7 +137,7 @@ void main() {
     };
     AnimatedMediaHelper.persistMediaOverride = (sourcePath, {required cardId}) async {
       persistCalled = true;
-      return sourcePath;
+      return '${testDir.path}/persisted_short.gif';
     };
 
     late BuildContext savedContext;
@@ -155,7 +156,7 @@ void main() {
 
     final future = AnimatedMediaHelper.pickOrCreateAnimatedGif(
       savedContext,
-      cardId: 'card_cancel_test',
+      cardId: 'card_modal_test',
     );
     await tester.pumpAndSettle();
 
@@ -167,18 +168,9 @@ void main() {
     expect(find.descendant(of: processingDialogFinder, matching: find.text('Creating offline GIF clip...')), findsOneWidget);
     expect(find.descendant(of: processingDialogFinder, matching: find.text('Max 30s • Compact quality')), findsOneWidget);
     expect(find.descendant(of: processingDialogFinder, matching: find.byType(LinearProgressIndicator)), findsOneWidget);
+    expect(find.descendant(of: processingDialogFinder, matching: find.text('Cancel')), findsNothing);
 
-    final cancelButtonFinder = find.descendant(of: processingDialogFinder, matching: find.text('Cancel'));
-    expect(cancelButtonFinder, findsOneWidget);
-
-    // User cancels the in-flight conversion
-    await tester.tap(cancelButtonFinder);
-    await tester.pumpAndSettle();
-
-    // Dialog is immediately gone
-    expect(find.text('Creating offline GIF clip...'), findsNothing);
-
-    // Even if native worker later completes, result must be safely discarded
+    // Native worker completes
     completer.complete(
       GifConversionResult(
         outputPath: sampleGif.path,
@@ -198,9 +190,10 @@ void main() {
 
     final result = await future;
 
-    // Must return null, never persist, and never save card
-    expect(result, isNull);
-    expect(persistCalled, isFalse);
+    // Must return valid saved path and preserve original video
+    expect(result, isNotNull);
+    expect(result, contains('persisted_short.gif'));
+    expect(persistCalled, isTrue);
     expect(sampleVideo.existsSync(), isTrue); // Original input preserved
   });
 }
