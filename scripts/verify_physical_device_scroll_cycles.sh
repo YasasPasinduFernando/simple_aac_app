@@ -5,8 +5,8 @@
 set -e
 
 PACKAGE="lk.yasas.simpleaac.dev"
-ACTIVITY="lk.yasas.simpleaac.MainActivity"
-EVIDENCE_DIR="/home/yasas/Desktop/SimpleAAC-v1.1.6-Build15-Production-Verified/03_QA/physical_scroll_evidence"
+ACTIVITY="com.example.simple_aac_app.MainActivity"
+EVIDENCE_DIR="/home/yasas/Desktop/SimpleAAC-v1.1.6-Build15-Release-Final/03_QA/physical_scroll_evidence"
 mkdir -p "$EVIDENCE_DIR"
 
 echo "=== Simple AAC Physical Device Scrolling Acceptance Test ==="
