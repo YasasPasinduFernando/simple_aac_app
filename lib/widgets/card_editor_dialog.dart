@@ -8,6 +8,7 @@ import 'package:record/record.dart';
 
 import '../models/aac_card_model.dart';
 import '../models/tutorial_step.dart';
+import '../services/card_editor_draft_service.dart';
 import '../services/card_storage_service.dart';
 import '../services/multilingual_concept_service.dart';
 import '../services/network_policy_service.dart';
@@ -33,6 +34,7 @@ class CardEditorDialog extends StatefulWidget {
   final VoidCallback? onPickImage;
   final CameraAnalysisResult? initialCameraAnalysis;
   final String language;
+  final List<String> parentStackIds;
   final void Function(List<AACCard> movedCards)? onMoveSubCardsToHome;
   final ValueChanged<String>? onMediaCreated;
   final void Function(AACCard candidateCard)? onDuplicate;
@@ -46,6 +48,7 @@ class CardEditorDialog extends StatefulWidget {
     this.onPickImage,
     this.initialCameraAnalysis,
     this.language = 'en',
+    this.parentStackIds = const [],
     this.onMoveSubCardsToHome,
     this.onMediaCreated,
     this.onDuplicate,
@@ -209,6 +212,16 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
       final allowed = await AppPermissionsHelper.ensureLegacyStorageIfNeeded(context);
       if (!allowed || !mounted) return;
 
+      await CardEditorDraftService.saveDraft(
+        card: widget.card,
+        isNew: widget.isNew,
+        parentStackIds: widget.parentStackIds,
+        label: _controllerEn.text,
+        labelSinhala: _controllerSi.text,
+        labelTamil: _controllerTa.text,
+        category: _selectedCategory,
+      );
+
       final picked = await _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 85,
@@ -244,6 +257,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         ),
       );
     } finally {
+      await CardEditorDraftService.clearDraft();
       if (mounted) {
         setState(() => _isMediaBusy = false);
       } else {
@@ -256,6 +270,16 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
     if (_isMediaBusy || _isClosing || _isSaving) return;
     setState(() => _isMediaBusy = true);
     try {
+      await CardEditorDraftService.saveDraft(
+        card: widget.card,
+        isNew: widget.isNew,
+        parentStackIds: widget.parentStackIds,
+        label: _controllerEn.text,
+        labelSinhala: _controllerSi.text,
+        labelTamil: _controllerTa.text,
+        category: _selectedCategory,
+      );
+
       final outcome = await CameraObjectHelper.captureAndVerify(
         context,
         cardId: widget.card.id,
@@ -318,6 +342,7 @@ class _CardEditorDialogState extends State<CardEditorDialog> {
         ),
       );
     } finally {
+      await CardEditorDraftService.clearDraft();
       if (mounted) {
         setState(() => _isMediaBusy = false);
       } else {

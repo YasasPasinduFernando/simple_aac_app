@@ -76,6 +76,8 @@ class HomeDrawer extends StatelessWidget {
   final bool? showGestureHint;
   final bool isCaregiverLockEnabled;
   final ValueChanged<bool>? onToggleCaregiverLock;
+  final bool openSettingsFullScreen;
+  final ValueChanged<bool>? onToggleOpenSettingsFullScreen;
   final bool disableBackCardInPinMode;
   final ValueChanged<bool>? onToggleDisableBackCardInPinMode;
 
@@ -150,6 +152,8 @@ class HomeDrawer extends StatelessWidget {
     this.showGestureHint,
     this.isCaregiverLockEnabled = false,
     this.onToggleCaregiverLock,
+    this.openSettingsFullScreen = false,
+    this.onToggleOpenSettingsFullScreen,
     this.disableBackCardInPinMode = false,
     this.onToggleDisableBackCardInPinMode,
   }) : super(key: key);
@@ -238,6 +242,15 @@ class HomeDrawer extends StatelessWidget {
                       : 'Protect board & settings with phone fingerprint, face, pattern or PIN',
                   value: isCaregiverLockEnabled,
                   onChanged: (val) => onToggleCaregiverLock?.call(val),
+                ),
+                _buildSwitchItem(
+                  context,
+                  itemKey: const ValueKey('open_settings_full_screen_switch'),
+                  icon: Icons.open_in_full_rounded,
+                  title: 'Open Settings Full Screen',
+                  subtitle: 'Automatically expand Settings when opened',
+                  value: openSettingsFullScreen,
+                  onChanged: (val) => onToggleOpenSettingsFullScreen?.call(val),
                 ),
                 _buildSwitchItem(
                   context,

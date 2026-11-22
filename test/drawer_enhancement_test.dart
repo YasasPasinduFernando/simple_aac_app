@@ -123,7 +123,7 @@ void main() {
 
   testWidgets('Appearance & Theme section renders live previews and triggers color callbacks',
       (tester) async {
-    tester.view.physicalSize = const Size(400, 1800);
+    tester.view.physicalSize = const Size(400, 2200);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -148,7 +148,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Scroll down to Appearance & Theme section
-    await tester.drag(find.byType(ListView), const Offset(0, -650));
+    await tester.drag(find.byType(ListView), const Offset(0, -750));
     await tester.pumpAndSettle();
 
     expect(find.text('Dark Mode'), findsOneWidget);
@@ -188,7 +188,7 @@ void main() {
     expect(tappedCardText, isTrue);
 
     // Scroll further down to Color Vision Support
-    await tester.drag(find.byType(ListView), const Offset(0, -320));
+    await tester.drag(find.byType(ListView), const Offset(0, -420));
     await tester.pumpAndSettle();
     expect(find.text('Color Vision Support'), findsOneWidget);
     expect(find.text('Normal (Custom Colors)'), findsOneWidget);
@@ -569,7 +569,7 @@ void main() {
 
   testWidgets('Sentence Bar and Token Text switches display correct titles and subtitles',
       (tester) async {
-    tester.view.physicalSize = const Size(384, 800);
+    tester.view.physicalSize = const Size(384, 1000);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -585,7 +585,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.drag(find.byType(ListView), const Offset(0, -320));
+    await tester.drag(find.byType(ListView), const Offset(0, -420));
     await tester.pumpAndSettle();
     expect(find.text('Show Sentence Bar'), findsOneWidget);
     expect(find.text('Show the top bar for building and speaking sentences'), findsOneWidget);

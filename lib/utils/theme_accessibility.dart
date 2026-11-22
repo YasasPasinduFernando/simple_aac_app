@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -68,6 +69,15 @@ class ThemeAccessibility {
     darkModeNotifier.value = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(darkModePrefKey, enabled);
+  }
+
+  /// Computes WCAG 2.1 relative luminance contrast ratio between two colors (range: 1.0 to 21.0).
+  static double contrastRatio(Color a, Color b) {
+    final l1 = a.computeLuminance();
+    final l2 = b.computeLuminance();
+    final lighter = math.max(l1, l2);
+    final darker = math.min(l1, l2);
+    return (lighter + 0.05) / (darker + 0.05);
   }
 
   /// Resolves the card surface color for display without mutating stored data.

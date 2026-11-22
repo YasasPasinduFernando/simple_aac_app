@@ -24,6 +24,7 @@ import '../services/speech_engine.dart';
 import '../services/tutorial_service.dart';
 import '../models/category_metadata.dart';
 import '../models/edit_session_snapshot.dart';
+import '../services/card_editor_draft_service.dart';
 import '../services/recycle_bin_service.dart';
 import '../services/personalize_service.dart';
 import '../services/starter_pack_service.dart';
@@ -208,6 +209,7 @@ class _HomePageState extends State<HomePage> {
   double _ttsBarSize = 1.0;
   double _cardTextScale = 1.0;
   bool _isDrawerExpanded = false;
+  bool _openSettingsFullScreen = false;
   bool _showTtsDelete = true;
   bool _showTtsClear = true;
   bool _hideTtsText = false;
@@ -263,7 +265,28 @@ class _HomePageState extends State<HomePage> {
       _disableBackCardInPinMode = value;
 
   @visibleForTesting
+  bool get openSettingsFullScreenForTesting => _openSettingsFullScreen;
+
+  @visibleForTesting
+  set openSettingsFullScreenForTesting(bool value) {
+    if (mounted) {
+      setState(() {
+        _openSettingsFullScreen = value;
+      });
+    } else {
+      _openSettingsFullScreen = value;
+    }
+  }
+
+  @visibleForTesting
+  bool get isDrawerExpandedForTesting => _isDrawerExpanded;
+
+  @visibleForTesting
   void resetSettingsForTesting() => _resetSettingsToDefaults();
+
+  @visibleForTesting
+  void applyRestoredBackupForTesting(BackupPayload payload) =>
+      _applyRestoredBackup(payload);
 
   final GlobalKey _menuButtonKey = GlobalKey();
   final GlobalKey _drawerResizeKey = GlobalKey();
@@ -437,7 +460,10 @@ class _HomePageState extends State<HomePage> {
           const Color(0xFFF4F1EB).value;
       final nextTtsSize = prefs.getDouble('ttsBarSize') ?? 1.0;
       final nextCardTextScale = prefs.getDouble('cardTextScale') ?? 1.0;
-      final nextDrawerExpanded = prefs.getBool('drawerFullScreen') ?? false;
+      final nextOpenSettingsFullScreen =
+          prefs.getBool('openSettingsFullScreen') ?? false;
+      final nextDrawerExpanded =
+          nextOpenSettingsFullScreen || (prefs.getBool('drawerFullScreen') ?? false);
       final nextShowActions = prefs.getBool('showTtsActions') ?? true;
       final nextShowDelete = prefs.getBool('showTtsDelete') ?? nextShowActions;
       final nextShowClear = prefs.getBool('showTtsClear') ?? nextShowActions;
@@ -503,6 +529,7 @@ class _HomePageState extends State<HomePage> {
         _cardLabelBgColor = nextCardLabelBg;
         _ttsBarSize = nextTtsSize;
         _cardTextScale = nextCardTextScale;
+        _openSettingsFullScreen = nextOpenSettingsFullScreen;
         _isDrawerExpanded = nextDrawerExpanded;
         _showTtsDelete = nextShowDelete;
         _showTtsClear = nextShowClear;
@@ -559,6 +586,7 @@ class _HomePageState extends State<HomePage> {
       // Initialize TTS after first frame paints and loaded language/voice settings are known.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(_initTts());
+        if (mounted) unawaited(_recoverLostCameraSession());
       });
       // Lightweight 30-day Recycle Bin cleanup
       unawaited(RecycleBinService.instance.purgeExpiredEntries(activeCards: loadedCards));
@@ -573,6 +601,77 @@ class _HomePageState extends State<HomePage> {
           _startupErrorMessage = e.toString();
         });
       }
+    }
+  }
+
+  /// Recovers any in-progress CardEditorDialog session if Android killed the process
+  /// while the external camera or gallery app was in the foreground.
+  Future<void> _recoverLostCameraSession() async {
+    if (!await CardEditorDraftService.hasDraft()) return;
+    try {
+      final draft = await CardEditorDraftService.getDraft();
+      if (draft == null || !mounted) return;
+
+      // Recover lost camera photo if available from Android image_picker cache
+      final lostPath = await CardEditorDraftService.recoverCameraPhoto();
+      String? effectiveImagePath = draft.imagePath;
+      if (lostPath != null && lostPath.isNotEmpty) {
+        try {
+          effectiveImagePath = await CardStorageService.persistMediaFile(
+            lostPath,
+            cardId: draft.cardId,
+            mediaType: 'images',
+          );
+        } catch (e) {
+          debugPrint('[_recoverLostCameraSession] Persist recovered photo failed: $e');
+        }
+      }
+
+      // Restore folder hierarchy so user returns to the exact nested folder (e.g. Animals)
+      if (draft.parentStackIds.isNotEmpty) {
+        _parentStack.clear();
+        for (final pId in draft.parentStackIds) {
+          final found = _findCardById(pId, cards);
+          if (found != null && !_parentStack.contains(found)) {
+            _parentStack.add(found);
+          }
+        }
+        if (_parentStack.isNotEmpty) {
+          activeParentCard = _parentStack.last;
+        }
+      }
+
+      // Clear draft marker so subsequent launches don't re-trigger
+      await CardEditorDraftService.clearDraft();
+
+      if (!mounted) return;
+      setState(() {
+        isEditMode = true;
+      });
+
+      // Find or build the draft card to re-open editor
+      AACCard targetCard;
+      final existing = _findCardById(draft.cardId, cards);
+      if (existing != null) {
+        existing.label = draft.label;
+        existing.labelSinhala = draft.labelSinhala;
+        existing.labelTamil = draft.labelTamil;
+        if (effectiveImagePath != null) {
+          existing.imagePath = effectiveImagePath;
+        }
+        targetCard = existing;
+      } else {
+        targetCard = draft.toCard();
+        if (effectiveImagePath != null) {
+          targetCard.imagePath = effectiveImagePath;
+        }
+      }
+
+      // Re-open card editor dialog with recovered photo and intact draft labels
+      unawaited(_editCard(targetCard, isNew: draft.isNew));
+    } catch (e) {
+      debugPrint('[_recoverLostCameraSession] Error recovering session: $e');
+      await CardEditorDraftService.clearDraft();
     }
   }
 
@@ -665,6 +764,7 @@ class _HomePageState extends State<HomePage> {
           prefs.setInt('globalCardLabelBackgroundColor', _cardLabelBgColor),
           prefs.setDouble('ttsBarSize', _ttsBarSize),
           prefs.setDouble('cardTextScale', _cardTextScale),
+          prefs.setBool('openSettingsFullScreen', _openSettingsFullScreen),
           prefs.setBool('drawerFullScreen', _isDrawerExpanded),
           prefs.setBool('showTtsActions', _showTtsDelete || _showTtsClear),
           prefs.setBool('showTtsDelete', _showTtsDelete),
@@ -1036,6 +1136,7 @@ class _HomePageState extends State<HomePage> {
         categories: allCategories.toList(),
         audioPlayer: _audioPlayer,
         language: currentLanguage,
+        parentStackIds: _parentStack.map((c) => c.id).toList(),
         onMoveSubCardsToHome: (moved) {
           movedCardsToHome.addAll(moved);
         },
@@ -2021,6 +2122,7 @@ class _HomePageState extends State<HomePage> {
       _cardLabelBgColor = const Color(0xFFF4F1EB).value;
       _ttsBarSize = 1.0;
       _cardTextScale = 1.0;
+      _openSettingsFullScreen = false;
       _isDrawerExpanded = false;
       _showTtsDelete = true;
       _showTtsClear = true;
@@ -2209,6 +2311,7 @@ class _HomePageState extends State<HomePage> {
       'globalCardLabelBackgroundColor': _cardLabelBgColor,
       'ttsBarSize': _ttsBarSize,
       'cardTextScale': _cardTextScale,
+      'openSettingsFullScreen': _openSettingsFullScreen,
       'drawerFullScreen': _isDrawerExpanded,
       'showTtsActions': _showTtsDelete || _showTtsClear,
       'showTtsDelete': _showTtsDelete,
@@ -3974,8 +4077,11 @@ class _HomePageState extends State<HomePage> {
       _ttsBarSize = (settings['ttsBarSize'] as num?)?.toDouble() ?? _ttsBarSize;
       _cardTextScale =
           (settings['cardTextScale'] as num?)?.toDouble() ?? _cardTextScale;
-      _isDrawerExpanded =
-          settings['drawerFullScreen'] as bool? ?? _isDrawerExpanded;
+      _openSettingsFullScreen =
+          settings['openSettingsFullScreen'] as bool? ?? false;
+      _isDrawerExpanded = settings['openSettingsFullScreen'] as bool? ??
+          settings['drawerFullScreen'] as bool? ??
+          _isDrawerExpanded;
       final importedShowActions =
           settings['showTtsActions'] as bool? ?? (_showTtsDelete || _showTtsClear);
       _showTtsDelete =
@@ -4356,9 +4462,9 @@ class _HomePageState extends State<HomePage> {
                     onOrientation: _showOrientationDialog,
                     onOpenMenu: () {
                       TutorialService.instance.notifyMenuOpened();
-                      if (_isDrawerExpanded) {
+                      if (_isDrawerExpanded != _openSettingsFullScreen) {
                         setState(() {
-                          _isDrawerExpanded = false;
+                          _isDrawerExpanded = _openSettingsFullScreen;
                         });
                       }
                       _scaffoldKey.currentState?.openEndDrawer();
@@ -4385,6 +4491,14 @@ class _HomePageState extends State<HomePage> {
                     isCaregiverLockEnabled:
                         CaregiverLockService.instance.isEnabled,
                     onToggleCaregiverLock: _handleToggleCaregiverLock,
+                    openSettingsFullScreen: _openSettingsFullScreen,
+                    onToggleOpenSettingsFullScreen: (enabled) {
+                      setState(() {
+                        _openSettingsFullScreen = enabled;
+                        _isDrawerExpanded = enabled;
+                      });
+                      _saveCards();
+                    },
                     disableBackCardInPinMode: _disableBackCardInPinMode,
                     onToggleDisableBackCardInPinMode: (enabled) {
                       setState(() {
@@ -4584,9 +4698,10 @@ class _HomePageState extends State<HomePage> {
                           onUnpinLongPress: _handleUnpinLongPress,
                           onPinTapWhenPinned: _showPressAndHoldToUnpinNotice,
                           onOpenMenu: () {
-                            if (_isDrawerExpanded) {
+                            TutorialService.instance.notifyMenuOpened();
+                            if (_isDrawerExpanded != _openSettingsFullScreen) {
                               setState(() {
-                                _isDrawerExpanded = false;
+                                _isDrawerExpanded = _openSettingsFullScreen;
                               });
                             }
                             _scaffoldKey.currentState?.openEndDrawer();
@@ -5619,9 +5734,7 @@ class _HomePageState extends State<HomePage> {
 
     // Global Card Label Background Color (Overlay OFF mode)
     final globalLabelBg = Color(_cardLabelBgColor);
-    final labelZoneBg = _isDarkMode
-        ? (Color.lerp(globalLabelBg, const Color(0xFF1E293B), 0.6) ?? globalLabelBg)
-        : globalLabelBg;
+    final labelZoneBg = globalLabelBg;
 
     final isDefaultFolderCover = card.id == StarterPackService.starterPackRootId &&
         (card.imagePath == null ||
@@ -6137,13 +6250,15 @@ class _HomePageState extends State<HomePage> {
       isColorBlindMode: _isColorBlindMode,
     );
     final globalLabelBg = Color(_cardLabelBgColor);
-    final labelZoneBg = _isDarkMode
-        ? (Color.lerp(globalLabelBg, const Color(0xFF1E293B), 0.6) ?? globalLabelBg)
-        : globalLabelBg;
+    final labelZoneBg = globalLabelBg;
     final cardTextColor = useImageOverlay
         ? (_applyTextColorToCards ? Color(_cardTextColor) : Colors.white)
         : (_applyTextColorToCards
-            ? Color(_cardTextColor)
+            ? (ThemeAccessibility.contrastRatio(Color(_cardTextColor), labelZoneBg) >= 3.0
+                ? Color(_cardTextColor)
+                : (ThemeData.estimateBrightnessForColor(labelZoneBg) == Brightness.light
+                    ? const Color(0xFF252B32)
+                    : Colors.white))
             : (ThemeData.estimateBrightnessForColor(labelZoneBg) == Brightness.light
                 ? const Color(0xFF252B32)
                 : Colors.white));
@@ -6287,8 +6402,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _closeDrawerIfOpen() {
-    if (_isDrawerExpanded) {
-      setState(() => _isDrawerExpanded = false);
+    if (_isDrawerExpanded != _openSettingsFullScreen) {
+      setState(() => _isDrawerExpanded = _openSettingsFullScreen);
     }
     _scaffoldKey.currentState?.closeEndDrawer();
     WidgetsBinding.instance.addPostFrameCallback((_) {

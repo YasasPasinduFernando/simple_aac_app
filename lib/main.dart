@@ -38,6 +38,8 @@ void main() async {
 }
 
 class AACApp extends StatelessWidget {
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   const AACApp({Key? key}) : super(key: key);
 
   @visibleForTesting
@@ -99,6 +101,7 @@ class AACApp extends StatelessWidget {
       valueListenable: ThemeAccessibility.darkModeNotifier,
       builder: (context, isDark, _) {
         return MaterialApp(
+          navigatorKey: navigatorKey,
           title: 'Simple AAC Sri Lanka',
           debugShowCheckedModeBanner: false,
           themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
