@@ -133,10 +133,10 @@ void main() {
     await tester.scrollUntilVisible(find.text('Dark Mode'), 200);
     expect(find.text('Dark Mode'), findsOneWidget);
 
-    await tester.scrollUntilVisible(find.text('Color-Blind Safe Mode'), 200);
+    await tester.scrollUntilVisible(find.text('Colour-Blind Safe Mode'), 200);
     expect(tester.takeException(), isNull);
-    expect(find.text('Normal (Custom Colors)'), findsOneWidget);
-    expect(find.text('Color-Blind Safe Mode'), findsOneWidget);
+    expect(find.text('Normal (Custom Colours)'), findsOneWidget);
+    expect(find.text('Colour-Blind Safe Mode'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('App Permissions'), 200);
     expect(find.text('App Permissions'), findsOneWidget);

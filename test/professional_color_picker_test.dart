@@ -18,8 +18,8 @@ void main() {
                   showDialog(
                     context: context,
                     builder: (context) => ProfessionalColorPickerDialog(
-                      title: 'App color',
-                      subtitle: 'Pick a color for Normal Mode',
+                      title: 'App colour',
+                      subtitle: 'Pick a colour for Normal Mode',
                       initialColor: initialColor,
                       previewType: ColorPickerPreviewType.appHeader,
                       onApply: (color) => appliedColor = color,
@@ -38,22 +38,22 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify header
-      expect(find.text('App color'), findsOneWidget);
-      expect(find.text('Pick a color for Normal Mode'), findsOneWidget);
+      expect(find.text('App colour'), findsOneWidget);
+      expect(find.text('Pick a colour for Normal Mode'), findsOneWidget);
       expect(find.text('Preview'), findsOneWidget);
-      expect(find.text('Quick colors'), findsOneWidget);
-      expect(find.text('Custom color'), findsOneWidget);
+      expect(find.text('Quick colours'), findsOneWidget);
+      expect(find.text('Custom colour'), findsOneWidget);
 
       // Verify all 8 presets exist
       for (final item in ProfessionalColorPickerDialog.presets) {
-        expect(find.bySemanticsLabel('Preset color ${item.name}'), findsOneWidget);
+        expect(find.bySemanticsLabel('Preset colour ${item.name}'), findsOneWidget);
       }
 
       // Royal blue checkmark should be visible initially
       expect(find.byIcon(Icons.check_rounded), findsWidgets);
 
       // Tap Green preset (Color(0xFF4CAF50))
-      await tester.tap(find.bySemanticsLabel('Preset color Green'));
+      await tester.tap(find.bySemanticsLabel('Preset colour Green'));
       await tester.pumpAndSettle();
 
       // Tap Apply
@@ -97,7 +97,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap Red preset
-      await tester.tap(find.bySemanticsLabel('Preset color Red'));
+      await tester.tap(find.bySemanticsLabel('Preset colour Red'));
       await tester.pumpAndSettle();
 
       // Tap Cancel
@@ -248,9 +248,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify Text color specific presets exist (White, Black, Purple, Green, Orange, Red, etc.)
-      expect(find.bySemanticsLabel('Preset color White'), findsOneWidget);
-      expect(find.bySemanticsLabel('Preset color Black'), findsOneWidget);
-      expect(find.bySemanticsLabel('Preset color Red'), findsOneWidget);
+      expect(find.bySemanticsLabel('Preset colour White'), findsOneWidget);
+      expect(find.bySemanticsLabel('Preset colour Black'), findsOneWidget);
+      expect(find.bySemanticsLabel('Preset colour Red'), findsOneWidget);
 
       // Verify 3 Hello labels are rendered
       expect(find.text('Hello'), findsNWidgets(3));
@@ -259,7 +259,7 @@ void main() {
       expect(find.byKey(const ValueKey('candidate_text_card')), findsOneWidget);
 
       // Tap Red preset
-      await tester.tap(find.bySemanticsLabel('Preset color Red'));
+      await tester.tap(find.bySemanticsLabel('Preset colour Red'));
       await tester.pumpAndSettle();
 
       // Card 3 should now have Red text
@@ -326,7 +326,7 @@ void main() {
       expect(find.text('Angry'), findsOneWidget);
 
       // Tap Mint Green preset
-      await tester.tap(find.bySemanticsLabel('Preset color Mint Green'));
+      await tester.tap(find.bySemanticsLabel('Preset colour Mint Green'));
       await tester.pumpAndSettle();
 
       // Scroll into view & Tap Apply
@@ -440,10 +440,10 @@ void main() {
       // Verify swatch dot and labels exist
       expect(find.byKey(const ValueKey('global_text_swatch_dot')), findsOneWidget);
       expect(find.text('App header text and toolbar icons'), findsOneWidget);
-      expect(find.text('Card labels have a separate color setting'), findsOneWidget);
+      expect(find.text('Card labels have a separate colour setting'), findsOneWidget);
 
       // Tap Green preset (Color(0xFF00C853))
-      await tester.tap(find.bySemanticsLabel('Preset color Green'));
+      await tester.tap(find.bySemanticsLabel('Preset colour Green'));
       await tester.pumpAndSettle();
 
       // Mini header title, pin icon, and menu icon should instantly update to Green

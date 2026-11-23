@@ -64,7 +64,7 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
       id: 'universal',
       title: 'Universal High-Contrast',
       subtitle: 'Okabe-Ito universal barrier-free palette',
-      description: 'Works for all types of color blindness',
+      description: 'Works for all types of colour blindness',
     ),
     _ColorBlindPreset(
       id: 'deuteranomaly',
@@ -109,7 +109,7 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
       insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
       title: const StyledDialogHeader(
         icon: Icons.visibility_rounded,
-        title: 'Color Vision Support',
+        title: 'Colour Vision Support',
         subtitle: 'Accessibility palettes & high-contrast card borders',
       ),
       content: SizedBox(
@@ -133,13 +133,13 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
               SwitchListTile.adaptive(
                 contentPadding: EdgeInsets.zero,
                 title: const Text(
-                  'Color-Blind Safe Mode',
+                  'Colour-Blind Safe Mode',
                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                 ),
                 subtitle: Text(
                   _enabled
-                      ? 'Custom color-safe palette & borders active'
-                      : 'Disabled (Cards show standard default colors)',
+                      ? 'Custom colour-safe palette & borders active'
+                      : 'Disabled (Cards show standard default colours)',
                   style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
                 ),
                 value: _enabled,
@@ -149,7 +149,7 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
 
               // 3. Color Deficiency Adaptation Mode
               Text(
-                'Color Vision Deficiency Mode',
+                'Colour Vision Deficiency Mode',
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
@@ -218,9 +218,9 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
               ),
               const SizedBox(height: 10),
 
-              // 5. Border Ring Color
+              // 5. Border Ring Colour
               Text(
-                'Border Ring Color',
+                'Border Ring Colour',
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
@@ -290,7 +290,7 @@ class _ColorVisionDialogState extends State<ColorVisionDialog> {
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
-                  'Applies color deficiency matrix to card photos and illustrations so picture details remain clear',
+                  'Applies colour deficiency matrix to card photos and illustrations so picture details remain clear',
                   style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
                 ),
                 value: _filterImages,

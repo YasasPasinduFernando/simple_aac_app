@@ -207,6 +207,8 @@ class _HomePageState extends State<HomePage> {
   int _themeBackgroundColor = Colors.white.value;
   int _cardTextColor = const Color(0xFF111827).value;
   int _cardLabelBgColor = const Color(0xFFF4F1EB).value;
+  int? _ttsBarColorLight;
+  int? _ttsBarColorDark;
   double _ttsBarSize = 1.0;
   double _cardTextScale = 1.0;
   bool _isDrawerExpanded = false;
@@ -459,6 +461,9 @@ class _HomePageState extends State<HomePage> {
           prefs.getInt('globalCardLabelBackgroundColor') ??
           prefs.getInt('cardLabelBackgroundColor') ??
           const Color(0xFFF4F1EB).value;
+      final nextTtsBarColorLight =
+          prefs.getInt('ttsBarColorLight') ?? prefs.getInt('ttsBarColor');
+      final nextTtsBarColorDark = prefs.getInt('ttsBarColorDark');
       final nextTtsSize = prefs.getDouble('ttsBarSize') ?? 1.0;
       final nextCardTextScale = prefs.getDouble('cardTextScale') ?? 1.0;
       final nextOpenSettingsFullScreen =
@@ -528,6 +533,8 @@ class _HomePageState extends State<HomePage> {
         _themeBackgroundColor = nextBg;
         _cardTextColor = nextCardText;
         _cardLabelBgColor = nextCardLabelBg;
+        _ttsBarColorLight = nextTtsBarColorLight;
+        _ttsBarColorDark = nextTtsBarColorDark;
         _ttsBarSize = nextTtsSize;
         _cardTextScale = nextCardTextScale;
         _openSettingsFullScreen = nextOpenSettingsFullScreen;
@@ -792,6 +799,18 @@ class _HomePageState extends State<HomePage> {
           prefs.setInt('themeBackgroundColor', _themeBackgroundColor),
           prefs.setInt('cardTextColor', _cardTextColor),
           prefs.setInt('globalCardLabelBackgroundColor', _cardLabelBgColor),
+          if (_ttsBarColorLight != null)
+            prefs.setInt('ttsBarColorLight', _ttsBarColorLight!)
+          else
+            prefs.remove('ttsBarColorLight'),
+          if (_ttsBarColorLight != null)
+            prefs.setInt('ttsBarColor', _ttsBarColorLight!)
+          else
+            prefs.remove('ttsBarColor'),
+          if (_ttsBarColorDark != null)
+            prefs.setInt('ttsBarColorDark', _ttsBarColorDark!)
+          else
+            prefs.remove('ttsBarColorDark'),
           prefs.setDouble('ttsBarSize', _ttsBarSize),
           prefs.setDouble('cardTextScale', _cardTextScale),
           prefs.setBool('openSettingsFullScreen', _openSettingsFullScreen),
@@ -1963,7 +1982,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(width: 10),
                   const Expanded(
                     child: Text(
-                      'Resets grid size, colors, language & layout to defaults.',
+                      'Resets grid size, colours, language & layout to defaults.',
                       style: TextStyle(fontSize: 12.5, height: 1.35),
                     ),
                   ),
@@ -2044,7 +2063,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               isInstalled
                   ? 'All 128 Sri Lankan starter cards are installed in the "Default" folder across 13 categories.'
-                  : 'Add 128 ready-colored Sri Lankan communication cards organized in 13 categories (Family, Food, Drinks, Feelings, Personal Care, and more) under a "Default" folder.',
+                  : 'Add 128 ready-coloured Sri Lankan communication cards organized in 13 categories (Family, Food, Drinks, Feelings, Personal Care, and more) under a "Default" folder.',
               style: const TextStyle(fontSize: 14, height: 1.4),
             ),
             const SizedBox(height: 12),
@@ -2156,6 +2175,8 @@ class _HomePageState extends State<HomePage> {
       _themeBackgroundColor = Colors.white.value;
       _cardTextColor = const Color(0xFF111827).value;
       _cardLabelBgColor = const Color(0xFFF4F1EB).value;
+      _ttsBarColorLight = null;
+      _ttsBarColorDark = null;
       _ttsBarSize = 1.0;
       _cardTextScale = 1.0;
       _openSettingsFullScreen = false;
@@ -2345,6 +2366,9 @@ class _HomePageState extends State<HomePage> {
       'themeBackgroundColor': _themeBackgroundColor,
       'cardTextColor': _cardTextColor,
       'globalCardLabelBackgroundColor': _cardLabelBgColor,
+      'ttsBarColorLight': _ttsBarColorLight,
+      'ttsBarColorDark': _ttsBarColorDark,
+      'ttsBarColor': _ttsBarColorLight,
       'ttsBarSize': _ttsBarSize,
       'cardTextScale': _cardTextScale,
       'openSettingsFullScreen': _openSettingsFullScreen,
@@ -3275,7 +3299,7 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) => ProfessionalColorPickerDialog(
         title: title,
-        subtitle: subtitle ?? 'Pick a color for Normal Mode',
+        subtitle: subtitle ?? 'Pick a colour for Normal Mode',
         initialColor: initialColor,
         defaultColor: defaultColor,
         headerColor: headerColor,
@@ -3500,8 +3524,8 @@ class _HomePageState extends State<HomePage> {
 
   void _showCardTextColorDialog() {
     _showThemeColorDialog(
-      title: 'Card text color',
-      subtitle: 'Pick a text color for cards',
+      title: 'Card text colour',
+      subtitle: 'Pick a text colour for cards',
       initialColor: Color(_cardTextColor),
       defaultColor: const Color(0xFF111827),
       previewType: ColorPickerPreviewType.textPreview,
@@ -3517,14 +3541,43 @@ class _HomePageState extends State<HomePage> {
 
   void _showCardLabelBgColorDialog() {
     _showThemeColorDialog(
-      title: 'Card label color',
-      subtitle: 'Pick a background color for card labels',
+      title: 'Card label colour',
+      subtitle: 'Pick a background colour for card labels',
       initialColor: Color(_cardLabelBgColor),
       defaultColor: const Color(0xFFF4F1EB),
       previewType: ColorPickerPreviewType.labelBackgroundPreview,
       onSelected: (color) {
         setState(() {
           _cardLabelBgColor = color.value;
+        });
+        _saveCards();
+      },
+    );
+  }
+
+  void _showTtsBarColorDialog() {
+    final defaultColor =
+        _isDarkMode ? const Color(0xFF1B2027) : const Color(0xFFF5F5F5);
+    final initialColor = _isDarkMode
+        ? (_ttsBarColorDark != null ? Color(_ttsBarColorDark!) : defaultColor)
+        : (_ttsBarColorLight != null
+            ? Color(_ttsBarColorLight!)
+            : defaultColor);
+    _showThemeColorDialog(
+      title: 'Text-to-Speech Bar Colour',
+      subtitle: 'Pick a colour for the sentence bar',
+      initialColor: initialColor,
+      defaultColor: defaultColor,
+      previewType: ColorPickerPreviewType.ttsBarPreview,
+      onSelected: (color) {
+        setState(() {
+          if (_isDarkMode) {
+            _ttsBarColorDark =
+                (color.value == defaultColor.value) ? null : color.value;
+          } else {
+            _ttsBarColorLight =
+                (color.value == defaultColor.value) ? null : color.value;
+          }
         });
         _saveCards();
       },
@@ -4116,6 +4169,28 @@ class _HomePageState extends State<HomePage> {
         );
         if (parsed != null) _cardLabelBgColor = parsed;
       }
+      final rawTtsBarLight = settings['ttsBarColorLight'] ?? settings['ttsBarColor'];
+      if (rawTtsBarLight is num) {
+        _ttsBarColorLight = rawTtsBarLight.toInt();
+      } else if (rawTtsBarLight is String) {
+        final hexClean = rawTtsBarLight.replaceAll('#', '').replaceAll('0x', '').trim();
+        final parsed = int.tryParse(
+          hexClean.length == 6 ? 'FF$hexClean' : hexClean,
+          radix: 16,
+        );
+        if (parsed != null) _ttsBarColorLight = parsed;
+      }
+      final rawTtsBarDark = settings['ttsBarColorDark'];
+      if (rawTtsBarDark is num) {
+        _ttsBarColorDark = rawTtsBarDark.toInt();
+      } else if (rawTtsBarDark is String) {
+        final hexClean = rawTtsBarDark.replaceAll('#', '').replaceAll('0x', '').trim();
+        final parsed = int.tryParse(
+          hexClean.length == 6 ? 'FF$hexClean' : hexClean,
+          radix: 16,
+        );
+        if (parsed != null) _ttsBarColorDark = parsed;
+      }
       _ttsBarSize = (settings['ttsBarSize'] as num?)?.toDouble() ?? _ttsBarSize;
       _cardTextScale =
           (settings['cardTextScale'] as num?)?.toDouble() ?? _cardTextScale;
@@ -4572,6 +4647,13 @@ class _HomePageState extends State<HomePage> {
                     backgroundColorSwatch: customBackground,
                     cardTextColorSwatch: Color(_cardTextColor),
                     cardLabelBgColorSwatch: Color(_cardLabelBgColor),
+                    ttsBarColorSwatch: _isDarkMode
+                        ? (_ttsBarColorDark != null
+                            ? Color(_ttsBarColorDark!)
+                            : const Color(0xFF1B2027))
+                        : (_ttsBarColorLight != null
+                            ? Color(_ttsBarColorLight!)
+                            : const Color(0xFFF5F5F5)),
                     isOnlineEnabled:
                         NetworkPolicyService.instance.isOnlineEnabled,
                     onToggleOnline: (enabled) async {
@@ -4624,8 +4706,8 @@ class _HomePageState extends State<HomePage> {
                     onChangeOrientation: _showOrientationDialog,
                     onPickPrimaryColor: () {
                       _showThemeColorDialog(
-                        title: 'App color',
-                        subtitle: 'Pick a color for Normal Mode',
+                        title: 'App colour',
+                        subtitle: 'Pick a colour for Normal Mode',
                         initialColor: customPrimary,
                         defaultColor: const Color(_defaultPrimaryColorValue),
                         previewType: ColorPickerPreviewType.appHeader,
@@ -4639,7 +4721,7 @@ class _HomePageState extends State<HomePage> {
                     },
                     onPickTextColor: () {
                       _showThemeColorDialog(
-                        title: 'Global Text Color',
+                        title: 'Global Text Colour',
                         subtitle: 'App-wide text and icons',
                         initialColor: customText,
                         defaultColor: Colors.white,
@@ -4655,9 +4737,9 @@ class _HomePageState extends State<HomePage> {
                     },
                     onPickBackgroundColor: () {
                       _showThemeColorDialog(
-                        title: 'Background color',
+                        title: 'Background colour',
                         subtitle:
-                            'Pick a color for the main content area (body)',
+                            'Pick a colour for the main content area (body)',
                         initialColor: customBackground,
                         defaultColor: Colors.white,
                         previewType: ColorPickerPreviewType.backgroundPreview,
@@ -4672,6 +4754,7 @@ class _HomePageState extends State<HomePage> {
                     onOpenPersonalizeSetup: _openPersonalizeSetup,
                     onPickCardTextColor: _showCardTextColorDialog,
                     onPickCardLabelBgColor: _showCardLabelBgColorDialog,
+                    onPickTtsBarColor: _showTtsBarColorDialog,
                     onShowTtsBarSize: _showTtsBarSizeDialog,
                     cardTextScaleLabel: _getCardTextScaleLabel(),
                     onShowCardTextSize: _showCardTextSizeDialog,
@@ -5306,6 +5389,13 @@ class _HomePageState extends State<HomePage> {
                     await _playTtsTokens();
                   }
                 },
+                backgroundColor: _isDarkMode
+                    ? (_ttsBarColorDark != null
+                        ? Color(_ttsBarColorDark!)
+                        : null)
+                    : (_ttsBarColorLight != null
+                        ? Color(_ttsBarColorLight!)
+                        : null),
                 speakerColor: _isDarkMode
                     ? Theme.of(context).colorScheme.primary
                     : themePrimary,

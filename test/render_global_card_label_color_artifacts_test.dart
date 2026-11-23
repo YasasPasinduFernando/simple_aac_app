@@ -304,7 +304,7 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('Card Label Color (Global)'), 150);
+    await tester.scrollUntilVisible(find.text('Card Label Colour (Global)'), 150);
     await tester.pumpAndSettle();
 
     await saveScreenshot(
@@ -329,7 +329,7 @@ void main() {
               child: SizedBox(
                 width: 380,
                 child: ProfessionalColorPickerDialog(
-                  title: 'Card Label Color (Global)',
+                  title: 'Card Label Colour (Global)',
                   subtitle:
                       'Choose one background color for the card labels (applies to all cards)',
                   initialColor: const Color(0xFFF4F1EB),

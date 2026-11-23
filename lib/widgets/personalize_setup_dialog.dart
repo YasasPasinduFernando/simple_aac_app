@@ -238,7 +238,7 @@ class _PersonalizeSetupDialogState extends State<PersonalizeSetupDialog> {
               ),
               SizedBox(height: 2),
               Text(
-                'Choose your language and colors',
+                'Choose your language and colours',
                 style: TextStyle(
                   fontSize: 13.5,
                   color: Color(0xFF64748B),
@@ -381,7 +381,7 @@ class _PersonalizeSetupDialogState extends State<PersonalizeSetupDialog> {
       children: [
         _buildSectionHeader(
           icon: Icons.palette_outlined,
-          title: 'App Bar & Menu Color',
+          title: 'App Bar & Menu Colour',
         ),
         const SizedBox(height: 12),
         Row(

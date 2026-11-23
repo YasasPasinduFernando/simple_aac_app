@@ -6,13 +6,15 @@ enum ColorPickerPreviewType {
   textPreview,
   backgroundPreview,
   globalTextPreview,
-  labelBackgroundPreview;
+  labelBackgroundPreview,
+  ttsBarPreview;
 
   // Backwards-compatible aliases
   static const textColor = textPreview;
   static const backgroundColor = backgroundPreview;
   static const globalText = globalTextPreview;
   static const labelBackground = labelBackgroundPreview;
+  static const ttsBar = ttsBarPreview;
 }
 
 class ProfessionalColorPickerDialog extends StatefulWidget {
@@ -78,6 +80,19 @@ class ProfessionalColorPickerDialog extends StatefulWidget {
     PresetColorItem('Lavender', Color(0xFFEDE5F8)),
     PresetColorItem('Light Yellow', Color(0xFFFAEDB9)),
     PresetColorItem('Light Gray', Color(0xFFECEFF1)),
+  ];
+
+  static const List<PresetColorItem> ttsBarPresets = [
+    PresetColorItem('Default Light', Color(0xFFF5F5F5)),
+    PresetColorItem('White', Color(0xFFFFFFFF)),
+    PresetColorItem('Soft Blue', Color(0xFFDFEFFA)),
+    PresetColorItem('Sky Blue', Color(0xFF42A5F5)),
+    PresetColorItem('Mint Green', Color(0xFFDFF2E4)),
+    PresetColorItem('Soft Yellow', Color(0xFFFAEDB9)),
+    PresetColorItem('Soft Peach', Color(0xFFFFCC80)),
+    PresetColorItem('Blush Pink', Color(0xFFF9E3E5)),
+    PresetColorItem('Lavender', Color(0xFFEDE5F8)),
+    PresetColorItem('Default Dark', Color(0xFF1B2027)),
   ];
 
   @override
@@ -160,6 +175,8 @@ class _ProfessionalColorPickerDialogState
         return ProfessionalColorPickerDialog.backgroundPresets;
       case ColorPickerPreviewType.labelBackgroundPreview:
         return ProfessionalColorPickerDialog.labelBackgroundPresets;
+      case ColorPickerPreviewType.ttsBarPreview:
+        return ProfessionalColorPickerDialog.ttsBarPresets;
       case ColorPickerPreviewType.appHeader:
         return ProfessionalColorPickerDialog.presets;
     }
@@ -223,6 +240,9 @@ class _ProfessionalColorPickerDialogState
         break;
       case ColorPickerPreviewType.labelBackgroundPreview:
         headerIcon = Icons.label_outline_rounded;
+        break;
+      case ColorPickerPreviewType.ttsBarPreview:
+        headerIcon = Icons.chat_bubble_outline_rounded;
         break;
       case ColorPickerPreviewType.appHeader:
         headerIcon = Icons.palette_rounded;
@@ -346,6 +366,8 @@ class _ProfessionalColorPickerDialogState
         return _buildBackgroundPreview(colorScheme, isDark);
       case ColorPickerPreviewType.labelBackgroundPreview:
         return _buildLabelBackgroundPreview(colorScheme, isDark);
+      case ColorPickerPreviewType.ttsBarPreview:
+        return _buildTtsBarPreview(colorScheme, isDark);
     }
   }
 
@@ -467,6 +489,203 @@ class _ProfessionalColorPickerDialogState
     );
   }
 
+  /// Text-to-Speech Sentence Bar Preview:
+  /// Demonstrates the sentence-building bar with candidate background color,
+  /// token chips (Elephant, Fish), action pills (Delete, Clear), and speaker button.
+  Widget _buildTtsBarPreview(ColorScheme colorScheme, bool isDark) {
+    final previewIsDark =
+        ThemeData.estimateBrightnessForColor(_currentColor) == Brightness.dark;
+    final chipBg = previewIsDark ? const Color(0xFF252B34) : Colors.white;
+    final borderColor =
+        previewIsDark ? const Color(0xFF333B47) : Colors.grey.shade300;
+    final textColor = previewIsDark ? Colors.white : const Color(0xFF1E293B);
+    final speakerAccent = widget.headerColor ?? colorScheme.primary;
+
+    return MediaQuery(
+      data: MediaQuery.of(context)
+          .copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Container(
+        key: const ValueKey('tts_bar_preview_container'),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: _currentColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: borderColor,
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildTtsBarPreviewChip(
+                      label: 'Elephant',
+                      imagePath:
+                          'assets/images/starter_pack_v8/animals_elephant.webp',
+                      fallbackEmoji: '🐘',
+                      chipBg: chipBg,
+                      borderColor: borderColor,
+                      textColor: textColor,
+                    ),
+                    const SizedBox(width: 5),
+                    _buildTtsBarPreviewChip(
+                      label: 'Fish',
+                      imagePath:
+                          'assets/images/starter_pack_v8/animals_fish.webp',
+                      fallbackEmoji: '🐟',
+                      chipBg: chipBg,
+                      borderColor: borderColor,
+                      textColor: textColor,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 5),
+            _buildTtsBarPreviewActionPill(
+              icon: Icons.backspace_outlined,
+              label: 'Delete',
+              chipBg: chipBg,
+              borderColor: borderColor,
+              textColor: textColor,
+            ),
+            const SizedBox(width: 3),
+            _buildTtsBarPreviewActionPill(
+              icon: Icons.clear_rounded,
+              label: 'Clear',
+              chipBg: chipBg,
+              borderColor: borderColor,
+              textColor: textColor,
+            ),
+            const SizedBox(width: 5),
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: speakerAccent,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 3,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.volume_up_rounded,
+                size: 19,
+                color: ThemeData.estimateBrightnessForColor(speakerAccent) ==
+                        Brightness.light
+                    ? Colors.black87
+                    : Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTtsBarPreviewChip({
+    required String label,
+    required String imagePath,
+    required String fallbackEmoji,
+    required Color chipBg,
+    required Color borderColor,
+    required Color textColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: chipBg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: SizedBox(
+              width: 22,
+              height: 22,
+              child: Image.asset(
+                imagePath,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Center(
+                  child: Text(fallbackEmoji,
+                      style: const TextStyle(fontSize: 14)),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTtsBarPreviewActionPill({
+    required IconData icon,
+    required String label,
+    required Color chipBg,
+    required Color borderColor,
+    required Color textColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+      decoration: BoxDecoration(
+        color: chipBg,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 14, color: textColor),
+          const SizedBox(height: 1),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 8,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Global Text Color Preview:
   /// Demonstrates how the selected text color applies across the app header
   /// (title, pin icon, menu icon, divider).
@@ -493,7 +712,7 @@ class _ProfessionalColorPickerDialogState
       cardLabelsNotice = 'அட்டை லேபிள்களுக்கு தனி வண்ண அமைப்பு உள்ளது';
     } else {
       appHeaderText = 'App header text and toolbar icons';
-      cardLabelsNotice = 'Card labels have a separate color setting';
+      cardLabelsNotice = 'Card labels have a separate colour setting';
     }
 
     return Column(
@@ -1249,7 +1468,7 @@ class _ProfessionalColorPickerDialogState
             const SizedBox(width: 8),
             const Expanded(
               child: Text(
-                'Quick colors',
+                'Quick colours',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -1267,7 +1486,7 @@ class _ProfessionalColorPickerDialogState
           children: _activePresets.map((item) {
             final isSelected = _isColorSelected(_currentColor, item.color);
             return Semantics(
-              label: 'Preset color ${item.name}',
+              label: 'Preset colour ${item.name}',
               button: true,
               selected: isSelected,
               child: InkWell(
@@ -1339,7 +1558,7 @@ class _ProfessionalColorPickerDialogState
               const SizedBox(width: 8),
               const Expanded(
                 child: Text(
-                  'Custom color',
+                  'Custom colour',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

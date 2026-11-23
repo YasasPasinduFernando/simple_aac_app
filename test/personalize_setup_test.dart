@@ -89,7 +89,7 @@ void main() {
 
       // Header
       expect(find.text('Personalize Simple AAC'), findsOneWidget);
-      expect(find.text('Choose your language and colors'), findsOneWidget);
+      expect(find.text('Choose your language and colours'), findsOneWidget);
 
       // Languages
       expect(find.text('English'), findsOneWidget);
@@ -98,7 +98,7 @@ void main() {
 
       // Section titles
       expect(find.text('Select AAC Language'), findsOneWidget);
-      expect(find.text('App Bar & Menu Color'), findsOneWidget);
+      expect(find.text('App Bar & Menu Colour'), findsOneWidget);
       expect(find.text('Board Background'), findsOneWidget);
       expect(find.text('Live Preview'), findsOneWidget);
 

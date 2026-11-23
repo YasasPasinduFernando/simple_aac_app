@@ -285,6 +285,8 @@ void main() {
         200,
         scrollable: drawerScrollable,
       );
+      await tester.drag(drawerScrollable, const Offset(0, -100));
+      await tester.pumpAndSettle();
 
       expect(find.text('Starter Card Pack'), findsOneWidget);
       expect(find.text('128 cards in 13 categories (Sri Lanka)'), findsOneWidget);

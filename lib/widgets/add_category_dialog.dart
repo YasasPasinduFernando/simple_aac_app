@@ -816,7 +816,7 @@ class _AddCategoryDialogState extends State<AddCategoryDialog> {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    'COLOR ACCENT',
+                    'COLOUR ACCENT',
                     style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w800,

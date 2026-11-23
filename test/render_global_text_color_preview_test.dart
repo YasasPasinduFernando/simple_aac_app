@@ -34,7 +34,7 @@ void main() {
               child: SizedBox(
                 width: 380,
                 child: ProfessionalColorPickerDialog(
-                  title: 'Global Text Color',
+                  title: 'Global Text Colour',
                   subtitle: 'App-wide text and icons',
                   initialColor: const Color(0xFF00F193), // Exact candidate color from mockup
                   defaultColor: Colors.white,
@@ -99,11 +99,11 @@ void main() {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left: Global Text Color Dialog
+                    // Left: Global Text Colour Dialog
                     SizedBox(
                       width: 380,
                       child: ProfessionalColorPickerDialog(
-                        title: 'Global Text Color',
+                        title: 'Global Text Colour',
                         subtitle: 'App-wide text and icons',
                         initialColor: const Color(0xFF00F193),
                         defaultColor: Colors.white,
@@ -113,12 +113,12 @@ void main() {
                       ),
                     ),
                     const SizedBox(width: 32),
-                    // Right: Card Text Color Dialog
+                    // Right: Card Text Colour Dialog
                     SizedBox(
                       width: 380,
                       child: ProfessionalColorPickerDialog(
-                        title: 'Card text color',
-                        subtitle: 'Pick a text color for cards',
+                        title: 'Card text colour',
+                        subtitle: 'Pick a text colour for cards',
                         initialColor: const Color(0xFF111827),
                         defaultColor: const Color(0xFF111827),
                         previewType: ColorPickerPreviewType.textPreview,

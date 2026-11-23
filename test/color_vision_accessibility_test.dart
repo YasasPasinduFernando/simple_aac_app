@@ -225,7 +225,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify title & Live preview
-      expect(find.text('Color Vision Support'), findsOneWidget);
+      expect(find.text('Colour Vision Support'), findsOneWidget);
       expect(find.text('LIVE CARD PREVIEW'), findsOneWidget);
       expect(find.text('Hello'), findsOneWidget);
       expect(find.text('Play'), findsOneWidget);

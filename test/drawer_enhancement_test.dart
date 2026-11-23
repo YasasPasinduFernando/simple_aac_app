@@ -154,45 +154,45 @@ void main() {
     expect(find.text('Dark Mode'), findsOneWidget);
     expect(find.text('Switch on for full dark theme'), findsOneWidget);
 
-    // Verify Primary App Color row
-    expect(find.text('Primary App Color'), findsOneWidget);
+    // Verify Primary App Colour row
+    expect(find.text('Primary App Colour'), findsOneWidget);
     expect(find.text('App bars, headers & key UI'), findsOneWidget);
-    await tester.tap(find.text('Primary App Color'));
+    await tester.tap(find.text('Primary App Colour'));
     await tester.pump();
     expect(tappedPrimary, isTrue);
 
-    // Verify Global Text Color row
-    expect(find.text('Global Text Color'), findsOneWidget);
+    // Verify Global Text Colour row
+    expect(find.text('Global Text Colour'), findsOneWidget);
     expect(find.text('Text across the entire app'), findsOneWidget);
     expect(find.text('Aa'), findsOneWidget);
     expect(find.text('Sample Text'), findsOneWidget);
-    await tester.tap(find.text('Global Text Color'));
+    await tester.tap(find.text('Global Text Colour'));
     await tester.pump();
     expect(tappedText, isTrue);
 
-    await tester.scrollUntilVisible(find.text('Board Background Color'), 100);
+    await tester.scrollUntilVisible(find.text('Board Background Colour'), 100);
     await tester.pumpAndSettle();
 
-    // Verify Board Background Color row
-    expect(find.text('Board Background Color'), findsOneWidget);
+    // Verify Board Background Colour row
+    expect(find.text('Board Background Colour'), findsOneWidget);
     expect(find.text('Background of communication boards'), findsOneWidget);
-    await tester.tap(find.text('Board Background Color'));
+    await tester.tap(find.text('Board Background Colour'));
     await tester.pump();
     expect(tappedBackground, isTrue);
 
-    // Verify Card Text Color row
-    expect(find.text('Card Text Color'), findsOneWidget);
-    expect(find.text('Color of text on AAC cards'), findsOneWidget);
-    await tester.tap(find.text('Card Text Color'));
+    // Verify Card Text Colour row
+    expect(find.text('Card Text Colour'), findsOneWidget);
+    expect(find.text('Colour of text on AAC cards'), findsOneWidget);
+    await tester.tap(find.text('Card Text Colour'));
     await tester.pump();
     expect(tappedCardText, isTrue);
 
-    // Scroll further down to Color Vision Support
+    // Scroll further down to Colour Vision Support
     await tester.drag(find.byType(ListView), const Offset(0, -420));
     await tester.pumpAndSettle();
-    expect(find.text('Color Vision Support'), findsOneWidget);
-    expect(find.text('Normal (Custom Colors)'), findsOneWidget);
-    expect(find.text('Color-Blind Safe Mode'), findsOneWidget);
+    expect(find.text('Colour Vision Support'), findsOneWidget);
+    expect(find.text('Normal (Custom Colours)'), findsOneWidget);
+    expect(find.text('Colour-Blind Safe Mode'), findsOneWidget);
   });
 
   testWidgets('Color Vision Support toggles mode cleanly on tap',
@@ -222,7 +222,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('Color-Blind Safe Mode'), 100);
+    await tester.scrollUntilVisible(find.text('Colour-Blind Safe Mode'), 100);
     await tester.pumpAndSettle();
 
     expect(find.byType(ColorVisionPreviewChip), findsNWidgets(2));
@@ -232,11 +232,11 @@ void main() {
     expect(preview1.dx, equals(preview2.dx),
         reason: 'Normal and Color-Blind preview chips must be precisely horizontally aligned');
 
-    await tester.tap(find.text('Color-Blind Safe Mode'));
+    await tester.tap(find.text('Colour-Blind Safe Mode'));
     await tester.pumpAndSettle();
     expect(selectedMode, isTrue);
 
-    await tester.tap(find.text('Normal (Custom Colors)'));
+    await tester.tap(find.text('Normal (Custom Colours)'));
     await tester.pumpAndSettle();
     expect(selectedMode, isFalse);
   });
@@ -377,9 +377,9 @@ void main() {
     // Drawer must remain open!
     expect(find.byType(HomeDrawer), findsOneWidget);
 
-    // Tap 'Custom Card Text Color'
-    await tester.scrollUntilVisible(find.text('Custom Card Text Color'), 100);
-    await tester.tap(find.text('Custom Card Text Color'), warnIfMissed: false);
+    // Tap 'Custom Card Text Colour'
+    await tester.scrollUntilVisible(find.text('Custom Card Text Colour'), 100);
+    await tester.tap(find.text('Custom Card Text Colour'), warnIfMissed: false);
     await tester.pumpAndSettle();
 
     // Drawer must still remain open!
@@ -619,11 +619,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('Color-Blind Safe Mode'), 100);
+    await tester.scrollUntilVisible(find.text('Colour-Blind Safe Mode'), 100);
     await tester.pumpAndSettle();
-    expect(find.text('Color-Blind Safe Mode'), findsOneWidget);
+    expect(find.text('Colour-Blind Safe Mode'), findsOneWidget);
 
-    await tester.tap(find.text('Color-Blind Safe Mode'));
+    await tester.tap(find.text('Colour-Blind Safe Mode'));
     await tester.pumpAndSettle();
 
     expect(colorBlindSelected, isTrue);

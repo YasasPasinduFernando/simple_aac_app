@@ -125,8 +125,8 @@ void main() {
                   showDialog(
                     context: context,
                     builder: (context) => ProfessionalColorPickerDialog(
-                      title: 'Card label color',
-                      subtitle: 'Pick a background color for card labels',
+                      title: 'Card label colour',
+                      subtitle: 'Pick a background colour for card labels',
                       initialColor: initialColor,
                       defaultColor: const Color(0xFFF4F1EB),
                       previewType: ColorPickerPreviewType.labelBackgroundPreview,
@@ -145,8 +145,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify title & subtitle
-      expect(find.text('Card label color'), findsOneWidget);
-      expect(find.text('Pick a background color for card labels'), findsOneWidget);
+      expect(find.text('Card label colour'), findsOneWidget);
+      expect(find.text('Pick a background colour for card labels'), findsOneWidget);
 
       // Verify header icon
       expect(find.byIcon(Icons.label_outline_rounded), findsOneWidget);
@@ -158,11 +158,11 @@ void main() {
 
       // Verify all 7 presets exist
       for (final p in ProfessionalColorPickerDialog.labelBackgroundPresets) {
-        expect(find.bySemanticsLabel('Preset color ${p.name}'), findsOneWidget);
+        expect(find.bySemanticsLabel('Preset colour ${p.name}'), findsOneWidget);
       }
 
       // Tap 'Soft Blue' preset
-      await tester.tap(find.bySemanticsLabel('Preset color Soft Blue'));
+      await tester.tap(find.bySemanticsLabel('Preset colour Soft Blue'));
       await tester.pumpAndSettle();
 
       // Tap Apply
@@ -186,8 +186,8 @@ void main() {
                   showDialog(
                     context: context,
                     builder: (context) => ProfessionalColorPickerDialog(
-                      title: 'Card label color',
-                      subtitle: 'Pick a background color for card labels',
+                      title: 'Card label colour',
+                      subtitle: 'Pick a background colour for card labels',
                       initialColor: initialColor,
                       defaultColor: const Color(0xFFF4F1EB),
                       previewType: ColorPickerPreviewType.labelBackgroundPreview,
@@ -206,7 +206,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Select Mint Green
-      await tester.tap(find.bySemanticsLabel('Preset color Mint Green'));
+      await tester.tap(find.bySemanticsLabel('Preset colour Mint Green'));
       await tester.pumpAndSettle();
 
       // Tap Cancel
@@ -233,8 +233,8 @@ void main() {
                   showDialog(
                     context: context,
                     builder: (context) => ProfessionalColorPickerDialog(
-                      title: 'Card label color',
-                      subtitle: 'Pick a background color for card labels',
+                      title: 'Card label colour',
+                      subtitle: 'Pick a background colour for card labels',
                       initialColor: initialColor,
                       defaultColor: const Color(0xFFF4F1EB),
                       previewType: ColorPickerPreviewType.labelBackgroundPreview,
@@ -338,18 +338,18 @@ void main() {
       await tester.tap(find.text('Open Drawer'));
       await tester.pumpAndSettle();
 
-      await tester.scrollUntilVisible(find.text('Card Label Color (Global)'), 150);
+      await tester.scrollUntilVisible(find.text('Card Label Colour (Global)'), 150);
       await tester.pumpAndSettle();
 
-      // Find the Card Label Color (Global) tile
-      expect(find.text('Card Label Color (Global)'), findsOneWidget);
-      expect(find.text('Background color of the text label on cards'), findsOneWidget);
+      // Find the Card Label Colour (Global) tile
+      expect(find.text('Card Label Colour (Global)'), findsOneWidget);
+      expect(find.text('Background colour of the text label on cards'), findsOneWidget);
 
       // Verify preview chip with 'Hello'
       expect(find.text('Hello'), findsWidgets);
 
       // Tap the tile
-      await tester.tap(find.text('Card Label Color (Global)'));
+      await tester.tap(find.text('Card Label Colour (Global)'));
       await tester.pumpAndSettle();
 
       expect(pickerOpened, isTrue);

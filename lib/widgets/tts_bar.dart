@@ -9,6 +9,7 @@ class TtsBar extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onClear;
   final VoidCallback onSpeak;
+  final Color? backgroundColor;
   final Color? speakerColor;
   final double sizeFactor;
   final bool showActions;
@@ -23,6 +24,7 @@ class TtsBar extends StatelessWidget {
     required this.onDelete,
     required this.onClear,
     required this.onSpeak,
+    this.backgroundColor,
     this.speakerColor,
     this.sizeFactor = 1.0,
     this.showActions = true,
@@ -38,9 +40,12 @@ class TtsBar extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final accent = speakerColor ?? colorScheme.primary;
-    final barBg = isDark ? const Color(0xFF1B2027) : Colors.grey.shade100;
-    final chipBg = isDark ? const Color(0xFF252B34) : Colors.white;
-    final borderColor = isDark ? const Color(0xFF333B47) : Colors.grey.shade300;
+    final barBg = backgroundColor ?? (isDark ? const Color(0xFF1B2027) : Colors.grey.shade100);
+    final barIsDark = ThemeData.estimateBrightnessForColor(barBg) == Brightness.dark;
+    final chipBg = barIsDark ? const Color(0xFF252B34) : Colors.white;
+    final borderColor = barIsDark ? const Color(0xFF333B47) : Colors.grey.shade300;
+    final tokenTextColor = barIsDark ? Colors.white : colorScheme.onSurface;
+    final placeholderColor = barIsDark ? Colors.white70 : colorScheme.onSurfaceVariant;
     final hasTokens = tokens.isNotEmpty;
 
     return Container(
@@ -66,7 +71,7 @@ class TtsBar extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: (isTablet ? 15 : 13) * sizeFactor,
-                        color: colorScheme.onSurfaceVariant,
+                        color: placeholderColor,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -124,7 +129,7 @@ class TtsBar extends StatelessWidget {
                                       fontSize:
                                           (isTablet ? 14 : 12) * sizeFactor,
                                       fontWeight: FontWeight.w600,
-                                      color: colorScheme.onSurface,
+                                      color: tokenTextColor,
                                     ),
                                   ),
                                 ],
@@ -148,6 +153,7 @@ class TtsBar extends StatelessWidget {
                     enabled: hasTokens,
                     backgroundColor: chipBg,
                     borderColor: borderColor,
+                    textColor: tokenTextColor,
                     onTap: onDelete,
                   ),
                   if (showClear) SizedBox(width: 4 * sizeFactor),
@@ -160,6 +166,7 @@ class TtsBar extends StatelessWidget {
                     enabled: hasTokens,
                     backgroundColor: chipBg,
                     borderColor: borderColor,
+                    textColor: tokenTextColor,
                     onTap: onClear,
                   ),
               ],
@@ -193,6 +200,7 @@ class _TtsActionPill extends StatelessWidget {
   final bool enabled;
   final Color backgroundColor;
   final Color borderColor;
+  final Color? textColor;
   final VoidCallback onTap;
 
   const _TtsActionPill({
@@ -202,15 +210,19 @@ class _TtsActionPill extends StatelessWidget {
     required this.enabled,
     required this.backgroundColor,
     required this.borderColor,
+    this.textColor,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final baseColor = textColor ?? colorScheme.onSurface;
     final color = enabled
-        ? colorScheme.onSurface
-        : colorScheme.onSurfaceVariant.withValues(alpha: 0.45);
+        ? baseColor
+        : (textColor != null
+            ? textColor!.withValues(alpha: 0.45)
+            : colorScheme.onSurfaceVariant.withValues(alpha: 0.45));
     return Material(
       color: backgroundColor,
       borderRadius: BorderRadius.circular(10),

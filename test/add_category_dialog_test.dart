@@ -60,7 +60,7 @@ void main() {
       // Verify Section headers
       expect(find.text('QUICK PRESETS'), findsOneWidget);
       expect(find.text('CHOOSE ICON'), findsOneWidget);
-      expect(find.text('COLOR ACCENT'), findsOneWidget);
+      expect(find.text('COLOUR ACCENT'), findsOneWidget);
       expect(find.text('ASSIGN CARDS TO CATEGORY'), findsOneWidget);
 
       // Verify Cards in list

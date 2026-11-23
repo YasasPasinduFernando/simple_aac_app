@@ -28,6 +28,7 @@ class HomeDrawer extends StatelessWidget {
   final Color backgroundColorSwatch;
   final Color cardTextColorSwatch;
   final Color cardLabelBgColorSwatch;
+  final Color ttsBarColorSwatch;
   final bool isOnlineEnabled;
   final ValueChanged<bool> onToggleOnline;
   final ValueChanged<bool> onToggleDarkMode;
@@ -48,6 +49,7 @@ class HomeDrawer extends StatelessWidget {
   final VoidCallback? onOpenPersonalizeSetup;
   final VoidCallback? onPickCardTextColor;
   final VoidCallback? onPickCardLabelBgColor;
+  final VoidCallback? onPickTtsBarColor;
   final VoidCallback onShowTtsBarSize;
   final VoidCallback onToggleFullScreen;
   final VoidCallback onShowLanguage;
@@ -105,6 +107,7 @@ class HomeDrawer extends StatelessWidget {
     required this.backgroundColorSwatch,
     this.cardTextColorSwatch = const Color(0xFF111827),
     this.cardLabelBgColorSwatch = const Color(0xFFF4F1EB),
+    this.ttsBarColorSwatch = const Color(0xFFF5F5F5),
     required this.isOnlineEnabled,
     required this.onToggleOnline,
     required this.onToggleDarkMode,
@@ -124,6 +127,7 @@ class HomeDrawer extends StatelessWidget {
     this.onOpenPersonalizeSetup,
     this.onPickCardTextColor,
     this.onPickCardLabelBgColor,
+    this.onPickTtsBarColor,
     required this.onShowTtsBarSize,
     required this.onToggleFullScreen,
     required this.onShowLanguage,
@@ -316,8 +320,8 @@ class HomeDrawer extends StatelessWidget {
                 _buildSwitchItem(
                   context,
                   icon: Icons.format_color_text_rounded,
-                  title: 'Custom Card Text Color',
-                  subtitle: 'Apply custom color to all card labels',
+                  title: 'Custom Card Text Colour',
+                  subtitle: 'Apply custom colour to all card labels',
                   value: applyTextColorToCards,
                   onChanged: (_) => onToggleApplyTextColorToCards(),
                 ),
@@ -823,7 +827,7 @@ class HomeDrawer extends StatelessWidget {
               title: 'Personalize App',
               subtitle: isDarkMode
                   ? 'Language & theme setup'
-                  : 'Language, App Bar & Board colors',
+                  : 'Language, App Bar & Board colours',
               previewChip: _PersonalizePreviewChip(
                 appBarColor: primaryColorSwatch,
                 boardColor: backgroundColorSwatch,
@@ -832,11 +836,11 @@ class HomeDrawer extends StatelessWidget {
               onTap: onOpenPersonalizeSetup!,
             ),
 
-          // Row 3: Primary App Color with Mini UI Header Preview
+          // Row 3: Primary App Colour with Mini UI Header Preview
           _buildColorPickerRow(
             context,
             icon: Icons.palette_rounded,
-            title: 'Primary App Color',
+            title: 'Primary App Colour',
             subtitle: isDarkMode ? 'Saved for Normal Mode' : 'App bars, headers & key UI',
             previewChip: _PrimaryColorPreviewChip(
               color: primaryColorSwatch,
@@ -845,11 +849,11 @@ class HomeDrawer extends StatelessWidget {
             onTap: onPickPrimaryColor,
           ),
 
-          // Row 3: Global Text Color with Aa Sample Text Preview
+          // Row 3: Global Text Colour with Aa Sample Text Preview
           _buildColorPickerRow(
             context,
             icon: Icons.format_size_rounded,
-            title: 'Global Text Color',
+            title: 'Global Text Colour',
             subtitle: isDarkMode ? 'Saved for Normal Mode' : 'Text across the entire app',
             previewChip: _TextColorPreviewChip(
               color: textColorSwatch,
@@ -858,12 +862,12 @@ class HomeDrawer extends StatelessWidget {
             onTap: onPickTextColor,
           ),
 
-          // Row 4: Card Text Color with Mini AAC Cards Preview
+          // Row 4: Card Text Colour with Mini AAC Cards Preview
           _buildColorPickerRow(
             context,
             icon: Icons.format_color_text_rounded,
-            title: 'Card Text Color',
-            subtitle: isDarkMode ? 'Saved for Normal Mode' : 'Color of text on AAC cards',
+            title: 'Card Text Colour',
+            subtitle: isDarkMode ? 'Saved for Normal Mode' : 'Colour of text on AAC cards',
             previewChip: _CardTextColorPreviewChip(
               color: cardTextColorSwatch,
               isDarkMode: isDark,
@@ -871,12 +875,12 @@ class HomeDrawer extends StatelessWidget {
             onTap: onPickCardTextColor ?? () {},
           ),
 
-          // Row 5: Card Label Background Color with Sample Label Preview
+          // Row 5: Card Label Background Colour with Sample Label Preview
           _buildColorPickerRow(
             context,
             icon: Icons.label_outline_rounded,
-            title: 'Card Label Color (Global)',
-            subtitle: isDarkMode ? 'Saved for Normal Mode' : 'Background color of the text label on cards',
+            title: 'Card Label Colour (Global)',
+            subtitle: isDarkMode ? 'Saved for Normal Mode' : 'Background colour of the text label on cards',
             previewChip: _CardLabelColorPreviewChip(
               color: cardLabelBgColorSwatch,
               isDarkMode: isDark,
@@ -884,18 +888,32 @@ class HomeDrawer extends StatelessWidget {
             onTap: onPickCardLabelBgColor ?? () {},
           ),
 
-          // Row 5: Board Background Color with 3 AAC Cards Canvas Preview
+          // Row 5: Board Background Colour with 3 AAC Cards Canvas Preview
           _buildColorPickerRow(
             context,
             icon: Icons.layers_rounded,
-            title: 'Board Background Color',
+            title: 'Board Background Colour',
             subtitle: isDarkMode ? 'Saved for Normal Mode' : 'Background of communication boards',
             previewChip: _BackgroundColorPreviewChip(
               color: backgroundColorSwatch,
               isDarkMode: isDark,
             ),
-            isLast: true,
+            isLast: false,
             onTap: onPickBackgroundColor,
+          ),
+
+          // Row 6: Text-to-Speech Bar Colour with Mini Sentence Bar Preview
+          _buildColorPickerRow(
+            context,
+            icon: Icons.chat_bubble_outline_rounded,
+            title: 'Text-to-Speech Bar Colour',
+            subtitle: 'Customise the sentence bar background',
+            previewChip: _TtsBarColorPreviewChip(
+              color: ttsBarColorSwatch,
+              isDarkMode: isDark,
+            ),
+            isLast: true,
+            onTap: onPickTtsBarColor ?? () {},
           ),
         ],
       ),
@@ -1034,7 +1052,7 @@ class HomeDrawer extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Color Vision Support',
+                  'Colour Vision Support',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -1048,8 +1066,8 @@ class HomeDrawer extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           _ColorBlindRadioOption(
-            title: 'Normal (Custom Colors)',
-            subtitle: 'Keep default & customized colors',
+            title: 'Normal (Custom Colours)',
+            subtitle: 'Keep default & customized colours',
             selected: !isColorBlindMode,
             onTap: () => onChangeColorBlindMode(false),
             preview: ColorVisionPreviewChip(
@@ -1059,10 +1077,10 @@ class HomeDrawer extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           _ColorBlindRadioOption(
-            title: 'Color-Blind Safe Mode',
+            title: 'Colour-Blind Safe Mode',
             subtitle: isColorBlindMode
                 ? _getColorBlindSubtitle()
-                : 'High-contrast color-safe palette',
+                : 'High-contrast colour-safe palette',
             selected: isColorBlindMode,
             onTap: () {
               if (!isColorBlindMode) {
@@ -1385,7 +1403,7 @@ class _PersonalizePreviewChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Personalize preview: App bar and board colors',
+      label: 'Personalize preview: App bar and board colours',
       child: Container(
         width: 86,
         height: 38,
@@ -1485,7 +1503,7 @@ class _PrimaryColorPreviewChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Primary color preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
+      label: 'Primary colour preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
       child: Container(
         width: 86,
         height: 38,
@@ -1600,7 +1618,7 @@ class _TextColorPreviewChip extends StatelessWidget {
         : (isDarkMode ? const Color(0xFFF8FAFC) : Colors.white);
 
     return Semantics(
-      label: 'Global text color preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
+      label: 'Global text colour preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
       child: Container(
         width: 96,
         height: 34,
@@ -1670,7 +1688,7 @@ class _CardTextColorPreviewChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Card text color preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
+      label: 'Card text colour preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
       child: Container(
         width: 96,
         height: 38,
@@ -1787,7 +1805,7 @@ class _CardLabelColorPreviewChip extends StatelessWidget {
         : Colors.white;
 
     return Semantics(
-      label: 'Card label background color preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
+      label: 'Card label background colour preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
       child: Container(
         width: 68,
         height: 32,
@@ -1836,7 +1854,7 @@ class _BackgroundColorPreviewChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Board background color preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
+      label: 'Board background colour preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
       child: Container(
         width: 92,
         height: 38,
@@ -1887,6 +1905,140 @@ class _BackgroundColorPreviewChip extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Text-to-Speech sentence bar preview chip (displays sentence bar canvas with 2 miniature chips & speaker)
+class _TtsBarColorPreviewChip extends StatelessWidget {
+  final Color color;
+  final bool isDarkMode;
+
+  const _TtsBarColorPreviewChip({
+    required this.color,
+    required this.isDarkMode,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final barIsDark =
+        ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
+    final chipBg = barIsDark ? const Color(0xFF252B34) : Colors.white;
+    final borderColor =
+        barIsDark ? const Color(0xFF333B47) : Colors.grey.shade300;
+    final textColor = barIsDark ? Colors.white : const Color(0xFF1E293B);
+
+    return Semantics(
+      label:
+          'Text-to-Speech bar colour preview: #${color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
+      child: Container(
+        width: 92,
+        height: 38,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3.5),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.black.withValues(alpha: 0.16),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDarkMode ? 0.3 : 0.06),
+              blurRadius: 3,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Mini Chip 1: Elephant
+              Expanded(
+                child: Container(
+                  height: 26,
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  decoration: BoxDecoration(
+                    color: chipBg,
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(color: borderColor, width: 0.8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('🐘', style: TextStyle(fontSize: 8)),
+                      const SizedBox(width: 1),
+                      Flexible(
+                        child: Text(
+                          'Elephant',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 7.5,
+                            fontWeight: FontWeight.w700,
+                            color: textColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 2.5),
+              // Mini Chip 2: Fish
+              Expanded(
+                child: Container(
+                  height: 26,
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  decoration: BoxDecoration(
+                    color: chipBg,
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(color: borderColor, width: 0.8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('🐟', style: TextStyle(fontSize: 8)),
+                      const SizedBox(width: 1),
+                      Flexible(
+                        child: Text(
+                          'Fish',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 7.5,
+                            fontWeight: FontWeight.w700,
+                            color: textColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 2.5),
+              // Mini Speaker Button
+              Container(
+                width: 20,
+                height: 20,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF8E24AA),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.volume_up_rounded,
+                  size: 12,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -2034,8 +2186,8 @@ class ColorVisionPreviewChip extends StatelessWidget {
 
     return Semantics(
       label: isColorBlind
-          ? 'Color-blind safe preview palette'
-          : 'Normal colors preview palette',
+          ? 'Colour-blind safe preview palette'
+          : 'Normal colours preview palette',
       child: Container(
         width: 74,
         height: 32,
@@ -2241,7 +2393,7 @@ class _ColorBlindRadioOption extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                     splashRadius: 16,
-                    tooltip: 'Customize color vision & border options',
+                    tooltip: 'Customise colour vision & border options',
                     onPressed: onSettingsTap,
                   ),
                 ] else ...[
