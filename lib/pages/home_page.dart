@@ -25,6 +25,7 @@ import '../services/tutorial_service.dart';
 import '../models/category_metadata.dart';
 import '../models/edit_session_snapshot.dart';
 import '../services/card_editor_draft_service.dart';
+import '../services/navigation_state_service.dart';
 import '../services/recycle_bin_service.dart';
 import '../services/personalize_service.dart';
 import '../services/starter_pack_service.dart';
@@ -575,6 +576,32 @@ class _HomePageState extends State<HomePage> {
         _updateCategories();
         _migrateVisibleCountIfNeeded(prefs);
       });
+
+      // If Android recreated the process while backgrounded in a nested folder, restore the folder path
+      final restoreInfo = await NavigationStateService.getRestoreInfo();
+      if (restoreInfo.isSystemProcessRecreation &&
+          restoreInfo.folderStackIds.isNotEmpty) {
+        final verifiedStack = NavigationStateService.validateFolderChain(
+          restoreInfo.folderStackIds,
+          loadedCards,
+        );
+        if (verifiedStack != null && verifiedStack.isNotEmpty && mounted) {
+          setState(() {
+            _parentStack.clear();
+            _parentStack.addAll(verifiedStack);
+            activeParentCard = _parentStack.last;
+            selectedCategory = 'All';
+          });
+          debugPrint(
+              '[HomePage] Restored nested folder path after process recreation: ${restoreInfo.folderStackIds}');
+        } else {
+          _parentStack.clear();
+          activeParentCard = null;
+          unawaited(NavigationStateService.syncFolderStack([]));
+          debugPrint(
+              '[HomePage] Saved folder path was invalid or deleted; falling back to Home');
+        }
+      }
       if (ThemeAccessibility.darkModeNotifier.value != nextDark) {
         ThemeAccessibility.darkModeNotifier.value = nextDark;
       }
@@ -583,11 +610,11 @@ class _HomePageState extends State<HomePage> {
       debugPrint(
           '[HomePage] cold loadCards completed in ${sw.elapsedMilliseconds}ms');
 
-      // Initialize TTS after first frame paints and loaded language/voice settings are known.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) unawaited(_initTts());
-        if (mounted) unawaited(_recoverLostCameraSession());
-      });
+      // Initialize TTS and recover camera session once cards and settings are loaded.
+      if (mounted) {
+        unawaited(_initTts());
+        unawaited(_recoverLostCameraSession());
+      }
       // Lightweight 30-day Recycle Bin cleanup
       unawaited(RecycleBinService.instance.purgeExpiredEntries(activeCards: loadedCards));
     } catch (e, st) {
@@ -638,6 +665,9 @@ class _HomePageState extends State<HomePage> {
         }
         if (_parentStack.isNotEmpty) {
           activeParentCard = _parentStack.last;
+          unawaited(NavigationStateService.syncFolderStack(
+            _parentStack.map((c) => c.id).toList(),
+          ));
         }
       }
 
@@ -1468,6 +1498,9 @@ class _HomePageState extends State<HomePage> {
       }
       activeParentCard = card;
     });
+    unawaited(NavigationStateService.syncFolderStack(
+      _parentStack.map((c) => c.id).toList(),
+    ));
   }
 
   void _navigateBackFromSubCards() {
@@ -1479,6 +1512,9 @@ class _HomePageState extends State<HomePage> {
         activeParentCard = null;
       }
     });
+    unawaited(NavigationStateService.syncFolderStack(
+      _parentStack.map((c) => c.id).toList(),
+    ));
   }
 
   void _confirmDelete(AACCard card) {
@@ -2658,6 +2694,9 @@ class _HomePageState extends State<HomePage> {
       _sessionCreatedMediaFiles.clear();
       _sessionRecycleBinEntryIds.clear();
     });
+    unawaited(NavigationStateService.syncFolderStack(
+      _parentStack.map((c) => c.id).toList(),
+    ));
 
     if (mounted) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -2775,6 +2814,9 @@ class _HomePageState extends State<HomePage> {
             ? null
             : _findCardById(step.activeParentId!, cards);
       });
+      unawaited(NavigationStateService.syncFolderStack(
+        _parentStack.map((c) => c.id).toList(),
+      ));
       _updateCategories();
       _saveCards();
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -4714,6 +4756,7 @@ class _HomePageState extends State<HomePage> {
                               activeParentCard = null;
                               searchQuery = '';
                             });
+                            unawaited(NavigationStateService.syncFolderStack([]));
                           },
                           onUp: () {
                             if (!_gridController.hasClients) return;
@@ -5006,6 +5049,7 @@ class _HomePageState extends State<HomePage> {
                       _parentStack.clear();
                       activeParentCard = null;
                     });
+                    unawaited(NavigationStateService.syncFolderStack([]));
                   },
                   borderRadius: BorderRadius.circular(4),
                   child: Padding(
@@ -5045,6 +5089,9 @@ class _HomePageState extends State<HomePage> {
                         );
                         activeParentCard = target;
                       });
+                      unawaited(NavigationStateService.syncFolderStack(
+                        _parentStack.map((c) => c.id).toList(),
+                      ));
                     },
                     borderRadius: BorderRadius.circular(4),
                     child: Padding(
@@ -5746,9 +5793,9 @@ class _HomePageState extends State<HomePage> {
         ? 'assets/home/default_folder_cover.webp'
         : card.imagePath;
 
-    final isUserPhoto = effectiveImagePath != null &&
-        effectiveImagePath.isNotEmpty &&
-        !isAssetImagePath(effectiveImagePath);
+    final hasImage = effectiveImagePath != null && effectiveImagePath.isNotEmpty;
+
+    final isUserPhoto = hasImage && !isAssetImagePath(effectiveImagePath);
 
     final isCoverImage = isUserPhoto ||
         isDefaultFolderCover ||
@@ -5763,9 +5810,13 @@ class _HomePageState extends State<HomePage> {
 
     // For user-uploaded photographs and full-bleed covers in overlay or image-only mode, use a neutral dark/light surface
     // behind the photo and neutral shadows, so no bright card background colors peek through.
+    // For Starter Pack / category illustrations with embedded pastel backgrounds, ensure the container background
+    // matches the illustration's perimeter pastel color so no dark slate borders appear in Dark Mode.
     final effectiveBgColor = ((useImageOverlay || !showCardLabels) && (isUserPhoto || isDefaultFolderCover))
         ? (_isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9))
-        : cardSurfaceColor;
+        : (hasImage && !isUserPhoto && !effectiveImagePath.startsWith('assets/home/'))
+            ? Color(StarterPackService.resolveCardColorValue(card))
+            : cardSurfaceColor;
 
     final effectiveShadowColor = isTapAnimated
         ? (_isColorBlindMode

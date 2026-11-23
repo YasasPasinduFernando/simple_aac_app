@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
@@ -43,11 +44,31 @@ class MainActivity : FlutterActivity() {
     private val visionChannelName = "aac_vision"
     private val authChannelName = "aac_auth"
     private val orientationChannelName = "aac_orientation"
+    private val lifecycleChannelName = "aac_lifecycle"
+    private var isSystemProcessRecreation = false
+    private var currentFolderStack: ArrayList<String> = ArrayList()
+    private var restoredFolderStack: ArrayList<String>? = null
     private var isLandscapeMode = false
     private val REQUEST_CODE_CONFIRM_CREDENTIAL = 9482
     private var pendingAuthResult: MethodChannel.Result? = null
     private val visionExecutor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState != null) {
+            isSystemProcessRecreation = true
+            restoredFolderStack = savedInstanceState.getStringArrayList("saved_parent_stack_ids")
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("is_process_recreation", true)
+        if (currentFolderStack.isNotEmpty()) {
+            outState.putStringArrayList("saved_parent_stack_ids", currentFolderStack)
+        }
+    }
 
     private data class ActiveGifSession(
         val isCancelled: AtomicBoolean,
@@ -325,6 +346,27 @@ class MainActivity : FlutterActivity() {
                     "getOrientation" -> {
                         val currentMode = if (isLandscapeMode) "landscape" else "portrait"
                         result.success(currentMode)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, lifecycleChannelName)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "getNavigationRestoreInfo" -> {
+                        val response = mapOf(
+                            "isSystemProcessRecreation" to isSystemProcessRecreation,
+                            "folderStackIds" to (restoredFolderStack ?: currentFolderStack)
+                        )
+                        isSystemProcessRecreation = false
+                        restoredFolderStack = null
+                        result.success(response)
+                    }
+                    "syncFolderStack" -> {
+                        val stack = call.argument<List<String>>("folderStackIds") ?: emptyList()
+                        currentFolderStack = ArrayList(stack)
+                        result.success(true)
                     }
                     else -> result.notImplemented()
                 }
