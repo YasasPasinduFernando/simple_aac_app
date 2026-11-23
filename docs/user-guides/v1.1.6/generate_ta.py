@@ -1,0 +1,465 @@
+# -*- coding: utf-8 -*-
+"""
+Tamil User Guide Generator for Simple AAC Sri Lanka v1.1.6 (Build 16)
+தமிழ் பயனர் வழிகாட்டி
+"""
+
+import os, sys
+
+def get_tamil_html():
+    return """
+<div class="cover-page">
+  <div class="cover-badge">அதிகாரப்பூர்வ பயனர் வழிகாட்டி • பதிப்பு 1.1.6 (BUILD 16)</div>
+  <h1 class="cover-title">Simple AAC இலங்கை</h1>
+  <div class="cover-subtitle">மாற்று மற்றும் மேம்படுத்தப்பட்ட தொடர்பாடலுக்கான முழுமையான முத்தமிழ் கையேடு</div>
+  <p class="cover-description">
+    பேச்சு குறைபாடுகள் உள்ள சிறார்கள் மற்றும் சிறப்புத் தேவைகளைக் கொண்டவர்கள் தங்களின் அன்றாட தேவைகள், உணர்வுகள் மற்றும் எண்ணங்களை காட்சி அட்டைகள் மற்றும் உடனடி ஆஃப்லைன் குரல் (Offline Speech) மூலம் இலகுவாக வெளிப்படுத்துவதற்காக பெற்றோர், பராமரிப்பாளர்கள், ஆசிரியர்கள் மற்றும் பேச்சு சிகிச்சையாளர்களுக்காக உருவாக்கப்பட்ட நடைமுறை வழிகாட்டி.
+  </p>
+
+  <div class="cover-card">
+    <div class="cover-card-row">
+      <span class="cover-card-label">பயன்பாட்டுப் பதிப்பு:</span>
+      <span class="cover-card-value">v1.1.6 (உற்பத்தி Build 16)</span>
+    </div>
+    <div class="cover-card-row">
+      <span class="cover-card-label">ஆதரிக்கப்படும் மொழிகள்:</span>
+      <span class="cover-card-value">தமிழ் (ta-IN), சிங்களம் (si-LK), ஆங்கிலம் (en-US)</span>
+    </div>
+    <div class="cover-card-row">
+      <span class="cover-card-label">இயக்க முறைமை:</span>
+      <span class="cover-card-value">Android 5.0 (Lollipop) முதல் Android 15+ வரை</span>
+    </div>
+    <div class="cover-card-row">
+      <span class="cover-card-label">ஆஃப்லைன் கட்டமைப்பு:</span>
+      <span class="cover-card-value">100% ஆஃப்லைன் (இணையம் தேவையில்லை)</span>
+    </div>
+    <div class="cover-card-row">
+      <span class="cover-card-label">தொகுப்பு அடையாளம்:</span>
+      <span class="cover-card-value">lk.yasas.simpleaac</span>
+    </div>
+    <div class="cover-card-row">
+      <span class="cover-card-label">வெளியீட்டு தேதி:</span>
+      <span class="cover-card-value">நவம்பர் 2026</span>
+    </div>
+  </div>
+</div>
+
+<div class="toc-box">
+  <div class="toc-title">பொருளடக்கம் (Table of Contents)</div>
+  <table class="toc-table">
+    <tr><td><strong>விரைவு தொடக்க வழிகாட்டி</strong> — முதல் தொடர்பாடலுக்கான 5 எளிய படிகள்</td><td style="text-align:right;">பக்கம் 2</td></tr>
+    <tr><td><strong>அத்தியாயம் 1</strong> — Simple AAC பயன்பாட்டைத் தொடங்குதல் மற்றும் வழிசெலுத்தல்</td><td style="text-align:right;">பக்கம் 2</td></tr>
+    <tr><td><strong>அத்தியாயம் 2</strong> — பேசுதல் மற்றும் வாக்கியங்களை உருவாக்குதல்</td><td style="text-align:right;">பக்கம் 3</td></tr>
+    <tr><td><strong>அத்தியாயம் 3</strong> — தொடர்பாடல் அட்டைகள் மற்றும் பிரிவுக் கோப்புறைகள்</td><td style="text-align:right;">பக்கம் 4</td></tr>
+    <tr><td><strong>அத்தியாயம் 4</strong> — கேமரா, படத்தொகுப்பு (Gallery) மற்றும் ஊடக வசதிகள்</td><td style="text-align:right;">பக்கம் 5</td></tr>
+    <tr><td><strong>அத்தியாயம் 5</strong> — தோற்றம், வண்ண தீம்கள் மற்றும் அணுகல்தன்மை (Accessibility)</td><td style="text-align:right;">பக்கம் 6</td></tr>
+    <tr><td><strong>அத்தியாயம் 6</strong> — பராமரிப்பாளர் பூட்டு (Caregiver Lock) மற்றும் குழந்தை பாதுகாப்பு</td><td style="text-align:right;">பக்கம் 7</td></tr>
+    <tr><td><strong>அத்தியாயம் 7</strong> — தரவு காப்புப்பிரதி (Backup), மீட்டமைத்தல் மற்றும் தனியுரிமை</td><td style="text-align:right;">பக்கம் 7</td></tr>
+    <tr><td><strong>அத்தியாயம் 8</strong> — சிக்கல் தீர்த்தல் மற்றும் அடிக்கடி கேட்கப்படும் கேள்விகள்</td><td style="text-align:right;">பக்கம் 8</td></tr>
+  </table>
+</div>
+
+<div class="section-header">
+  <h1>விரைவு தொடக்க வழிகாட்டி — முதல் தொடர்பாடலுக்கான 5 எளிய படிகள்</h1>
+</div>
+<p>Simple AAC இலங்கை சிக்கலான அமைப்புகள் ஏதுமின்றி உடனடிப் பயன்பாட்டிற்கு ஏற்றவாறு வடிவமைக்கப்பட்டுள்ளது. தொடர்பாடலைத் தொடங்க இந்த 5 எளிய படிகளைப் பின்பற்றுங்கள்:</p>
+<ol>
+  <li><strong>பயன்பாட்டைத் திறக்கவும்:</strong> உங்கள் சாதனத்தில் உள்ள Simple AAC ஐகானைத் தொடவும். அமைதியான நீல நிற தொடர்பாடல் பலகை உடனடியாகத் திறக்கும்.</li>
+  <li><strong>ஏதேனும் ஓர் அட்டையைத் தொடவும்:</strong> <em>வணக்கம் (Hello)</em> அட்டையைத் தொடவும். பயன்பாடு உடனடியாக தெளிவான தமிழில் "வணக்கம்" என்று கூறி அட்டையை ஒளிவட்டமிட்டுக் காட்டும்.</li>
+  <li><strong>வாக்கியம் அமைக்கவும்:</strong> <em>எனக்கு வேண்டும் (I want)</em> அட்டையைத் தொட்டு, பின்னர் <em>தண்ணீர் (Water)</em> அட்டையைத் தொடவும். இரண்டு வார்த்தைகளும் மேல் வாக்கியப் பட்டியில் வரிசையாகத் தோன்றும்.</li>
+  <li><strong>முழு வாக்கியத்தையும் பேசச் செய்யவும்:</strong> வாக்கியப் பட்டியின் வலதுபுறத்தில் உள்ள நீல நிற ஒலிபெருக்கி ஐகானை <span style="font-size:11pt;">🔊</span> தொடவும். முழு வாக்கியமும் உடனடியாகப் பேசப்படும்.</li>
+  <li><strong>பலகையைப் பூட்டவும் (விருப்பத்தேர்வு):</strong> மேல் இடது மூலையில் உள்ள முள் ஐகானைத் <span style="font-size:11pt;">📌</span> தொட்டு Caregiver Lock ஐ இயக்கவும். இது குழந்தை தொடர்பாடலில் ஈடுபடும் போது தவறுதலாக மாற்றங்கள் ஏற்படுவதைத் தடுக்கும்.</li>
+</ol>
+
+<div class="tip-box">
+  <div class="box-title">பராமரிப்பாளர்களுக்கான குறிப்பு</div>
+  சாதனத்தை குழந்தைக்கு வசதியான தூரத்தில் வைக்கவும். நீங்களே ஓர் அட்டையைத் தொட்டுப் பேசும் முறையை மாதிரியாகக் காட்டவும் (Modeling). தொடுவதன் மூலம் குரல் வெளிப்படுகிறது என்பதை இதன் மூலம் குழந்தை எளிதாகப் புரிந்துகொள்ளும்.
+</div>
+
+<div class="section-header">
+  <h1>அத்தியாயம் 1 — Simple AAC பயன்பாட்டைத் தொடங்குதல் மற்றும் வழிசெலுத்தல்</h1>
+</div>
+<p>
+  <strong>Simple AAC இலங்கை</strong> என்பது ஆட்டிசம் (Autism), பேச்சு தாமதங்கள், பெருமூளை வாதம் (Cerebral Palsy) மற்றும் பிற தொடர்பாடல் சவால்களைக் கொண்ட சிறார்களுக்காக உருவாக்கப்பட்ட மாற்றுத் தொடர்பாடல் மென்பொருளாகும். இது 100% இணையம் இன்றியே (Offline) இயங்கக்கூடியதுடன், எவ்வித சந்தாக்களும் தேவையில்லை.
+</p>
+
+<h2>1.1 முதன்மைத் திரையைப் புரிந்துகொள்ளுதல்</h2>
+<p>முதன்மைத் திரை மூன்று முக்கிய பகுதிகளாகப் பிரிக்கப்பட்டுள்ளது:</p>
+<ul>
+  <li><strong>மேல் வழிசெலுத்தல் பட்டை (Top Bar):</strong> இடதுபுறத்தில் **Pin Board** (பாதுகாப்புப் பூட்டு), நடுவில் **Simple AAC** தலைப்பு மற்றும் வலதுபுறத்தில் **அமைப்புகள் பட்டி (Settings)**.</li>
+  <li><strong>வாக்கிய அமைப்புப் பட்டை (Sentence Composer Bar):</strong> தெரிவு செய்யப்பட்ட அட்டைகள் வரிசையாகத் தோன்றும் பகுதி. இதில் *Delete* (கடைசி அட்டையை நீக்குதல்), *Clear* (முழு வாக்கியத்தையும் அழித்தல்) மற்றும் *Speak* (பேசுதல்) பொத்தான்கள் உள்ளன.</li>
+  <li><strong>தொடர்பாடல் அட்டை கட்டம் (Card Grid):</strong> கை விரல் இயக்கம் சவாலான சிறார்களும் இலகுவாகத் தொடும் வகையில் அமைக்கப்பட்ட உயர் மாறுபட்ட (High-contrast) காட்சி அட்டைகள்.</li>
+</ul>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/01_home_screen.png" alt="Simple AAC வெளிச்ச முறை">
+      <div class="screenshot-caption">படம் 1.1: வெளிச்ச முறையில் (Light Mode) முதன்மைத் திரை மற்றும் வாக்கியப் பட்டை.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/27_dark_mode_home.png" alt="Simple AAC இருண்ட முறை">
+      <div class="screenshot-caption">படம் 1.2: இருண்ட முறையில் (Dark Mode) முதன்மைத் திரை மென்மையான வண்ணங்களுடன்.</div>
+    </td>
+  </tr>
+</table>
+
+<h2>1.2 பிரிவுகள் வழிசெலுத்தல் மற்றும் தானியங்கி நினைவகம் (Automatic Folder Recovery)</h2>
+<p>
+  அட்டைகள் அன்றாட தலைப்புகளின் கீழ் (எ.கா: *தேவைகள்*, *உணர்வுகள்*, *உணவு*, *விலங்குகள்*) கோப்புறைகளாகத் தொகுக்கப்பட்டுள்ளன. மேல் உள்ள வழித்தடம் (Breadcrumbs - எ.கா: <code>Home &gt; Default &gt; Needs</code>) நீங்கள் இருக்கும் இடத்தை உணர்த்தும். பின்செல்ல பின்னோக்கிய அம்புக்குறியைத் தொடவும்.
+</p>
+<div class="info-box">
+  <div class="box-title">Build 16 புதிய அம்சம் — தானியங்கி கோப்புறை நினைவகம்</div>
+  நீங்கள் பிற பயன்பாடுகளுக்குச் சென்று பின்னர் மீண்டும் Simple AAC ஐத் திறக்கும் போது, அது முகப்புத் திரைக்குத் திரும்பாமல் நீங்கள் கடைசியாகப் பயன்படுத்திய கோப்புறையிலேயே தானாகத் திறக்கும்.
+</div>
+
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h1>அத்தியாயம் 2 — பேசுதல் மற்றும் வாக்கியங்களை உருவாக்குதல்</h1>
+</div>
+
+<h2>2.1 உடனடிப் பேச்சு மற்றும் உணர்வுப் பின்னூட்டம்</h2>
+<p>
+  ஒவ்வொரு தொடுதலுக்கும் உடனடி பல-உணர்வுப் பின்னூட்டம் (Multi-sensory feedback) கிடைக்கிறது:
+</p>
+<ul>
+  <li><strong>உடனடிக் குரல் (Instant Speech):</strong> அட்டையைத் தொட்டவுடன் தாமதமின்றி தெளிவான தமிழில் பேசுகிறது. Build 16 இல் உள்ள பின்னணிக் குரல் முன்தயாரிப்பு (Pre-warming) மூலம் முதல் தொடுதலிலும் தாமதமில்லை.</li>
+  <li><strong>ஒளிவட்டம் (Visual Highlight):</strong> அட்டை சற்று பெரிதாகி ஒளிவட்டமிட்டு தெரிவை உறுதிப்படுத்துகிறது.</li>
+  <li><strong>தொடு அதிர்வு (Haptic Pop):</strong> தொடு உணர்வை விரும்பும் சிறார்களுக்கு மெல்லிய அதிர்வு உறுதிப்படுத்துகிறது. இதை அமைப்புகளில் மாற்றலாம்.</li>
+</ul>
+
+<h2>2.2 பல வார்த்தை வாக்கியங்களை உருவாக்குதல்</h2>
+<p>
+  முழுமையான கருத்துக்களை வெளிப்படுத்த மேல் உள்ள <strong>வாக்கியப் பட்டை (Sentence Composer)</strong> உதவுகிறது:
+</p>
+<ol>
+  <li>அட்டைகளை வரிசையாகத் தொடவும்: உதாரணமாக <code>பசிக்கிறது</code> &rarr; <code>சோறு</code>.</li>
+  <li>ஒவ்வொரு அட்டையும் சிறிய படம் மற்றும் பெயருடன் வாக்கியப் பட்டியில் சேரும்.</li>
+  <li>நீல நிற <strong>ஒலிபெருக்கி பொத்தானைத் (🔊)</strong> தொடவும். முழு வாக்கியமும் இயற்கையான ஓட்டத்துடன் பேசப்படும்.</li>
+  <li>கடைசி வார்த்தையை நீக்க <strong>Delete (⌫)</strong> பொத்தானையும், அனைத்தையும் நீக்க <strong>Clear (✕)</strong> பொத்தானையும் பயன்படுத்தவும்.</li>
+</ol>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/04_sentence_bar.png" alt="வாக்கியப் பட்டை">
+      <div class="screenshot-caption">படம் 2.1: செயல்பாட்டில் உள்ள தொடர்பாடல் அட்டைகளுடன் வாக்கியப் பட்டை.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/03_speaking_card.png" alt="அட்டை குரல் பின்னூட்டம்">
+      <div class="screenshot-caption">படம் 2.2: அட்டையைத் தொடும் போது தோன்றும் உடனடி ஒளிவட்டம் மற்றும் குரல்.</div>
+    </td>
+  </tr>
+</table>
+
+<h2>2.3 முத்தமிழ் மற்றும் மும்மொழி ஆஃப்லைன் குரல் (தமிழ், சிங்களம், ஆங்கிலம்)</h2>
+<p>
+  Simple AAC இலங்கையின் மூன்று உத்தியோகபூர்வ மொழிகளையும் ஆதரிக்கிறது:
+</p>
+<ul>
+  <li><strong>தமிழ் (ta-IN / ta-LK):</strong> அன்றாட தமிழ் வார்த்தைகளுக்கான தெளிவான மற்றும் இயல்பான உச்சரிப்பு.</li>
+  <li><strong>சிங்களம் (si-LK):</strong> முறையான சிங்கள உச்சரிப்பு.</li>
+  <li><strong>ஆங்கிலம் (en-US / en-GB):</strong> தெளிவான சர்வதேச ஆங்கில உச்சரிப்பு.</li>
+</ul>
+
+<div class="tip-box">
+  <div class="box-title">தமிழ் குரல் கேட்காவிட்டால் என்ன செய்வது?</div>
+  உங்கள் சாதனத்தில் தமிழ் ஆஃப்லைன் குரல் தொகுப்பு பதிவிறக்கம் செய்யப்பட்டுள்ளதா என்பதை உறுதிப்படுத்துங்கள்: சாதனத்தின் <strong>Settings &gt; System &gt; Language &gt; Text-to-Speech &gt; Google TTS settings &gt; Install voice data</strong> சென்று Tamil மற்றும் Sinhala மொழிகளைப் பதிவிறக்கவும்.
+</div>
+
+<div class="section-header">
+  <h1>அத்தியாயம் 3 — தொடர்பாடல் அட்டைகள் மற்றும் பிரிவுக் கோப்புறைகள்</h1>
+</div>
+
+<h2>3.1 முன்நிறுவப்பட்ட 13 தொடக்கப் பிரிவுகள் (Default Starter Pack)</h2>
+<p>
+  Simple AAC இல் 130 க்கும் மேற்பட்ட அத்தியாவசிய அட்டைகள் 13 முக்கிய பிரிவுகளில் தொகுக்கப்பட்டுள்ளன:
+</p>
+<ul>
+  <li><strong>தேவைகள் (Needs):</strong> பசிக்கிறது, தண்ணீர், கழிப்பறை, உதவி, ஓய்வு, வலிக்கிறது போன்ற அவசரத் தேவைகள்.</li>
+  <li><strong>உணர்வுகள் (Feelings):</strong> மகிழ்ச்சி, சோகம், கோபம், பயம், சோர்வு.</li>
+  <li><strong>உணவு மற்றும் தின்பண்டங்கள் (Food &amp; Snacks):</strong> சோறு, ரொட்டி, பழங்கள், பால், பிஸ்கட்.</li>
+  <li><strong>வண்ணங்கள் மற்றும் வடிவங்கள் (Colours &amp; Shapes):</strong> ஆரம்பக் கல்விக்கான கருத்துக்கள்.</li>
+  <li><strong>குடும்பம் மற்றும் மனிதர்கள் (Family &amp; People):</strong> அம்மா, அப்பா, ஆசிரியர், மருத்துவர்.</li>
+  <li><strong>விலங்குகள், செயல்கள், இடங்கள், சுகாதாரம், ஆடைகள், பொம்மைகள் மற்றும் பள்ளி.</strong></li>
+</ul>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/07_folder_view.png" alt="பிரிவுக் கோப்புறை காட்சி">
+      <div class="screenshot-caption">படம் 3.1: குழந்தைகளுக்கான பிரிவுக் கோப்புறைக் காட்சி.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/28_dark_mode_nested_needs.png" alt="தேவைகள் பிரிவு இருண்ட முறை">
+      <div class="screenshot-caption">படம் 3.2: இருண்ட முறையில் தேவைகள் பிரிவு ஒருங்கிணைந்த வண்ணங்களுடன்.</div>
+    </td>
+  </tr>
+</table>
+
+<h2>3.2 புதிய அட்டைகளை உருவாக்குதல் மற்றும் அமைத்தல்</h2>
+<p>குழந்தையின் உண்மைச் சூழலுக்கு ஏற்ப புதிய அட்டைகளைச் சேர்க்கலாம்:</p>
+<ol>
+  <li>மெனுவைத் (☰) திறந்து <strong>திருத்து முறைமையை (Edit Mode)</strong> இயக்கவும்.</li>
+  <li>கீழே தோன்றும் <strong>+ (அட்டை சேர்)</strong> பொத்தானைத் தொடவும்.</li>
+  <li>அட்டையின் பெயர் (எ.கா: "பாட்டி") மற்றும் பேச வேண்டிய வார்த்தையை உள்ளிடவும்.</li>
+  <li>கேமரா அல்லது படத்தொகுப்பிலிருந்து பொருத்தமான படத்தைத் தேர்ந்தெடுக்கவும்.</li>
+  <li><strong>Save</strong> ஐத் தொடவும். புதிய அட்டை தொடர்பாடலுக்கு உடனடியாகத் தயாராகும்.</li>
+</ol>
+
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h1>அத்தியாயம் 4 — கேமரா, படத்தொகுப்பு (Gallery) மற்றும் ஊடக வசதிகள்</h1>
+</div>
+
+<h2>4.1 கேமரா மூலம் நேரடிப் புகைப்படங்களை எடுத்தல்</h2>
+<p>
+  ஆட்டிசம் சிறார்களுக்கு நிஜ உலகப் பொருட்களையும் பழக்கமான முகங்களையும் அடையாளம் காண்பது எளிது:
+</p>
+<ol>
+  <li>அட்டை திருத்தியில் (Card Editor) <strong>கேமராவைத் (Camera)</strong> தேர்ந்தெடுக்கவும்.</li>
+  <li>பொருளைப் புகைப்படம் எடுக்கவும் (எ.கா: குழந்தையின் தண்ணீர் கோப்பை).</li>
+  <li>படத்தை உறுதிப்படுத்தவும். அது தானாகவே அட்டைக்கு இணைக்கப்பட்டு திருத்தித் திரைக்குத் திரும்பும்.</li>
+  <li><strong>வரைவுப் பாதுகாப்பு (Draft Protection):</strong> படம் எடுக்கும் போது நீங்கள் ஏற்கனவே உள்ளிட்ட தகவல்கள் எதுவும் அழியாமல் பாதுகாக்கப்படும்.</li>
+</ol>
+
+<h2>4.2 படத்தொகுப்பிலிருந்து (Gallery) படங்களைத் தேர்ந்தெடுத்தல்</h2>
+<p>
+  <strong>Gallery</strong> ஐத் தேர்ந்தெடுக்கும் போது, ஆண்ட்ராய்டின் நவீன Photo Picker திறக்கும். நீங்கள் தேர்ந்தெடுக்கும் குறிப்பிட்ட புகைப்படத்தை மட்டுமே பயன்பாட்டிற்கு வழங்கும் வண்ணம் இது தனியுரிமையைப் பாதுகாக்கிறது.
+</p>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/08_camera_flow.png" alt="கேமரா புகைப்படம் எடுத்தல்">
+      <div class="screenshot-caption">படம் 4.1: அட்டை திருத்தியுடன் கேமரா எளிதாக ஒருங்கிணைக்கப்பட்டுள்ளது.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/09_gallery_picker.png" alt="படத்தொகுப்பு தெரிவு">
+      <div class="screenshot-caption">படம் 4.2: தனியுரிமையைப் பாதுகாக்கும் ஆண்ட்ராய்டு புகைப்படத் தெரிவு.</div>
+    </td>
+  </tr>
+</table>
+
+<h2>4.3 அசைவூட்ட படங்கள் (GIF) மற்றும் காணொளிகளை GIF ஆக மாற்றுதல்</h2>
+<p>
+  <em>குதித்தல்</em>, <em>கை கழுவுதல்</em>, <em>நடனம்</em> போன்ற செயல் வார்த்தைகளை அசைவூட்ட படங்கள் மூலம் இலகுவாகப் புரிய வைக்கலாம்:
+</p>
+<ul>
+  <li><strong>GIF படங்களைப் பயன்படுத்துதல்:</strong> உங்கள் சாதனத்தில் உள்ள எந்தவொரு GIF படத்தையும் தேர்வு செய்யலாம்; அது அட்டையில் தொடர்ந்து அசையும்.</li>
+  <li><strong>காணொளியை GIF ஆக மாற்றுதல்:</strong> 10 வினாடிகளுக்குக் குறைவான குறுகிய காணொளியைத் தேர்ந்தெடுத்து பேட்டரியைச் சேமிக்கும் GIF ஆக மாற்றலாம்.</li>
+  <li><strong>உடனடி ரத்து செய்தல் (Cooperative Cancellation):</strong> தவறான காணொளியைத் தேர்ந்தெடுத்தால், <strong>Cancel</strong> பொத்தானை அழுத்துவதன் மூலம் உடனே நிறுத்தி எந்தவிதத் தடங்கலுமின்றி திருத்திக்குத் திரும்பலாம்.</li>
+</ul>
+
+<h2>4.4 சொந்தக் குரலைப் பதிவு செய்தல்</h2>
+<p>
+  இயந்திரக் குரலுக்குப் பதிலாக தாயின் அல்லது பழக்கமான ஆசிரியரின் குரலில் பேச விரும்பினால்:
+</p>
+<ol>
+  <li>அட்டை திருத்தியின் கீழே உள்ள <strong>Custom Voice Recording</strong> பகுதிக்குச் செல்லவும்.</li>
+  <li>சிவப்பு நிற ஒலிவாங்கி ஐகானைத் <span style="font-size:11pt;">🎙️</span> தொட்டுத் தெளிவாகப் பேசவும்.</li>
+  <li>Stop ஐத் தொடவும். Play <span style="font-size:11pt;">▶️</span> ஐத் தொட்டு குரலைச் சரிபார்க்கவும்.</li>
+  <li>இந்த அட்டையைத் தொடும் போதெல்லாம் இயந்திரக் குரலுக்குப் பதிலாக நீங்கள் பதிவு செய்த குரல் ஒலிக்கும்.</li>
+</ol>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/12_video_to_gif.png" alt="காணொளி GIF மாற்றம்">
+      <div class="screenshot-caption">படம் 4.3: ரத்துசெய்யும் வசதியுடன் கூடிய திறமையான Video-to-GIF மாற்றி.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/13_custom_voice_recorder.png" alt="குரல் பதிவு செய்தல்">
+      <div class="screenshot-caption">படம் 4.4: தனிப்பட்ட மனிதக் குரலைப் பதிவு செய்யும் வசதி.</div>
+    </td>
+  </tr>
+</table>
+
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h1>அத்தியாயம் 5 — தோற்றம், வண்ண தீம்கள் மற்றும் அணுகல்தன்மை (Accessibility)</h1>
+</div>
+
+<h2>5.1 வெளிச்ச மற்றும் இருண்ட முறைகள் (Light &amp; Dark Modes)</h2>
+<p>
+  பகல் நேரத்திற்கு <strong>வெளிச்ச முறையையும் (Light Mode)</strong>, இரவு நேரத்தில் கண்களுக்குக் குளிர்ச்சியூட்ட <strong>இருண்ட முறையையும் (Dark Mode)</strong> பயன்படுத்தலாம். Build 16 இல் இருண்ட முறையின் வண்ணங்கள் அட்டையின் படங்களுடன் கச்சிதமாகப் பொருந்துமாறு மேம்படுத்தப்பட்டுள்ளன.
+</p>
+
+<h2>5.2 வாக்கியப் பட்டி பின்னணி வண்ணம் (Text-to-Speech Bar Colour - Build 16 புதிய அம்சம்)</h2>
+<p>
+  <strong>Settings &gt; Appearance &amp; Theme</strong> இல் <em>Board Background Colour</em> க்கு கீழே இந்த புதிய அமைப்பு உள்ளது:
+</p>
+<ul>
+  <li><strong>வாக்கியப் பட்டியின் பின்னணியை மாற்றுதல்:</strong> வாக்கியம் அமைக்கும் பட்டியின் பின்னணி வண்ணத்தை உங்கள் விருப்பப்படி மாற்றலாம்.</li>
+  <li><strong>பகல்/இரவு தனித்தனி நினைவகம்:</strong> வெளிச்ச முறைக்கு ஒரு வண்ணமும் (எ.கா: வான நீலம்), இருண்ட முறைக்கு மற்றொரு வண்ணமும் (எ.கா: கருநீலம்) தனித்தனியாகத் தேர்ந்தெடுக்கலாம்.</li>
+  <li><strong>நேரடி மாதிரி (Live Preview Chip):</strong> அமைப்புகளிலேயே வாக்கியப் பட்டியின் மாதிரி (Elephant, Fish அட்டைகளுடன்) நேரடியாகத் தெரியும்.</li>
+  <li><strong>தானியங்கி எழுத்து மாறுபாடு:</strong> பின்னணி வண்ணத்திற்கு ஏற்ப எழுத்துக்கள் தானாகவே கறுப்பு அல்லது வெள்ளை நிறத்திற்கு மாறி வாசிப்பதை எளிதாக்கும்.</li>
+  <li><strong>வண்ணத் தெரிவு:</strong> முன்வரிசைப்படுத்தப்பட்ட வண்ணங்களிலிருந்து அல்லது <em>Custom colour</em> மூலம் விருப்பமான வண்ணத்தைத் தேர்ந்தெடுக்கலாம்.</li>
+</ul>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/26_tts_bar_colour_setting.png" alt="வாக்கியப் பட்டி வண்ண அமைப்பு">
+      <div class="screenshot-caption">படம் 5.1: புதிய வாக்கியப் பட்டி வண்ண அமைப்பும் தெரிவுப் பலகையும்.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/20_appearance_and_color_vision.png" alt="வண்ணப் பார்வை ஆதரவு">
+      <div class="screenshot-caption">படம் 5.2: அணுகல்தன்மைக்கான வண்ணப் பார்வை ஆதரவு (Colour Vision Support) அமைப்புகள்.</div>
+    </td>
+  </tr>
+</table>
+
+<h2>5.3 அட்டை லேபிள் கட்டுப்பாடு (Label Visibility &amp; Overlay)</h2>
+<ul>
+  <li><strong>அட்டை லேபிள்களைக் காட்டுதல் (Show Card Labels):</strong> எழுத்துக்களை வாசிக்க முடியாத குழந்தைகளுக்கு லேபிள்களை மறைத்துப் படங்களை மட்டும் (Flashcard) காட்டலாம்.</li>
+  <li><strong>படத்தின் மேல் லேபிளை வைத்தல் (Overlay Card Labels):</strong> இயக்கும் போது எழுத்துக்கள் படத்தின் கீழ் மென்மையாக மிதக்கும். முடக்கும் போது படத்திற்குக் கீழே தனிப் பட்டியில் தோன்றும்.</li>
+  <li><strong>உலகளாவிய லேபிள் பின்னணி வண்ணம் (Card Label Colour Global):</strong> அனைத்து அட்டை லேபிள்களுக்கும் பொதுவான பின்னணி வண்ணத்தை அமைக்கலாம்.</li>
+</ul>
+
+<h2>5.4 வண்ணப் பார்வை ஆதரவு மற்றும் கட்ட அமைப்பு</h2>
+<ul>
+  <li><strong>வண்ணப் பார்வை முறைகள்:</strong> Protanopia, Deuteranopia, Tritanopia உள்ள சிறார்களுக்கு வண்ணங்களை எளிதில் அடையாளம் காணும் வசதி.</li>
+  <li><strong>கட்டங்களின் எண்ணிக்கை:</strong> திரையில் தோன்றும் நிரல்களின் எண்ணிக்கையை 1 முதல் 12 வரை தேவைக்கேற்ப மாற்றலாம்.</li>
+  <li><strong>அமைப்புகளை முழுத்திரையில் திறத்தல் (Open Settings Full Screen):</strong> அமைப்புகள் சிறிய பட்டகமாக அல்லது முழுத்திரையில் திறக்குமாறு அமைக்கலாம்.</li>
+</ul>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/29_mode_1_overlay_on.png" alt="Overlay முறை இயக்கம்">
+      <div class="screenshot-caption">படம் 5.3: காட்சி முறைமை 1 — படத்தின் மேல் லேபிள் தோன்றுதல் (Overlay ON).</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/30_mode_2_overlay_off.png" alt="தனி லேபிள் முறை">
+      <div class="screenshot-caption">படம் 5.4: காட்சி முறைமை 2 — படத்திற்குக் கீழே தனிப் பட்டியில் லேபிள் தோன்றுதல் (Overlay OFF).</div>
+    </td>
+  </tr>
+</table>
+
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h1>அத்தியாயம் 6 — பராமரிப்பாளர் பூட்டு (Caregiver Lock) மற்றும் குழந்தை பாதுகாப்பு</h1>
+</div>
+
+<h2>6.1 பராமரிப்பாளர் பூட்டை இயக்குதல் (Pin Board Mode)</h2>
+<p>
+  குழந்தைகள் பலகையைப் பயன்படுத்தும் போது தவறுதலாக அமைப்புகளை மாற்றுவதையோ அல்லது அட்டைகளை நீக்குவதையோ தடுக்க இந்த பூட்டைப் பயன்படுத்தவும்:
+</p>
+<ol>
+  <li>மேல் இடது மூலையில் உள்ள <strong>முள் ஐகானைத் (📌)</strong> தொடவும்.</li>
+  <li>பலகை பூட்டப்படும் (Locked Mode). அமைப்புகள் மெனு மற்றும் திருத்தும் பொத்தான்கள் மறைந்துவிடும்.</li>
+  <li>குழந்தை எவ்வித அச்சமுமின்றி அட்டைகளைத் தொட்டுப் பேசலாம்.</li>
+  <li>மீண்டும் திறக்க பூட்டு ஐகானைத் தொட்டு உங்கள் 4-இலக்க PIN ஐ உள்ளிடவும்.</li>
+</ol>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/15_pin_dialog.png" alt="PIN உரையாடல்">
+      <div class="screenshot-caption">படம் 6.1: நிர்வாக அமைப்புகளைப் பாதுகாக்கும் 4-இலக்க PIN அமைப்பு.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/15_pin_mode_locked.png" alt="பூட்டப்பட்ட பலகை முறை">
+      <div class="screenshot-caption">படம் 6.2: பூட்டப்பட்ட பலகை: குழந்தையின் பாதுகாப்பிற்காக மாற்றங்கள் முடக்கப்பட்டுள்ளன.</div>
+    </td>
+  </tr>
+</table>
+
+<h2>6.2 PIN ஐ நிர்வகித்தல்</h2>
+<ul>
+  <li><strong>ஆரம்ப PIN:</strong> முதல்முறை பூட்டும் போது உங்கள் விருப்பப்படி ஏதேனும் 4 இலக்கங்களை உள்ளிடவும் (எ.கா: <code>1234</code>).</li>
+  <li><strong>PIN ஐ மறந்துவிட்டால்:</strong> <em>Forgot PIN</em> ஐத் தேர்ந்தெடுத்து பிரதான மாற்று எண்ணான (Master PIN) <code>0000</code> ஐ உள்ளிடவும்.</li>
+</ul>
+
+<div class="section-header">
+  <h1>அத்தியாயம் 7 — தரவு காப்புப்பிரதி (Backup), மீட்டமைத்தல் மற்றும் தனியுரிமை</h1>
+</div>
+
+<h2>7.1 முழுமையான காப்புப்பிரதியை (Backup) உருவாக்குதல்</h2>
+<p>
+  நீங்கள் உருவாக்கிய அட்டைகள், சொந்தக் குரல்கள் மற்றும் புகைப்படங்கள் எப்போதும் பாதுகாப்பாக இருக்க:
+</p>
+<ol>
+  <li><strong>Settings &gt; Backup &amp; Restore</strong> செல்லவும்.</li>
+  <li><strong>Create Backup</strong> ஐத் தொடவும்.</li>
+  <li>அனைத்து அட்டைகள், புகைப்படங்கள், GIF கள், குரல் பதிவுகள் ஒரே <code>.zip</code> கோப்பாகச் சேமிக்கப்படும்.</li>
+  <li>இக்கோப்பை Google Drive அல்லது WhatsApp மூலம் வேறு சாதனத்திற்கு அனுப்பிப் பாதுகாக்கவும்.</li>
+</ol>
+
+<h2>7.2 புதிய சாதனத்தில் மீட்டமைத்தல் (Restore)</h2>
+<ol>
+  <li>காப்புப்பிரதிக் கோப்பை புதிய சாதனத்திற்கு மாற்றவும்.</li>
+  <li>Simple AAC ஐ நிறுவி <strong>Settings &gt; Backup &amp; Restore &gt; Restore Backup</strong> செல்லவும்.</li>
+  <li>கோப்பைத் தேர்ந்தெடுத்தவுடன் அனைத்து அட்டைகளும் அமைப்புகளும் உடனே மீட்டமைக்கப்படும்.</li>
+</ol>
+
+<div class="caution-box">
+  <div class="box-title">100% ஆஃப்லைன் தனியுரிமை உத்தரவாதம்</div>
+  Simple AAC எவ்வித வெளிப்புற சேவையகங்களுடனும் (Servers) தொடர்பு கொள்வதில்லை. உங்கள் குழந்தையின் குரல் பதிவுகள், புகைப்படங்கள் மற்றும் தொடர்பாடல் தரவு சாதனத்திற்குள்ளேயே பாதுகாப்பாக இருக்கும்.
+</div>
+
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h1>அத்தியாயம் 8 — சிக்கல் தீர்த்தல் மற்றும் அடிக்கடி கேட்கப்படும் கேள்விகள்</h1>
+</div>
+
+<h2>8.1 பொதுவான சிக்கல்களும் தீர்வுகளும்</h2>
+
+<table style="width:100%; border-collapse:collapse; margin-top:6px; font-size:8.5pt;">
+  <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+    <th style="padding:6px 8px; text-align:left; width:35%;">சிக்கல் / அறிகுறி</th>
+    <th style="padding:6px 8px; text-align:left;">தீர்வு மற்றும் வழிகாட்டல்</th>
+  </tr>
+  <tr style="border-bottom:1px solid #e2e8f0;">
+    <td style="padding:6px 8px; font-weight:600; color:#0f172a;">அட்டையைத் தொட்டாலும் குரல் கேட்கவில்லை.</td>
+    <td style="padding:6px 8px;">
+      1. சாதனத்தின் ஒலி அளவை (Media Volume) அதிகரிக்கவும்.<br>
+      2. Simple AAC அமைப்புகளில் <strong>Tap to Speak</strong> இயக்கப்பட்டுள்ளதா எனப் பார்க்கவும்.<br>
+      3. Google Speech Recognition &amp; Synthesis இயங்குவதை உறுதிப்படுத்தவும்.
+    </td>
+  </tr>
+  <tr style="border-bottom:1px solid #e2e8f0;">
+    <td style="padding:6px 8px; font-weight:600; color:#0f172a;">தமிழ் அல்லது சிங்கள வார்த்தைகள் சரியாகப் பேசப்படவில்லை.</td>
+    <td style="padding:6px 8px;">
+      சாதனத்தில் தமிழ் ஆஃப்லைன் குரல் தொகுப்பு பதிவிறக்கம் செய்யப்பட வேண்டும்: சாதனத்தின் <strong>Settings &gt; System &gt; Language &gt; Text-to-Speech &gt; Google TTS &gt; Install voice data</strong> சென்று Tamil ஐப் பதிவிறக்கவும்.
+    </td>
+  </tr>
+  <tr style="border-bottom:1px solid #e2e8f0;">
+    <td style="padding:6px 8px; font-weight:600; color:#0f172a;">கேமரா திறக்கவில்லை.</td>
+    <td style="padding:6px 8px;">
+      Simple AAC பயன்பாட்டிற்கு கேமரா அனுமதி வழங்கப்பட்டுள்ளதா என்பதை உறுதிப்படுத்தவும்: சாதனத்தின் <strong>Settings &gt; Apps &gt; Simple AAC &gt; Permissions</strong> சென்று Camera அனுமதியை வழங்கவும்.
+    </td>
+  </tr>
+  <tr style="border-bottom:1px solid #e2e8f0;">
+    <td style="padding:6px 8px; font-weight:600; color:#0f172a;">தவறுதலாக ஓர் அட்டை நீக்கப்பட்டுவிட்டது.</td>
+    <td style="padding:6px 8px;">
+      கவலைப்பட வேண்டாம்! அட்டை நிரந்தரமாக அழியவில்லை. <strong>Settings &gt; Recycle Bin</strong> சென்று அட்டையைத் தேர்ந்தெடுத்து <strong>Restore</strong> ஐத் தொடவும்.
+    </td>
+  </tr>
+  <tr style="border-bottom:1px solid #e2e8f0;">
+    <td style="padding:6px 8px; font-weight:600; color:#0f172a;">மீண்டும் திறக்கும் போது கோப்புறையை நினைவில் வைத்திருக்குமா?</td>
+    <td style="padding:6px 8px;">
+      ஆம், Build 16 இல் தானியங்கி நினைவகம் உள்ளதால் நீங்கள் கடைசியாகப் பயன்படுத்திய கோப்புறையிலேயே திறக்கும்.
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:6px 8px; font-weight:600; color:#0f172a;">குழந்தையின் சொற்களஞ்சியத்தைப் பாதுகாப்பது எப்படி?</td>
+    <td style="padding:6px 8px;">
+      மாதமொருமுறை <strong>Settings &gt; Backup &amp; Restore &gt; Create Backup</strong> மூலம் காப்புப்பிரதி எடுத்து பாதுகாப்பான இடத்தில் வைக்கவும்.
+    </td>
+  </tr>
+</table>
+
+<div class="tip-box" style="margin-top:14px;">
+  <div class="box-title">சமூக ஆதரவு மற்றும் வளங்கள்</div>
+  Simple AAC இலங்கை என்பது இலங்கைச் சிறார்களின் தொடர்பாடல் மேம்பாட்டிற்காக அர்ப்பணிக்கப்பட்ட ஒரு திறந்த முயற்சியாகும். மேலதிக தகவல்களுக்கு உங்கள் பகுதியிலுள்ள பேச்சு சிகிச்சை மையத்தை (Speech Therapy Clinic) அணுகவும்.
+</div>
+"""
+
+print("Tamil content module ready.")

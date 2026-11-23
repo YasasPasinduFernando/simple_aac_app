@@ -1,0 +1,465 @@
+# -*- coding: utf-8 -*-
+"""
+Sinhala User Guide Generator for Simple AAC Sri Lanka v1.1.6 (Build 16)
+සිංහල පරිශීලක අත්පොත
+"""
+
+import os, sys
+
+def get_sinhala_html():
+    return """
+<div class="cover-page">
+  <div class="cover-badge">නිල පරිශීලක මාර්ගෝපදේශය • සංස්කරණය 1.1.6 (BUILD 16)</div>
+  <h1 class="cover-title">Simple AAC ශ්‍රී ලංකා</h1>
+  <div class="cover-subtitle">විකල්ප සහ වර්ධක සන්නිවේදනය සඳහා වූ සම්පූර්ණ ත්‍රෛභාෂික අත්පොත</div>
+  <p class="cover-description">
+    කථන අපහසුතා සහ විශේෂ අවශ්‍යතා සහිත දරුවන්ට තම දෛනික අවශ්‍යතා, හැඟීම් සහ අදහස් රූපමය කාඩ්පත් සහ ක්ෂණික නොබැඳි කථනය (Offline Speech) මගින් පහසුවෙන් ප්‍රකාශ කිරීම සඳහා දෙමාපියන්, භාරකරුවන්, ගුරුවරුන් සහ කථන චිකිත්සකවරුන් වෙනුවෙන්ම සකස් කළ ප්‍රායෝගික මඟපෙන්වීම.
+  </p>
+
+  <div class="cover-card">
+    <div class="cover-card-row">
+      <span class="cover-card-label">මෘදුකාංග සංස්කරණය:</span>
+      <span class="cover-card-value">v1.1.6 (නිෂ්පාදන Build 16)</span>
+    </div>
+    <div class="cover-card-row">
+      <span class="cover-card-label">සහාය දක්වන භාෂා:</span>
+      <span class="cover-card-value">සිංහල (si-LK), දෙමළ (ta-IN), ඉංග්‍රීසි (en-US)</span>
+    </div>
+    <div class="cover-card-row">
+      <span class="cover-card-label">මෙහෙයුම් පද්ධතිය:</span>
+      <span class="cover-card-value">Android 5.0 (Lollipop) සිට Android 15+ දක්වා</span>
+    </div>
+    <div class="cover-card-row">
+      <span class="cover-card-label">නොබැඳි ක්‍රියාකාරිත්වය:</span>
+      <span class="cover-card-value">100% Offline (අන්තර්ජාලය අවශ්‍ය නොවේ)</span>
+    </div>
+    <div class="cover-card-row">
+      <span class="cover-card-label">පැකේජ හැඳුනුම් අංකය:</span>
+      <span class="cover-card-value">lk.yasas.simpleaac</span>
+    </div>
+    <div class="cover-card-row">
+      <span class="cover-card-label">නිකුත් කළ දිනය:</span>
+      <span class="cover-card-value">2026 නොවැම්බර්</span>
+    </div>
+  </div>
+</div>
+
+<div class="toc-box">
+  <div class="toc-title">පටුන (Table of Contents)</div>
+  <table class="toc-table">
+    <tr><td><strong>කෙටි ආරම්භක මඟපෙන්වීම</strong> — මුල්ම සන්නිවේදනය සඳහා පියවර 5 ක්</td><td style="text-align:right;">පිටුව 2</td></tr>
+    <tr><td><strong>1 වන පරිච්ඡේදය</strong> — Simple AAC භාවිතය ආරම්භ කිරීම සහ සංචාලනය</td><td style="text-align:right;">පිටුව 2</td></tr>
+    <tr><td><strong>2 වන පරිච්ඡේදය</strong> — කථනය සහ වාක්‍ය සකස් කිරීම</td><td style="text-align:right;">පිටුව 3</td></tr>
+    <tr><td><strong>3 වන පරිච්ඡේදය</strong> — සන්නිවේදන කාඩ්පත් සහ කාණ්ඩ (Folders)</td><td style="text-align:right;">පිටුව 4</td></tr>
+    <tr><td><strong>4 වන පරිච්ඡේදය</strong> — කැමරාව, පින්තූර ගැලරිය සහ මාධ්‍ය පහසුකම්</td><td style="text-align:right;">පිටුව 5</td></tr>
+    <tr><td><strong>5 වන පරිච්ඡේදය</strong> — පෙනුම, වර්ණ තේමා සහ ප්‍රවේශ්‍යතාව (Accessibility)</td><td style="text-align:right;">පිටුව 6</td></tr>
+    <tr><td><strong>6 වන පරිච්ඡේදය</strong> — භාරකරු අගුල (Caregiver Lock) සහ ළමා ආරක්ෂාව</td><td style="text-align:right;">පිටුව 7</td></tr>
+    <tr><td><strong>7 වන පරිච්ඡේදය</strong> — දත්ත උපස්ථ කිරීම (Backup), නැවත ලබාගැනීම සහ රහස්‍යතාව</td><td style="text-align:right;">පිටුව 7</td></tr>
+    <tr><td><strong>8 වන පරිච්ඡේදය</strong> — ගැටලු නිරාකරණය සහ නිතර අසන ප්‍රශ්න</td><td style="text-align:right;">පිටුව 8</td></tr>
+  </table>
+</div>
+
+<div class="section-header">
+  <h1>කෙටි ආරම්භක මඟපෙන්වීම — මුල්ම සන්නිවේදනය සඳහා පියවර 5 ක්</h1>
+</div>
+<p>Simple AAC ශ්‍රී ලංකා යෙදුම සංකීර්ණ සැකසුම්වලින් තොරව ක්ෂණික භාවිතය සඳහා සකසා ඇත. සන්නිවේදනය ඇරඹීමට මෙම සරල පියවර 5 අනුගමනය කරන්න:</p>
+<ol>
+  <li><strong>යෙදුම විවෘත කරන්න:</strong> ඔබගේ දුරකථනයේ හෝ ටැබ්ලටයේ ඇති Simple AAC අයිකනය ස්පර්ශ කරන්න. නිල් පැහැති සන්සුන් පුවරුව ක්ෂණිකව විවෘත වේ.</li>
+  <li><strong>කාඩ්පතක් ස්පර්ශ කරන්න:</strong> <em>හෙලෝ (Hello)</em> කාඩ්පත ස්පර්ශ කරන්න. යෙදුම ක්ෂණිකව පැහැදිලි සිංහල කටහඬින් "හෙලෝ" යැයි පවසමින් කාඩ්පත ඉස්මතු කරයි.</li>
+  <li><strong>වාක්‍යයක් ගොඩනගන්න:</strong> <em>මට ඕනෙ (I want)</em> කාඩ්පත ස්පර්ශ කර, අනතුරුව <em>වතුර (Water)</em> කාඩ්පත ස්පර්ශ කරන්න. වචන දෙකම ඉහළ වාක්‍ය තීරුවේ පිළිවෙළින් සටහන් වේ.</li>
+  <li><strong>සම්පූර්ණ වාක්‍යයට සවන් දෙන්න:</strong> වාක්‍ය තීරුවේ දකුණුපස ඇති නිල් පැහැති ස්පීකර් ලකුණ <span style="font-size:11pt;">🔊</span> ස්පර්ශ කරන්න. එවිට සම්පූර්ණ වාක්‍යයම එකවර කථා කරනු ඇත.</li>
+  <li><strong>පුවරුව අගුළු දමන්න (අවශ්‍ය නම්):</strong> ඉහළ වම් කෙළවරේ ඇති පින් ලකුණ <span style="font-size:11pt;">📌</span> ස්පර්ශ කර භාරකරු අගුල (Caregiver Lock) සක්‍රීය කරන්න. එමගින් දරුවා අතින් අහඹු ලෙස කාඩ්පත් මැකී යාම වැළකේ.</li>
+</ol>
+
+<div class="tip-box">
+  <div class="box-title">භාරකරුවන්ට උපදෙසක්</div>
+  දරුවා ඉදිරියේ ටැබ්ලටය පහසු දුරකින් තබන්න. දරුවාට පෙනෙන සේ ඔබ විසින්ම කාඩ්පතක් ස්පර්ශ කර කථා කරන අයුරු ආදර්ශයෙන් පෙන්වන්න (Modeling). එමගින් ස්පර්ශය මගින් ශබ්දය උපදින බව දරුවා පහසුවෙන් වටහා ගනී.
+</div>
+
+<div class="section-header">
+  <h1>1 වන පරිච්ඡේදය — Simple AAC භාවිතය ආරම්භ කිරීම සහ සංචාලනය</h1>
+</div>
+<p>
+  <strong>Simple AAC ශ්‍රී ලංකා</strong> යනු ඕටිසම් (Autism Spectrum), කථන ප්‍රමාදයන්, මස්තිෂ්ක අංශභාගය (Cerebral Palsy) හෝ වෙනත් සන්නිවේදන දුෂ්කරතා සහිත දරුවන් වෙනුවෙන්ම නිර්මාණය කරන ලද විකල්ප සන්නිවේදන මෘදුකාංගයකි. මෙය 100% ක්ම නොබැඳිව (Offline) ක්‍රියාත්මක වන අතර කිසිදු අන්තර්ජාල සම්බන්ධතාවයක් හෝ මුදල් ගෙවීමක් අවශ්‍ය නොවේ.
+</p>
+
+<h2>1.1 ප්‍රධාන තිරය හඳුනා ගැනීම</h2>
+<p>ප්‍රධාන අතුරුමුහුණත කාණ්ඩ තුනකින් සමන්විත වේ:</p>
+<ul>
+  <li><strong>ඉහළ සංචාලන තීරුව (Top Bar):</strong> වම්පසින් ඇති **Pin Board** (ආරක්ෂිත අගුල), මැදින් ඇති **Simple AAC** නාමය සහ දකුණුපසින් ඇති **සැකසුම් මෙනුව (Settings)**.</li>
+  <li><strong>වාක්‍ය තීරුව (Sentence Composer Bar):</strong> තෝරාගත් කාඩ්පත් පෙළගැසෙන සහ එකවර ශ්‍රවණය කළ හැකි ප්‍රදේශය. මෙහි *Delete* (අවසන් කාඩ්පත ඉවත් කිරීම), *Clear* (සම්පූර්ණ වාක්‍යය මකා දැමීම) සහ *Speak* (කථා කිරීමේ) බොත්තම් අඩංගු වේ.</li>
+  <li><strong>සන්නිවේදන කාඩ්පත් ජාලකය (Card Grid):</strong> සියුම් ඇඟිලි චලනයන් අපහසු දරුවන්ට පවා පහසුවෙන් ස්පර්ශ කළ හැකි විශාල, ඉහළ ප්‍රතිවිරෝධතා (High-contrast) වර්ණ සහිත කාඩ්පත්.</li>
+</ul>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/01_home_screen.png" alt="Simple AAC ආලෝක මාදිලිය">
+      <div class="screenshot-caption">රූපය 1.1: ආලෝක මාදිලියේ (Light Mode) ප්‍රධාන තිරය සහ වාක්‍ය තීරුව.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/27_dark_mode_home.png" alt="Simple AAC අඳුරු මාදිලිය">
+      <div class="screenshot-caption">රූපය 1.2: අඳුරු මාදිලියේ (Dark Mode) මුල් තිරය එකඟ වූ වර්ණ සමඟින්.</div>
+    </td>
+  </tr>
+</table>
+
+<h2>1.2 කාණ්ඩ සංචාලනය සහ ස්වයංක්‍රීය මතකය (Automatic Folder Recovery)</h2>
+<p>
+  කාඩ්පත් විවිධ මාතෘකා යටතේ (උදා: *අවශ්‍යතා*, *හැඟීම්*, *ආහාර*, *සතුන්*) ෆෝල්ඩර ලෙස ගොනු කර ඇත. ඉහළ ඇති මඟපෙන්වුම් පෙළ (Breadcrumbs - උදා: <code>Home &gt; Default &gt; Needs</code>) මඟින් ඔබ සිටින ස්ථානය දැකගත හැකි අතර ආපසු යාමට පසුපස ඊතලය ස්පර්ශ කරන්න.
+</p>
+<div class="info-box">
+  <div class="box-title">Build 16 නව විශේෂාංගය — ස්වයංක්‍රීය ෆෝල්ඩර මතකය</div>
+  ඔබ යෙදුමෙන් තාවකාලිකව ඉවත් වී වෙනත් ඇප් එකකට ගියද හෝ දුරකථනය පසුබිමේදී යෙදුම නැවත පණගැන්වුවද, Simple AAC ඔබ අවසන් වරට රැඳී සිටි නිශ්චිත ෆෝල්ඩරය එලෙසම මතක තබා ගෙන නැවත විවෘත වේ.
+</div>
+
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h1>2 වන පරිච්ඡේදය — කථනය සහ වාක්‍ය සකස් කිරීම</h1>
+</div>
+
+<h2>2.1 ක්ෂණික කථනය සහ බහුවිධ ප්‍රතිචාර</h2>
+<p>
+  දරුවා කාඩ්පතක් ස්පර්ශ කළ සැණින් බහුවිධ ඉන්ද්‍රිය ප්‍රතිචාර (Multi-sensory feedback) ලැබේ:
+</p>
+<ul>
+  <li><strong>ක්ෂණික කටහඬ (Instant Speech):</strong> කාඩ්පත ස්පර්ශ කළ වහාම ප්‍රමාදයකින් තොරව පැහැදිලි හඬින් කථා කරයි. Build 16 හි පසුබිම් හඬ පෙර-සූදානම (Background Pre-warming) හේතුවෙන් ප්‍රථම ස්පර්ශයේදී පවා කිසිදු ප්‍රමාදයක් සිදු නොවේ.</li>
+  <li><strong>දෘශ්‍ය ඉස්මතු වීම (Visual Highlight):</strong> කාඩ්පත වටා දීප්තිමත් මායිමක් මතුවෙමින් තේරීම තහවුරු කරයි.</li>
+  <li><strong>ස්පර්ශක කම්පනය (Haptic Pop):</strong> ස්පර්ශ සංවේදනය ප්‍රිය කරන දරුවන් සඳහා සියුම් කම්පන ප්‍රතිචාරයක් ලැබේ. මෙය සැකසුම් මඟින් වෙනස් කිරීමට හෝ අක්‍රිය කිරීමට හැකිය.</li>
+</ul>
+
+<h2>2.2 බහු-වචන වාක්‍ය ගොඩනැගීම</h2>
+<p>
+  තනි වචනවලින් ඔබ්බට ගොස් සම්පූර්ණ අදහස් ප්‍රකාශ කිරීමට ඉහළ ඇති <strong>වාක්‍ය තීරුව (Sentence Composer)</strong> උපකාරී වේ:
+</p>
+<ol>
+  <li>අනුපිළිවෙලින් කාඩ්පත් ස්පර්ශ කරන්න: උදාහරණයක් ලෙස <code>මට බඩගිනියි</code> &rarr; <code>බත්</code>.</li>
+  <li>එක් එක් කාඩ්පත කුඩා අයිකනයක් සහ නම සහිතව වාක්‍ය තීරුවේ ස්ථානගත වේ.</li>
+  <li>නිල් පැහැති <strong>ස්පීකර් බොත්තම (🔊)</strong> ඔබන්න. සම්පූර්ණ වාක්‍යයම ස්වභාවික රිද්මයෙන් කථා කරනු ඇත.</li>
+  <li>අවසන් වචනය මකා දැමීමට <strong>Delete (⌫)</strong> ද, සම්පූර්ණ වාක්‍යයම ඉවත් කිරීමට <strong>Clear (✕)</strong> ද භාවිතා කරන්න.</li>
+</ol>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/04_sentence_bar.png" alt="වාක්‍ය තීරුව">
+      <div class="screenshot-caption">රූපය 2.1: වාක්‍ය ගොඩනගන තීරුව සක්‍රීය කාඩ්පත් සමඟින්.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/03_speaking_card.png" alt="කාඩ්පත කථා කිරීම">
+      <div class="screenshot-caption">රූපය 2.2: කාඩ්පත ස්පර්ශ වූ විට ක්ෂණික ශබ්දය හා දෘශ්‍ය ඉස්මතු වීම.</div>
+    </td>
+  </tr>
+</table>
+
+<h2>2.3 නොබැඳි භාෂා ත්‍රිත්වය (සිංහල, දෙමළ, ඉංග්‍රීසි)</h2>
+<p>
+  Simple AAC ශ්‍රී ලංකාවේ ප්‍රධාන භාෂා තුනෙන්ම ක්‍රියා කරයි. කථන ශබ්දය උපදවන්නේ ඔබගේ දුරකථනයේ ඇති නොබැඳි කථන එන්ජිම (Offline Text-to-Speech) මඟිනි:
+</p>
+<ul>
+  <li><strong>සිංහල (si-LK):</strong> ශ්‍රී ලාංකික සිංහල වචන නිවැරදි උච්චාරණයෙන් කථා කරයි.</li>
+  <li><strong>දෙමළ (ta-IN / ta-LK):</strong> දෛනික දෙමළ වචන සඳහා වූ පැහැදිලි උච්චාරණය.</li>
+  <li><strong>ඉංග්‍රීසි (en-US / en-GB):</strong> පැහැදිලි, සරල ඉංග්‍රීසි කටහඬ.</li>
+</ul>
+
+<div class="tip-box">
+  <div class="box-title">සිංහල කටහඬ නොඇසේ නම් කළ යුතු දේ</div>
+  දුරකථනයේ සිංහල හඬ පැකේජය බාගත කර ඇති බව තහවුරු කරගන්න: දුරකථනයේ <strong>Settings &gt; System &gt; Language &gt; Text-to-Speech &gt; Google Speech Recognition &amp; Synthesis &gt; Install voice data</strong> වෙත ගොස් Sinhala සහ Tamil තෝරා බාගත කරන්න.
+</div>
+
+<div class="section-header">
+  <h1>3 වන පරිච්ඡේදය — සන්නිවේදන කාඩ්පත් සහ කාණ්ඩ (Folders)</h1>
+</div>
+
+<h2>3.1 පෙර-ස්ථාපිත කාණ්ඩ 13 (Default Starter Pack)</h2>
+<p>
+  Simple AAC හි දෛනික ජීවිතයට අත්‍යවශ්‍ය මූලික කාඩ්පත් 130 කට අධික ප්‍රමාණයක් කාණ්ඩ 13 කට බෙදා ඇතුළත් කර ඇත:
+</p>
+<ul>
+  <li><strong>අවශ්‍යතා (Needs):</strong> බඩගිනියි, වතුර ඕනෙ, වැසිකිළිය, උදව්, විවේක, රිදෙනවා වැනි හදිසි අවශ්‍යතා.</li>
+  <li><strong>හැඟීම් (Feelings):</strong> සතුටුයි, දුකයි, තරහයි, බයයි, මහන්සියි.</li>
+  <li><strong>ආහාර සහ කෙටි කෑම (Food &amp; Snacks):</strong> බත්, පාන්, පළතුරු, කිරි, බිස්කට් ආදී ආහාර වර්ග.</li>
+  <li><strong>වර්ණ සහ හැඩතල (Colours &amp; Shapes):</strong> අධ්‍යාපනික ක්‍රියාකාරකම් සඳහා මූලික සංකල්ප.</li>
+  <li><strong>පවුල සහ පුද්ගලයන් (Family &amp; People):</strong> අම්මා, තාත්තා, ගුරුතුමිය, දොස්තර මහතා.</li>
+  <li><strong>සතුන්, ක්‍රියාකාරකම්, ස්ථාන, සනීපාරක්ෂාව, ඇඳුම්, සෙල්ලම් බඩු සහ පාසල.</strong></li>
+</ul>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/07_folder_view.png" alt="කාණ්ඩ ෆෝල්ඩරය">
+      <div class="screenshot-caption">රූපය 3.1: ළමා සුහදශීලී කාණ්ඩ ෆෝල්ඩර දසුන.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/28_dark_mode_nested_needs.png" alt="අඳුරු මාදිලියේ අවශ්‍යතා කාණ්ඩය">
+      <div class="screenshot-caption">රූපය 3.2: අඳුරු මාදිලියේ අවශ්‍යතා ෆෝල්ඩරය පිරිපුන් පසුබිම් වර්ණ සහිතව.</div>
+    </td>
+  </tr>
+</table>
+
+<h2>3.2 නව කාඩ්පත් නිර්මාණය කිරීම සහ සැකසීම</h2>
+<p>දරුවාගේ සැබෑ පරිසරයට ගැලපෙන පරිදි නව කාඩ්පත් එක් කළ හැක:</p>
+<ol>
+  <li>සැකසුම් මෙනුව (☰) විවෘත කර <strong>සංස්කරණ මාදිලිය (Edit Mode)</strong> සක්‍රීය කරන්න.</li>
+  <li>පහළින් දිස්වන <strong>+ (කාඩ්පතක් එක් කරන්න)</strong> බොත්තම ඔබන්න.</li>
+  <li>කාඩ්පතේ නම (උදා: "අත්තම්මා") සහ ශබ්ද නගා කිව යුතු වචනය ඇතුළත් කරන්න.</li>
+  <li>කැමරාව, ගැලරිය හෝ චිත්‍ර එකතුවෙන් පින්තූරයක් තෝරන්න.</li>
+  <li><strong>Save</strong> ඔබන්න. නව කාඩ්පත සන්නිවේදනය සඳහා සූදානම් වේ.</li>
+</ol>
+
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h1>4 වන පරිච්ඡේදය — කැමරාව, පින්තූර ගැලරිය සහ මාධ්‍ය පහසුකම්</h1>
+</div>
+
+<h2>4.1 කැමරාවෙන් සැබෑ ඡායාරූප ලබා ගැනීම</h2>
+<p>
+  ඕටිසම් දරුවන්ට සැබෑ ලෝකයේ වස්තූන් සහ හුරුපුරුදු මුහුණු පහසුවෙන් හඳුනාගත හැක:
+</p>
+<ol>
+  <li>කාඩ්පත් සංස්කාරකයේදී (Card Editor) <strong>කැමරාව (Camera)</strong> තෝරන්න.</li>
+  <li>අදාළ වස්තුව (උදා: දරුවාගේ වතුර බෝතලය) ඡායාරූපගත කරන්න.</li>
+  <li>ඡායාරූපය තහවුරු කරන්න. යෙදුම ස්වයංක්‍රීයව ඡායාරූපය කාඩ්පතට අමුණා සංස්කාරක තිරයට පැමිණේ.</li>
+  <li><strong>කෙටුම්පත් ආරක්ෂාව (Draft Protection):</strong> ඡායාරූපය ලබා ගැනීමේදී ඔබ පෙර ඇතුළත් කළ ලේබල් හෝ සැකසුම් කිසිවක් මැකී නොගොස් සුරැකී පවතී.</li>
+</ol>
+
+<h2>4.2 දුරකථන ගැලරියෙන් පින්තූර තේරීම</h2>
+<p>
+  <strong>Gallery</strong> තේරූ විට, ඇන්ඩ්‍රොයිඩ් පද්ධතියේ නවීන සහ ආරක්ෂිත Photo Picker විවෘත වේ. එමගින් ඔබ තෝරාගන්නා නිශ්චිත ඡායාරූපයට පමණක් යෙදුමට ප්‍රවේශය ලැබෙන අතර ඔබගේ පුද්ගලික ගොනු සුරක්ෂිතව පවතී.
+</p>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/08_camera_flow.png" alt="කැමරා ඡායාරූප ගැනීම">
+      <div class="screenshot-caption">රූපය 4.1: කාඩ්පත් සංස්කාරකය තුළින්ම සෘජුවම කැමරාව භාවිත කිරීම.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/09_gallery_picker.png" alt="ගැලරි තේරීම">
+      <div class="screenshot-caption">රූපය 4.2: රහස්‍යතාව සුරකින ඇන්ඩ්‍රොයිඩ් ඡායාරූප තෝරනය.</div>
+    </td>
+  </tr>
+</table>
+
+<h2>4.3 චලන රූප (Animated GIFs) සහ වීඩියෝ GIF බවට පත් කිරීම</h2>
+<p>
+  <em>පනිනවා</em>, <em>අත් සෝදනවා</em>, <em>නටනවා</em> වැනි ක්‍රියාපද (Action words) චලනය වන රූප මගින් වඩාත් හොඳින් අවබෝධ කරගත හැක:
+</p>
+<ul>
+  <li><strong>GIF රූප භාවිතය:</strong> ගැලරියේ ඇති ඕනෑම GIF රූපයක් තෝරාගත හැකි අතර එය කාඩ්පත මත නොනවත්වා චලනය වේ.</li>
+  <li><strong>වීඩියෝවක් GIF එකක් කිරීම:</strong> තත්පර 10 කට අඩු කෙටි වීඩියෝවක් තෝරාගත් විට යෙදුම එය බැටරියට හිතකර GIF එකක් බවට පත් කරයි.</li>
+  <li><strong>ක්ෂණිකව අවලංගු කිරීම (Cooperative Cancellation):</strong> වැරදි වීඩියෝවක් තේරී ඇත්නම්, <strong>Cancel</strong> බොත්තම එබූ සැණින් පරිවර්තනය ක්ෂණිකව නැවතී තාවකාලික ගොනු ඉවත් කර කිසිදු ඇනහිටීමකින් තොරව සංස්කාරකයට පිවිසේ.</li>
+</ul>
+
+<h2>4.4 පෞද්ගලික කටහඬ පටිගත කිරීම</h2>
+<p>
+  යන්ත්‍රයේ කටහඬ වෙනුවට මවගේ හෝ හුරුපුරුදු ගුරුවරියකගේ සැබෑ හඬින් කථා කිරීමට අවශ්‍ය නම්:
+</p>
+<ol>
+  <li>කාඩ්පත් සංස්කාරකයේ පහළ ඇති <strong>Custom Voice Recording</strong> වෙත යන්න.</li>
+  <li>රතු පැහැති මයික්‍රෆෝන ලකුණ <span style="font-size:11pt;">🎙️</span> ඔබා වචනය පැහැදිලිව පවසන්න.</li>
+  <li>Stop ඔබන්න. Play <span style="font-size:11pt;">▶️</span> ඔබා පටිගත වූ හඬ පරීක්ෂා කරන්න.</li>
+  <li>මෙම කාඩ්පත ස්පර්ශ කරන සෑම විටකම යන්ත්‍රයේ හඬ වෙනුවට ඔබ පටිගත කළ සැබෑ හඬ වාදනය වේ.</li>
+</ol>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/12_video_to_gif.png" alt="වීඩියෝ GIF පරිවර්තනය">
+      <div class="screenshot-caption">රූපය 4.3: කාර්යක්ෂම වීඩියෝ-GIF පරිවර්තකය අවලංගු කිරීමේ පහසුකම සමඟ.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/13_custom_voice_recorder.png" alt="කටහඬ පටිගත කිරීම">
+      <div class="screenshot-caption">රූපය 4.4: දෙමාපියන්ගේ සැබෑ කටහඬ පටිගත කිරීමේ පහසුකම.</div>
+    </td>
+  </tr>
+</table>
+
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h1>5 වන පරිච්ඡේදය — පෙනුම, වර්ණ තේමා සහ ප්‍රවේශ්‍යතාව (Accessibility)</h1>
+</div>
+
+<h2>5.1 ආලෝක සහ අඳුරු මාදිලි (Light &amp; Dark Modes)</h2>
+<p>
+  දිවා කාලයේ භාවිතයට <strong>ආලෝක මාදිලිය (Light Mode)</strong> ද, රාත්‍රී කාලයේදී ඇස්වලට වෙහෙස නොවීමට සහ දීප්තිය පාලනයට <strong>අඳුරු මාදිලිය (Dark Mode)</strong> ද තෝරාගත හැක. Build 16 හිදී අඳුරු මාදිලියේ කාඩ්පත් පසුබිම් චිත්‍රවලට එකඟ වන සේ මනාව සකසා ඇත.
+</p>
+
+<h2>5.2 කථන තීරුවේ වර්ණය (Text-to-Speech Bar Colour - Build 16 නව විශේෂාංගය)</h2>
+<p>
+  <strong>Settings &gt; Appearance &amp; Theme</strong> හි <em>Board Background Colour</em> ට පහළින් මෙම නව සැකසුම පිහිටා ඇත:
+</p>
+<ul>
+  <li><strong>වාක්‍ය තීරුවේ පසුබිම වෙනස් කිරීම:</strong> වාක්‍ය ගොඩනගන තීරුවේ පසුබිම් වර්ණය රුචි පරිදි වෙනස් කරගත හැක.</li>
+  <li><strong>දිවා/රාත්‍රී ස්වාධීන මතකය:</strong> ආලෝක මාදිලිය සඳහා එක් වර්ණයක්ද (උදා: ලා නිල්), අඳුරු මාදිලිය සඳහා වෙනත් වර්ණයක්ද (උදා: තද දම්) ස්වාධීනව තෝරා තැබිය හැක.</li>
+  <li><strong>සජීවී පෙරදසුන (Live Preview Chip):</strong> සැකසුම් මෙනුව තුළම කුඩා වාක්‍ය තීරුවක පෙරදසුනක් (Elephant, Fish කාඩ්පත් සමඟ) සජීවීව දිස්වේ.</li>
+  <li><strong>ස්වයංක්‍රීය අකුරු ප්‍රතිවිරෝධය:</strong> ඔබ තෝරාගන්නා පසුබිම් වර්ණයට ගැලපෙන සේ අකුරු කළු හෝ සුදු පැහැයට ස්වයංක්‍රීයව හැරී උපරිම කියවීමේ පහසුව ලබා දෙයි.</li>
+  <li><strong>වර්ණ තෝරනය:</strong> සකස් කළ ක්ෂණික වර්ණ මාලාවකින් හෝ <em>Custom colour</em> මඟින් ඕනෑම වර්ණයක් තෝරාගත හැක.</li>
+</ul>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/26_tts_bar_colour_setting.png" alt="කථන තීරුවේ වර්ණය තේරීම">
+      <div class="screenshot-caption">රූපය 5.1: කථන තීරුවේ වර්ණය තේරීමේ නව සැකසුම සහ වර්ණ තෝරනය.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/20_appearance_and_color_vision.png" alt="වර්ණ අන්ධතා සහාය">
+      <div class="screenshot-caption">රූපය 5.2: වර්ණ අන්ධතා සහාය (Colour Vision Support) සැකසුම්.</div>
+    </td>
+  </tr>
+</table>
+
+<h2>5.3 කාඩ්පත් ලේබල් පාලනය (Label Visibility &amp; Overlay)</h2>
+<ul>
+  <li><strong>කාඩ්පත් ලේබල් පෙන්වීම (Show Card Labels):</strong> අකුරු කියවීමට නොහැකි කුඩා දරුවන් සඳහා ලේබල් සඟවා පින්තූරය පමණක් (Flashcard) පෙන්වීමට මෙය අක්‍රිය කළ හැක.</li>
+  <li><strong>පින්තූරය මත ලේබලය තැබීම (Overlay Card Labels):</strong> සක්‍රීය කළ විට අකුරු පින්තූරයේ පහළින් මෘදුව පාවෙන සේ දිස්වේ. අක්‍රිය කළ විට පින්තූරයට පහළින් වෙනම තීරුවක අකුරු පිහිටයි.</li>
+  <li><strong>ගෝලීය ලේබල් පසුබිම් වර්ණය (Card Label Colour Global):</strong> සියලුම කාඩ්පත්වල ලේබල් සඳහා පොදු පසුබිම් වර්ණයක් යෙදිය හැක.</li>
+</ul>
+
+<h2>5.4 වර්ණ අන්ධතා සහාය සහ ජාලක ප්‍රමාණය</h2>
+<ul>
+  <li><strong>වර්ණ අන්ධතා ප්‍රකාර (Colour Vision Modes):</strong> Protanopia, Deuteranopia, Tritanopia සහිත දරුවන්ට වර්ණ හඳුනා ගැනීමට පහසු වෙනස්කම්.</li>
+  <li><strong>තීරු ගණන වෙනස් කිරීම:</strong> පුවරුවේ තිරස් තීරු ගණන 1 සිට 12 දක්වා දරුවාගේ ඇඟිලි පාලනයට අනුව සකසා ගත හැක.</li>
+  <li><strong>සැකසුම් සම්පූර්ණ තිරයෙන් පෙන්වීම (Open Settings Full Screen):</strong> සැකසුම් මෙනුව කුඩා තීරුවක් ලෙස හෝ සම්පූර්ණ තිරය පුරා විවෘත වන සේ සැකසීමේ හැකියාව.</li>
+</ul>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/29_mode_1_overlay_on.png" alt="Overlay මාදිලිය">
+      <div class="screenshot-caption">රූපය 5.3: දෘශ්‍ය මාදිලිය 1 — පින්තූරය මත ලේබලය පිහිටන අයුරු (Overlay ON).</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/30_mode_2_overlay_off.png" alt="වෙන්වූ ලේබල් මාදිලිය">
+      <div class="screenshot-caption">රූපය 5.4: දෘශ්‍ය මාදිලිය 2 — පින්තූරයට පහළින් ලේබලය පිහිටන අයුරු (Overlay OFF).</div>
+    </td>
+  </tr>
+</table>
+
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h1>6 වන පරිච්ඡේදය — භාරකරු අගුල (Caregiver Lock) සහ ළමා ආරක්ෂාව</h1>
+</div>
+
+<h2>6.1 භාරකරු අගුල සක්‍රීය කිරීම (Pin Board Mode)</h2>
+<p>
+  දරුවන් පුවරුව භාවිත කිරීමේදී අහඹු ලෙස මෙනු විවෘත කිරීම හෝ කාඩ්පත් මකා දැමීම වැළැක්වීමට මෙම අගුල යොදන්න:
+</p>
+<ol>
+  <li>ඉහළ වම් කෙළවරේ ඇති <strong>පින් ලකුණ (📌)</strong> ස්පර්ශ කරන්න.</li>
+  <li>පුවරුව අගුළු වැටේ (Locked Mode). සැකසුම් මෙනුව සහ සංස්කරණ බොත්තම් සම්පූර්ණයෙන්ම සැඟවී යයි.</li>
+  <li>දරුවාට කිසිදු බාධාවකින් තොරව නිදහසේ කාඩ්පත් ස්පර්ශ කර කථා කළ හැක.</li>
+  <li>නැවත විවෘත කිරීමට අගුලේ ලකුණ ඔබා ඔබගේ ඉලක්කම් 4 රහස් අංකය (PIN) ඇතුළත් කරන්න.</li>
+</ol>
+
+<table class="screenshot-grid">
+  <tr>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/15_pin_dialog.png" alt="PIN අංක සංවාදය">
+      <div class="screenshot-caption">රූපය 6.1: ඉලක්කම් 4 කින් යුත් ආරක්ෂිත PIN අංකය සැකසීම.</div>
+    </td>
+    <td class="screenshot-cell" style="width:50%;">
+      <img src="./assets/15_pin_mode_locked.png" alt="අගුළු දැමූ පුවරුව">
+      <div class="screenshot-caption">රූපය 6.2: අගුළු දැමූ පුවරුව: දරුවාගේ ආරක්ෂාව වෙනුවෙන් සංස්කරණය අක්‍රියයි.</div>
+    </td>
+  </tr>
+</table>
+
+<h2>6.2 PIN අංකය කළමනාකරණය</h2>
+<ul>
+  <li><strong>මූලික PIN අංකය:</strong> ප්‍රථම වරට අගුල යොදන විට ඔබට කැමති ඉලක්කම් 4 ක අංකයක් ඇතුළත් කරන්න (උදා: <code>1234</code>).</li>
+  <li><strong>PIN අංකය අමතක වුවහොත්:</strong> <em>Forgot PIN</em> තෝරා ප්‍රධාන මුදාහැරීමේ අංකය (Master PIN) වන <code>0000</code> ඇතුළත් කරන්න.</li>
+</ul>
+
+<div class="section-header">
+  <h1>7 වන පරිච්ඡේදය — දත්ත උපස්ථ කිරීම (Backup), නැවත ලබාගැනීම සහ රහස්‍යතාව</h1>
+</div>
+
+<h2>7.1 සම්පූර්ණ දත්ත උපස්ථයක් (Backup) සෑදීම</h2>
+<p>
+  ඔබ මහන්සියෙන් සකස් කළ කාඩ්පත්, පටිගත කළ කටහඬවල් හෝ ඡායාරූප කිසිදා අහිමි නොවන සේ සුරක්ෂිත කරගන්න:
+</p>
+<ol>
+  <li><strong>Settings &gt; Backup &amp; Restore</strong> වෙත යන්න.</li>
+  <li><strong>Create Backup</strong> ඔබන්න.</li>
+  <li>සියලුම කාඩ්පත්, ඡායාරූප, GIF රූප, හඬ පටිගත කිරීම් සහ වර්ණ සැකසුම් තනි <code>.zip</code> ගොනුවක් ලෙස සුරැකේ.</li>
+  <li>මෙම ගොනුව Google Drive, WhatsApp හෝ ඊමේල් මගින් වෙනත් දුරකථනයකට යවා තබා ගන්න.</li>
+</ol>
+
+<h2>7.2 නව දුරකථනයකට හෝ ටැබ්ලටයකට දත්ත ඇතුළත් කිරීම</h2>
+<ol>
+  <li>සුරක්ෂිත කරගත් Backup ගොනුව නව දුරකථනයට පිටපත් කරන්න.</li>
+  <li>Simple AAC ස්ථාපනය කර <strong>Settings &gt; Backup &amp; Restore &gt; Restore Backup</strong> තෝරන්න.</li>
+  <li>Backup ගොනුව තේරූ සැණින් පෙර තිබූ සියලුම කාඩ්පත් සහ සැකසුම් ක්ෂණිකව නැවත ස්ථාපනය වේ.</li>
+</ol>
+
+<div class="caution-box">
+  <div class="box-title">100% නොබැඳි රහස්‍යතා සහතිකය</div>
+  Simple AAC කිසිදු බාහිර සේවාදායකයකට (Servers) සම්බන්ධ නොවේ. ඔබගේ දරුවාගේ ඡායාරූප, පටිගත කළ හඬවල් සහ සන්නිවේදන දත්ත ඔබගේ දුරකථනය තුළ පමණක් සුරක්ෂිතව පවතින අතර අන්තර්ජාලයට උඩුගත නොවේ.
+</div>
+
+<div class="page-break"></div>
+
+<div class="section-header">
+  <h1>8 වන පරිච්ඡේදය — ගැටලු නිරාකරණය සහ නිතර අසන ප්‍රශ්න</h1>
+</div>
+
+<h2>8.1 නිතර අසන ගැටලු සහ සරල පිළියම්</h2>
+
+<table style="width:100%; border-collapse:collapse; margin-top:6px; font-size:8.5pt;">
+  <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+    <th style="padding:6px 8px; text-align:left; width:35%;">ගැටලුව / රෝග ලක්ෂණය</th>
+    <th style="padding:6px 8px; text-align:left;">විසඳුම සහ පියවර</th>
+  </tr>
+  <tr style="border-bottom:1px solid #e2e8f0;">
+    <td style="padding:6px 8px; font-weight:600; color:#0f172a;">කාඩ්පත් ස්පර්ශ කළද ශබ්දය නොඇසේ.</td>
+    <td style="padding:6px 8px;">
+      1. දුරකථනයේ මාධ්‍ය ශබ්ද මට්ටම (Media Volume) වැඩි කරන්න.<br>
+      2. Simple AAC සැකසුම්වල <strong>Tap to Speak</strong> සක්‍රීය දැයි බලන්න.<br>
+      3. දුරකථනයේ Google Speech Recognition &amp; Synthesis එන්ජිම ක්‍රියාත්මක දැයි පරීක්ෂා කරන්න.
+    </td>
+  </tr>
+  <tr style="border-bottom:1px solid #e2e8f0;">
+    <td style="padding:6px 8px; font-weight:600; color:#0f172a;">සිංහල හෝ දෙමළ වචන නිවැරදිව කථා නොකරයි.</td>
+    <td style="padding:6px 8px;">
+      දුරකථනයට නොබැඳි සිංහල හඬ ගොනුව බාගත කළ යුතුය: දුරකථනයේ <strong>Settings &gt; System &gt; Language &gt; Text-to-Speech &gt; Google TTS &gt; Install voice data</strong> වෙත ගොස් Sinhala බාගත කරන්න.
+    </td>
+  </tr>
+  <tr style="border-bottom:1px solid #e2e8f0;">
+    <td style="padding:6px 8px; font-weight:600; color:#0f172a;">කැමරාව විවෘත නොවේ.</td>
+    <td style="padding:6px 8px;">
+      Simple AAC සඳහා කැමරා අවසරය ලබාදී ඇත්දැයි බලන්න: දුරකථනයේ <strong>Settings &gt; Apps &gt; Simple AAC &gt; Permissions</strong> වෙත ගොස් Camera අවසරය ලබා දෙන්න.
+    </td>
+  </tr>
+  <tr style="border-bottom:1px solid #e2e8f0;">
+    <td style="padding:6px 8px; font-weight:600; color:#0f172a;">අත්වැරදීමකින් කාඩ්පතක් මැකී ගියේය.</td>
+    <td style="padding:6px 8px;">
+      බිය නොවන්න! කාඩ්පත කෙළින්ම මැකී නොයයි. <strong>Settings &gt; Recycle Bin</strong> වෙත ගොස් අදාළ කාඩ්පත තෝරා <strong>Restore</strong> ඔබන්න.
+    </td>
+  </tr>
+  <tr style="border-bottom:1px solid #e2e8f0;">
+    <td style="padding:6px 8px; font-weight:600; color:#0f172a;">ඇප් එක නැවත විවෘත කළ විට මුල් තිරයට යයිද?</td>
+    <td style="padding:6px 8px;">
+      නැත, Build 16 හි ස්වයංක්‍රීය මතකය මගින් ඔබ සිටි ෆෝල්ඩරය එලෙසම රඳවා ගනී. Android Recent Apps මගින් ඇප් එක තෝරන්න.
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:6px 8px; font-weight:600; color:#0f172a;">දරුවාගේ වචන එකතුව ආරක්ෂා කරගන්නේ කෙසේද?</td>
+    <td style="padding:6px 8px;">
+      මසකට වරක් <strong>Settings &gt; Backup &amp; Restore &gt; Create Backup</strong> මඟින් Backup එකක් සාදා ඔබගේ ඊමේල් හෝ Google Drive හි තබා ගන්න.
+    </td>
+  </tr>
+</table>
+
+<div class="tip-box" style="margin-top:14px;">
+  <div class="box-title">සහයෝගය සහ ප්‍රජාව</div>
+  Simple AAC ශ්‍රී ලංකා යනු ශ්‍රී ලාංකික දරුවන්ගේ සන්නිවේදන ප්‍රවේශ්‍යතාව වෙනුවෙන් කැපවූ විවෘත ව්‍යාපෘතියකි. වැඩිදුර තොරතුරු සහ උපකාර සඳහා ඔබගේ ප්‍රදේශයේ කථන හා භාෂා චිකිත්සක සායනය (Speech Therapy Clinic) අමතන්න.
+</div>
+"""
+
+print("Sinhala content module ready.")
