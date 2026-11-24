@@ -5,6 +5,7 @@
 ## Key Concepts
 
 - **backup_service.dart** (39 connections) — `lib/services/backup_service.dart`
+- **starter_pack_service.dart** (2 connections)
 - **Backup & Restore Stress Test Report** (1 connections) — `docs/qa/BACKUP_RESTORE_STRESS_TEST_REPORT.md`
 - **archive** (1 connections) — `lib/services/backup_service.dart`
 - **BackupPayload** (1 connections) — `lib/services/backup_service.dart`
@@ -28,20 +29,19 @@
 - **saveZipToAppDocs** (1 connections) — `lib/services/backup_service.dart`
 - **saveZipToDownloads** (1 connections) — `lib/services/backup_service.dart`
 - **settings** (1 connections) — `lib/services/backup_service.dart`
-- **target** (1 connections) — `lib/services/backup_service.dart`
 - *... and 4 more nodes in this community*
 
 ## Relationships
 
-- [Data Backup Service](Data_Backup_Service.md) (2 shared connections)
-- [Image and UI Helpers](Image_and_UI_Helpers.md) (2 shared connections)
-- [Card Data Model](Card_Data_Model.md) (1 shared connections)
+- [Data Backup Service](Data_Backup_Service.md) (4 shared connections)
 - [Edit Session State](Edit_Session_State.md) (1 shared connections)
-- [Caregiver Lock Service](Caregiver_Lock_Service.md) (1 shared connections)
+- [ui_mode_helper.dart](ui_mode_helper.dart.md) (1 shared connections)
 - [Storage Key Management](Storage_Key_Management.md) (1 shared connections)
-- [App Service Registry](App_Service_Registry.md) (1 shared connections)
+- [package:flutter_test/flutter_test.dart](package-flutter_test-flutter_test.dart.md) (1 shared connections)
+- [voice_recording_playback_benchmark_and_safety_test.dart](voice_recording_playback_benchmark_and_safety_test.dart.md) (1 shared connections)
 - [Recycle Bin Service](Recycle_Bin_Service.md) (1 shared connections)
 - [Sub-Card UI Components](Sub-Card_UI_Components.md) (1 shared connections)
+- [Card Storage Service](Card_Storage_Service.md) (1 shared connections)
 
 ## Source Files
 
@@ -50,7 +50,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 39 (100%)
+- EXTRACTED: 40 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

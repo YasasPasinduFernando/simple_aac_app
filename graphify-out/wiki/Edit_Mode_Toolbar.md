@@ -28,7 +28,7 @@
 
 ## Relationships
 
-- [Tutorial UI Components](Tutorial_UI_Components.md) (2 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (2 shared connections)
 - [UI Preview Chips](UI_Preview_Chips.md) (2 shared connections)
 - [Grid Settings UI](Grid_Settings_UI.md) (1 shared connections)
 - [Live Preview Panel](Live_Preview_Panel.md) (1 shared connections)

@@ -1,11 +1,12 @@
 # Custom UI Painters
 
-> 13 nodes · cohesion 0.15
+> 14 nodes · cohesion 0.14
 
 ## Key Concepts
 
-- **CustomPainter** (13 connections)
+- **CustomPainter** (14 connections)
 - **_RecycleBinWavePainter** (2 connections) — `lib/pages/recycle_bin_page.dart`
+- **_SoftPastelBackgroundPainter** (2 connections) — `lib/widgets/child_friendly_splash.dart`
 - **_CropOverlayPainter** (2 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **_HeaderWavePainter** (2 connections) — `lib/widgets/home_app_bar.dart`
 - **_DrawerHeaderWavePainter** (2 connections) — `lib/widgets/home_drawer.dart`
@@ -25,6 +26,7 @@
 - [Color Picker Dialog](Color_Picker_Dialog.md) (2 shared connections)
 - [Tutorial Spotlight Painter](Tutorial_Spotlight_Painter.md) (1 shared connections)
 - [Recycle Bin Page](Recycle_Bin_Page.md) (1 shared connections)
+- [child_friendly_splash.dart](child_friendly_splash.dart.md) (1 shared connections)
 - [Image Crop Controls](Image_Crop_Controls.md) (1 shared connections)
 - [Home App Bar](Home_App_Bar.md) (1 shared connections)
 - [Styled Dialog Header](Styled_Dialog_Header.md) (1 shared connections)
@@ -33,6 +35,7 @@
 ## Source Files
 
 - `lib/pages/recycle_bin_page.dart`
+- `lib/widgets/child_friendly_splash.dart`
 - `lib/widgets/crop_zoom_dialog.dart`
 - `lib/widgets/home_app_bar.dart`
 - `lib/widgets/home_drawer.dart`
@@ -43,7 +46,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 25 (100%)
+- EXTRACTED: 27 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

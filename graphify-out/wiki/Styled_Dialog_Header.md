@@ -28,7 +28,7 @@
 
 - [UI Preview Chips](UI_Preview_Chips.md) (3 shared connections)
 - [Live Preview Panel](Live_Preview_Panel.md) (2 shared connections)
-- [Tutorial UI Components](Tutorial_UI_Components.md) (2 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (2 shared connections)
 - [Sub-Card UI Components](Sub-Card_UI_Components.md) (1 shared connections)
 - [Custom UI Painters](Custom_UI_Painters.md) (1 shared connections)
 

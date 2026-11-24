@@ -10,7 +10,7 @@
 ## Relationships
 
 - [Card Editor Dialog](Card_Editor_Dialog.md) (2 shared connections)
-- [Home Page State](Home_Page_State.md) (2 shared connections)
+- [State](State.md) (2 shared connections)
 
 ## Source Files
 

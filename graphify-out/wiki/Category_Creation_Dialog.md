@@ -1,10 +1,13 @@
 # Category Creation Dialog
 
-> 29 nodes · cohesion 0.07
+> 32 nodes · cohesion 0.06
 
 ## Key Concepts
 
 - **add_category_dialog.dart** (39 connections) — `lib/widgets/add_category_dialog.dart`
+- **AddCategoryDialog** (3 connections) — `lib/widgets/add_category_dialog.dart`
+- **_AddCategoryDialogState** (3 connections) — `lib/widgets/add_category_dialog.dart`
+- **preview/live_preview_panel.dart** (3 connections)
 - **_applyPreset** (1 connections) — `lib/widgets/add_category_dialog.dart`
 - **availableCards** (1 connections) — `lib/widgets/add_category_dialog.dart`
 - **build** (1 connections) — `lib/widgets/add_category_dialog.dart`
@@ -26,22 +29,20 @@
 - **_resetForm** (1 connections) — `lib/widgets/add_category_dialog.dart`
 - **_searchController** (1 connections) — `lib/widgets/add_category_dialog.dart`
 - **searchKeywords** (1 connections) — `lib/widgets/add_category_dialog.dart`
-- **_searchQuery** (1 connections) — `lib/widgets/add_category_dialog.dart`
-- **_selectAllFiltered** (1 connections) — `lib/widgets/add_category_dialog.dart`
-- **_selectedCardIds** (1 connections) — `lib/widgets/add_category_dialog.dart`
-- *... and 4 more nodes in this community*
+- *... and 7 more nodes in this community*
 
 ## Relationships
 
 - [Visible Cards Preview](Visible_Cards_Preview.md) (2 shared connections)
-- [Home Page State](Home_Page_State.md) (2 shared connections)
+- [State](State.md) (2 shared connections)
 - [Live Preview Panel](Live_Preview_Panel.md) (1 shared connections)
-- [Card Data Model](Card_Data_Model.md) (1 shared connections)
+- [Data Backup Service](Data_Backup_Service.md) (1 shared connections)
 - [Grid Density Settings](Grid_Density_Settings.md) (1 shared connections)
-- [Tutorial UI Components](Tutorial_UI_Components.md) (1 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (1 shared connections)
 - [Sub-Card UI Components](Sub-Card_UI_Components.md) (1 shared connections)
-- [Visible Cards Dialog](Visible_Cards_Dialog.md) (1 shared connections)
 - [Sub-Card Management](Sub-Card_Management.md) (1 shared connections)
+- [App Entry Point](App_Entry_Point.md) (1 shared connections)
+- [visible_cards_dialog.dart](visible_cards_dialog.dart.md) (1 shared connections)
 
 ## Source Files
 
@@ -49,7 +50,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 39 (100%)
+- EXTRACTED: 44 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

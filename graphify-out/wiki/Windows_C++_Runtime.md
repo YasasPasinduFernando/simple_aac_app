@@ -4,6 +4,7 @@
 
 ## Key Concepts
 
+- **String?** (11 connections)
 - **utils.cpp** (9 connections) — `windows/runner/utils.cpp`
 - **flutter_window.h** (7 connections) — `windows/runner/flutter_window.h`
 - **win32_window.h** (7 connections) — `windows/runner/win32_window.h`
@@ -17,7 +18,6 @@
 - **flutter_view_controller** (2 connections)
 - **flutter_windows** (2 connections)
 - **memory** (2 connections)
-- **string** (2 connections)
 - **vector** (2 connections)
 - **string** (2 connections)
 - **CreateAndAttachConsole()** (2 connections) — `windows/runner/utils.cpp`
@@ -31,8 +31,17 @@
 
 ## Relationships
 
-- [Windows Window Management](Windows_Window_Management.md) (2 shared connections)
+- [win32_window.cpp](win32_window.cpp.md) (2 shared connections)
 - [Windows Flutter Controller](Windows_Flutter_Controller.md) (2 shared connections)
+- [AAC Card Model](AAC_Card_Model.md) (1 shared connections)
+- [Home Screen Logic](Home_Screen_Logic.md) (1 shared connections)
+- [card_editor_draft_service.dart](card_editor_draft_service.dart.md) (1 shared connections)
+- [Speech Engine Service](Speech_Engine_Service.md) (1 shared connections)
+- [child_friendly_splash.dart](child_friendly_splash.dart.md) (1 shared connections)
+- [Card Editor Dialog](Card_Editor_Dialog.md) (1 shared connections)
+- [App Entry Point](App_Entry_Point.md) (1 shared connections)
+- [Image Crop Controls](Image_Crop_Controls.md) (1 shared connections)
+- [Category Selection Dialog](Category_Selection_Dialog.md) (1 shared connections)
 - [Win32 Window Lifecycle](Win32_Window_Lifecycle.md) (1 shared connections)
 
 ## Source Files
@@ -45,8 +54,8 @@
 
 ## Audit Trail
 
-- EXTRACTED: 37 (95%)
-- INFERRED: 2 (5%)
+- EXTRACTED: 46 (96%)
+- INFERRED: 2 (4%)
 - AMBIGUOUS: 0 (0%)
 
 ---

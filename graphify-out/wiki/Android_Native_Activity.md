@@ -1,15 +1,18 @@
 # Android Native Activity
 
-> 22 nodes · cohesion 0.09
+> 25 nodes · cohesion 0.08
 
 ## Key Concepts
 
-- **MainActivity.kt** (33 connections) — `android/app/src/main/kotlin/com/example/simple_aac_app/MainActivity.kt`
-- **.onActivityResult()** (2 connections) — `android/app/src/main/kotlin/com/example/simple_aac_app/MainActivity.kt`
-- **FlutterEngine** (2 connections)
-- **Intent** (2 connections)
+- **MainActivity.kt** (39 connections) — `android/app/src/main/kotlin/com/example/simple_aac_app/MainActivity.kt`
+- **Future** (3 connections)
+- **Rect** (2 connections)
+- **.isReasonableForegroundBox()** (2 connections) — `android/app/src/main/kotlin/com/example/simple_aac_app/MainActivity.kt`
 - **activity** (1 connections)
+- **activityinfo** (1 connections)
+- **atomicboolean** (1 connections)
 - **bitmapfactory** (1 connections)
+- **concurrenthashmap** (1 connections)
 - **contentvalues** (1 connections)
 - **detectedobject** (1 connections)
 - **environment** (1 connections)
@@ -29,10 +32,14 @@
 
 ## Relationships
 
-- [Android Image Analysis](Android_Image_Analysis.md) (8 shared connections)
-- [Android Video Encoder](Android_Video_Encoder.md) (5 shared connections)
+- [Android Image Analysis](Android_Image_Analysis.md) (7 shared connections)
+- [Android Video Encoder](Android_Video_Encoder.md) (6 shared connections)
 - [GIF Encoding Logic](GIF_Encoding_Logic.md) (1 shared connections)
-- [Service Mocking Utilities](Service_Mocking_Utilities.md) (1 shared connections)
+- [Android Platform Stability & Stress Testing Report](Android_Platform_Stability_&_Stress_Testing_Report.md) (1 shared connections)
+- [.onCreate](onCreate.md) (1 shared connections)
+- [Directory](Directory.md) (1 shared connections)
+- [Home Screen Logic](Home_Screen_Logic.md) (1 shared connections)
+- [Speech Engine Service](Speech_Engine_Service.md) (1 shared connections)
 
 ## Source Files
 
@@ -40,7 +47,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 36 (100%)
+- EXTRACTED: 43 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

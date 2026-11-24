@@ -16,8 +16,8 @@
 ## Relationships
 
 - [Speech Engine Service](Speech_Engine_Service.md) (2 shared connections)
-- [Default Seed Cards](Default_Seed_Cards.md) (1 shared connections)
-- [App Entry Point](App_Entry_Point.md) (1 shared connections)
+- [default_seed_cards.dart](default_seed_cards.dart.md) (1 shared connections)
+- [main.dart](main.dart.md) (1 shared connections)
 - [AAC Card Model](AAC_Card_Model.md) (1 shared connections)
 - [Card Storage Service](Card_Storage_Service.md) (1 shared connections)
 - [TTS Control Bar](TTS_Control_Bar.md) (1 shared connections)

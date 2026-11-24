@@ -1,10 +1,10 @@
 # Accessibility Theme Settings
 
-> 40 nodes · cohesion 0.05
+> 41 nodes · cohesion 0.05
 
 ## Key Concepts
 
-- **theme_accessibility.dart** (44 connections) — `lib/utils/theme_accessibility.dart`
+- **theme_accessibility.dart** (46 connections) — `lib/utils/theme_accessibility.dart`
 - **colorBlindBoldText** (1 connections) — `lib/utils/theme_accessibility.dart`
 - **colorBlindBoldTextPrefKey** (1 connections) — `lib/utils/theme_accessibility.dart`
 - **colorBlindBorderColor** (1 connections) — `lib/utils/theme_accessibility.dart`
@@ -17,6 +17,7 @@
 - **colorBlindPrefKey** (1 connections) — `lib/utils/theme_accessibility.dart`
 - **colorBlindType** (1 connections) — `lib/utils/theme_accessibility.dart`
 - **colorBlindTypePrefKey** (1 connections) — `lib/utils/theme_accessibility.dart`
+- **contrastRatio** (1 connections) — `lib/utils/theme_accessibility.dart`
 - **darkModeNotifier** (1 connections) — `lib/utils/theme_accessibility.dart`
 - **darkModePrefKey** (1 connections) — `lib/utils/theme_accessibility.dart`
 - **deuteranomalyMatrix** (1 connections) — `lib/utils/theme_accessibility.dart`
@@ -28,16 +29,15 @@
 - **_mapProtanomaly** (1 connections) — `lib/utils/theme_accessibility.dart`
 - **_mapToOkabeIto** (1 connections) — `lib/utils/theme_accessibility.dart`
 - **_mapTritanomaly** (1 connections) — `lib/utils/theme_accessibility.dart`
-- **monochromeMatrix** (1 connections) — `lib/utils/theme_accessibility.dart`
-- *... and 15 more nodes in this community*
+- *... and 16 more nodes in this community*
 
 ## Relationships
 
-- [Video to GIF Conversion](Video_to_GIF_Conversion.md) (1 shared connections)
-- [Category Metadata Model](Category_Metadata_Model.md) (1 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (2 shared connections)
 - [Personalization Service](Personalization_Service.md) (1 shared connections)
-- [Tutorial UI Components](Tutorial_UI_Components.md) (1 shared connections)
-- [Tutorial Integration Tests](Tutorial_Integration_Tests.md) (1 shared connections)
+- [ui_mode_helper.dart](ui_mode_helper.dart.md) (1 shared connections)
+- [Category Metadata Model](Category_Metadata_Model.md) (1 shared connections)
+- [child_friendly_splash.dart](child_friendly_splash.dart.md) (1 shared connections)
 
 ## Source Files
 
@@ -45,7 +45,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 44 (100%)
+- EXTRACTED: 46 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

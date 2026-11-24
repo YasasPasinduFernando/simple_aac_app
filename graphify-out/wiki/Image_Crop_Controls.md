@@ -1,45 +1,45 @@
 # Image Crop Controls
 
-> 40 nodes · cohesion 0.05
+> 51 nodes · cohesion 0.04
 
 ## Key Concepts
 
-- **crop_zoom_dialog.dart** (46 connections) — `lib/widgets/crop_zoom_dialog.dart`
+- **crop_zoom_dialog.dart** (56 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **CropZoomDialog** (3 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **_CropZoomDialogState** (3 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **double?** (2 connections)
 - **Offset** (2 connections)
+- **_activeDragHandle** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **_basePan** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **_baseZoom** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **build** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
-- **_buildBadge** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **_buildCropViewport** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **_buildFooterActions** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **_buildHeader** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **_buildInfoBanner** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
+- **_buildModeButton** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
+- **_buildModeToggle** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **_buildResetButton** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **_buildZoomControls** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
+- **_calculateImageRect** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
+- **_clampCropRectToImage** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **_clampPan** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **createState** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
+- **CropMode** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
+- **_cropRect** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
+- **_DragHandle** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
 - **_errorMessage** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
-- **_handleUsePhoto** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
-- **imagePath** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
-- **initState** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
-- **_isLoading** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
-- **_isProcessing** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
-- **_loadImageDimensions** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
-- **_maxZoom** (1 connections) — `lib/widgets/crop_zoom_dialog.dart`
-- *... and 15 more nodes in this community*
+- *... and 26 more nodes in this community*
 
 ## Relationships
 
-- [Image and UI Helpers](Image_and_UI_Helpers.md) (2 shared connections)
-- [Home Page State](Home_Page_State.md) (2 shared connections)
+- [State](State.md) (2 shared connections)
 - [Speech Engine Service](Speech_Engine_Service.md) (1 shared connections)
 - [Custom UI Painters](Custom_UI_Painters.md) (1 shared connections)
-- [App Service Registry](App_Service_Registry.md) (1 shared connections)
-- [Tutorial UI Components](Tutorial_UI_Components.md) (1 shared connections)
-- [Media Permission Tests](Media_Permission_Tests.md) (1 shared connections)
+- [Windows C++ Runtime](Windows_C++_Runtime.md) (1 shared connections)
+- [package:flutter_test/flutter_test.dart](package-flutter_test-flutter_test.dart.md) (1 shared connections)
+- [child_friendly_splash.dart](child_friendly_splash.dart.md) (1 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (1 shared connections)
 - [Visible Cards Preview](Visible_Cards_Preview.md) (1 shared connections)
 - [Home Screen Logic](Home_Screen_Logic.md) (1 shared connections)
 
@@ -49,7 +49,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 51 (100%)
+- EXTRACTED: 61 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

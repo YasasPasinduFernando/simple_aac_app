@@ -1,11 +1,10 @@
 # Tutorial Navigation Service
 
-> 35 nodes · cohesion 0.06
+> 34 nodes · cohesion 0.06
 
 ## Key Concepts
 
 - **tutorial_service.dart** (42 connections) — `lib/services/tutorial_service.dart`
-- **int get** (1 connections)
 - **completeTour** (1 connections) — `lib/services/tutorial_service.dart`
 - **currentStepNotifier** (1 connections) — `lib/services/tutorial_service.dart`
 - **endTour** (1 connections) — `lib/services/tutorial_service.dart`
@@ -29,17 +28,18 @@
 - **registerKey** (1 connections) — `lib/services/tutorial_service.dart`
 - **requestAction** (1 connections) — `lib/services/tutorial_service.dart`
 - **resetAndReplayTour** (1 connections) — `lib/services/tutorial_service.dart`
-- *... and 10 more nodes in this community*
+- **resetForTesting** (1 connections) — `lib/services/tutorial_service.dart`
+- *... and 9 more nodes in this community*
 
 ## Relationships
 
+- [package:flutter/material.dart](package-flutter-material.dart.md) (2 shared connections)
 - [Network Policy Service](Network_Policy_Service.md) (1 shared connections)
 - [Edit Session State](Edit_Session_State.md) (1 shared connections)
-- [Image Search Model](Image_Search_Model.md) (1 shared connections)
+- [AAC Card Model](AAC_Card_Model.md) (1 shared connections)
 - [Category Metadata Model](Category_Metadata_Model.md) (1 shared connections)
+- [Category Selection Dialog](Category_Selection_Dialog.md) (1 shared connections)
 - [Personalization Service](Personalization_Service.md) (1 shared connections)
-- [Tutorial UI Components](Tutorial_UI_Components.md) (1 shared connections)
-- [Tutorial Integration Tests](Tutorial_Integration_Tests.md) (1 shared connections)
 - [Tutorial Speech Bubble](Tutorial_Speech_Bubble.md) (1 shared connections)
 
 ## Source Files

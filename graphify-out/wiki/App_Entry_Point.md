@@ -1,21 +1,12 @@
 # App Entry Point
 
-> 45 nodes · cohesion 0.05
+> 34 nodes · cohesion 0.06
 
 ## Key Concepts
 
-- **color_vision_dialog.dart** (40 connections) — `lib/widgets/color_vision_dialog.dart`
-- **main.dart** (15 connections) — `lib/main.dart`
-- **utils/theme_accessibility.dart** (5 connections)
-- **services/network_policy_service.dart** (4 connections)
+- **color_vision_dialog.dart** (41 connections) — `lib/widgets/color_vision_dialog.dart`
 - **ColorVisionDialog** (3 connections) — `lib/widgets/color_vision_dialog.dart`
 - **_ColorVisionDialogState** (3 connections) — `lib/widgets/color_vision_dialog.dart`
-- **AACApp** (2 connections) — `lib/main.dart`
-- **build** (1 connections) — `lib/main.dart`
-- **_buildTheme** (1 connections) — `lib/main.dart`
-- **imagePickerImplementation** (1 connections) — `lib/main.dart`
-- **main** (1 connections) — `lib/main.dart`
-- **wait** (1 connections) — `lib/main.dart`
 - **baseColor** (1 connections) — `lib/widgets/color_vision_dialog.dart`
 - **_boldText** (1 connections) — `lib/widgets/color_vision_dialog.dart`
 - **_borderColor** (1 connections) — `lib/widgets/color_vision_dialog.dart`
@@ -29,31 +20,35 @@
 - **createState** (1 connections) — `lib/widgets/color_vision_dialog.dart`
 - **description** (1 connections) — `lib/widgets/color_vision_dialog.dart`
 - **_enabled** (1 connections) — `lib/widgets/color_vision_dialog.dart`
-- *... and 20 more nodes in this community*
+- **_filterImages** (1 connections) — `lib/widgets/color_vision_dialog.dart`
+- **icon** (1 connections) — `lib/widgets/color_vision_dialog.dart`
+- **id** (1 connections) — `lib/widgets/color_vision_dialog.dart`
+- **imagePath** (1 connections) — `lib/widgets/color_vision_dialog.dart`
+- **initialBoldText** (1 connections) — `lib/widgets/color_vision_dialog.dart`
+- **initialBorderColor** (1 connections) — `lib/widgets/color_vision_dialog.dart`
+- **initialBorderWidth** (1 connections) — `lib/widgets/color_vision_dialog.dart`
+- **initialColorBlind** (1 connections) — `lib/widgets/color_vision_dialog.dart`
+- **initialFilterImages** (1 connections) — `lib/widgets/color_vision_dialog.dart`
+- *... and 9 more nodes in this community*
 
 ## Relationships
 
-- [Tutorial UI Components](Tutorial_UI_Components.md) (3 shared connections)
-- [Image Handling Utilities](Image_Handling_Utilities.md) (2 shared connections)
-- [Home Page State](Home_Page_State.md) (2 shared connections)
-- [Home Screen Logic](Home_Screen_Logic.md) (2 shared connections)
-- [Testing Utility Hooks](Testing_Utility_Hooks.md) (1 shared connections)
-- [Project Documentation](Project_Documentation.md) (1 shared connections)
-- [UI Preview Chips](UI_Preview_Chips.md) (1 shared connections)
-- [Live Preview Panel](Live_Preview_Panel.md) (1 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (2 shared connections)
+- [State](State.md) (2 shared connections)
 - [Category Metadata Model](Category_Metadata_Model.md) (1 shared connections)
-- [Visible Cards Dialog](Visible_Cards_Dialog.md) (1 shared connections)
+- [Live Preview Panel](Live_Preview_Panel.md) (1 shared connections)
+- [Windows C++ Runtime](Windows_C++_Runtime.md) (1 shared connections)
+- [main.dart](main.dart.md) (1 shared connections)
+- [Category Creation Dialog](Category_Creation_Dialog.md) (1 shared connections)
 - [Sub-Card Management](Sub-Card_Management.md) (1 shared connections)
-- [Card Editor Dialog](Card_Editor_Dialog.md) (1 shared connections)
 
 ## Source Files
 
-- `lib/main.dart`
 - `lib/widgets/color_vision_dialog.dart`
 
 ## Audit Trail
 
-- EXTRACTED: 65 (100%)
+- EXTRACTED: 44 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

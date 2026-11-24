@@ -21,17 +21,17 @@
 
 ## Relationships
 
+- [Grid Settings UI](Grid_Settings_UI.md) (2 shared connections)
 - [Card Editor Dialog](Card_Editor_Dialog.md) (2 shared connections)
 - [Home App Bar](Home_App_Bar.md) (2 shared connections)
-- [Grid Settings UI](Grid_Settings_UI.md) (2 shared connections)
 - [Styled Dialog Header](Styled_Dialog_Header.md) (2 shared connections)
-- [Tutorial UI Components](Tutorial_UI_Components.md) (2 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (2 shared connections)
 - [Category Metadata Model](Category_Metadata_Model.md) (1 shared connections)
-- [App Permissions Helper](App_Permissions_Helper.md) (1 shared connections)
 - [Category Creation Dialog](Category_Creation_Dialog.md) (1 shared connections)
+- [Landscape Navigation Menu](Landscape_Navigation_Menu.md) (1 shared connections)
+- [App Permissions Helper](App_Permissions_Helper.md) (1 shared connections)
 - [App Entry Point](App_Entry_Point.md) (1 shared connections)
 - [Edit Mode Toolbar](Edit_Mode_Toolbar.md) (1 shared connections)
-- [Landscape Navigation Menu](Landscape_Navigation_Menu.md) (1 shared connections)
 - [TTS Control Bar](TTS_Control_Bar.md) (1 shared connections)
 
 ## Source Files

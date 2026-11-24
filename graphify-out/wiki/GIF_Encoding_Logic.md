@@ -4,7 +4,7 @@
 
 ## Key Concepts
 
-- **VideoGifEncoder** (12 connections) — `android/app/src/main/kotlin/com/example/simple_aac_app/VideoGifEncoder.kt`
+- **VideoGifEncoder** (13 connections) — `android/app/src/main/kotlin/com/example/simple_aac_app/VideoGifEncoder.kt`
 - **.convertVideoToGif()** (11 connections) — `android/app/src/main/kotlin/com/example/simple_aac_app/VideoGifEncoder.kt`
 - **.quantizeMedianCut()** (5 connections) — `android/app/src/main/kotlin/com/example/simple_aac_app/VideoGifEncoder.kt`
 - **.writeShortLE()** (4 connections) — `android/app/src/main/kotlin/com/example/simple_aac_app/VideoGifEncoder.kt`
@@ -24,6 +24,7 @@
 
 - [Android Video Encoder](Android_Video_Encoder.md) (5 shared connections)
 - [Android Image Analysis](Android_Image_Analysis.md) (2 shared connections)
+- [Android Platform Stability & Stress Testing Report](Android_Platform_Stability_&_Stress_Testing_Report.md) (1 shared connections)
 - [Android Native Activity](Android_Native_Activity.md) (1 shared connections)
 
 ## Source Files
@@ -32,8 +33,8 @@
 
 ## Audit Trail
 
-- EXTRACTED: 35 (100%)
-- INFERRED: 0 (0%)
+- EXTRACTED: 35 (97%)
+- INFERRED: 1 (3%)
 - AMBIGUOUS: 0 (0%)
 
 ---

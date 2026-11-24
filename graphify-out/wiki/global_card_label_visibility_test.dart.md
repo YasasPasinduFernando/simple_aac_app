@@ -1,0 +1,54 @@
+# global_card_label_visibility_test.dart
+
+> 24 nodes · cohesion 0.08
+
+## Key Concepts
+
+- **global_card_label_visibility_test.dart** (39 connections) — `test/global_card_label_visibility_test.dart`
+- **Expanded** (1 connections)
+- **create** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **dispose** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **emitError** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **emitLog** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **getCurrentPosition** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **getDuration** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **getEventStream** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **main** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **pause** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **release** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **resume** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **seek** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **setAudioContext** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **setBalance** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **setPlaybackRate** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **setPlayerMode** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **setReleaseMode** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **setSourceBytes** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **setSourceUrl** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **setVolume** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **stop** (1 connections) — `test/global_card_label_visibility_test.dart`
+- **tempDir** (1 connections) — `test/global_card_label_visibility_test.dart`
+
+## Relationships
+
+- [package:flutter/material.dart](package-flutter-material.dart.md) (5 shared connections)
+- [package:flutter_test/flutter_test.dart](package-flutter_test-flutter_test.dart.md) (4 shared connections)
+- [home_cards_and_image_presentation_test.dart](home_cards_and_image_presentation_test.dart.md) (3 shared connections)
+- [Directory](Directory.md) (1 shared connections)
+- [AudioplayersPlatformInterface](AudioplayersPlatformInterface.md) (1 shared connections)
+- [Data Backup Service](Data_Backup_Service.md) (1 shared connections)
+- [navigation_lifecycle_test.dart](navigation_lifecycle_test.dart.md) (1 shared connections)
+
+## Source Files
+
+- `test/global_card_label_visibility_test.dart`
+
+## Audit Trail
+
+- EXTRACTED: 39 (100%)
+- INFERRED: 0 (0%)
+- AMBIGUOUS: 0 (0%)
+
+---
+
+*Part of the graphify knowledge wiki. See [index](index.md) to navigate.*

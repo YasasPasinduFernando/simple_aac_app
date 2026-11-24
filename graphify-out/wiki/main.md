@@ -16,17 +16,17 @@
 - build_cover_letter() `EXTRACTED`
 - build_training_status() `EXTRACTED`
 - load_private_contacts() `EXTRACTED`
+- shutil `EXTRACTED`
 - build_cv() `EXTRACTED`
 - build_animal_statement() `EXTRACTED`
 - build_fee_status() `EXTRACTED`
 - convert_docx_to_pdf() `EXTRACTED`
+- subprocess `EXTRACTED`
+- sys `EXTRACTED`
 - build_supervisor_letter() `EXTRACTED`
 - build_ministry_brief() `EXTRACTED`
 - write_pointer() `EXTRACTED`
-- shutil `EXTRACTED`
-- subprocess `EXTRACTED`
 - extract_toc() `EXTRACTED`
-- strip_and_write() `EXTRACTED`
 - *…and 2 more `calls` connection(s) not listed (lowest-degree first to go)*
 
 ### contains

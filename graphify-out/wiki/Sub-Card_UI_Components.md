@@ -1,14 +1,15 @@
 # Sub-Card UI Components
 
-> 14 nodes · cohesion 0.15
+> 15 nodes · cohesion 0.14
 
 ## Key Concepts
 
-- **../models/aac_card_model.dart** (21 connections)
-- **VoidCallback** (12 connections)
-- **aac_card_widget.dart** (11 connections) — `lib/widgets/aac_card_widget.dart`
-- **AACCard** (7 connections)
+- **../models/aac_card_model.dart** (24 connections)
+- **VoidCallback** (13 connections)
+- **aac_card_widget.dart** (12 connections) — `lib/widgets/aac_card_widget.dart`
+- **AACCard?** (8 connections)
 - **sub_card_page.dart** (7 connections) — `lib/screens/sub_card_page.dart`
+- **../services/starter_pack_service.dart** (4 connections)
 - **SubCardPage** (2 connections) — `lib/screens/sub_card_page.dart`
 - **AACCardWidget** (2 connections) — `lib/widgets/aac_card_widget.dart`
 - **../widgets/aac_card_widget.dart** (2 connections)
@@ -21,18 +22,18 @@
 
 ## Relationships
 
-- [Home Screen Logic](Home_Screen_Logic.md) (3 shared connections)
+- [Home Screen Logic](Home_Screen_Logic.md) (4 shared connections)
 - [Card Editor Dialog](Card_Editor_Dialog.md) (3 shared connections)
 - [Sub-Card Management](Sub-Card_Management.md) (3 shared connections)
 - [Recycle Bin Model](Recycle_Bin_Model.md) (2 shared connections)
 - [Starter Pack Service](Starter_Pack_Service.md) (2 shared connections)
-- [Tutorial UI Components](Tutorial_UI_Components.md) (2 shared connections)
+- [visible_cards_dialog.dart](visible_cards_dialog.dart.md) (2 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (2 shared connections)
 - [UI Preview Chips](UI_Preview_Chips.md) (2 shared connections)
 - [Visible Cards Preview](Visible_Cards_Preview.md) (2 shared connections)
+- [default_seed_cards.dart](default_seed_cards.dart.md) (2 shared connections)
 - [Home Grid Management](Home_Grid_Management.md) (2 shared connections)
-- [App Entry Point](App_Entry_Point.md) (1 shared connections)
-- [Default Seed Cards](Default_Seed_Cards.md) (1 shared connections)
-- [Edit Session State](Edit_Session_State.md) (1 shared connections)
+- [category_helper.dart](category_helper.dart.md) (2 shared connections)
 
 ## Source Files
 
@@ -41,7 +42,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 56 (100%)
+- EXTRACTED: 65 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

@@ -1,10 +1,11 @@
 # Starter Pack Service
 
-> 17 nodes · cohesion 0.12
+> 22 nodes · cohesion 0.09
 
 ## Key Concepts
 
-- **starter_pack_service.dart** (22 connections) — `lib/services/starter_pack_service.dart`
+- **starter_pack_service.dart** (28 connections) — `lib/services/starter_pack_service.dart`
+- **static const Set** (3 connections)
 - **../data/starter_pack_manifest_data.dart** (1 connections)
 - **alreadyInstalled** (1 connections) — `lib/services/starter_pack_service.dart`
 - **assetImagePrefix** (1 connections) — `lib/services/starter_pack_service.dart`
@@ -13,10 +14,14 @@
 - **cardsAdded** (1 connections) — `lib/services/starter_pack_service.dart`
 - **findStarterPackRoot** (1 connections) — `lib/services/starter_pack_service.dart`
 - **getStarterPackRootClone** (1 connections) — `lib/services/starter_pack_service.dart`
+- **harmonizedCategoryFolderColors** (1 connections) — `lib/services/starter_pack_service.dart`
+- **harmonizedSeedColors** (1 connections) — `lib/services/starter_pack_service.dart`
 - **importStarterPack** (1 connections) — `lib/services/starter_pack_service.dart`
 - **ImportStarterPackResult** (1 connections) — `lib/services/starter_pack_service.dart`
 - **isStarterPackInstalled** (1 connections) — `lib/services/starter_pack_service.dart`
+- **legacySeedColorValues** (1 connections) — `lib/services/starter_pack_service.dart`
 - **parseHexColor** (1 connections) — `lib/services/starter_pack_service.dart`
+- **resolveCardColorValue** (1 connections) — `lib/services/starter_pack_service.dart`
 - **rootFolder** (1 connections) — `lib/services/starter_pack_service.dart`
 - **starterPackRootId** (1 connections) — `lib/services/starter_pack_service.dart`
 - **StarterPackService** (1 connections) — `lib/services/starter_pack_service.dart`
@@ -25,10 +30,12 @@
 ## Relationships
 
 - [Sub-Card UI Components](Sub-Card_UI_Components.md) (2 shared connections)
+- [Data Backup Service](Data_Backup_Service.md) (2 shared connections)
 - [Personalization Service](Personalization_Service.md) (1 shared connections)
+- [category_helper.dart](category_helper.dart.md) (1 shared connections)
 - [Testing Utility Hooks](Testing_Utility_Hooks.md) (1 shared connections)
-- [Data Backup Service](Data_Backup_Service.md) (1 shared connections)
-- [Image and UI Helpers](Image_and_UI_Helpers.md) (1 shared connections)
+- [Card Storage Service](Card_Storage_Service.md) (1 shared connections)
+- [Tutorial Overlay Controller](Tutorial_Overlay_Controller.md) (1 shared connections)
 
 ## Source Files
 
@@ -36,7 +43,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 22 (100%)
+- EXTRACTED: 30 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

@@ -35,8 +35,8 @@
 - [Live Preview Panel](Live_Preview_Panel.md) (1 shared connections)
 - [Sub-Card UI Components](Sub-Card_UI_Components.md) (1 shared connections)
 - [Testing Utility Hooks](Testing_Utility_Hooks.md) (1 shared connections)
-- [Tutorial UI Components](Tutorial_UI_Components.md) (1 shared connections)
-- [Media Permission Tests](Media_Permission_Tests.md) (1 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (1 shared connections)
+- [Directory](Directory.md) (1 shared connections)
 - [UI Preview Chips](UI_Preview_Chips.md) (1 shared connections)
 - [Video to GIF Conversion](Video_to_GIF_Conversion.md) (1 shared connections)
 

@@ -1,13 +1,14 @@
 # Speech Engine Service
 
-> 56 nodes · cohesion 0.04
+> 57 nodes · cohesion 0.04
 
 ## Key Concepts
 
-- **speech_engine.dart** (66 connections) — `lib/services/speech_engine.dart`
-- **Future** (2 connections)
+- **speech_engine.dart** (70 connections) — `lib/services/speech_engine.dart`
+- **bool?** (2 connections)
 - **SpeechCapabilityReport** (2 connections) — `lib/services/speech_engine.dart`
 - **FlutterTts** (1 connections)
+- **_activeAwaitSpeakCompletion** (1 connections) — `lib/services/speech_engine.dart`
 - **_activeLanguageTag** (1 connections) — `lib/services/speech_engine.dart`
 - **_activeRateFlutter** (1 connections) — `lib/services/speech_engine.dart`
 - **_activeVoiceKey** (1 connections) — `lib/services/speech_engine.dart`
@@ -28,21 +29,22 @@
 - **_isAndroid** (1 connections) — `lib/services/speech_engine.dart`
 - **isLanguageAvailable** (1 connections) — `lib/services/speech_engine.dart`
 - **isSuccess** (1 connections) — `lib/services/speech_engine.dart`
-- **_langPrefix** (1 connections) — `lib/services/speech_engine.dart`
-- *... and 31 more nodes in this community*
+- *... and 32 more nodes in this community*
 
 ## Relationships
 
-- [Home Screen Logic](Home_Screen_Logic.md) (2 shared connections)
-- [Image and UI Helpers](Image_and_UI_Helpers.md) (2 shared connections)
+- [Data Backup Service](Data_Backup_Service.md) (2 shared connections)
 - [Project Documentation](Project_Documentation.md) (2 shared connections)
-- [Multilingual Translation Service](Multilingual_Translation_Service.md) (1 shared connections)
+- [Grid Settings UI](Grid_Settings_UI.md) (1 shared connections)
+- [Android Native Activity](Android_Native_Activity.md) (1 shared connections)
+- [category_helper.dart](category_helper.dart.md) (1 shared connections)
+- [Windows C++ Runtime](Windows_C++_Runtime.md) (1 shared connections)
+- [navigation_state_service.dart](navigation_state_service.dart.md) (1 shared connections)
 - [Edit Session State](Edit_Session_State.md) (1 shared connections)
-- [Card Data Model](Card_Data_Model.md) (1 shared connections)
-- [Image Search Model](Image_Search_Model.md) (1 shared connections)
+- [AAC Card Model](AAC_Card_Model.md) (1 shared connections)
 - [Image Crop Controls](Image_Crop_Controls.md) (1 shared connections)
-- [Image Search Tests](Image_Search_Tests.md) (1 shared connections)
-- [App Service Registry](App_Service_Registry.md) (1 shared connections)
+- [Directory](Directory.md) (1 shared connections)
+- [package:flutter_test/flutter_test.dart](package-flutter_test-flutter_test.dart.md) (1 shared connections)
 
 ## Source Files
 
@@ -50,7 +52,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 68 (100%)
+- EXTRACTED: 72 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

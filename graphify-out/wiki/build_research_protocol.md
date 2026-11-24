@@ -11,7 +11,7 @@
 - [add_heading()](add_heading.md) `EXTRACTED`
 - [main()](main.md) `EXTRACTED`
 - [save_doc()](save_doc.md) `EXTRACTED`
-- [setup_header_footer()](setup_header_footer.md) `EXTRACTED`
+- setup_header_footer() `EXTRACTED`
 - create_styled_document() `EXTRACTED`
 - add_page_break() `EXTRACTED`
 - add_methods() `EXTRACTED`

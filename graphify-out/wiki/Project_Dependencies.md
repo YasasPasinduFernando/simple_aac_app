@@ -1,10 +1,10 @@
 # Project Dependencies
 
-> 39 nodes · cohesion 0.05
+> 37 nodes · cohesion 0.05
 
 ## Key Concepts
 
-- **dependencies** (19 connections) — `pubspec.yaml`
+- **dependencies** (17 connections) — `pubspec.yaml`
 - **pubspec.yaml** (9 connections) — `pubspec.yaml`
 - **dev_dependencies** (5 connections) — `pubspec.yaml`
 - **dependency_overrides** (3 connections) — `pubspec.yaml`
@@ -14,9 +14,7 @@
 - **environment** (2 connections) — `pubspec.yaml`
 - **archive** (1 connections) — `pubspec.yaml`
 - **audioplayers** (1 connections) — `pubspec.yaml`
-- **cupertino_icons** (1 connections) — `pubspec.yaml`
 - **file_picker** (1 connections) — `pubspec.yaml`
-- **flutter_colorpicker** (1 connections) — `pubspec.yaml`
 - **flutter_tts** (1 connections) — `pubspec.yaml`
 - **google_fonts** (1 connections) — `pubspec.yaml`
 - **http** (1 connections) — `pubspec.yaml`
@@ -29,7 +27,9 @@
 - **record** (1 connections) — `pubspec.yaml`
 - **share_plus** (1 connections) — `pubspec.yaml`
 - **shared_preferences** (1 connections) — `pubspec.yaml`
-- *... and 14 more nodes in this community*
+- **record_linux** (1 connections) — `pubspec.yaml`
+- **record_platform_interface** (1 connections) — `pubspec.yaml`
+- *... and 12 more nodes in this community*
 
 ## Relationships
 
@@ -41,7 +41,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 38 (100%)
+- EXTRACTED: 36 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

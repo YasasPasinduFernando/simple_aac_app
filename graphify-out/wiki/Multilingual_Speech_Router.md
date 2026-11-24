@@ -26,7 +26,7 @@
 ## Relationships
 
 - [Category Metadata Model](Category_Metadata_Model.md) (1 shared connections)
-- [Multilingual Translation Service](Multilingual_Translation_Service.md) (1 shared connections)
+- [category_helper.dart](category_helper.dart.md) (1 shared connections)
 
 ## Source Files
 

@@ -29,8 +29,9 @@
 
 - [Win32 Window Lifecycle](Win32_Window_Lifecycle.md) (4 shared connections)
 - [Windows C++ Runtime](Windows_C++_Runtime.md) (2 shared connections)
-- [Windows Window Management](Windows_Window_Management.md) (2 shared connections)
 - [Windows Plugin Registry](Windows_Plugin_Registry.md) (1 shared connections)
+- [.MessageHandler](MessageHandler.md) (1 shared connections)
+- [win32_window.cpp](win32_window.cpp.md) (1 shared connections)
 
 ## Source Files
 

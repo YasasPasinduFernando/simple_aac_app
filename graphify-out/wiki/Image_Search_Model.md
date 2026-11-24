@@ -1,11 +1,10 @@
 # Image Search Model
 
-> 18 nodes · cohesion 0.11
+> 17 nodes · cohesion 0.12
 
 ## Key Concepts
 
 - **image_search_result.dart** (17 connections) — `lib/models/image_search_result.dart`
-- **bool get** (7 connections)
 - **ImageSearchResult** (3 connections) — `lib/models/image_search_result.dart`
 - **creator** (1 connections) — `lib/models/image_search_result.dart`
 - **creatorUrl** (1 connections) — `lib/models/image_search_result.dart`
@@ -25,12 +24,7 @@
 
 ## Relationships
 
-- [Home Screen Logic](Home_Screen_Logic.md) (1 shared connections)
-- [Caregiver Lock Service](Caregiver_Lock_Service.md) (1 shared connections)
-- [Network Policy Service](Network_Policy_Service.md) (1 shared connections)
-- [Speech Engine Service](Speech_Engine_Service.md) (1 shared connections)
-- [Tutorial Navigation Service](Tutorial_Navigation_Service.md) (1 shared connections)
-- [Category Selection Dialog](Category_Selection_Dialog.md) (1 shared connections)
+- [AAC Card Model](AAC_Card_Model.md) (1 shared connections)
 - [Openverse Image Search](Openverse_Image_Search.md) (1 shared connections)
 - [Smart Image Search](Smart_Image_Search.md) (1 shared connections)
 
@@ -40,7 +34,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 25 (100%)
+- EXTRACTED: 19 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

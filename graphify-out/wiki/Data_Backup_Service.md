@@ -1,64 +1,69 @@
 # Data Backup Service
 
-> 33 nodes · cohesion 0.10
+> 51 nodes · cohesion 0.07
 
 ## Key Concepts
 
-- **package:simple_aac_app/models/aac_card_model.dart** (22 connections)
+- **package:simple_aac_app/models/aac_card_model.dart** (65 connections)
+- **package:simple_aac_app/services/card_storage_service.dart** (51 connections)
+- **List** (29 connections)
+- **dart:convert** (19 connections)
 - **recycle_bin_audit_test.dart** (17 connections) — `test/recycle_bin_audit_test.dart`
+- **package:simple_aac_app/services/backup_service.dart** (16 connections)
+- **package:flutter/foundation.dart** (15 connections)
+- **extreme_scale_and_recycle_bin_stress_test.dart** (15 connections) — `test/extreme_scale_and_recycle_bin_stress_test.dart`
+- **global_label_color_backup_restore_verification_test.dart** (15 connections) — `test/global_label_color_backup_restore_verification_test.dart`
 - **data_integrity_and_stress_test.dart** (14 connections) — `test/data_integrity_and_stress_test.dart`
+- **edit_mode_transactional_session_test.dart** (14 connections) — `test/edit_mode_transactional_session_test.dart`
 - **recycle_bin_test.dart** (14 connections) — `test/recycle_bin_test.dart`
-- **starter_pack_integration_test.dart** (14 connections) — `test/starter_pack_integration_test.dart`
-- **dart:convert** (12 connections)
-- **package:simple_aac_app/services/card_storage_service.dart** (12 connections)
 - **release_qa_backup_restore_test.dart** (12 connections) — `test/release_qa_backup_restore_test.dart`
-- **package:simple_aac_app/services/backup_service.dart** (8 connections)
+- **stickman_v2_migration_test.dart** (12 connections) — `test/stickman_v2_migration_test.dart`
+- **nested_subcard_visibility_comprehensive_test.dart** (10 connections) — `test/nested_subcard_visibility_comprehensive_test.dart`
 - **card_haptics_and_pop_test.dart** (8 connections) — `test/card_haptics_and_pop_test.dart`
-- **Directory** (6 connections)
+- **package:crypto/crypto.dart** (7 connections)
+- **edit_mode_drag_drop_test.dart** (7 connections) — `test/edit_mode_drag_drop_test.dart`
+- **package:archive/archive.dart** (6 connections)
 - **starter_pack_service_test.dart** (6 connections) — `test/starter_pack_service_test.dart`
-- **package:archive/archive.dart** (5 connections)
-- **package:crypto/crypto.dart** (4 connections)
-- **package:simple_aac_app/models/recycle_bin_entry.dart** (2 connections)
-- **package:simple_aac_app/services/recycle_bin_service.dart** (2 connections)
-- **package:simple_aac_app/data/default_seed_cards.dart** (1 connections)
+- **package:simple_aac_app/models/recycle_bin_entry.dart** (3 connections)
+- **package:simple_aac_app/services/recycle_bin_service.dart** (3 connections)
+- **package:simple_aac_app/widgets/edit_mode_bar.dart** (2 connections)
+- **package:simple_aac_app/models/edit_session_snapshot.dart** (1 connections)
 - **package:simple_aac_app/pages/recycle_bin_page.dart** (1 connections)
-- **main** (1 connections) — `test/card_haptics_and_pop_test.dart`
-- **main** (1 connections) — `test/data_integrity_and_stress_test.dart`
-- **_sha256Hex** (1 connections) — `test/data_integrity_and_stress_test.dart`
-- **_validGifHeader** (1 connections) — `test/data_integrity_and_stress_test.dart`
-- **main** (1 connections) — `test/recycle_bin_audit_test.dart`
-- **_sha256Bytes** (1 connections) — `test/recycle_bin_audit_test.dart`
-- **_sha256File** (1 connections) — `test/recycle_bin_audit_test.dart`
-- *... and 8 more nodes in this community*
+- *... and 26 more nodes in this community*
 
 ## Relationships
 
-- [App Service Registry](App_Service_Registry.md) (18 shared connections)
-- [Service Mocking Utilities](Service_Mocking_Utilities.md) (10 shared connections)
-- [Tutorial UI Components](Tutorial_UI_Components.md) (9 shared connections)
-- [Image Handling Utilities](Image_Handling_Utilities.md) (7 shared connections)
-- [Media Permission Tests](Media_Permission_Tests.md) (6 shared connections)
-- [Tutorial Integration Tests](Tutorial_Integration_Tests.md) (6 shared connections)
-- [Backup and Restore](Backup_and_Restore.md) (2 shared connections)
-- [Card Data Model](Card_Data_Model.md) (2 shared connections)
-- [Image and UI Helpers](Image_and_UI_Helpers.md) (2 shared connections)
-- [Home Screen Logic](Home_Screen_Logic.md) (1 shared connections)
-- [Card Storage Service](Card_Storage_Service.md) (1 shared connections)
-- [Openverse Image Search](Openverse_Image_Search.md) (1 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (38 shared connections)
+- [Directory](Directory.md) (31 shared connections)
+- [package:flutter_test/flutter_test.dart](package-flutter_test-flutter_test.dart.md) (28 shared connections)
+- [home_cards_and_image_presentation_test.dart](home_cards_and_image_presentation_test.dart.md) (11 shared connections)
+- [voice_recording_playback_benchmark_and_safety_test.dart](voice_recording_playback_benchmark_and_safety_test.dart.md) (6 shared connections)
+- [category_creation_independent_selection_test.dart](category_creation_independent_selection_test.dart.md) (5 shared connections)
+- [card_image_rendering_consistency_test.dart](card_image_rendering_consistency_test.dart.md) (5 shared connections)
+- [Backup and Restore](Backup_and_Restore.md) (4 shared connections)
+- [Home Screen Logic](Home_Screen_Logic.md) (3 shared connections)
+- [card_editor_draft_service.dart](card_editor_draft_service.dart.md) (3 shared connections)
+- [orientation_sensor_landscape_test.dart](orientation_sensor_landscape_test.dart.md) (3 shared connections)
+- [Card Storage Service](Card_Storage_Service.md) (2 shared connections)
 
 ## Source Files
 
 - `test/card_haptics_and_pop_test.dart`
 - `test/data_integrity_and_stress_test.dart`
+- `test/edit_mode_drag_drop_test.dart`
+- `test/edit_mode_transactional_session_test.dart`
+- `test/extreme_scale_and_recycle_bin_stress_test.dart`
+- `test/global_label_color_backup_restore_verification_test.dart`
+- `test/nested_subcard_visibility_comprehensive_test.dart`
 - `test/recycle_bin_audit_test.dart`
 - `test/recycle_bin_test.dart`
 - `test/release_qa_backup_restore_test.dart`
-- `test/starter_pack_integration_test.dart`
 - `test/starter_pack_service_test.dart`
+- `test/stickman_v2_migration_test.dart`
 
 ## Audit Trail
 
-- EXTRACTED: 123 (100%)
+- EXTRACTED: 300 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

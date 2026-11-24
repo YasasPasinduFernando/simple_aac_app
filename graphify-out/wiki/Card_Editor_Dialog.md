@@ -1,13 +1,14 @@
 # Card Editor Dialog
 
-> 85 nodes · cohesion 0.02
+> 88 nodes · cohesion 0.02
 
 ## Key Concepts
 
-- **card_editor_dialog.dart** (113 connections) — `lib/widgets/card_editor_dialog.dart`
+- **card_editor_dialog.dart** (117 connections) — `lib/widgets/card_editor_dialog.dart`
+- **Timer?** (3 connections)
 - **ImagePicker** (2 connections)
+- **../services/card_editor_draft_service.dart** (2 connections)
 - **../services/multilingual_concept_service.dart** (2 connections)
-- **Timer?** (2 connections)
 - **../utils/animated_media_helper.dart** (2 connections)
 - **../utils/app_permissions_helper.dart** (2 connections)
 - **../utils/camera_object_helper.dart** (2 connections)
@@ -28,23 +29,22 @@
 - **_buildLanguageSelectionCard** (1 connections) — `lib/widgets/card_editor_dialog.dart`
 - **_buildPropertiesSection** (1 connections) — `lib/widgets/card_editor_dialog.dart`
 - **_cameraAnalysis** (1 connections) — `lib/widgets/card_editor_dialog.dart`
-- **card** (1 connections) — `lib/widgets/card_editor_dialog.dart`
-- *... and 60 more nodes in this community*
+- *... and 63 more nodes in this community*
 
 ## Relationships
 
-- [Home Screen Logic](Home_Screen_Logic.md) (6 shared connections)
+- [Home Screen Logic](Home_Screen_Logic.md) (7 shared connections)
+- [Directory](Directory.md) (4 shared connections)
 - [Sub-Card UI Components](Sub-Card_UI_Components.md) (3 shared connections)
-- [Service Mocking Utilities](Service_Mocking_Utilities.md) (3 shared connections)
+- [Grid Density Settings](Grid_Density_Settings.md) (2 shared connections)
 - [Live Preview Panel](Live_Preview_Panel.md) (2 shared connections)
-- [Tutorial UI Components](Tutorial_UI_Components.md) (2 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (2 shared connections)
 - [Card Editor Dialog](Card_Editor_Dialog.md) (2 shared connections)
-- [Card Data Model](Card_Data_Model.md) (1 shared connections)
+- [UI Preview Chips](UI_Preview_Chips.md) (1 shared connections)
+- [Data Backup Service](Data_Backup_Service.md) (1 shared connections)
 - [Camera Analysis Helper](Camera_Analysis_Helper.md) (1 shared connections)
-- [Visible Cards Dialog](Visible_Cards_Dialog.md) (1 shared connections)
-- [Smart Image Search](Smart_Image_Search.md) (1 shared connections)
-- [Grid Density Settings](Grid_Density_Settings.md) (1 shared connections)
-- [Recycle Bin Model](Recycle_Bin_Model.md) (1 shared connections)
+- [Home App Bar](Home_App_Bar.md) (1 shared connections)
+- [AudioPlayer](AudioPlayer.md) (1 shared connections)
 
 ## Source Files
 
@@ -52,7 +52,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 119 (100%)
+- EXTRACTED: 125 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

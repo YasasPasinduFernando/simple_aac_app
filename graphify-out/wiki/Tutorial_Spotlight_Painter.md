@@ -17,7 +17,7 @@
 
 ## Relationships
 
-- [Tutorial UI Components](Tutorial_UI_Components.md) (2 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (2 shared connections)
 - [Custom UI Painters](Custom_UI_Painters.md) (1 shared connections)
 
 ## Source Files

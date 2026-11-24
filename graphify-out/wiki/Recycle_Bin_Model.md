@@ -5,7 +5,7 @@
 ## Key Concepts
 
 - **recycle_bin_entry.dart** (17 connections) — `lib/models/recycle_bin_entry.dart`
-- **DateTime** (3 connections)
+- **DateTime?** (4 connections)
 - **card** (1 connections) — `lib/models/recycle_bin_entry.dart`
 - **collectMediaPaths** (1 connections) — `lib/models/recycle_bin_entry.dart`
 - **deletedAtUtc** (1 connections) — `lib/models/recycle_bin_entry.dart`
@@ -25,7 +25,8 @@
 - [Sub-Card UI Components](Sub-Card_UI_Components.md) (2 shared connections)
 - [Home Screen Logic](Home_Screen_Logic.md) (1 shared connections)
 - [Card Editor Dialog](Card_Editor_Dialog.md) (1 shared connections)
-- [Card Data Model](Card_Data_Model.md) (1 shared connections)
+- [Grid Settings UI](Grid_Settings_UI.md) (1 shared connections)
+- [Data Backup Service](Data_Backup_Service.md) (1 shared connections)
 
 ## Source Files
 
@@ -33,7 +34,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 19 (100%)
+- EXTRACTED: 20 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 

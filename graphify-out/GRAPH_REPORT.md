@@ -1,15 +1,15 @@
-# Graph Report - simple_aac_play_release  (2026-11-18)
+# Graph Report - simple_aac_play_release  (2026-11-24)
 
 ## Corpus Check
 - cluster-only mode — file stats not available
 
 ## Summary
-- 2867 nodes · 3709 edges · 383 communities (113 shown, 270 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 63 edges (avg confidence: 0.85)
-- Token cost: 9,714 input · 4,638 output
+- 4402 nodes · 6008 edges · 439 communities (168 shown, 271 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 73 edges (avg confidence: 0.86)
+- Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `52066939`
+- Built from commit: `0ef20a62`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -28,14 +28,14 @@
 - Project Dependencies
 - Board Personalization Dialog
 - Tutorial Navigation Service
-- Service Mocking Utilities
+- Directory
 - Linux Platform Integration
 - Smart Image Search
-- Tutorial UI Components
+- package:flutter/material.dart
 - Data Backup Service
 - Home App Bar
 - Video to GIF Conversion
-- App Service Registry
+- package:flutter_test/flutter_test.dart
 - Backup and Restore
 - Category Creation Dialog
 - Tutorial Overlay Controller
@@ -46,16 +46,16 @@
 - Tutorial Text Strings
 - Category Selection Dialog
 - Windows C++ Runtime
-- Default Seed Cards
+- default_seed_cards.dart
 - Recycle Bin Service
 - App Permissions Helper
 - Android Build Manifests
-- Windows Window Management
+- .MessageHandler
 - Landscape Navigation Menu
 - TTS Control Bar
 - Network Policy Service
 - Grid Density Settings
-- Image Handling Utilities
+- card_image_rendering_consistency_test.dart
 - Edit Mode Toolbar
 - Windows Flutter Controller
 - Multilingual Translation Service
@@ -65,15 +65,15 @@
 - Image Search Model
 - Card Image Widget
 - Multilingual Speech Router
-- Visible Cards Dialog
+- visible_cards_dialog.dart
 - Starter Pack Service
 - Win32 Window Lifecycle
 - Android Image Analysis
 - Category Metadata Model
-- Media Permission Tests
+- home_cards_and_image_presentation_test.dart
 - UI Preview Chips
 - Tutorial Speech Bubble
-- Tutorial Integration Tests
+- package:simple_aac_app/services/tutorial_service.dart
 - Android Video Encoder
 - GIF Encoding Logic
 - Recycle Bin Model
@@ -83,14 +83,14 @@
 - Edit Session State
 - Grid Density Preview
 - Custom UI Painters
-- Home Page State
+- State
 - TTS Composer Preview
 - Testing Utility Hooks
 - Android Plugin Registry
 - Windows Plugin Registry
 - Visible Cards Preview
 - macOS Plugin Registry
-- Image and UI Helpers
+- image_crop_helper.dart
 - Design System Documentation
 - Card Data Model
 - Web App Manifest
@@ -103,14 +103,14 @@
 - Tutorial Step Model
 - Project Documentation
 - Personalization Service
-- Windows Class Registrar
+- win32_window.cpp
 - Geometry Utility Classes
-- Category Dialog Tests
+- category_creation_independent_selection_test.dart
 - Android Resource Merging
-- Image Search Tests
-- Mini Guides Dialog
-- Welcome Tour Dialog
-- Category Selection Tests
+- voice_recording_playback_benchmark_and_safety_test.dart
+- welcome_tour_dialog.dart
+- SimpleAAC_User_Guide_English_v1.1.6.md
+- SimpleAAC_User_Guide_Sinhala_v1.1.6.md
 - Web and UI Assets
 - Android Build Optimization
 - macOS App Infrastructure
@@ -146,12 +146,12 @@
 - Android TTS Plugin Resources
 - Starter Pack Manifest
 - Card Editor Dialog
-- Drawer Gesture Handling
-- Drawer Gesture UI
-- Personalization Setup Dialog
+- SimpleAAC_User_Guide_Tamil_v1.1.6.md
+- AudioplayersPlatformInterface
+- child_friendly_splash.dart
 - Color Picker Dialog
-- Image Search Dialog
-- Spotlight Rendering Logic
+- render_three_visual_modes_test.dart
+- card_editor_draft_service.dart
 - Spotlight UI Widget
 - HDPI Launcher Background
 - MDPI Launcher Background
@@ -387,6 +387,58 @@
 - App Icon 512
 - Maskable Icon 192
 - Maskable Icon 512
+- large_dataset_performance_stress_test.dart
+- render_global_card_label_color_artifacts_test.dart
+- adaptive_horizontal_navigation_test.dart
+- orientation_sensor_landscape_test.dart
+- child_friendly_splash_test.dart
+- navigation_lifecycle_test.dart
+- **READY FOR PLAY STORE PREPARATION**
+- card_image_text_overlay_setting_test.dart
+- default_folder_cover_test.dart
+- disable_back_card_in_pin_mode_test.dart
+- edge_auto_scroll_reorder_test.dart
+- pin_mode_header_consistency_test.dart
+- render_navigation_modes_test.dart
+- render_responsive_modes_test.dart
+- user_photo_and_home_illustration_fill_test.dart
+- folder_card_image_filling_test.dart
+- global_card_label_visibility_test.dart
+- normal_mode_breadcrumb_navigation_test.dart
+- pinned_child_mode_navigation_test.dart
+- startup_performance_and_conditional_loading_test.dart
+- edit_mode_breadcrumb_navigation_test.dart
+- global_card_label_background_color_test.dart
+- home_children_restore_and_image_coverage_test.dart
+- Final Production Optimization, Verification & Release Readiness Report
+- Pre-Release APK/AAB Size Optimization & Unused Resource Audit Report
+- C. Release Hardening & Bug Fix Summary
+- navigation_state_service.dart
+- 2. Findings Log
+- Simple AAC Sri Lanka — Version 1.1.5 (Build 14) Formal Release Sign-Off
+- main.dart
+- Android Platform Stability & Stress Testing Report
+- category_helper.dart
+- Ponytail
+- AudioPlayer
+- Ponytail Help
+- Flutter Performance & Profiling Report
+- 2. Visual Mode Specifications & Behavioral Parity
+- Deliverables in this Package
+- ui_mode_helper.dart
+- Functional Regression Audit Report
+- Google Play Pre-Release Compliance Checklist
+- Ponytail — Lazy Senior Dev Rules
+- ponytail-audit/SKILL.md
+- Ponytail Gain
+- ponytail-review/SKILL.md
+- image_cache_diagnostics.dart
+- Graphify — Knowledge Base Operating Rules
+- ponytail-debt/SKILL.md
+- Simple AAC Sri Lanka — Automated QA Test Execution Report (v1.1.6 Build 15)
+- _SettingsDrawerDiscoveryScope
+- OpenverseSearchProvider
+- verify_physical_device_scroll_cycles.sh
 
 ## God Nodes (most connected - your core abstractions)
 1. `add_body()` - 41 edges
@@ -395,22 +447,22 @@
 4. `build_research_protocol()` - 27 edges
 5. `main()` - 23 edges
 6. `Simple AAC இலங்கை` - 23 edges
-7. `add_plain_table()` - 21 edges
-8. `save_doc()` - 21 edges
-9. `_` - 21 edges
-10. `setup_header_footer()` - 19 edges
+7. `MainActivity` - 22 edges
+8. `add_plain_table()` - 21 edges
+9. `save_doc()` - 21 edges
+10. `_` - 21 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `4.3 Native Android Resources Audit` --references--> `MainActivity`  [INFERRED]
+  docs/qa/SIMPLE_AAC_PRE_RELEASE_SIZE_OPTIMIZATION_REPORT.md → android/app/src/main/kotlin/com/example/simple_aac_app/MainActivity.kt
+- `3. R8 / ProGuard Rule Integrity` --references--> `MainActivity`  [INFERRED]
+  docs/qa/ANDROID_STABILITY_REPORT.md → android/app/src/main/kotlin/com/example/simple_aac_app/MainActivity.kt
+- `3. R8 / ProGuard Rule Integrity` --references--> `VideoGifEncoder`  [INFERRED]
+  docs/qa/ANDROID_STABILITY_REPORT.md → android/app/src/main/kotlin/com/example/simple_aac_app/VideoGifEncoder.kt
 - `App Icon (1024x1024)` --references--> `Simple AAC இலங்கை`  [INFERRED]
   ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png → docs/user-guide/tamil/Simple_AAC_User_Guide_TA.md
 - `UI Screenshot: Settings Drawer` --conceptually_related_to--> `Web Index HTML`  [INFERRED]
   screenshots_review/drawer_test.png → web/index.html
-- `UI Screenshot: Home Screen Landscape` --conceptually_related_to--> `Web Index HTML`  [INFERRED]
-  ui_audit/screenshots/01_home_screen_fixed.png → web/index.html
-- `app` --references--> `file_picker`  [EXTRACTED]
-  build_release_log.txt → macos/Flutter/GeneratedPluginRegistrant.swift
-- `app` --references--> `flutter_tts`  [EXTRACTED]
-  build_release_log.txt → macos/Flutter/GeneratedPluginRegistrant.swift
 
 ## Import Cycles
 - None detected.
@@ -462,67 +514,67 @@
 - **School and Places Category** — assets_images_starter_pack_v8_school_places_classroom, assets_images_starter_pack_v8_school_places_home, assets_images_starter_pack_v8_school_places_playground, assets_images_starter_pack_v8_school_places_school [INFERRED 0.90]
 - **Shapes Category** — assets_images_starter_pack_v8_shapes_circle, assets_images_starter_pack_v8_shapes_heart, assets_images_starter_pack_v8_shapes_rectangle, assets_images_starter_pack_v8_shapes_square, assets_images_starter_pack_v8_shapes_star, assets_images_starter_pack_v8_shapes_triangle [INFERRED 0.90]
 
-## Communities (383 total, 270 thin omitted)
+## Communities (439 total, 271 thin omitted)
 
 ### Community 0 - "Home Screen Logic"
 Cohesion: 0.01
-Nodes (198): Imported Home Screen, activeParentCard, activeParentId, _addNewCardKey, allCategories, _appendToTtsInput, _applyRestoredBackup, _applyTextColorToCards (+190 more)
+Nodes (240): Imported Home Screen, activeParentCard, activeParentId, _addNewCardKey, allCategories, _appendToTtsInput, _applyRestoredBackup, _applyTextColorToCards (+232 more)
 
 ### Community 1 - "Document Generation Scripts"
-Cohesion: 0.06
-Nodes (90): convert_docx_to_pdf(), extract_toc(), main(), strip_and_write(), text_of_pdf(), write_pointer(), add_body(), add_bullet() (+82 more)
+Cohesion: 0.05
+Nodes (96): convert_docx_to_pdf(), extract_toc(), main(), strip_and_write(), text_of_pdf(), write_pointer(), add_body(), add_bullet() (+88 more)
 
 ### Community 2 - "Grid Settings UI"
-Cohesion: 0.02
-Nodes (111): Grid Settings Dialog, _accumulatedDelta, active, appBarColor, applyTextColorToCards, backgroundColorSwatch, boardColor, build (+103 more)
+Cohesion: 0.01
+Nodes (153): Grid Settings Dialog, _accumulatedDelta, active, _activeScrollStartTime, activeScrollThreshold, _activeScrollTimer, appBarColor, applyTextColorToCards (+145 more)
 
 ### Community 3 - "Card Editor Dialog"
 Cohesion: 0.02
-Nodes (73): accentColor, _adjustCurrentImage, _applyRecognizedLabel, audioPlayer, build, _buildAudioSection, _buildCameraDetectionBanner, _buildCandidateDuplicateCard (+65 more)
+Nodes (75): accentColor, _adjustCurrentImage, _applyRecognizedLabel, audioPlayer, build, _buildAudioSection, _buildCameraDetectionBanner, _buildCandidateDuplicateCard (+67 more)
 
 ### Community 4 - "Color Picker Dialog"
 Cohesion: 0.03
-Nodes (53): backgroundColor, backgroundPresets, backgroundPreview, build, _buildActionsFooter, _buildAppHeaderPreview, _buildBackgroundPreview, _buildCustomColorSection (+45 more)
+Nodes (66): backgroundColor, backgroundPresets, build, _buildActionsFooter, _buildAppHeaderPreview, _buildBackgroundPreview, _buildCustomColorSection, _buildGlobalTextPreview (+58 more)
 
 ### Community 5 - "Speech Engine Service"
 Cohesion: 0.04
-Nodes (48): _activeLanguageTag, _activeRateFlutter, _activeVoiceKey, _channel, _configureLanguage, defaultEngine, dispose, _doInitialize (+40 more)
+Nodes (50): _activeAwaitSpeakCompletion, _activeLanguageTag, _activeRateFlutter, _activeVoiceKey, _channel, _configureLanguage, defaultEngine, dispose (+42 more)
 
 ### Community 6 - "Card Storage Service"
-Cohesion: 0.04
-Nodes (50): Data Persistence Forensic Audit, _applyDefaultCatalogMigration, _cardsBackupFile, _cardsBackupFileName, _cardsFile, _cardsFileName, CardStorageService, _cloneCard (+42 more)
+Cohesion: 0.03
+Nodes (56): Data Persistence Forensic Audit, _applyDefaultCatalogMigration, _cachedDocsDir, _cardsBackupFile, _cardsBackupFileName, _cardsFile, _cardsFileName, CardStorageService (+48 more)
 
 ### Community 7 - "App Entry Point"
-Cohesion: 0.05
-Nodes (39): AACApp, build, _buildTheme, imagePickerImplementation, main, wait, baseColor, _boldText (+31 more)
+Cohesion: 0.06
+Nodes (33): baseColor, _boldText, _borderColor, _BorderColorOption, _borderColors, _borderWidth, build, _buildLiveCardsPreview (+25 more)
 
 ### Community 8 - "Openverse Image Search"
 Cohesion: 0.05
-Nodes (38): _client, _customClient, _dedupSorted, downloadAndPersistImage, _enableMultiSource, _extractTokens, ImageSearchProvider, _isNoisyTitle (+30 more)
+Nodes (37): _client, _customClient, _dedupSorted, downloadAndPersistImage, _enableMultiSource, _extractTokens, _isNoisyTitle, _isNoisyTopic (+29 more)
 
 ### Community 9 - "Image Crop Controls"
-Cohesion: 0.05
-Nodes (35): _basePan, _baseZoom, build, _buildBadge, _buildCropViewport, _buildFooterActions, _buildHeader, _buildInfoBanner (+27 more)
+Cohesion: 0.04
+Nodes (46): _activeDragHandle, _basePan, _baseZoom, build, _buildCropViewport, _buildFooterActions, _buildHeader, _buildInfoBanner (+38 more)
 
 ### Community 10 - "Accessibility Theme Settings"
 Cohesion: 0.05
-Nodes (36): colorBlindBoldText, colorBlindBoldTextPrefKey, colorBlindBorderColor, colorBlindBorderColorPrefKey, colorBlindBorderWidth, colorBlindBorderWidthPrefKey, colorBlindFilterImages, colorBlindFilterImagesPrefKey (+28 more)
+Nodes (37): colorBlindBoldText, colorBlindBoldTextPrefKey, colorBlindBorderColor, colorBlindBorderColorPrefKey, colorBlindBorderWidth, colorBlindBorderWidthPrefKey, colorBlindFilterImages, colorBlindFilterImagesPrefKey (+29 more)
 
 ### Community 11 - "Project Dependencies"
 Cohesion: 0.05
-Nodes (38): dependencies, archive, audioplayers, cupertino_icons, file_picker, flutter, flutter_colorpicker, flutter_tts (+30 more)
+Nodes (36): dependencies, archive, audioplayers, file_picker, flutter, flutter_tts, google_fonts, http (+28 more)
 
 ### Community 12 - "Board Personalization Dialog"
 Cohesion: 0.05
-Nodes (36): appBarColor, appBarColors, boardBackgroundOptions, boardColor, BoardColorOption, build, _buildAppBarColorSection, _buildBoardBackgroundSection (+28 more)
+Nodes (38): appBarColor, appBarColors, boardBackgroundOptions, boardColor, BoardColorOption, build, _buildAppBarColorSection, _buildBoardBackgroundSection (+30 more)
 
 ### Community 13 - "Tutorial Navigation Service"
 Cohesion: 0.06
 Nodes (31): completeTour, currentStepNotifier, endTour, finishTour, getKey, init, _instance, isTourActive (+23 more)
 
-### Community 14 - "Service Mocking Utilities"
-Cohesion: 0.09
-Nodes (18): OfflineModeException, CardEditorAction, _FakeAudioPlayer, _FakeAudioPlayer, _FakeAudioPlayer, main, tempDocsDir, _FakeAudioPlayer (+10 more)
+### Community 14 - "Directory"
+Cohesion: 0.05
+Nodes (38): GifConversionResult, CardEditorAction, main, _sampleGifBytes, main, sampleGif, sampleVideo, testDir (+30 more)
 
 ### Community 15 - "Linux Platform Integration"
 Cohesion: 0.07
@@ -530,39 +582,39 @@ Nodes (14): fl_register_plugins(), main(), first_frame_cb(), my_application_acti
 
 ### Community 16 - "Smart Image Search"
 Cohesion: 0.06
-Nodes (30): build, _buildCenteredStatus, _buildConfirmationView, _buildDownloadingState, _buildErrorState, _buildFilterChip, _buildLoadingState, _buildOfflineWarning (+22 more)
+Nodes (32): build, _buildCenteredStatus, _buildConfirmationView, _buildDownloadingState, _buildErrorState, _buildFilterChip, _buildLoadingState, _buildOfflineWarning (+24 more)
 
-### Community 17 - "Tutorial UI Components"
-Cohesion: 0.08
-Nodes (9): animationValue, build, pointsDown, main, main, main, main, main (+1 more)
+### Community 17 - "package:flutter/material.dart"
+Cohesion: 0.04
+Nodes (27): HomeDrawer, animationValue, build, pointsDown, main, tempDir, main, main (+19 more)
 
 ### Community 18 - "Data Backup Service"
-Cohesion: 0.10
-Nodes (15): main, main, _sha256Hex, _validGifHeader, main, _sha256Bytes, _sha256File, tempDir (+7 more)
+Cohesion: 0.07
+Nodes (26): main, main, _sha256Hex, _validGifHeader, main, createTestCard, main, tempDir (+18 more)
 
 ### Community 19 - "Home App Bar"
 Cohesion: 0.06
-Nodes (27): _AppBarIconButton, backgroundColor, build, color, HomeAppBar, icon, isEditMode, isPinned (+19 more)
+Nodes (28): _AppBarIconButton, backgroundColor, build, color, HomeAppBar, icon, isEditMode, isPinned (+20 more)
 
 ### Community 20 - "Video to GIF Conversion"
-Cohesion: 0.06
-Nodes (26): AnimatedMediaHelper, AnimatedMediaSource, _confirmTrimLongVideo, _convertVideoToGif, _defaultPicker, durationMs, encodedDurationMs, frameCount (+18 more)
+Cohesion: 0.05
+Nodes (34): AnimatedMediaHelper, AnimatedMediaSource, build, _cancelVideoToGif, _confirmTrimLongVideo, converterOverride, _convertVideoToGif, createState (+26 more)
 
-### Community 21 - "App Service Registry"
-Cohesion: 0.10
-Nodes (10): HomeDrawer, buildTestDrawer, main, main, main, main, main, main (+2 more)
+### Community 21 - "package:flutter_test/flutter_test.dart"
+Cohesion: 0.04
+Nodes (32): activitiesCards, buildPreviewGrid, main, personalCareCards, saveRepaintBoundary, main, main, main (+24 more)
 
 ### Community 22 - "Backup and Restore"
 Cohesion: 0.07
 Nodes (27): Backup & Restore Stress Test Report, archive, BackupPayload, BackupService, _basename, buildBackupZip, bytes, cards (+19 more)
 
 ### Community 23 - "Category Creation Dialog"
-Cohesion: 0.07
-Nodes (28): _applyPreset, availableCards, build, _CategoryPreset, _clearSelected, colorValue, createState, currentLanguage (+20 more)
+Cohesion: 0.06
+Nodes (30): AddCategoryDialog, _AddCategoryDialogState, _applyPreset, availableCards, build, _CategoryPreset, _clearSelected, colorValue (+22 more)
 
 ### Community 24 - "Tutorial Overlay Controller"
-Cohesion: 0.07
-Nodes (21): _ActiveTutorialOverlay, _ActiveTutorialOverlayState, build, createRenderObject, createState, currentStep, dialogSteps, didUpdateWidget (+13 more)
+Cohesion: 0.08
+Nodes (20): build, createRenderObject, createState, currentStep, dialogSteps, didUpdateWidget, dispose, _ensureTargetVisible (+12 more)
 
 ### Community 25 - "Home Grid Management"
 Cohesion: 0.07
@@ -573,7 +625,7 @@ Cohesion: 0.07
 Nodes (26): activeCards, build, _buildBottomActions, _buildEmptyState, _buildEntryCard, _buildHeader, _buildInfoPanel, _buildSectionHeader (+18 more)
 
 ### Community 27 - "Camera Analysis Helper"
-Cohesion: 0.07
+Cohesion: 0.08
 Nodes (23): analysis, analyzeImage, analyzerAvailable, _buildPreviewThumb, CameraAnalysisResult, CameraCaptureOutcome, CameraObjectHelper, captureAndVerify (+15 more)
 
 ### Community 28 - "App Feature Screenshots"
@@ -585,16 +637,16 @@ Cohesion: 0.08
 Nodes (24): getBackLabel, getBackupGuideDesc, getBackupGuideTitle, getFinishLabel, getGifGuideDesc, getGifGuideTitle, getMiniGuidesTitle, getNextLabel (+16 more)
 
 ### Community 30 - "Category Selection Dialog"
-Cohesion: 0.09
-Nodes (24): availableCards, build, _build4ColorGridIcon, _cardCountFor, categories, ChooseCategoriesDialog, _commitSelection, createState (+16 more)
+Cohesion: 0.08
+Nodes (25): availableCards, build, _build4ColorGridIcon, _cardCountFor, categories, ChooseCategoriesDialog, _commitSelection, createState (+17 more)
 
 ### Community 31 - "Windows C++ Runtime"
 Cohesion: 0.12
 Nodes (4): wWinMain(), CreateAndAttachConsole(), GetCommandLineArguments(), Utf8FromUtf16()
 
-### Community 32 - "Default Seed Cards"
-Cohesion: 0.08
-Nodes (22): createDefaultSeedCards, seedAngryImage, seedBlocksImage, seedGoodImage, seedHappyImage, seedHelloImage, seedPlayImage, seedSadImage (+14 more)
+### Community 32 - "default_seed_cards.dart"
+Cohesion: 0.04
+Nodes (47): createDefaultSeedCards, legacySeedAngryImage, legacySeedBlocksImage, legacySeedGoodImage, legacySeedHappyImage, legacySeedHelloImage, legacySeedPlayImage, legacySeedSadImage (+39 more)
 
 ### Community 33 - "Recycle Bin Service"
 Cohesion: 0.08
@@ -608,29 +660,25 @@ Nodes (19): Camera & Video Forensic Audit, AppPermissionsHelper, build, ensureCa
 Cohesion: 0.09
 Nodes (22): Process Release Main Manifest, Process Release Manifest (audioplayers_android), com.baseflow.permissionhandler, com.example.simple_aac_app, com.llfbandit.record, com.mr.flutter.plugin.filepicker, com.tundralabs.fluttertts, dev.fluttercommunity.plus.share (+14 more)
 
-### Community 37 - "Windows Window Management"
-Cohesion: 0.16
-Nodes (6): Win32Window::GetHandle(), Win32Window::Show(), EnableFullDpiSupportIfAvailable(), EnableNonClientDpiScaling, Scale(), Win32Window::Win32Window()
-
 ### Community 38 - "Landscape Navigation Menu"
-Cohesion: 0.09
-Nodes (21): baseColor, build, canGoBack, color, icon, isPinned, label, LandscapeMenu (+13 more)
+Cohesion: 0.06
+Nodes (30): baseColor, build, canGoBack, canScrollLeft, canScrollRight, color, _CompactMenuButton, icon (+22 more)
 
 ### Community 39 - "TTS Control Bar"
 Cohesion: 0.09
-Nodes (20): backgroundColor, borderColor, build, enabled, icon, isTablet, label, onClear (+12 more)
+Nodes (21): backgroundColor, borderColor, build, enabled, icon, isTablet, label, onClear (+13 more)
 
 ### Community 40 - "Network Policy Service"
-Cohesion: 0.10
-Nodes (15): close, createGatedClient, init, inner, _instance, _isOnlineEnabled, isOnlineEnabledNotifier, message (+7 more)
+Cohesion: 0.09
+Nodes (16): close, createGatedClient, init, inner, _instance, _isOnlineEnabled, isOnlineEnabledNotifier, message (+8 more)
 
 ### Community 41 - "Grid Density Settings"
-Cohesion: 0.10
-Nodes (17): build, _buildPresetButton, cards, cardTextColor, cardTextScale, createState, currentColumns, currentLanguage (+9 more)
+Cohesion: 0.09
+Nodes (19): build, _buildPresetButton, cards, cardTextColor, cardTextScale, createState, currentColumns, currentLanguage (+11 more)
 
-### Community 42 - "Image Handling Utilities"
-Cohesion: 0.10
-Nodes (6): main, createTestCard, main, tempDir, main, main
+### Community 42 - "card_image_rendering_consistency_test.dart"
+Cohesion: 0.04
+Nodes (47): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, k1x1PngBytes (+39 more)
 
 ### Community 43 - "Edit Mode Toolbar"
 Cohesion: 0.10
@@ -641,7 +689,7 @@ Cohesion: 0.11
 Nodes (6): FlutterWindow::OnDestroy(), FlutterWindow, flutter_controller_, FlutterWindow::FlutterWindow(), project_, Win32Window::OnDestroy()
 
 ### Community 45 - "Multilingual Translation Service"
-Cohesion: 0.10
+Cohesion: 0.11
 Nodes (16): AacTranslation, category, _conceptMap, english, isLatinScript, lookupTranslations, MultilingualConceptService, normalizeConcept (+8 more)
 
 ### Community 46 - "Caregiver Lock Service"
@@ -657,48 +705,48 @@ Cohesion: 0.11
 Nodes (18): accentColor, badgeText, build, color, DialogOptionTile, glossOpacity, icon, iconWidget (+10 more)
 
 ### Community 49 - "Image Search Model"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (16): creator, creatorUrl, foreignLandingUrl, fromJson, id, ImageSearchResult, imageUrl, isPhoto (+8 more)
 
 ### Community 50 - "Card Image Widget"
-Cohesion: 0.11
-Nodes (11): autoApplyColorBlindFilter, buildCardImage, cacheWidth, effectiveCacheWidth, effectiveFilter, endsWith, fit, image (+3 more)
+Cohesion: 0.08
+Nodes (17): autoApplyColorBlindFilter, buildCardImage, clamp, computeAdaptiveCacheWidth, effectiveCacheWidth, effectiveFilter, endsWith, filterQuality (+9 more)
 
 ### Community 51 - "Multilingual Speech Router"
 Cohesion: 0.11
 Nodes (18): _, _appendOrMerge, _englishIntToWords, languageCode, MultilingualSpeechRouter, normalizeEnglishText, normalizeIndicText, _normalizeLang (+10 more)
 
-### Community 52 - "Visible Cards Dialog"
-Cohesion: 0.12
-Nodes (14): build, cards, categoryName, _clearAll, createState, currentLanguage, gridColumns, initialSelectedIds (+6 more)
+### Community 52 - "visible_cards_dialog.dart"
+Cohesion: 0.05
+Nodes (34): allCards, build, _buildBreadcrumbBar, cards, categoryName, _clearAll, createState, currentLanguage (+26 more)
 
 ### Community 53 - "Starter Pack Service"
-Cohesion: 0.12
-Nodes (14): alreadyInstalled, assetImagePrefix, buildStarterPack, _cachedPackRoot, cardsAdded, findStarterPackRoot, getStarterPackRootClone, importStarterPack (+6 more)
+Cohesion: 0.09
+Nodes (18): alreadyInstalled, assetImagePrefix, buildStarterPack, _cachedPackRoot, cardsAdded, findStarterPackRoot, getStarterPackRootClone, harmonizedCategoryFolderColors (+10 more)
 
 ### Community 54 - "Win32 Window Lifecycle"
-Cohesion: 0.15
-Nodes (8): FlutterWindow::OnCreate(), Win32Window::Destroy(), Win32Window::GetClientArea(), Win32Window::OnCreate(), Win32Window, child_content_, quit_on_close_, window_handle_
+Cohesion: 0.18
+Nodes (7): FlutterWindow::OnCreate(), Win32Window::GetClientArea(), Win32Window::OnCreate(), Win32Window, child_content_, quit_on_close_, window_handle_
+
+### Community 55 - "Android Image Analysis"
+Cohesion: 0.20
+Nodes (3): MainActivity, ActiveGifSession, LumaStats
 
 ### Community 56 - "Category Metadata Model"
 Cohesion: 0.12
 Nodes (13): CategoryMetadata, CategoryPresetItem, color, colorValue, defaultPresets, emoji, fromJson, icon (+5 more)
 
-### Community 57 - "Media Permission Tests"
-Cohesion: 0.15
-Nodes (4): main, _sampleGifBytes, main, main
+### Community 57 - "home_cards_and_image_presentation_test.dart"
+Cohesion: 0.04
+Nodes (49): expectedActivitiesActionIds, expectedPersonalCareActionIds, main, create, dispose, emitError, emitLog, getCurrentPosition (+41 more)
 
 ### Community 58 - "UI Preview Chips"
-Cohesion: 0.12
-Nodes (15): _NestingConfirmationDialog, _MediaSourceTile, _BackgroundColorPreviewChip, _CardTextColorPreviewChip, _ColorBlindRadioOption, ColorVisionPreviewChip, _DrawerIconBadge, _MiniCard (+7 more)
+Cohesion: 0.11
+Nodes (17): _NestingConfirmationDialog, _MediaSourceTile, _BackgroundColorPreviewChip, _CardLabelColorPreviewChip, _CardTextColorPreviewChip, _ColorBlindRadioOption, ColorVisionPreviewChip, _DrawerIconBadge (+9 more)
 
 ### Community 59 - "Tutorial Speech Bubble"
 Cohesion: 0.12
 Nodes (14): allowsManualAdvance, arrowHorizontalOffset, build, isArrowUp, language, onBack, onNext, onSkip (+6 more)
-
-### Community 60 - "Tutorial Integration Tests"
-Cohesion: 0.20
-Nodes (4): main, main, main, main
 
 ### Community 62 - "GIF Encoding Logic"
 Cohesion: 0.26
@@ -709,11 +757,11 @@ Cohesion: 0.13
 Nodes (13): card, collectMediaPaths, deletedAtUtc, entryId, fromJson, getDaysRemaining, getDeletionStatusText, isExpired (+5 more)
 
 ### Community 64 - "AAC Card Model"
-Cohesion: 0.13
-Nodes (14): AACCard, category, colorValue, fromJson, getLabel, id, imagePath, label (+6 more)
+Cohesion: 0.12
+Nodes (15): AACCard, category, colorValue, fromJson, getLabel, id, imagePath, isFolder (+7 more)
 
 ### Community 65 - "Sub-Card UI Components"
-Cohesion: 0.15
+Cohesion: 0.14
 Nodes (8): build, parentCard, SubCardPage, AACCardWidget, build, card, onLongPress, onTap
 
 ### Community 66 - "Live Preview Panel"
@@ -729,20 +777,20 @@ Cohesion: 0.14
 Nodes (12): build, _buildCardIcon, _buildMiniCard, cards, cardTextColor, cardTextScale, columns, defaultSampleCards (+4 more)
 
 ### Community 69 - "Custom UI Painters"
-Cohesion: 0.15
-Nodes (12): _RecycleBinWavePainter, _CropOverlayPainter, _HeaderWavePainter, _DrawerHeaderWavePainter, _MiniStickFigurePainter, _HappyStickFigurePainter, _HelloStickFigurePainter, _WaterStickFigurePainter (+4 more)
+Cohesion: 0.14
+Nodes (13): _RecycleBinWavePainter, _SoftPastelBackgroundPainter, _CropOverlayPainter, _HeaderWavePainter, _DrawerHeaderWavePainter, _MiniStickFigurePainter, _HappyStickFigurePainter, _HelloStickFigurePainter (+5 more)
 
-### Community 70 - "Home Page State"
-Cohesion: 0.19
-Nodes (10): _DragAndDropCardItem, _DragAndDropCardItemState, HomePage, _HomePageState, HomePage, _HomePageState, AddCategoryDialog, _AddCategoryDialogState (+2 more)
+### Community 70 - "State"
+Cohesion: 0.15
+Nodes (14): _DragAndDropCardItem, _DragAndDropCardItemState, HomePage, _HomePageState, HomePage, _HomePageState, _DrawerGestureHandler, _DrawerGestureHandlerState (+6 more)
 
 ### Community 71 - "TTS Composer Preview"
 Cohesion: 0.15
 Nodes (12): build, buildActionChips, _buildMiniChip, _buildSampleActionPill, _buildSampleToken, showActions, showClear, showDelete (+4 more)
 
 ### Community 72 - "Testing Utility Hooks"
-Cohesion: 0.17
-Nodes (11): buildTheme, enableHapticsForTesting, resetSettingsForTesting, useImageOverlayLabelForTesting, resetTestHooks, resetCooldown, resetTestHooks, clearCache (+3 more)
+Cohesion: 0.12
+Nodes (15): applyRestoredBackupForTesting, disableBackCardInPinModeForTesting, enableHapticsForTesting, openSettingsFullScreenForTesting, resetSettingsForTesting, showCardLabelsForTesting, useImageOverlayLabelForTesting, resetTestHooks (+7 more)
 
 ### Community 73 - "Android Plugin Registry"
 Cohesion: 0.17
@@ -756,16 +804,16 @@ Nodes (9): build, _buildCardIcon, cards, columns, _fallbackIcon, isDarkMode, lan
 Cohesion: 0.18
 Nodes (10): audioplayers_darwin, FlutterTtsPlugin, SharePlusPlugin, file_selector_macos, flutter_tts, Foundation, path_provider_foundation, record_darwin (+2 more)
 
-### Community 77 - "Image and UI Helpers"
-Cohesion: 0.18
-Nodes (6): cropSquare, ImageCropHelper, _resolveTempDir, applyOrientation, applySystemUi, UiModeHelper
+### Community 77 - "image_crop_helper.dart"
+Cohesion: 0.07
+Nodes (27): bytes, cropNormalized, _cropNormalizedWorker, _CropParams, cropSquare, _cropWorker, decodeDimensions, _decodeDimensionsWorker (+19 more)
 
 ### Community 78 - "Design System Documentation"
 Cohesion: 0.18
 Nodes (11): Simple AAC Design System, Home Page, Backup Service, Card Storage Service, Speech Engine Service, Animated Media Helper, App Permissions Helper, Camera Object Helper (+3 more)
 
 ### Community 79 - "Card Data Model"
-Cohesion: 0.18
+Cohesion: 0.20
 Nodes (9): AACCard, colorValue, fromJson, id, imagePath, label, subCards, toJson (+1 more)
 
 ### Community 80 - "Web App Manifest"
@@ -808,29 +856,37 @@ Nodes (8): Simple AAC — Agent Operating Guide, Changelog, DESIGN_SYSTEM.md, CA
 Cohesion: 0.25
 Nodes (5): markCompleted, PersonalizeService, prefPersonalizeCompleted, resetForTesting, shouldShowFirstLaunchSetup
 
-### Community 90 - "Windows Class Registrar"
-Cohesion: 0.25
-Nodes (3): WindowClassRegistrar, class_registered_, instance_
+### Community 90 - "win32_window.cpp"
+Cohesion: 0.14
+Nodes (6): Win32Window::Destroy(), Win32Window::Show(), EnableNonClientDpiScaling, WindowClassRegistrar, class_registered_, instance_
 
 ### Community 91 - "Geometry Utility Classes"
-Cohesion: 0.21
-Nodes (6): Point, x, y, Size, height, width
+Cohesion: 0.14
+Nodes (8): Scale(), Point, x, y, Size, height, width, Win32Window::Win32Window()
+
+### Community 92 - "category_creation_independent_selection_test.dart"
+Cohesion: 0.05
+Nodes (30): main, sampleCards, create, createTestCards, dispose, emitError, emitLog, getCurrentPosition (+22 more)
 
 ### Community 93 - "Android Resource Merging"
 Cohesion: 0.43
 Nodes (7): bundleReleaseAar, mergeReleaseResources, permission_handler_android, record_android, share_plus, shared_preferences_android, verifyReleaseResources
 
-### Community 95 - "Mini Guides Dialog"
-Cohesion: 0.29
-Nodes (5): build, _buildGuideCard, language, MiniGuidesDialog, show
+### Community 94 - "voice_recording_playback_benchmark_and_safety_test.dart"
+Cohesion: 0.05
+Nodes (33): main, main, audioPlatform, callLog, callTimestamps, create, dispose, emitError (+25 more)
 
-### Community 96 - "Welcome Tour Dialog"
-Cohesion: 0.29
-Nodes (5): build, _buildFeatureRow, language, show, WelcomeTourDialog
+### Community 95 - "welcome_tour_dialog.dart"
+Cohesion: 0.14
+Nodes (10): build, _buildGuideCard, language, MiniGuidesDialog, show, build, _buildFeatureRow, language (+2 more)
 
-### Community 97 - "Category Selection Tests"
-Cohesion: 0.29
-Nodes (4): configureScreen, customMetadata, main, sampleCards
+### Community 96 - "SimpleAAC_User_Guide_English_v1.1.6.md"
+Cohesion: 0.06
+Nodes (31): 1.1 Understanding the Home Screen, 1.2 Category Navigation & Automatic Folder Memory, 2.1 Instant Speech & Multi-Sensory Feedback, 2.2 Building Multi-Word Sentences, 2.3 Trilingual Offline Speech (English, Sinhala, Tamil), 3.1 The 13 Default Starter Pack Categories, 3.2 Creating &amp; Customising Cards, 4.1 Taking Real-World Photos with Camera (+23 more)
+
+### Community 97 - "SimpleAAC_User_Guide_Sinhala_v1.1.6.md"
+Cohesion: 0.06
+Nodes (31): 1.1 ප්‍රධාන තිරය හඳුනා ගැනීම, 1.2 කාණ්ඩ සංචාලනය සහ ස්වයංක්‍රීය මතකය (Automatic Folder Recovery), 1 වන පරිච්ඡේදය — Simple AAC භාවිතය ආරම්භ කිරීම සහ සංචාලනය, 2.1 ක්ෂණික කථනය සහ බහුවිධ ප්‍රතිචාර, 2.2 බහු-වචන වාක්‍ය ගොඩනැගීම, 2.3 නොබැඳි භාෂා ත්‍රිත්වය (සිංහල, දෙමළ, ඉංග්‍රීසි), 2 වන පරිච්ඡේදය — කථනය සහ වාක්‍ය සකස් කිරීම, 3.1 පෙර-ස්ථාපිත කාණ්ඩ 13 (Default Starter Pack) (+23 more)
 
 ### Community 98 - "Web and UI Assets"
 Cohesion: 0.29
@@ -916,25 +972,241 @@ Nodes (3): path_provider_android:mergeReleaseResources, path_provider_android Re
 Cohesion: 0.67
 Nodes (3): permission_handler_android:mergeReleaseResources, permission_handler_android Resources, permission_handler_android:verifyReleaseResources
 
+### Community 135 - "SimpleAAC_User_Guide_Tamil_v1.1.6.md"
+Cohesion: 0.06
+Nodes (31): 1.1 முதன்மைத் திரையைப் புரிந்துகொள்ளுதல், 1.2 பிரிவுகள் வழிசெலுத்தல் மற்றும் தானியங்கி நினைவகம் (Automatic Folder Recovery), 2.1 உடனடிப் பேச்சு மற்றும் உணர்வுப் பின்னூட்டம், 2.2 பல வார்த்தை வாக்கியங்களை உருவாக்குதல், 2.3 முத்தமிழ் மற்றும் மும்மொழி ஆஃப்லைன் குரல் (தமிழ், சிங்களம், ஆங்கிலம்), 3.1 முன்நிறுவப்பட்ட 13 தொடக்கப் பிரிவுகள் (Default Starter Pack), 3.2 புதிய அட்டைகளை உருவாக்குதல் மற்றும் அமைத்தல், 4.1 கேமரா மூலம் நேரடிப் புகைப்படங்களை எடுத்தல் (+23 more)
+
+### Community 136 - "AudioplayersPlatformInterface"
+Cohesion: 0.19
+Nodes (27): FakeAudioplayerPlatform, FakeAudioplayerPlatform, _FakeAudioPlatform, FakeAudioplayerPlatform, _FakeAudioPlatform, _FakeAudioPlatform, _FakeAudioPlatform, FakeAudioplayerPlatform (+19 more)
+
+### Community 137 - "child_friendly_splash.dart"
+Cohesion: 0.07
+Nodes (24): build, _buildErrorView, _buildMiniCard, _buildPulsingDot, ChildFriendlySplash, _ChildFriendlySplashState, _controller, createState (+16 more)
+
+### Community 139 - "render_three_visual_modes_test.dart"
+Cohesion: 0.07
+Nodes (28): captureScreen, create, dispose, emitError, emitLog, getCards, getCurrentPosition, getDuration (+20 more)
+
+### Community 140 - "card_editor_draft_service.dart"
+Cohesion: 0.07
+Nodes (25): CardEditorDraft, CardEditorDraftService, cardId, category, clearDraft, colorValue, _draftActiveKey, _draftDataKey (+17 more)
+
+### Community 383 - "large_dataset_performance_stress_test.dart"
+Cohesion: 0.07
+Nodes (25): create, dispose, emitError, emitLog, generateCards, getCurrentPosition, getDuration, getEventStream (+17 more)
+
+### Community 384 - "render_global_card_label_color_artifacts_test.dart"
+Cohesion: 0.07
+Nodes (25): artifactDir, create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream (+17 more)
+
+### Community 385 - "adaptive_horizontal_navigation_test.dart"
+Cohesion: 0.08
+Nodes (23): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+15 more)
+
+### Community 386 - "orientation_sensor_landscape_test.dart"
+Cohesion: 0.08
+Nodes (24): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+16 more)
+
+### Community 387 - "child_friendly_splash_test.dart"
+Cohesion: 0.08
+Nodes (23): create, dispose, emitError, emitLog, FakeAudioplayerPlatform, getCurrentPosition, getDuration, getEventStream (+15 more)
+
+### Community 388 - "navigation_lifecycle_test.dart"
+Cohesion: 0.08
+Nodes (22): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+14 more)
+
+### Community 389 - "**READY FOR PLAY STORE PREPARATION**"
+Cohesion: 0.08
+Nodes (24): 10. Phase 9: Settings & Personalization, 11. Phase 10: Data Integrity & Offline Privacy, 12. Phase 11: Release Build & Size Optimization, 13. Phase 12: Google Play Pre-Release Compliance, 14. Actionable Recommendations (Non-Blocking), 1. Executive Summary, 2.1 Git Repository State, 2.2 Toolchain & Compiler Versions (+16 more)
+
+### Community 390 - "card_image_text_overlay_setting_test.dart"
+Cohesion: 0.08
+Nodes (24): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, k1x1PngBytes (+16 more)
+
+### Community 391 - "default_folder_cover_test.dart"
+Cohesion: 0.08
+Nodes (24): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+16 more)
+
+### Community 392 - "disable_back_card_in_pin_mode_test.dart"
+Cohesion: 0.08
+Nodes (24): create, createTestCards, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream (+16 more)
+
+### Community 393 - "edge_auto_scroll_reorder_test.dart"
+Cohesion: 0.08
+Nodes (24): create, dispose, emitError, emitLog, generateCards, getCurrentPosition, getDuration, getEventStream (+16 more)
+
+### Community 394 - "pin_mode_header_consistency_test.dart"
+Cohesion: 0.08
+Nodes (24): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+16 more)
+
+### Community 395 - "render_navigation_modes_test.dart"
+Cohesion: 0.08
+Nodes (24): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+16 more)
+
+### Community 396 - "render_responsive_modes_test.dart"
+Cohesion: 0.08
+Nodes (24): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+16 more)
+
+### Community 397 - "user_photo_and_home_illustration_fill_test.dart"
+Cohesion: 0.08
+Nodes (24): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+16 more)
+
+### Community 398 - "folder_card_image_filling_test.dart"
+Cohesion: 0.08
+Nodes (22): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+14 more)
+
+### Community 399 - "global_card_label_visibility_test.dart"
+Cohesion: 0.08
+Nodes (22): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+14 more)
+
+### Community 400 - "normal_mode_breadcrumb_navigation_test.dart"
+Cohesion: 0.08
+Nodes (23): create, createSampleHierarchy, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream (+15 more)
+
+### Community 401 - "pinned_child_mode_navigation_test.dart"
+Cohesion: 0.08
+Nodes (23): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+15 more)
+
+### Community 402 - "startup_performance_and_conditional_loading_test.dart"
+Cohesion: 0.08
+Nodes (23): create, dispose, emitError, emitLog, _FakeAudioplayerPlatform, getCurrentPosition, getDuration, getEventStream (+15 more)
+
+### Community 403 - "edit_mode_breadcrumb_navigation_test.dart"
+Cohesion: 0.09
+Nodes (22): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+14 more)
+
+### Community 404 - "global_card_label_background_color_test.dart"
+Cohesion: 0.09
+Nodes (22): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, k1x1PngBytes (+14 more)
+
+### Community 405 - "home_children_restore_and_image_coverage_test.dart"
+Cohesion: 0.09
+Nodes (22): create, dispose, emitError, emitLog, getCurrentPosition, getDuration, getEventStream, main (+14 more)
+
+### Community 406 - "Final Production Optimization, Verification & Release Readiness Report"
+Cohesion: 0.10
+Nodes (20): 10. Audio & Multilingual Speech (Phase 7), 11. Automated Regression Test Suite (Phase 11), 12. Android Release Size Optimization (Phase 10), 13. Production Release Artifacts & Checksums (Phase 13), 14. Signature Verification (apksigner), 15. Remaining Non-Blocking Notes, 16. Final Release Readiness Verdict, 1. Executive Summary (+12 more)
+
+### Community 407 - "Pre-Release APK/AAB Size Optimization & Unused Resource Audit Report"
+Cohesion: 0.11
+Nodes (18): 1. Executive Summary, 2.1 Package & Binary Totals, 2. Size Comparison & Measurements, 3. Detailed Component Breakdown (Inside arm64-v8a Release APK), 4.1 Dependency Audit Findings, 4.2 Assets & Media Audit Findings, 4.3 Native Android Resources Audit, 4. Unused & Redundant Resource Audit (+10 more)
+
+### Community 408 - "C. Release Hardening & Bug Fix Summary"
+Cohesion: 0.12
+Nodes (15): 1. Premature Card Creation & Double-Save Elimination, 2. High-Resolution Camera & Crop Memory Resilience, 3. Global Card Label Visibility Setting, 4. Harmonized Card Image Fill & Asset Polish, 5. First-Card TTS Latency Elimination, 6. Global Card Label Background Color, 7. Intermittent Scroll Lock Resolution, 8. Voice Recording Playback Performance (+7 more)
+
+### Community 409 - "navigation_state_service.dart"
+Cohesion: 0.12
+Nodes (13): _channel, enableNativeChannelInTests, _findCardInScope, folderStackIds, getRestoreInfo, _isAndroid, isSystemProcessRecreation, NavigationRestoreInfo (+5 more)
+
+### Community 410 - "2. Findings Log"
+Cohesion: 0.13
+Nodes (14): 1. Issue Severity Classification, 2. Findings Log, 3. Step-by-Step Production Release Rollout Plan, 4. Final Verdict:, Finding P2-1: Legacy Test Fixture Assumptions in 6 Test Files, Finding P2-2: Multiple ADB Binaries on Developer Host Machine, Finding P3-1: Kotlin Gradle Plugin (KGP) Plugin Migration Warning, Finding P3-2: Untracked Experimental Test and QA Files in Working Directory (+6 more)
+
+### Community 411 - "Simple AAC Sri Lanka — Version 1.1.5 (Build 14) Formal Release Sign-Off"
+Cohesion: 0.13
+Nodes (14): 1. Source Code & Architecture Review, 2. Performance & Smoothness, 3. Memory & Image Pipeline, 4. Security & Privacy, 5. Multilingual & TTS Engine, A. Release Information, B. Quality Assurance & Test Verification, C. Technical Approval Evidence (+6 more)
+
+### Community 412 - "main.dart"
+Cohesion: 0.13
+Nodes (8): AACApp, build, buildTheme, _buildTheme, imagePickerImplementation, main, navigatorKey, wait
+
+### Community 413 - "Android Platform Stability & Stress Testing Report"
+Cohesion: 0.17
+Nodes (8): 1. Executive Stability Summary, 2. Platform Channel Architecture & Threading, 3. R8 / ProGuard Rule Integrity, 4. Lifecycle & Stress Scenarios, 5. Android Stability Verdict: PASS, Android Platform Stability & Stress Testing Report, Key Metrics:, 6. Phase 5: Memory & Resource Investigation
+
+### Community 414 - "category_helper.dart"
+Cohesion: 0.20
+Nodes (8): canonicalCategoryName, CategoryHelper, countWordCardsForCategory, discoverCategories, getWordCardsForCategories, _knownGroupDisplayNames, matchesAnyCategory, matchesCategory
+
+### Community 415 - "Ponytail"
+Cohesion: 0.22
+Nodes (8): Boundaries, Intensity, Output, Persistence, Ponytail, Rules, The ladder, When NOT to be lazy
+
+### Community 416 - "AudioPlayer"
+Cohesion: 0.39
+Nodes (7): _FakeAudioPlayer, _FakeAudioPlayer, _FakeAudioPlayer, _FakeAudioPlayer, _FakeAudioPlayer, _FakeAudioPlayer, _FakeAudioPlayer
+
+### Community 417 - "Ponytail Help"
+Cohesion: 0.25
+Nodes (7): Configure Default Mode, Deactivate, Levels, More, Ponytail Help, Skills, Update
+
+### Community 418 - "Flutter Performance & Profiling Report"
+Cohesion: 0.25
+Nodes (7): 1. Executive Performance Summary, 2. Startup Lifecycle Latency Benchmarks, 3. Frame Rate & Thread Performance, 4. Memory & Garbage Collection Behavior, 5. Performance Verdict: PASS, Flutter Performance & Profiling Report, Key Findings:
+
+### Community 419 - "2. Visual Mode Specifications & Behavioral Parity"
+Cohesion: 0.25
+Nodes (7): 1. Overview of the Three Independent Card Presentation Modes, 2. Visual Mode Specifications & Behavioral Parity, 3. Visual Artifacts Attached, **Mode A — Overlay ON (Default / Recommended)**, **Mode B — Overlay OFF (Classic Separation)**, **Mode C — Image Only (Labels OFF)**, Simple AAC Sri Lanka — Visual & Presentation Modes QA Report (v1.1.6)
+
+### Community 420 - "Deliverables in this Package"
+Cohesion: 0.25
+Nodes (7): 1. English User Guide, 2. Sinhala User Guide (සිංහල පරිශීලක අත්පොත), 3. Tamil User Guide (தமிழ் பயனர் வழிகாட்டி), 4. Supporting Visual Assets, Deliverables in this Package, Simple AAC Sri Lanka — Official User Guides (v1.1.6 / Build 16), Verified Features Documented (v1.1.6+16)
+
+### Community 421 - "ui_mode_helper.dart"
+Cohesion: 0.25
+Nodes (5): applyOrientation, applySystemUi, enableNativeChannelInTests, _orientationChannel, UiModeHelper
+
+### Community 422 - "Functional Regression Audit Report"
+Cohesion: 0.33
+Nodes (5): 1. Feature Verification Matrix, 2. Multilingual Speech Routing Detail, 3. Data Migration & Persistence, 4. Regression Audit Verdict: PASS, Functional Regression Audit Report
+
+### Community 423 - "Google Play Pre-Release Compliance Checklist"
+Cohesion: 0.33
+Nodes (5): 1. Google Play Policy Compliance Matrix, 2. Manifest Permission Verification, 3. Store Listing Assets Checklist, 4. Play Store Pre-Release Verdict: PASS, Google Play Pre-Release Compliance Checklist
+
+### Community 424 - "Ponytail — Lazy Senior Dev Rules"
+Cohesion: 0.40
+Nodes (4): Bug Fix Rule: Root Cause, Not Symptom, Core Rules, Ponytail — Lazy Senior Dev Rules, When NOT to Be Lazy
+
+### Community 425 - "ponytail-audit/SKILL.md"
+Cohesion: 0.40
+Nodes (4): Boundaries, Hunt, Output, Tags
+
+### Community 426 - "Ponytail Gain"
+Cohesion: 0.40
+Nodes (4): Boundaries, Honesty boundary, Ponytail Gain, Scoreboard
+
+### Community 427 - "ponytail-review/SKILL.md"
+Cohesion: 0.40
+Nodes (4): Boundaries, Examples, Format, Scoring
+
+### Community 428 - "image_cache_diagnostics.dart"
+Cohesion: 0.40
+Nodes (3): estimateBitmapMemoryBytes, getSnapshot, ImageCacheDiagnostics
+
+### Community 429 - "Graphify — Knowledge Base Operating Rules"
+Cohesion: 0.50
+Nodes (3): Graphify — Knowledge Base Operating Rules, Knowledge Base Artifacts, Operating Instructions
+
+### Community 430 - "ponytail-debt/SKILL.md"
+Cohesion: 0.50
+Nodes (3): Boundaries, Output, Scan
+
+### Community 431 - "Simple AAC Sri Lanka — Automated QA Test Execution Report (v1.1.6 Build 15)"
+Cohesion: 0.50
+Nodes (3): 1. Test Suite Coverage Breakdown, 2. Key Regressions & New Capabilities Verified, Simple AAC Sri Lanka — Automated QA Test Execution Report (v1.1.6 Build 15)
+
 ## Knowledge Gaps
-- **1880 isolated node(s):** `activeParentCard`, `activeParentId`, `_addNewCardKey`, `allCategories`, `_appendToTtsInput` (+1875 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 2187 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **270 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **2923 isolated node(s):** `activeParentCard`, `activeParentId`, `_addNewCardKey`, `allCategories`, `_appendToTtsInput` (+2918 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 3475 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **271 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `TutorialStepType` connect `Tutorial Step Model` to `Tutorial Overlay Controller`, `Tutorial Speech Bubble`?**
-  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+- **Why does `MainActivity` connect `Android Image Analysis` to `.onCreate`, `Android Native Activity`, `Android Platform Stability & Stress Testing Report`, `Pre-Release APK/AAB Size Optimization & Unused Resource Audit Report`?**
+  _High betweenness centrality (0.028) - this node is a cross-community bridge._
 - **What connects `activeParentCard`, `activeParentId`, `_addNewCardKey` to the rest of the system?**
-  _1880 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _2923 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Home Screen Logic` be split into smaller, more focused modules?**
-  _Cohesion score 0.008888888888888889 - nodes in this community are weakly interconnected._
-- **Why does `_SpotlightHitTestBlocker` connect `Spotlight UI Widget` to `Tutorial Overlay Controller`?**
-  _High betweenness centrality (0.007) - this node is a cross-community bridge._
+  _Cohesion score 0.007462686567164179 - nodes in this community are weakly interconnected._
+- **Why does `6. Phase 5: Memory & Resource Investigation` connect `Android Platform Stability & Stress Testing Report` to `**READY FOR PLAY STORE PREPARATION**`?**
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **Should `Document Generation Scripts` be split into smaller, more focused modules?**
-  _Cohesion score 0.06129032258064516 - nodes in this community are weakly interconnected._
-- **Why does `VideoGifEncoder` connect `GIF Encoding Logic` to `Android Video Encoder`?**
-  _High betweenness centrality (0.005) - this node is a cross-community bridge._
+  _Cohesion score 0.05040792540792541 - nodes in this community are weakly interconnected._
+- **Why does `**READY FOR PLAY STORE PREPARATION**` connect `**READY FOR PLAY STORE PREPARATION**` to `Android Platform Stability & Stress Testing Report`?**
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **Should `Grid Settings UI` be split into smaller, more focused modules?**
-  _Cohesion score 0.017699115044247787 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.012658227848101266 - nodes in this community are weakly interconnected._

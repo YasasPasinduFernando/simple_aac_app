@@ -34,12 +34,13 @@
 ## Relationships
 
 - [Home Screen Logic](Home_Screen_Logic.md) (5 shared connections)
-- [Service Mocking Utilities](Service_Mocking_Utilities.md) (3 shared connections)
-- [Home Page State](Home_Page_State.md) (2 shared connections)
+- [Directory](Directory.md) (2 shared connections)
+- [State](State.md) (2 shared connections)
 - [Sub-Card UI Components](Sub-Card_UI_Components.md) (2 shared connections)
 - [Grid Density Settings](Grid_Density_Settings.md) (1 shared connections)
-- [Card Data Model](Card_Data_Model.md) (1 shared connections)
-- [Tutorial UI Components](Tutorial_UI_Components.md) (1 shared connections)
+- [AudioPlayer](AudioPlayer.md) (1 shared connections)
+- [Data Backup Service](Data_Backup_Service.md) (1 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (1 shared connections)
 - [Video to GIF Conversion](Video_to_GIF_Conversion.md) (1 shared connections)
 - [Camera Analysis Helper](Camera_Analysis_Helper.md) (1 shared connections)
 - [Card Editor Dialog](Card_Editor_Dialog.md) (1 shared connections)

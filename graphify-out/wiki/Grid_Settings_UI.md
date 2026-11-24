@@ -1,13 +1,17 @@
 # Grid Settings UI
 
-> 113 nodes · cohesion 0.02
+> 158 nodes · cohesion 0.01
 
 ## Key Concepts
 
-- **home_drawer.dart** (139 connections) — `lib/widgets/home_drawer.dart`
+- **home_drawer.dart** (203 connections) — `lib/widgets/home_drawer.dart`
+- **static Duration** (2 connections)
 - **Grid Settings Dialog** (1 connections) — `docs/qa/grid_verification/01_grid_settings_dialog.png`
 - **_accumulatedDelta** (1 connections) — `lib/widgets/home_drawer.dart`
 - **active** (1 connections) — `lib/widgets/home_drawer.dart`
+- **_activeScrollStartTime** (1 connections) — `lib/widgets/home_drawer.dart`
+- **activeScrollThreshold** (1 connections) — `lib/widgets/home_drawer.dart`
+- **_activeScrollTimer** (1 connections) — `lib/widgets/home_drawer.dart`
 - **appBarColor** (1 connections) — `lib/widgets/home_drawer.dart`
 - **applyTextColorToCards** (1 connections) — `lib/widgets/home_drawer.dart`
 - **backgroundColorSwatch** (1 connections) — `lib/widgets/home_drawer.dart`
@@ -23,28 +27,24 @@
 - **_buildSectionHeader** (1 connections) — `lib/widgets/home_drawer.dart`
 - **_buildSwitchItem** (1 connections) — `lib/widgets/home_drawer.dart`
 - **cardBg** (1 connections) — `lib/widgets/home_drawer.dart`
+- **cardLabelBgColorSwatch** (1 connections) — `lib/widgets/home_drawer.dart`
 - **cardTextColorSwatch** (1 connections) — `lib/widgets/home_drawer.dart`
-- **cardTextScaleLabel** (1 connections) — `lib/widgets/home_drawer.dart`
-- **_checkPref** (1 connections) — `lib/widgets/home_drawer.dart`
-- **child** (1 connections) — `lib/widgets/home_drawer.dart`
-- **color** (1 connections) — `lib/widgets/home_drawer.dart`
-- **createState** (1 connections) — `lib/widgets/home_drawer.dart`
-- *... and 88 more nodes in this community*
+- *... and 133 more nodes in this community*
 
 ## Relationships
 
-- [UI Preview Chips](UI_Preview_Chips.md) (10 shared connections)
+- [UI Preview Chips](UI_Preview_Chips.md) (12 shared connections)
+- [State](State.md) (6 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (4 shared connections)
 - [Live Preview Panel](Live_Preview_Panel.md) (2 shared connections)
-- [Tutorial UI Components](Tutorial_UI_Components.md) (2 shared connections)
 - [Custom UI Painters](Custom_UI_Painters.md) (2 shared connections)
-- [Drawer Gesture UI](Drawer_Gesture_UI.md) (2 shared connections)
-- [Drawer Gesture Handling](Drawer_Gesture_Handling.md) (2 shared connections)
-- [Video to GIF Conversion](Video_to_GIF_Conversion.md) (1 shared connections)
-- [Visible Cards Dialog](Visible_Cards_Dialog.md) (1 shared connections)
 - [Sub-Card UI Components](Sub-Card_UI_Components.md) (1 shared connections)
-- [Edit Mode Toolbar](Edit_Mode_Toolbar.md) (1 shared connections)
-- [App Service Registry](App_Service_Registry.md) (1 shared connections)
-- [Welcome Tour Dialog](Welcome_Tour_Dialog.md) (1 shared connections)
+- [Personalization Service](Personalization_Service.md) (1 shared connections)
+- [ui_mode_helper.dart](ui_mode_helper.dart.md) (1 shared connections)
+- [navigation_state_service.dart](navigation_state_service.dart.md) (1 shared connections)
+- [_SettingsDrawerDiscoveryScope](_SettingsDrawerDiscoveryScope.md) (1 shared connections)
+- [child_friendly_splash.dart](child_friendly_splash.dart.md) (1 shared connections)
+- [Grid Density Settings](Grid_Density_Settings.md) (1 shared connections)
 
 ## Source Files
 
@@ -53,8 +53,8 @@
 
 ## Audit Trail
 
-- EXTRACTED: 138 (99%)
-- INFERRED: 1 (1%)
+- EXTRACTED: 203 (100%)
+- INFERRED: 1 (0%)
 - AMBIGUOUS: 0 (0%)
 
 ---

@@ -20,7 +20,7 @@
 
 ## Relationships
 
-- [Tutorial UI Components](Tutorial_UI_Components.md) (2 shared connections)
+- [package:flutter/material.dart](package-flutter-material.dart.md) (2 shared connections)
 - [UI Preview Chips](UI_Preview_Chips.md) (1 shared connections)
 
 ## Source Files

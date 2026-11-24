@@ -1,11 +1,10 @@
 # Multilingual Translation Service
 
-> 20 nodes · cohesion 0.10
+> 19 nodes · cohesion 0.11
 
 ## Key Concepts
 
 - **multilingual_concept_service.dart** (19 connections) — `lib/services/multilingual_concept_service.dart`
-- **static const Map** (4 connections)
 - **AacTranslation** (1 connections) — `lib/services/multilingual_concept_service.dart`
 - **category** (1 connections) — `lib/services/multilingual_concept_service.dart`
 - **_conceptMap** (1 connections) — `lib/services/multilingual_concept_service.dart`
@@ -27,9 +26,7 @@
 
 ## Relationships
 
-- [Openverse Image Search](Openverse_Image_Search.md) (1 shared connections)
-- [Speech Engine Service](Speech_Engine_Service.md) (1 shared connections)
-- [Multilingual Speech Router](Multilingual_Speech_Router.md) (1 shared connections)
+- [category_helper.dart](category_helper.dart.md) (1 shared connections)
 
 ## Source Files
 
@@ -37,7 +34,7 @@
 
 ## Audit Trail
 
-- EXTRACTED: 22 (100%)
+- EXTRACTED: 19 (100%)
 - INFERRED: 0 (0%)
 - AMBIGUOUS: 0 (0%)
 
